@@ -20,6 +20,7 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
           <Link href="/admin/sessions">Sessions</Link>
           <Link href="/admin/portals">Student portals</Link>
           <Link href="/admin/tutors">Tutors</Link>
+          <Link href="/admin/analytics">Analytics</Link>
           <Link href="/" target="_blank">View website ↗</Link>
         </nav>
         <div className="admin-sidebar-footer">
