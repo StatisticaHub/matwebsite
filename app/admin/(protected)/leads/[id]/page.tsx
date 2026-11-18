@@ -55,11 +55,11 @@ export default async function LeadDetailPage({ params }: { params: Params }) {
               <div><dt>Country</dt><dd>{lead.country}</dd></div>
               <div><dt>Academic level</dt><dd>{lead.level}</dd></div>
               <div><dt>Subject</dt><dd>{lead.subject}</dd></div>
-              <div><dt>Topic</dt><dd>{value(lead.topic)}</dd></div>
-              <div><dt>Curriculum / university</dt><dd>{value(lead.curriculum)}</dd></div>
+              {lead.topic && <div><dt>Topic</dt><dd>{lead.topic}</dd></div>}
+              {lead.curriculum && <div><dt>Curriculum / university</dt><dd>{lead.curriculum}</dd></div>}
               <div><dt>Support type</dt><dd>{lead.support_type}</dd></div>
-              <div><dt>Urgency</dt><dd>{value(lead.urgency)}</dd></div>
-              <div><dt>Availability</dt><dd>{value(lead.availability)}</dd></div>
+              {lead.urgency && <div><dt>Urgency</dt><dd>{lead.urgency}</dd></div>}
+              {lead.availability && <div><dt>Availability</dt><dd>{lead.availability}</dd></div>}
             </dl>
           </section>
 
@@ -148,7 +148,12 @@ export default async function LeadDetailPage({ params }: { params: Params }) {
 
           <section className="admin-panel admin-action-card admin-source-card">
             <h2>Acquisition</h2>
-            <dl><div><dt>Source</dt><dd>{value(lead.utm_source || lead.source)}</dd></div><div><dt>Campaign</dt><dd>{value(lead.utm_campaign)}</dd></div><div><dt>Landing page</dt><dd className="break-word">{value(lead.landing_page)}</dd></div><div><dt>Referrer</dt><dd className="break-word">{value(lead.referrer)}</dd></div></dl>
+            <dl>
+              <div><dt>Source</dt><dd>{value(lead.utm_source || lead.source)}</dd></div>
+              {lead.utm_campaign && <div><dt>Campaign</dt><dd>{lead.utm_campaign}</dd></div>}
+              {lead.landing_page && <div><dt>Landing page</dt><dd className="break-word">{lead.landing_page}</dd></div>}
+              {lead.referrer && <div><dt>Referrer</dt><dd className="break-word">{lead.referrer}</dd></div>}
+            </dl>
           </section>
         </aside>
       </div>
