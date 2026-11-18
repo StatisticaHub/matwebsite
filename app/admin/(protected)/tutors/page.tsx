@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Tutor } from "@/lib/admin-data";
 import { createTutor, toggleTutorStatus } from "@/app/admin/actions";
@@ -5,7 +6,10 @@ import { createTutor, toggleTutorStatus } from "@/app/admin/actions";
 export const metadata = { title: "Tutor records" };
 export const dynamic = "force-dynamic";
 
-export default async function TutorsAdminPage() {
+type SearchParams = Promise<{ deleted?: string }>;
+
+export default async function TutorsAdminPage({ searchParams }: { searchParams: SearchParams }) {
+  const params = await searchParams;
   const supabase = createAdminClient();
   const { data, error } = await supabase.from("tutors").select("*").order("name");
   if (error) throw new Error(error.message);
@@ -13,16 +17,49 @@ export default async function TutorsAdminPage() {
 
   return (
     <div className="admin-page">
-      <header className="admin-page-head"><div><span className="admin-eyebrow">Matching supply</span><h1>Tutor records</h1><p>Keep a lightweight internal record of tutors available for manual matching.</p></div></header>
+      <header className="admin-page-head">
+        <div>
+          <span className="admin-eyebrow">Matching supply</span>
+          <h1>Tutor records</h1>
+          <p>Create, edit, activate, pause and safely remove tutor profiles.</p>
+        </div>
+      </header>
+
+      {params.deleted === "1" && (
+        <div className="admin-inline-message success">Tutor profile deleted.</div>
+      )}
+
       <div className="admin-tutor-layout">
         <section className="admin-panel admin-detail-card">
           <div className="admin-card-head"><h2>Tutor network</h2><span>{tutors.length} records</span></div>
           <div className="admin-tutor-list">
             {tutors.map((tutor) => (
               <article key={tutor.id}>
-                <div className="admin-tutor-main"><div><strong>{tutor.name}</strong>{tutor.verified && <span className="verified-badge">Verified</span>}</div><span>{tutor.headline || tutor.email}</span><small>{tutor.subjects.join(" · ") || "Subjects not set"}</small></div>
-                <div className="admin-tutor-meta"><span>{tutor.hourly_rate ? `${tutor.currency} ${tutor.hourly_rate}/hr` : "Rate not set"}</span><span>{tutor.timezone || "Timezone not set"}</span><span className={`admin-status tutor-${tutor.status}`}>{tutor.status}</span></div>
-                <form action={toggleTutorStatus}><input type="hidden" name="tutorId" value={tutor.id} /><input type="hidden" name="nextStatus" value={tutor.status === "active" ? "inactive" : "active"} /><button type="submit" className="admin-link-button">{tutor.status === "active" ? "Pause" : "Activate"}</button></form>
+                <div className="admin-tutor-main">
+                  <div>
+                    <strong>{tutor.name}</strong>
+                    {tutor.verified && <span className="verified-badge">Verified</span>}
+                  </div>
+                  <span>{tutor.headline || tutor.email}</span>
+                  <small>{tutor.subjects.join(" · ") || "Subjects not set"}</small>
+                </div>
+
+                <div className="admin-tutor-meta">
+                  <span>{tutor.hourly_rate ? `${tutor.currency} ${tutor.hourly_rate}/hr` : "Rate not set"}</span>
+                  <span>{tutor.timezone || "Timezone not set"}</span>
+                  <span className={`admin-status tutor-${tutor.status}`}>{tutor.status}</span>
+                </div>
+
+                <div className="admin-tutor-actions">
+                  <Link className="admin-secondary-button" href={`/admin/tutors/${tutor.id}`}>Edit</Link>
+                  <form action={toggleTutorStatus}>
+                    <input type="hidden" name="tutorId" value={tutor.id} />
+                    <input type="hidden" name="nextStatus" value={tutor.status === "active" ? "inactive" : "active"} />
+                    <button type="submit" className="admin-link-button">
+                      {tutor.status === "active" ? "Pause" : "Activate"}
+                    </button>
+                  </form>
+                </div>
               </article>
             ))}
             {!tutors.length && <div className="admin-empty">No tutor records yet. Add your first tutor using the form.</div>}

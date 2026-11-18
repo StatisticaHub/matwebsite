@@ -143,3 +143,93 @@ export async function toggleTutorStatus(formData: FormData) {
 
   revalidatePath("/admin/tutors");
 }
+
+// MAT tutor management upgrade
+export async function updateTutor(formData: FormData) {
+  const { supabase } = await adminContext();
+  const tutorId = String(formData.get("tutorId") || "");
+  const name = String(formData.get("name") || "").trim();
+  const email = String(formData.get("email") || "").trim().toLowerCase();
+  const status = String(formData.get("status") || "active");
+  const rateRaw = String(formData.get("hourlyRate") || "").trim();
+  const hourlyRate = rateRaw ? Number(rateRaw) : null;
+
+  if (!tutorId || !name || !email) return;
+  if (!["active", "inactive", "pending"].includes(status)) return;
+  if (hourlyRate !== null && (!Number.isFinite(hourlyRate) || hourlyRate < 0)) return;
+
+  const subjects = String(formData.get("subjects") || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const levels = String(formData.get("levels") || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  const { error } = await supabase
+    .from("tutors")
+    .update({
+      name,
+      email,
+      headline: String(formData.get("headline") || "").trim() || null,
+      subjects,
+      levels,
+      timezone: String(formData.get("timezone") || "").trim() || null,
+      hourly_rate: hourlyRate,
+      currency: String(formData.get("currency") || "GBP").slice(0, 3).toUpperCase(),
+      availability_notes: String(formData.get("availability") || "").trim() || null,
+      status,
+      verified: formData.get("verified") === "yes",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", tutorId);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/tutors");
+  revalidatePath(`/admin/tutors/${tutorId}`);
+  redirect(`/admin/tutors/${tutorId}?updated=1`);
+}
+
+export async function deleteTutor(formData: FormData) {
+  const { supabase } = await adminContext();
+  const tutorId = String(formData.get("tutorId") || "");
+  const confirmName = String(formData.get("confirmName") || "").trim();
+  if (!tutorId) return;
+
+  const { data: tutor, error: tutorError } = await supabase
+    .from("tutors")
+    .select("id,name")
+    .eq("id", tutorId)
+    .maybeSingle();
+
+  if (tutorError) throw new Error(tutorError.message);
+  if (!tutor) redirect("/admin/tutors");
+
+  if (confirmName !== tutor.name) {
+    redirect(`/admin/tutors/${tutorId}?delete=name_mismatch`);
+  }
+
+  const [leadsResult, engagementsResult, sessionsResult] = await Promise.all([
+    supabase.from("tutoring_leads").select("id", { count: "exact", head: true }).eq("assigned_tutor_id", tutorId),
+    supabase.from("tutoring_engagements").select("id", { count: "exact", head: true }).eq("tutor_id", tutorId),
+    supabase.from("tutoring_sessions").select("id", { count: "exact", head: true }).eq("tutor_id", tutorId),
+  ]);
+
+  if (leadsResult.error) throw new Error(leadsResult.error.message);
+  if (engagementsResult.error) throw new Error(engagementsResult.error.message);
+  if (sessionsResult.error) throw new Error(sessionsResult.error.message);
+
+  const linkedCount = (leadsResult.count || 0) + (engagementsResult.count || 0) + (sessionsResult.count || 0);
+  if (linkedCount > 0) {
+    redirect(`/admin/tutors/${tutorId}?delete=linked`);
+  }
+
+  const { error } = await supabase.from("tutors").delete().eq("id", tutorId);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/tutors");
+  redirect("/admin/tutors?deleted=1");
+}
+
