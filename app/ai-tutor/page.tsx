@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import AITutorDemo from "@/components/AITutorDemo";
 
-export const metadata: Metadata = { title: "AI Tutor" };
+export const metadata: Metadata = {
+  title: "AI Tutor Preview",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default function Page() {
   return (
