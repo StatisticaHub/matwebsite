@@ -1,10 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { tutoringServices } from "@/lib/tutoring-services";
+import { highIntentTutoringPages } from "@/lib/high-intent-tutoring";
+
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
+  "https://www.myacademictutor.com";
 
 export const metadata: Metadata = {
-  title: "Tutoring Services",
-  description: "Personalised one-to-one tutoring for regular study, exams, university modules, statistics, coding and research support.",
+  title: "Online Tutoring Services",
+  description: "Personalised one-to-one tutoring for regular study, exams, university modules, statistics, coding, software, data science and research methods.",
+  alternates: { canonical: `${siteUrl}/tutoring` },
 };
 
 export default function Page() {
@@ -17,7 +23,7 @@ export default function Page() {
             <h1>One-to-one teaching for the work you are actually doing.</h1>
             <p className="page-lead">Choose the kind of support that fits your current goal. Sessions can follow a course over time, focus on an exam, strengthen a technical method or help you understand a research problem.</p>
             <div className="button-row">
-              <Link href="/find-a-tutor" className="button button-primary button-large">Get personalised tutoring</Link>
+              <Link href="/find-a-tutor" className="button button-primary button-large">Request tutoring</Link>
               <Link href="/subjects" className="button button-secondary button-large">Explore subjects</Link>
             </div>
           </div>
@@ -52,6 +58,28 @@ export default function Page() {
         </div>
       </section>
 
+      <section className="section section-tint">
+        <div className="shell">
+          <div className="section-head">
+            <div>
+              <div className="eyebrow">POPULAR SPECIALIST SUPPORT</div>
+              <h2>Start from the exact topic, software or research problem.</h2>
+              <p className="section-intro">These focused tutoring pages are designed around common student needs in statistics, quantitative study, software and research methods.</p>
+            </div>
+          </div>
+
+          <div className="service-grid">
+            {highIntentTutoringPages.map((page) => (
+              <Link className="service-card" href={`/tutoring/${page.slug}`} key={page.slug}>
+                <h3>{page.title}</h3>
+                <p>{page.metaDescription}</p>
+                <span className="text-link">Explore specialist support</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="section section-soft">
         <div className="shell two-col">
           <div>
@@ -71,10 +99,10 @@ export default function Page() {
 
       <section className="section">
         <div className="shell process-band">
-          <div><span>01</span><strong>Tell us what you are studying</strong><p>Subject, level, module, topic and current difficulty.</p></div>
-          <div><span>02</span><strong>We arrange suitable support</strong><p>We review the academic depth, teaching needs and availability.</p></div>
+          <div><span>01</span><strong>Tell us what you are studying</strong><p>Subject, level and current difficulty.</p></div>
+          <div><span>02</span><strong>We arrange suitable support</strong><p>We review the academic depth and teaching needs.</p></div>
           <div><span>03</span><strong>Start learning one-to-one</strong><p>Your sessions begin from the priorities you shared.</p></div>
-          <div><span>04</span><strong>Adjust as you progress</strong><p>Change the focus, frequency or level of support as needed.</p></div>
+          <div><span>04</span><strong>Adjust as you progress</strong><p>Change the focus or frequency as needed.</p></div>
         </div>
       </section>
     </>

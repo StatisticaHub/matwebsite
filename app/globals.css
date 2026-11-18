@@ -507,3 +507,43 @@ body:has(.student-portal-shell) main{min-height:100vh}
 .admin-communication-list article small{grid-column:1/-1;color:#a33}
 .communication-sent{background:#eaf8f0;color:#167a45}.communication-failed{background:#fff0f0;color:#a33}.communication-skipped{background:#fff7e8;color:#8a5a00}
 
+
+/* Clickable homepage academic-level strip */
+.trust-band-grid a {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #57667a;
+  padding: 22px 10px;
+  transition: color .18s ease, background .18s ease;
+}
+
+.trust-band-grid a:not(:last-child) {
+  border-right: 1px solid var(--line);
+}
+
+.trust-band-grid a:hover {
+  color: var(--blue-dark);
+  background: #f7faff;
+}
+
+@media(max-width:900px) {
+  .trust-band-grid a {
+    padding: 15px 8px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .trust-band-grid a:nth-child(3n) {
+    border-right: 0;
+  }
+}
+
+@media(max-width:620px) {
+  .trust-band-grid a:nth-child(3n) {
+    border-right: 1px solid var(--line);
+  }
+
+  .trust-band-grid a:nth-child(2n) {
+    border-right: 0;
+  }
+}

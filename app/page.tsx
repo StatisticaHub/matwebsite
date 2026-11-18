@@ -99,12 +99,12 @@ export default function HomePage() {
 
       <section className="trust-band" aria-label="Academic levels supported">
         <div className="shell trust-band-grid">
-          <span>Secondary school</span>
-          <span>GCSE / IGCSE</span>
-          <span>A-Level / IB / AP</span>
-          <span>Undergraduate</span>
-          <span>Master’s</span>
-          <span>PhD & research</span>
+          <Link href="/levels/school-secondary">Secondary school</Link>
+          <Link href="/levels/gcse-igcse">GCSE / IGCSE</Link>
+          <Link href="/levels/a-level-ib">A-Level / IB</Link>
+          <Link href="/levels/undergraduate">Undergraduate</Link>
+          <Link href="/levels/masters">Master’s</Link>
+          <Link href="/levels/phd-research">PhD & research</Link>
         </div>
       </section>
 
