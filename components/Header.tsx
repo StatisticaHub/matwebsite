@@ -3,10 +3,8 @@ import Link from "next/link";
 
 const nav = [
   ["Subjects", "/subjects"],
-  ["Academic Levels", "/levels"],
   ["Tutoring", "/tutoring"],
-  ["Learn", "/learn"],
-  ["AI Tutor", "/ai-tutor"],
+  ["Learning Hub", "/learn"],
   ["About", "/about"],
 ] as const;
 
@@ -28,21 +26,29 @@ export default function Header() {
 
         <nav className="desktop-nav" aria-label="Primary navigation">
           {nav.map(([label, href]) => (
-            <Link key={href} href={href}>{label}</Link>
+            <Link key={href} href={href}>
+              {label}
+            </Link>
           ))}
         </nav>
 
         <Link className="button button-primary header-cta" href="/find-a-tutor">
-          Get tutoring
+          Request tutoring
         </Link>
 
         <details className="mobile-menu">
           <summary aria-label="Open navigation">Menu</summary>
+
           <nav>
             {nav.map(([label, href]) => (
-              <Link key={href} href={href}>{label}</Link>
+              <Link key={href} href={href}>
+                {label}
+              </Link>
             ))}
-            <Link href="/find-a-tutor"><strong>Get tutoring</strong></Link>
+
+            <Link href="/find-a-tutor">
+              <strong>Request tutoring</strong>
+            </Link>
           </nav>
         </details>
       </div>
