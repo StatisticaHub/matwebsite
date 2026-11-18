@@ -1,0 +1,153 @@
+"use client";
+
+import { useMemo, useState } from "react";
+
+type StudentRow = { id: string; name: string; email: string; status: string };
+type LinkRow = {
+  id: string;
+  student_id: string;
+  token_preview: string;
+  expires_at: string | null;
+  created_at: string;
+  last_accessed_at: string | null;
+};
+
+type GeneratedLink = { portalUrl: string; link: LinkRow };
+
+function formatDate(value: string | null) {
+  if (!value) return "Never";
+  return new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+}
+
+export default function PortalAccessManager({
+  students,
+  links,
+  focusStudentId,
+}: {
+  students: StudentRow[];
+  links: LinkRow[];
+  focusStudentId?: string;
+}) {
+  const [linkRows, setLinkRows] = useState(links);
+  const [generated, setGenerated] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const activeByStudent = useMemo(
+    () => Object.fromEntries(linkRows.map((link) => [link.student_id, link])),
+    [linkRows],
+  );
+
+  async function createLink(studentId: string, expiryDays: number) {
+    setBusy(studentId);
+    setMessage(null);
+    try {
+      const response = await fetch("/api/admin/student-portals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentId, expiryDays }),
+      });
+      const payload = (await response.json()) as GeneratedLink & { error?: string };
+      if (!response.ok || !payload.portalUrl) throw new Error(payload.error || "Could not create portal link");
+      setLinkRows((current) => [payload.link, ...current.filter((item) => item.student_id !== studentId)]);
+      setGenerated((current) => ({ ...current, [studentId]: payload.portalUrl }));
+      setMessage("New portal link created. The previous active link, if any, is now revoked.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Could not create portal link.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function revokeLink(studentId: string, linkId: string) {
+    setBusy(studentId);
+    setMessage(null);
+    try {
+      const response = await fetch("/api/admin/student-portals", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ linkId }),
+      });
+      if (!response.ok) throw new Error("Could not revoke portal link");
+      setLinkRows((current) => current.filter((item) => item.id !== linkId));
+      setGenerated((current) => {
+        const next = { ...current };
+        delete next[studentId];
+        return next;
+      });
+      setMessage("Portal access revoked.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Could not revoke portal link.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function copy(value: string) {
+    await navigator.clipboard.writeText(value);
+    setMessage("Portal link copied.");
+  }
+
+  const orderedStudents = [...students].sort((a, b) => {
+    if (a.id === focusStudentId) return -1;
+    if (b.id === focusStudentId) return 1;
+    return a.name.localeCompare(b.name);
+  });
+
+  return (
+    <div className="admin-portal-manager">
+      {message && <div className="admin-portal-message">{message}</div>}
+      {orderedStudents.map((student) => {
+        const link = activeByStudent[student.id];
+        const newUrl = generated[student.id];
+        return (
+          <article key={student.id} className={student.id === focusStudentId ? "is-focus" : ""}>
+            <div className="admin-portal-student">
+              <strong>{student.name}</strong>
+              <span>{student.email}</span>
+              <small>{student.status}</small>
+            </div>
+            <div className="admin-portal-state">
+              {link ? (
+                <>
+                  <strong>Active · {link.token_preview}</strong>
+                  <span>Expires: {link.expires_at ? formatDate(link.expires_at) : "No expiry"}</span>
+                  <small>Last opened: {formatDate(link.last_accessed_at)}</small>
+                </>
+              ) : (
+                <><strong>No active portal link</strong><span>Create one when you are ready to share the learning record.</span></>
+              )}
+            </div>
+            <div className="admin-portal-actions">
+              <select id={`expiry-${student.id}`} defaultValue="180" aria-label={`Expiry for ${student.name}`}>
+                <option value="30">30 days</option>
+                <option value="90">90 days</option>
+                <option value="180">180 days</option>
+                <option value="365">1 year</option>
+              </select>
+              <button
+                type="button"
+                className="admin-primary-button"
+                disabled={busy === student.id}
+                onClick={() => {
+                  const element = document.getElementById(`expiry-${student.id}`) as HTMLSelectElement | null;
+                  createLink(student.id, Number(element?.value || 180));
+                }}
+              >
+                {busy === student.id ? "Working…" : link ? "Generate new link" : "Create portal link"}
+              </button>
+              {link && <button type="button" className="admin-secondary-button" disabled={busy === student.id} onClick={() => revokeLink(student.id, link.id)}>Revoke</button>}
+            </div>
+            {newUrl && (
+              <div className="admin-portal-generated">
+                <span>Share this secure link with the student. It is shown here because it was just generated.</span>
+                <div><input readOnly value={newUrl} /><button type="button" onClick={() => copy(newUrl)}>Copy</button></div>
+              </div>
+            )}
+          </article>
+        );
+      })}
+      {!students.length && <div className="admin-empty">No student records yet.</div>}
+    </div>
+  );
+}

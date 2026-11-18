@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function NotFound(){return <section className="page-hero"><div className="shell narrow"><div className="eyebrow">404</div><h1>That page isn’t here.</h1><p className="page-lead">Return to the learning hub, explore subjects or tell us what you are studying.</p><div className="button-row"><Link href="/learn" className="button button-secondary">Learning hub</Link><Link href="/find-a-tutor" className="button button-primary">Get tutoring</Link></div></div></section>}

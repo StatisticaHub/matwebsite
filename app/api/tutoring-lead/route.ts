@@ -1,0 +1,170 @@
+import { NextRequest, NextResponse } from "next/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { hasServerSupabaseConfig } from "@/lib/supabase/config";
+import { sendNewLeadNotification, sendStudentAcknowledgement } from "@/lib/email/resend";
+
+export const runtime = "nodejs";
+
+function clean(value: unknown, max = 1200) {
+  return String(value ?? "").replace(/[<>]/g, "").trim().slice(0, max);
+}
+
+function reference(prefix = "MAT") {
+  const date = new Date().toISOString().slice(0, 10).replaceAll("-", "");
+  return `${prefix}-${date}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
+}
+
+function validEmail(email: string) {
+  return /^\S+@\S+\.\S+$/.test(email);
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const raw = await request.json();
+
+    // Honeypot: act successful without storing bot submissions.
+    if (clean(raw.companyWebsite)) {
+      return NextResponse.json({ ok: true, reference: reference("MAT"), message: "Request received." });
+    }
+
+    const name = clean(raw.name, 120);
+    const email = clean(raw.email, 240).toLowerCase();
+    const requirements = clean(raw.requirements, 5000);
+    const country = clean(raw.country, 120);
+    const level = clean(raw.level, 120);
+    const subject = clean(raw.subject, 160);
+    const supportType = clean(raw.supportType, 160);
+    const consent = clean(raw.consent, 20);
+
+    if (!name || !email || !requirements || !country || !level || !subject || !supportType || consent !== "yes") {
+      return NextResponse.json({ error: "Please complete all required fields." }, { status: 400 });
+    }
+    if (!validEmail(email)) {
+      return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
+    }
+    if (requirements.length < 20) {
+      return NextResponse.json({ error: "Please tell us a little more about the support you need." }, { status: 400 });
+    }
+
+    const ref = reference();
+    const lead = {
+      reference: ref,
+      name,
+      email,
+      phone: clean(raw.phone, 80) || null,
+      country,
+      level,
+      subject,
+      support_type: supportType,
+      curriculum: clean(raw.curriculum, 240) || null,
+      topic: clean(raw.topic, 240) || null,
+      requirements,
+      availability: clean(raw.availability, 500) || null,
+      urgency: clean(raw.urgency, 120) || null,
+      source: clean(raw.source, 120) || "website",
+      landing_page: clean(raw.landingPage, 1000) || null,
+      referrer: clean(raw.referrer, 1000) || null,
+      utm_source: clean(raw.utmSource, 240) || null,
+      utm_medium: clean(raw.utmMedium, 240) || null,
+      utm_campaign: clean(raw.utmCampaign, 240) || null,
+      utm_term: clean(raw.utmTerm, 240) || null,
+      utm_content: clean(raw.utmContent, 240) || null,
+      status: "new",
+      currency: "GBP",
+    };
+
+    if (!hasServerSupabaseConfig()) {
+      console.log("[MAT DEMO LEAD — SUPABASE NOT CONNECTED]", {
+        ...lead,
+        email: "[redacted]",
+      });
+      return NextResponse.json({
+        ok: true,
+        reference: `DEMO-${ref}`,
+        mode: "demo",
+        message: "The request flow is working. Supabase storage is not connected in this environment yet.",
+      });
+    }
+
+    const supabase = createAdminClient();
+    const { data, error } = await supabase
+      .from("tutoring_leads")
+      .insert(lead)
+      .select("id, reference")
+      .single();
+
+    if (error) {
+      console.error("[MAT LEAD INSERT ERROR]", error);
+      return NextResponse.json({ error: "We could not save your request. Please try again." }, { status: 500 });
+    }
+
+    await supabase.from("lead_activity").insert({
+      lead_id: data.id,
+      event_type: "lead_created",
+      note: "Tutoring request submitted from the website.",
+      created_by_email: "website",
+    });
+
+    // Email is intentionally non-blocking: the lead remains safely stored even if
+    // Resend is unavailable, misconfigured, or the recipient cannot be delivered to.
+    const emailLead = { ...lead, id: data.id, reference: data.reference };
+    const [teamEmail, studentEmail] = await Promise.all([
+      sendNewLeadNotification(emailLead),
+      sendStudentAcknowledgement(emailLead),
+    ]);
+
+    const emailActivity: Array<{
+      lead_id: string;
+      event_type: string;
+      note: string;
+      created_by_email: string;
+    }> = [];
+    if (teamEmail.ok) {
+      emailActivity.push({
+        lead_id: data.id,
+        event_type: "team_notification_sent",
+        note: `New-lead email sent to MAT${teamEmail.id ? ` (Resend ${teamEmail.id})` : ""}.`,
+        created_by_email: "system",
+      });
+    } else {
+      emailActivity.push({
+        lead_id: data.id,
+        event_type: teamEmail.skipped ? "team_notification_skipped" : "team_notification_failed",
+        note: teamEmail.error || "Team notification was not sent.",
+        created_by_email: "system",
+      });
+    }
+
+    if (studentEmail.ok) {
+      emailActivity.push({
+        lead_id: data.id,
+        event_type: "student_acknowledgement_sent",
+        note: `Acknowledgement sent to ${email}${studentEmail.id ? ` (Resend ${studentEmail.id})` : ""}.`,
+        created_by_email: "system",
+      });
+    } else {
+      emailActivity.push({
+        lead_id: data.id,
+        event_type: studentEmail.skipped ? "student_acknowledgement_skipped" : "student_acknowledgement_failed",
+        note: studentEmail.error || "Student acknowledgement was not sent.",
+        created_by_email: "system",
+      });
+    }
+
+    const { error: emailActivityError } = await supabase.from("lead_activity").insert(emailActivity);
+    if (emailActivityError) console.error("[MAT EMAIL ACTIVITY ERROR]", emailActivityError);
+
+    if (!teamEmail.ok) console.error("[MAT TEAM EMAIL]", teamEmail.error || "Skipped");
+    if (!studentEmail.ok) console.error("[MAT STUDENT EMAIL]", studentEmail.error || "Skipped");
+
+    return NextResponse.json({
+      ok: true,
+      reference: data.reference,
+      mode: "live",
+      message: "Your tutoring request has been received. Our team will review the academic context and arrange suitable one-to-one support.",
+    });
+  } catch (error) {
+    console.error("[MAT LEAD ROUTE ERROR]", error);
+    return NextResponse.json({ error: "The tutoring request could not be processed." }, { status: 500 });
+  }
+}

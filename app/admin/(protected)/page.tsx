@@ -1,0 +1,114 @@
+import Link from "next/link";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { leadStatusLabels, leadStatuses, type LeadStatus, type TutoringLead } from "@/lib/admin-data";
+
+export const metadata = { title: "Lead inbox" };
+export const dynamic = "force-dynamic";
+
+type SearchParams = Promise<{ status?: string; q?: string }>;
+
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+}
+
+export default async function AdminDashboard({ searchParams }: { searchParams: SearchParams }) {
+  const params = await searchParams;
+  const requestedStatus = leadStatuses.includes(params.status as LeadStatus) ? (params.status as LeadStatus) : null;
+  const search = (params.q || "").trim();
+  const supabase = createAdminClient();
+
+  const nowIso = new Date().toISOString();
+  const [{ data: allLeads, error: countError }, { count: activeStudents }, { count: upcomingSessions }] = await Promise.all([
+    supabase.from("tutoring_leads").select("id,status"),
+    supabase.from("students").select("id", { count: "exact", head: true }).eq("status", "active"),
+    supabase.from("tutoring_sessions").select("id", { count: "exact", head: true }).eq("status", "planned").gte("scheduled_for", nowIso),
+  ]);
+  if (countError) throw new Error(countError.message);
+
+  const counts = Object.fromEntries(leadStatuses.map((status) => [status, 0])) as Record<LeadStatus, number>;
+  for (const lead of allLeads || []) {
+    if (lead.status in counts) counts[lead.status as LeadStatus] += 1;
+  }
+
+  let query = supabase
+    .from("tutoring_leads")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(100);
+  if (requestedStatus) query = query.eq("status", requestedStatus);
+  if (search) {
+    const escaped = search.replaceAll(",", " ");
+    query = query.or(`name.ilike.%${escaped}%,email.ilike.%${escaped}%,subject.ilike.%${escaped}%,reference.ilike.%${escaped}%`);
+  }
+
+  const { data, error } = await query;
+  if (error) throw new Error(error.message);
+  const leads = (data || []) as TutoringLead[];
+
+  return (
+    <div className="admin-page">
+      <header className="admin-page-head">
+        <div>
+          <span className="admin-eyebrow">Tutoring operations</span>
+          <h1>Lead inbox</h1>
+          <p>Review new tutoring enquiries, track matching progress and move students towards a first lesson.</p>
+        </div>
+      </header>
+
+      <section className="admin-metrics">
+        <div><span>New</span><strong>{counts.new}</strong></div>
+        <div><span>Matching</span><strong>{counts.matching}</strong></div>
+        <div><span>Assigned</span><strong>{counts.tutor_assigned}</strong></div>
+        <div><span>Booked</span><strong>{counts.booked}</strong></div>
+        <div><span>Ongoing</span><strong>{counts.ongoing}</strong></div>
+      </section>
+
+      <section className="admin-ops-strip">
+        <div><span>Delivery</span><strong>{activeStudents || 0} active students</strong><small>{upcomingSessions || 0} upcoming sessions</small></div>
+        <Link href="/admin/students">Manage students →</Link>
+        <Link href="/admin/sessions">View sessions →</Link>
+      </section>
+
+      <section className="admin-panel">
+        <div className="admin-toolbar">
+          <form className="admin-search" action="/admin">
+            <input name="q" defaultValue={search} placeholder="Search name, email, subject or reference" />
+            {requestedStatus && <input type="hidden" name="status" value={requestedStatus} />}
+            <button type="submit">Search</button>
+          </form>
+          <nav className="admin-filter-row" aria-label="Lead filters">
+            <Link className={!requestedStatus ? "active" : ""} href="/admin">All</Link>
+            {leadStatuses.slice(0, 6).map((status) => (
+              <Link key={status} className={requestedStatus === status ? "active" : ""} href={`/admin?status=${status}`}>
+                {leadStatusLabels[status]} <span>{counts[status]}</span>
+              </Link>
+            ))}
+          </nav>
+        </div>
+
+        <div className="admin-table-wrap">
+          <table className="admin-table">
+            <thead>
+              <tr><th>Student</th><th>Request</th><th>Status</th><th>Timing</th><th>Received</th><th></th></tr>
+            </thead>
+            <tbody>
+              {leads.map((lead) => (
+                <tr key={lead.id}>
+                  <td><strong>{lead.name}</strong><span>{lead.email}</span><small>{lead.reference}</small></td>
+                  <td><strong>{lead.subject}</strong><span>{lead.level}</span><small>{lead.topic || lead.support_type}</small></td>
+                  <td><span className={`admin-status status-${lead.status}`}>{leadStatusLabels[lead.status]}</span></td>
+                  <td><span>{lead.urgency || "Flexible"}</span><small>{lead.availability || "No preference"}</small></td>
+                  <td><span>{formatDate(lead.created_at)}</span><small>{lead.country}</small></td>
+                  <td><Link className="admin-row-link" href={`/admin/leads/${lead.id}`}>Open →</Link></td>
+                </tr>
+              ))}
+              {!leads.length && (
+                <tr><td colSpan={6}><div className="admin-empty">No leads match this view.</div></td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  );
+}
