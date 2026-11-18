@@ -10,11 +10,12 @@
     "email:test": "node --env-file=.env.local scripts/send-test-email.mjs"
   },
   "dependencies": {
+    "@next/third-parties": "^16.4.6",
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.119.0",
     "next": "^16.3.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "@supabase/ssr": "0.12.7",
-    "@supabase/supabase-js": "2.119.0",
     "resend": "6.38.1"
   },
   "devDependencies": {

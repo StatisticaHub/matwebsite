@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import { sendGAEvent } from "@next/third-parties/google";
 import {
   countries,
   levels,
@@ -76,6 +77,32 @@ export default function TutoringLeadForm({
       if (!response.ok) {
         throw new Error(
           data.error || "Could not submit your tutoring request."
+        );
+      }
+
+      try {
+        sendGAEvent("event", "generate_lead", {
+          lead_source:
+            params.get("utm_source") ||
+            document.referrer ||
+            "website",
+
+          subject:
+            String(payload.subject || ""),
+
+          academic_level:
+            String(payload.level || ""),
+
+          support_type:
+            String(payload.supportType || ""),
+
+          landing_page:
+            window.location.pathname,
+        });
+      } catch (analyticsError) {
+        console.warn(
+          "Analytics event could not be sent:",
+          analyticsError
         );
       }
 
