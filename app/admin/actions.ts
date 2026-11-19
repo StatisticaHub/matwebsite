@@ -110,6 +110,13 @@ export async function createTutor(formData: FormData) {
     .filter(Boolean);
   const rateRaw = String(formData.get("hourlyRate") || "").trim();
   const hourlyRate = rateRaw ? Number(rateRaw) : null;
+  const weeklyCapacityRaw = String(formData.get("weeklyCapacityHours") || "").trim();
+  const weeklyCapacityHours = weeklyCapacityRaw ? Number(weeklyCapacityRaw) : null;
+  const maxStudentsRaw = String(formData.get("maxActiveStudents") || "").trim();
+  const maxActiveStudents = maxStudentsRaw ? Number(maxStudentsRaw) : null;
+  const availabilityDays = formData.getAll("availabilityDays").map((value) => String(value)).filter(Boolean);
+  const availabilityPeriods = formData.getAll("availabilityPeriods").map((value) => String(value)).filter(Boolean);
+  const acceptsTrials = formData.get("acceptsTrials") === "yes";
 
   const { error } = await supabase.from("tutors").insert({
     name,
@@ -121,6 +128,11 @@ export async function createTutor(formData: FormData) {
     hourly_rate: hourlyRate,
     currency: String(formData.get("currency") || "GBP").slice(0, 3).toUpperCase(),
     availability_notes: String(formData.get("availability") || "").trim() || null,
+    availability_days: availabilityDays,
+    availability_periods: availabilityPeriods,
+    weekly_capacity_hours: weeklyCapacityHours,
+    max_active_students: maxActiveStudents,
+    accepts_trials: acceptsTrials,
     status: "active",
     verified: formData.get("verified") === "yes",
   });
@@ -153,10 +165,19 @@ export async function updateTutor(formData: FormData) {
   const status = String(formData.get("status") || "active");
   const rateRaw = String(formData.get("hourlyRate") || "").trim();
   const hourlyRate = rateRaw ? Number(rateRaw) : null;
+  const weeklyCapacityRaw = String(formData.get("weeklyCapacityHours") || "").trim();
+  const weeklyCapacityHours = weeklyCapacityRaw ? Number(weeklyCapacityRaw) : null;
+  const maxStudentsRaw = String(formData.get("maxActiveStudents") || "").trim();
+  const maxActiveStudents = maxStudentsRaw ? Number(maxStudentsRaw) : null;
+  const availabilityDays = formData.getAll("availabilityDays").map((value) => String(value)).filter(Boolean);
+  const availabilityPeriods = formData.getAll("availabilityPeriods").map((value) => String(value)).filter(Boolean);
+  const acceptsTrials = formData.get("acceptsTrials") === "yes";
 
   if (!tutorId || !name || !email) return;
   if (!["active", "inactive", "pending"].includes(status)) return;
   if (hourlyRate !== null && (!Number.isFinite(hourlyRate) || hourlyRate < 0)) return;
+  if (weeklyCapacityHours !== null && (!Number.isFinite(weeklyCapacityHours) || weeklyCapacityHours < 0 || weeklyCapacityHours > 80)) return;
+  if (maxActiveStudents !== null && (!Number.isFinite(maxActiveStudents) || maxActiveStudents < 0 || maxActiveStudents > 100)) return;
 
   const subjects = String(formData.get("subjects") || "")
     .split(",")
@@ -179,6 +200,11 @@ export async function updateTutor(formData: FormData) {
       hourly_rate: hourlyRate,
       currency: String(formData.get("currency") || "GBP").slice(0, 3).toUpperCase(),
       availability_notes: String(formData.get("availability") || "").trim() || null,
+    availability_days: availabilityDays,
+    availability_periods: availabilityPeriods,
+    weekly_capacity_hours: weeklyCapacityHours,
+    max_active_students: maxActiveStudents,
+    accepts_trials: acceptsTrials,
       status,
       verified: formData.get("verified") === "yes",
       updated_at: new Date().toISOString(),

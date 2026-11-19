@@ -154,6 +154,7 @@ export default async function LeadDetailPage({ params }: { params: Params }) {
 
           <section className="admin-panel admin-action-card">
             <h2>Tutor match</h2>
+            <Link href={`/admin/matching?lead=${lead.id}`} className="admin-smart-match-link">Smart matching →</Link>
             <form action={updateLeadAssignment}>
               <input type="hidden" name="leadId" value={lead.id} />
               <label><span>Tutor</span><select name="tutorId" defaultValue={lead.assigned_tutor_id || ""}><option value="">Not assigned</option>{tutors.map((tutor) => <option key={tutor.id} value={tutor.id}>{tutor.name} — {tutor.subjects.slice(0,2).join(", ") || "General"}</option>)}</select></label>

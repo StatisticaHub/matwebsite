@@ -78,6 +78,11 @@ export type Tutor = {
   hourly_rate: number | null;
   currency: string;
   availability_notes: string | null;
+  availability_days: string[];
+  availability_periods: string[];
+  weekly_capacity_hours: number | null;
+  max_active_students: number | null;
+  accepts_trials: boolean;
   verified: boolean;
 };
 
