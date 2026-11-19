@@ -9,6 +9,11 @@ import {
   highIntentTutoringPages,
 } from "@/lib/high-intent-tutoring";
 
+import ConversionFaq from "@/components/ConversionFaq";
+import StickyTutoringCta from "@/components/StickyTutoringCta";
+import ConversionProofBar from "@/components/ConversionProofBar";
+import TrackedLink from "@/components/TrackedLink";
+import { serviceConversionFaqs, specialistConversionFaqs } from "@/lib/seo-conversion";
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
   "https://www.myacademictutor.com";
@@ -114,9 +119,9 @@ function SpecialistPage({
             <h1>{page.hero}</h1>
             <p className="page-lead">{page.intro}</p>
             <div className="button-row">
-              <Link className="button button-primary button-large" href="/find-a-tutor">
+              <TrackedLink className="button button-primary button-large" href="/find-a-tutor" trackingId={`specialist_${page.slug}_hero`}>
                 Request tutoring
-              </Link>
+              </TrackedLink>
               <Link className="button button-secondary button-large" href="/tutoring">
                 Explore tutoring services
               </Link>
@@ -132,6 +137,9 @@ function SpecialistPage({
           </aside>
         </div>
       </section>
+
+      {/* specialist_conversion_proof_marker */}
+      <ConversionProofBar />
 
       <section className="section">
         <div className="shell two-col">
@@ -191,7 +199,13 @@ function SpecialistPage({
         </div>
       </section>
 
-      <section className="section section-soft">
+            {/* specialist_conversion_faq_marker */}
+      <ConversionFaq
+        title={`Questions about ${page.title.toLowerCase()}`}
+        items={specialistConversionFaqs(page.title, page.subject)}
+      />
+
+<section className="section section-soft">
         <div className="shell lead-section-grid">
           <div className="section-copy-block">
             <div className="eyebrow">PERSONALISED SUPPORT</div>
@@ -211,6 +225,8 @@ function SpecialistPage({
           </div>
         </div>
       </section>
+      {/* specialist_sticky_cta_marker */}
+      <StickyTutoringCta label={`Request ${page.title}`} trackingId={`specialist_${page.slug}_sticky`} />
     </>
   );
 }
@@ -239,7 +255,7 @@ export default async function Page({
             <h1>{service.title}</h1>
             <p className="page-lead">{service.hero}</p>
             <div className="button-row">
-              <Link href="/find-a-tutor" className="button button-primary button-large">Get this support</Link>
+              <TrackedLink href="/find-a-tutor" className="button button-primary button-large" trackingId={`service_${service.slug}_hero`}>Get this support</TrackedLink>
               <Link href="/tutoring" className="button button-secondary button-large">All tutoring services</Link>
             </div>
           </div>
@@ -249,6 +265,9 @@ export default async function Page({
           </div>
         </div>
       </section>
+
+      {/* service_conversion_proof_marker */}
+      <ConversionProofBar />
 
       <section className="section">
         <div className="shell two-col">
@@ -277,7 +296,13 @@ export default async function Page({
         </div>
       </section>
 
-      <section className="section">
+            {/* service_conversion_faq_marker */}
+      <ConversionFaq
+        title={`Questions about ${service.title.toLowerCase()}`}
+        items={serviceConversionFaqs(service)}
+      />
+
+<section className="section">
         <div className="shell lead-section-grid">
           <div className="section-copy-block">
             <div className="eyebrow">DISCUSS YOUR LEARNING NEEDS</div>
@@ -290,6 +315,8 @@ export default async function Page({
           </div>
         </div>
       </section>
+      {/* service_sticky_cta_marker */}
+      <StickyTutoringCta label="Get personalised tutoring" trackingId={`service_${service.slug}_sticky`} />
     </>
   );
 }

@@ -8,6 +8,7 @@ const nav = [
   ["About", "/about"],
 ] as const;
 
+import TrackedLink from "@/components/TrackedLink";
 export default function Header() {
   return (
     <header className="site-header">

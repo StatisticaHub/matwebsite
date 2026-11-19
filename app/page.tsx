@@ -6,6 +6,9 @@ import { resources } from "@/lib/resources";
 import TestimonialCard from "@/components/TestimonialCard";
 import { getApprovedTestimonials } from "@/lib/testimonials";
 
+import ConversionProofBar from "@/components/ConversionProofBar";
+import HighIntentLinkGrid from "@/components/HighIntentLinkGrid";
+import TrackedLink from "@/components/TrackedLink";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
@@ -112,6 +115,8 @@ export default async function HomePage() {
           <Link href="/levels/phd-research">PhD & research</Link>
         </div>
       </section>
+
+      <ConversionProofBar />
 
       <section className="section">
         <div className="shell">
@@ -249,6 +254,17 @@ export default async function HomePage() {
               </Link>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="section section-tint">
+        <div className="shell">
+          <div className="conversion-section-head">
+            <div className="eyebrow">POPULAR SPECIALIST SUPPORT</div>
+            <h2>Start with the exact subject, method or software problem.</h2>
+            <p>These focused tutoring pages connect common student needs to the wider subject support available across My Academic Tutor.</p>
+          </div>
+          <HighIntentLinkGrid />
         </div>
       </section>
 

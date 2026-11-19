@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import TutoringLeadForm from "@/components/TutoringLeadForm";
 
+import ConversionProofBar from "@/components/ConversionProofBar";
 export const metadata: Metadata = {
   title: "Get Personalised Tutoring",
   description: "Tell My Academic Tutor what you are studying, where you need help and what you want to achieve. We will arrange suitable one-to-one academic support.",
@@ -18,6 +19,23 @@ export default function Page() {
             <span>School to postgraduate</span>
             <span>Live 1:1 teaching</span>
             <span>Online worldwide</span>
+          </div>
+        </div>
+      </section>
+
+      <ConversionProofBar />
+
+      <section className="section">
+        <div className="shell narrow">
+          <div className="conversion-section-head">
+            <div className="eyebrow">WHAT HAPPENS NEXT</div>
+            <h2>A tutoring request is a starting point, not a commitment.</h2>
+            <p>We use the information you send to understand the academic need before suggesting the next step.</p>
+          </div>
+          <div className="conversion-journey">
+            <article><span>1</span><h3>We review the context</h3><p>Subject, level, topic, goals and availability are checked so the request is understood properly.</p></article>
+            <article><span>2</span><h3>We arrange suitable support</h3><p>We identify the most appropriate available tutor or learning route for the request.</p></article>
+            <article><span>3</span><h3>You decide whether to proceed</h3><p>The proposed support is made clear before ongoing tutoring begins.</p></article>
           </div>
         </div>
       </section>

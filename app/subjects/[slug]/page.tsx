@@ -6,6 +6,11 @@ import TutoringLeadForm from "@/components/TutoringLeadForm";
 import { subjects } from "@/lib/tutoring-data";
 import { resources } from "@/lib/resources";
 
+import ConversionFaq from "@/components/ConversionFaq";
+import StickyTutoringCta from "@/components/StickyTutoringCta";
+import SubjectRelatedSupport from "@/components/SubjectRelatedSupport";
+import TrackedLink from "@/components/TrackedLink";
+import { subjectConversionFaqs } from "@/lib/seo-conversion";
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
   "https://www.myacademictutor.com";
@@ -305,6 +310,17 @@ export default async function Page({
         </div>
       </section>
 
+      <section className="section">
+        <div className="shell">
+          <div className="conversion-section-head">
+            <div className="eyebrow">RELATED TUTORING OPTIONS</div>
+            <h2>Choose support around the way you are studying {subject.name.toLowerCase()}.</h2>
+            <p>Start with a specialist route or send the topic directly if you are not sure which type of tutoring fits.</p>
+          </div>
+          <SubjectRelatedSupport subjectSlug={subject.slug} />
+        </div>
+      </section>
+
       <section className="section section-tint">
         <div className="shell">
           <div className="section-head">
@@ -363,7 +379,13 @@ export default async function Page({
         </div>
       </section>
 
-      <section className="section section-soft">
+            <ConversionFaq
+        title={`Common questions about ${subject.name.toLowerCase()} tutoring`}
+        intro="A few practical answers before you decide whether one-to-one support is useful for your course."
+        items={subjectConversionFaqs(subject)}
+      />
+
+<section className="section section-soft">
         <div className="shell lead-section-grid">
           <div>
             <div className="eyebrow">
@@ -411,6 +433,7 @@ export default async function Page({
           </div>
         </div>
       </section>
+      <StickyTutoringCta label={`Get ${subject.name} tutoring`} trackingId={`subject_${subject.slug}_sticky`} />
     </>
   );
 }
