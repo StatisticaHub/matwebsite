@@ -192,3 +192,24 @@ export async function sendSessionReminder(input: StudentRecipient & {
   const reminderDay = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
   return deliver({ to: input.email, subject, html, text, idempotencyKey: `mat-session-reminder/${input.sessionId}/${input.scheduledFor}/${reminderDay}` });
 }
+
+export async function sendProgressReportEmail(input: StudentRecipient & {
+  reportId: string;
+  title: string;
+  periodLabel: string;
+  overallScore: number | null;
+  attendanceRate: number | null;
+  homeworkCompletionRate: number | null;
+  averageUnderstanding: number | null;
+  summary?: string | null;
+  strengths?: string | null;
+  areasForImprovement?: string | null;
+  nextFocus?: string | null;
+}): Promise<StudentEmailResult> {
+  const name = firstName(input.name);
+  const metric = (value: number | null, suffix = "%") => value === null ? "Not enough data" : `${Number(value).toFixed(value % 1 ? 1 : 0)}${suffix}`;
+  const subject = `${input.title} — My Academic Tutor`;
+  const text = `Hi ${name},\n\nYour latest My Academic Tutor progress report is ready.\n\nPeriod: ${input.periodLabel}\nOverall progress indicator: ${metric(input.overallScore)}\nAttendance: ${metric(input.attendanceRate)}\nHomework completion: ${metric(input.homeworkCompletionRate)}\nAverage understanding: ${input.averageUnderstanding === null ? "Not enough data" : `${input.averageUnderstanding.toFixed(1)}/5`}\n${input.summary ? `\nSummary:\n${input.summary}\n` : ""}${input.strengths ? `\nStrengths:\n${input.strengths}\n` : ""}${input.areasForImprovement ? `\nAreas to improve:\n${input.areasForImprovement}\n` : ""}${input.nextFocus ? `\nNext focus:\n${input.nextFocus}\n` : ""}\nYou can also view your progress and lesson history in your My Academic Tutor student portal.\n\nKind regards,\nMy Academic Tutor`;
+  const html = `<!doctype html><html><head><meta charset="utf-8"><style>${styles()}</style></head><body><div class="wrap"><div class="card"><div class="top"><strong>My Academic Tutor</strong><div style="margin-top:5px;font-size:13px;opacity:.78">Student progress report</div></div><div class="body"><h1>${escapeHtml(input.title)}</h1><p>Hi ${escapeHtml(name)},</p><p>Your latest progress summary is ready for <strong>${escapeHtml(input.periodLabel)}</strong>.</p><div class="box"><strong>Overall progress indicator:</strong> ${escapeHtml(metric(input.overallScore))}<br><strong>Attendance:</strong> ${escapeHtml(metric(input.attendanceRate))}<br><strong>Homework completion:</strong> ${escapeHtml(metric(input.homeworkCompletionRate))}<br><strong>Average understanding:</strong> ${input.averageUnderstanding === null ? "Not enough data" : `${input.averageUnderstanding.toFixed(1)}/5`}</div>${input.summary ? `<p><strong>Summary</strong></p><p>${escapeHtml(input.summary).replaceAll("\n", "<br>")}</p>` : ""}${input.strengths ? `<p><strong>Strengths</strong></p><p>${escapeHtml(input.strengths).replaceAll("\n", "<br>")}</p>` : ""}${input.areasForImprovement ? `<p><strong>Areas to improve</strong></p><p>${escapeHtml(input.areasForImprovement).replaceAll("\n", "<br>")}</p>` : ""}${input.nextFocus ? `<p><strong>Next focus</strong></p><p>${escapeHtml(input.nextFocus).replaceAll("\n", "<br>")}</p>` : ""}<p>The same progress information is available in your student portal alongside your lesson history and learning plan.</p><p>Kind regards,<br><strong>My Academic Tutor</strong></p></div><div class="footer">This progress indicator summarises your tutoring records for the stated period and is not an academic grade.</div></div></div></body></html>`;
+  return deliver({ to: input.email, subject, html, text, idempotencyKey: `mat-progress-report/${input.reportId}` });
+}

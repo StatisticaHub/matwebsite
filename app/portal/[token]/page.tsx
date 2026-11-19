@@ -3,6 +3,7 @@ import HomeworkSubmissionForm from "@/components/HomeworkSubmissionForm";
 import StudentSupportForm from "@/components/StudentSupportForm";
 import { getPortalContext, safeExternalUrl } from "@/lib/student-portal";
 import { homeworkStatusLabels, progressStatusLabels, sessionStatusLabels } from "@/lib/delivery-data";
+import { masteryLabel, riskLabel, topicMastery } from "@/lib/progress";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -84,6 +85,7 @@ export default async function StudentPortalPage({ params }: { params: Params }) 
     tutor,
     onboarding,
     supportRequests,
+    progressReports,
   } = context;
 
   const now = Date.now();
@@ -102,6 +104,7 @@ export default async function StudentPortalPage({ params }: { params: Params }) 
   const nextSession = upcomingSessions[0] || null;
   const nextMeetingUrl = safeExternalUrl(nextSession?.meeting_url);
   const currentOnboardingIndex = onboardingIndex(onboarding?.status);
+  const latestProgressReport = progressReports[0] || null;
 
   return (
     <div className="student-portal-shell">
@@ -109,6 +112,7 @@ export default async function StudentPortalPage({ params }: { params: Params }) 
         <a href="/" className="portal-brand"><strong>My Academic Tutor</strong><span>Learning portal</span></a>
         <nav className="portal-upgrade-nav" aria-label="Portal sections">
           <a href="#overview">Overview</a>
+          <a href="#progress">Progress</a>
           <a href="#sessions">Sessions</a>
           <a href="#homework">Homework</a>
           <a href="#resources">Resources</a>
@@ -219,6 +223,23 @@ export default async function StudentPortalPage({ params }: { params: Params }) 
               <article><span>Current focus</span><strong>{engagement.current_focus || "Building your learning plan"}</strong><small>{engagement.goal || "Your goal will be kept here."}</small></article>
               <article><span>Open homework</span><strong>{openHomework.length}</strong><small>{openHomework[0]?.due_date ? `Next due ${formatDate(openHomework[0].due_date)}` : "Nothing urgent"}</small></article>
               <article><span>Next deadline</span><strong>{formatDate(engagement.upcoming_deadline)}</strong><small>{engagement.confidence ? `Current confidence ${engagement.confidence}/5` : "Confidence not yet assessed"}</small></article>
+            </section>
+
+            <section className="portal-panel portal-progress-report-panel" id="progress">
+              <div className="portal-panel-head"><div><span className="portal-kicker">Progress</span><h2>Your learning progress</h2></div>{latestProgressReport && <span>{latestProgressReport.period_start} → {latestProgressReport.period_end}</span>}</div>
+              {latestProgressReport ? (
+                <>
+                  <div className="portal-progress-metric-grid">
+                    <article><span>Overall</span><strong>{latestProgressReport.overall_score == null ? "—" : `${latestProgressReport.overall_score}%`}</strong><small>{riskLabel(latestProgressReport)}</small></article>
+                    <article><span>Attendance</span><strong>{latestProgressReport.attendance_rate == null ? "—" : `${Math.round(latestProgressReport.attendance_rate)}%`}</strong><small>{latestProgressReport.sessions_completed} attended · {latestProgressReport.sessions_missed} missed</small></article>
+                    <article><span>Homework</span><strong>{latestProgressReport.homework_completion_rate == null ? "—" : `${Math.round(latestProgressReport.homework_completion_rate)}%`}</strong><small>{latestProgressReport.homework_completed}/{latestProgressReport.homework_total} completed</small></article>
+                    <article><span>Understanding</span><strong>{latestProgressReport.average_understanding == null ? "—" : `${Number(latestProgressReport.average_understanding).toFixed(1)}/5`}</strong><small>Session average</small></article>
+                  </div>
+                  <div className="portal-progress-copy">{latestProgressReport.summary && <div><strong>Summary</strong><p>{latestProgressReport.summary}</p></div>}{latestProgressReport.strengths && <div><strong>Strengths</strong><p>{latestProgressReport.strengths}</p></div>}{latestProgressReport.areas_for_improvement && <div><strong>Areas to develop</strong><p>{latestProgressReport.areas_for_improvement}</p></div>}{latestProgressReport.next_focus && <div><strong>Next focus</strong><p>{latestProgressReport.next_focus}</p></div>}</div>
+                  <div className="portal-progress-actions"><a className="button button-secondary" href={`/portal/${token}/progress/${latestProgressReport.id}`}>Open printable report →</a>{progressReports.length > 1 && <span>{progressReports.length} reports available</span>}</div>
+                </>
+              ) : <div className="portal-empty">Your first progress report will appear here once your tutor has enough learning data to create one.</div>}
+              {plan.length > 0 && <div className="portal-topic-mastery-grid">{plan.map((item) => { const mastery = topicMastery(item as any); return <article key={item.id}><div><strong>{item.topic}</strong><span>{mastery}%</span></div><div className="portal-progress-track"><i style={{ width: `${mastery}%` }}/></div><small>{masteryLabel(mastery)}{(item as any).next_step ? ` · Next: ${(item as any).next_step}` : ""}</small></article>; })}</div>}
             </section>
 
             <div className="portal-main-grid">

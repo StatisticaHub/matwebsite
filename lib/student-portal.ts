@@ -8,6 +8,7 @@ import type {
   TutoringEngagement,
   TutoringSession,
 } from "@/lib/delivery-data";
+import type { ProgressReport } from "@/lib/progress";
 
 export const portalSupportCategories = ["general", "lesson", "homework", "resource", "technical"] as const;
 export type PortalSupportCategory = (typeof portalSupportCategories)[number];
@@ -92,6 +93,7 @@ export type PortalContext = {
   tutor: PortalTutor | null;
   onboarding: PortalOnboarding | null;
   supportRequests: PortalSupportRequest[];
+  progressReports: ProgressReport[];
 };
 
 const tokenPattern = /^[A-Za-z0-9_-]{40,128}$/;
@@ -190,12 +192,13 @@ export async function getPortalContext(tokenInput: string): Promise<PortalContex
   let submissions: HomeworkSubmission[] = [];
   let tutorName: string | null = null;
   let tutor: PortalTutor | null = null;
+  let progressReports: ProgressReport[] = [];
 
   if (engagement) {
-    const [planResult, sessionResult, homeworkResult, resourceResult, submissionResult] = await Promise.all([
+    const [planResult, sessionResult, homeworkResult, resourceResult, submissionResult, progressResult] = await Promise.all([
       supabase
         .from("learning_plan_items")
-        .select("id,created_at,updated_at,engagement_id,topic,objective,priority,progress_status,sort_order,notes")
+        .select("id,created_at,updated_at,engagement_id,topic,objective,priority,progress_status,mastery_percent,last_assessed_at,strength_note,next_step,sort_order,notes")
         .eq("engagement_id", engagement.id)
         .order("sort_order")
         .order("created_at"),
@@ -219,6 +222,13 @@ export async function getPortalContext(tokenInput: string): Promise<PortalContex
         .select("id,created_at,updated_at,homework_id,student_id,portal_link_id,note,submission_url,submitted_at")
         .eq("student_id", link.student_id)
         .order("submitted_at", { ascending: false }),
+      supabase
+        .from("progress_reports")
+        .select("*")
+        .eq("engagement_id", engagement.id)
+        .eq("student_visible", true)
+        .order("period_end", { ascending: false })
+        .limit(12),
     ]);
 
     plan = (planResult.data || []) as LearningPlanItem[];
@@ -226,6 +236,7 @@ export async function getPortalContext(tokenInput: string): Promise<PortalContex
     homework = (homeworkResult.data || []) as Homework[];
     resources = (resourceResult.data || []) as LearningResource[];
     submissions = (submissionResult.data || []) as HomeworkSubmission[];
+    progressReports = (progressResult.data || []) as ProgressReport[];
 
     if (engagement.tutor_id) {
       const { data: tutorData } = await supabase
@@ -258,5 +269,6 @@ export async function getPortalContext(tokenInput: string): Promise<PortalContex
     tutor,
     onboarding,
     supportRequests,
+    progressReports,
   };
 }

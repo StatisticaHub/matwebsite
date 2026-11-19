@@ -93,6 +93,10 @@ export type LearningPlanItem = {
   objective: string | null;
   priority: "high" | "medium" | "low";
   progress_status: ProgressStatus;
+  mastery_percent: number | null;
+  last_assessed_at: string | null;
+  strength_note: string | null;
+  next_step: string | null;
   sort_order: number;
   notes: string | null;
 };
