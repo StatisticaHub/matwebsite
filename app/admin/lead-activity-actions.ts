@@ -41,8 +41,10 @@ export async function logLeadContact(formData: FormData) {
   if (leadError || !lead) throw new Error(leadError?.message || "Lead not found.");
 
   const now = new Date().toISOString();
-  const update: Record<string, string> = {
+  const update: Record<string, string | null> = {
     last_contacted_at: now,
+    next_follow_up_at: null,
+    follow_up_note: null,
     updated_at: now,
   };
   if (lead.status === "new") update.status = "contacted";
@@ -61,6 +63,7 @@ export async function logLeadContact(formData: FormData) {
   if (activityError) throw new Error(activityError.message);
 
   revalidatePath("/admin");
+  revalidatePath("/admin/follow-ups");
   revalidatePath(`/admin/leads/${leadId}`);
   revalidatePath("/admin/analytics");
 }

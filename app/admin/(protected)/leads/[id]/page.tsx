@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { leadStatusLabels, leadStatuses, type LeadActivity, type LeadStatus, type Tutor, type TutoringLead } from "@/lib/admin-data";
 import { saveLeadNotes, updateLeadAssignment, updateLeadStatus } from "@/app/admin/actions";
 import { logLeadContact } from "@/app/admin/lead-activity-actions";
+import { clearLeadFollowUp, scheduleLeadTrial, setLeadFollowUp, updateLeadTrialOutcome } from "@/app/admin/follow-up-actions";
 import { convertLeadToStudent } from "@/app/admin/delivery-actions";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +12,22 @@ export const dynamic = "force-dynamic";
 type Params = Promise<{ id: string }>;
 
 function formatDate(value: string) {
-  return new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+  return new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/London" }).format(new Date(value));
+}
+
+function toDateTimeLocalUk(value: string | null | undefined) {
+  if (!value) return "";
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(new Date(value));
+  const map = Object.fromEntries(parts.filter((part) => part.type !== "literal").map((part) => [part.type, part.value]));
+  return `${map.year}-${map.month}-${map.day}T${map.hour}:${map.minute}`;
 }
 
 function value(value: string | null | undefined) {
@@ -103,6 +119,36 @@ export default async function LeadDetailPage({ params }: { params: Params }) {
               </select>
               <button type="submit" className="admin-primary-button">Update status</button>
             </form>
+          </section>
+
+          <section className={`admin-panel admin-action-card admin-followup-card ${lead.next_follow_up_at && new Date(lead.next_follow_up_at) < new Date() ? "is-overdue" : ""}`}>
+            <div className="admin-action-card-head"><h2>Next follow-up</h2>{lead.next_follow_up_at && <span>{new Date(lead.next_follow_up_at) < new Date() ? "Overdue" : "Scheduled"}</span>}</div>
+            {lead.next_follow_up_at && <div className="admin-current-action"><strong>{formatDate(lead.next_follow_up_at)}</strong>{lead.follow_up_note && <p>{lead.follow_up_note}</p>}</div>}
+            <form action={setLeadFollowUp} className="admin-compact-form">
+              <input type="hidden" name="leadId" value={lead.id} />
+              <label><span>Date & time (UK)</span><input type="datetime-local" name="followUpAt" defaultValue={toDateTimeLocalUk(lead.next_follow_up_at)} required /></label>
+              <label><span>Reminder note</span><textarea name="followUpNote" defaultValue={lead.follow_up_note || ""} placeholder="Call after they review tutor options…" /></label>
+              <button type="submit" className="admin-primary-button">{lead.next_follow_up_at ? "Update follow-up" : "Schedule follow-up"}</button>
+            </form>
+            {lead.next_follow_up_at && <form action={clearLeadFollowUp} className="admin-inline-form"><input type="hidden" name="leadId" value={lead.id} /><button type="submit" className="admin-text-button">Clear reminder</button></form>}
+          </section>
+
+          <section className="admin-panel admin-action-card admin-trial-card">
+            <div className="admin-action-card-head"><h2>Trial session</h2><span className={`trial-${lead.trial_status || "not_scheduled"}`}>{(lead.trial_status || "not_scheduled").replaceAll("_", " ")}</span></div>
+            {lead.trial_scheduled_for && <div className="admin-current-action"><strong>{formatDate(lead.trial_scheduled_for)}</strong><p>{lead.trial_duration_minutes || 30} minutes{assignedTutor ? ` · ${assignedTutor.name}` : ""}</p>{lead.trial_outcome && <p><strong>Outcome:</strong> {lead.trial_outcome}</p>}</div>}
+            <details className="admin-disclosure compact-disclosure" open={!lead.trial_scheduled_for}>
+              <summary>{lead.trial_scheduled_for ? "Reschedule / edit trial" : "Schedule trial"}</summary>
+              <form action={scheduleLeadTrial} className="admin-compact-form">
+                <input type="hidden" name="leadId" value={lead.id} />
+                <label><span>Date & time (UK)</span><input type="datetime-local" name="trialScheduledFor" defaultValue={toDateTimeLocalUk(lead.trial_scheduled_for)} required /></label>
+                <label><span>Duration</span><select name="trialDuration" defaultValue={String(lead.trial_duration_minutes || 30)}><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option><option value="90">90 minutes</option></select></label>
+                <label><span>Meeting link</span><input name="trialMeetingUrl" type="url" defaultValue={lead.trial_meeting_url || ""} placeholder="https://meet.google.com/…" /></label>
+                <label><span>Internal trial note</span><textarea name="trialNotes" defaultValue={lead.trial_notes || ""} placeholder="Tutor briefing, goals for the trial, anything to prepare…" /></label>
+                <label className="admin-email-toggle admin-email-toggle-block"><input type="checkbox" name="notifyStudent" defaultChecked /><span>Email the student a trial confirmation</span></label>
+                <button type="submit" className="admin-primary-button">{lead.trial_scheduled_for ? "Update trial" : "Schedule trial"}</button>
+              </form>
+            </details>
+            {lead.trial_status && lead.trial_status !== "not_scheduled" && <details className="admin-disclosure compact-disclosure admin-trial-outcome"><summary>Record trial outcome</summary><form action={updateLeadTrialOutcome} className="admin-compact-form"><input type="hidden" name="leadId" value={lead.id} /><label><span>Outcome</span><select name="trialOutcome" defaultValue="completed_proceed"><option value="completed_proceed">Completed — proceed with tutoring</option><option value="completed_follow_up">Completed — follow-up needed</option><option value="no_show">Student did not attend</option><option value="cancelled">Trial cancelled</option><option value="declined">Completed — not proceeding</option></select></label><label><span>Outcome note</span><textarea name="outcomeNotes" placeholder="How did the trial go? What was agreed?" /></label><label><span>Next follow-up (optional, UK)</span><input type="datetime-local" name="nextFollowUpAt" /></label><button type="submit" className="admin-secondary-button">Save trial outcome</button></form></details>}
           </section>
 
           <section className="admin-panel admin-action-card">

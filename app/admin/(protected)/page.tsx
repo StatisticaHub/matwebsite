@@ -11,15 +11,27 @@ function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
 }
 
+function ukDateKey(value: Date) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(value);
+  const map = Object.fromEntries(parts.filter((part) => part.type !== "literal").map((part) => [part.type, part.value]));
+  return `${map.year}-${map.month}-${map.day}`;
+}
+
 export default async function AdminDashboard({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
   const requestedStatus = leadStatuses.includes(params.status as LeadStatus) ? (params.status as LeadStatus) : null;
   const search = (params.q || "").trim();
   const supabase = createAdminClient();
 
-  const nowIso = new Date().toISOString();
+  const now = new Date();
+  const nowIso = now.toISOString();
   const [{ data: allLeads, error: countError }, { count: activeStudents }, { count: upcomingSessions }] = await Promise.all([
-    supabase.from("tutoring_leads").select("id,status"),
+    supabase.from("tutoring_leads").select("id,status,next_follow_up_at,trial_status,trial_scheduled_for"),
     supabase.from("students").select("id", { count: "exact", head: true }).eq("status", "active"),
     supabase.from("tutoring_sessions").select("id", { count: "exact", head: true }).eq("status", "planned").gte("scheduled_for", nowIso),
   ]);
@@ -29,6 +41,18 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
   for (const lead of allLeads || []) {
     if (lead.status in counts) counts[lead.status as LeadStatus] += 1;
   }
+
+  const todayKey = ukDateKey(now);
+  const operationalLeads = (allLeads || []) as Array<{
+    status: LeadStatus;
+    next_follow_up_at: string | null;
+    trial_status: string | null;
+    trial_scheduled_for: string | null;
+  }>;
+  const activePipeline = operationalLeads.filter((lead) => !["closed", "lost"].includes(lead.status));
+  const overdueFollowUps = activePipeline.filter((lead) => lead.next_follow_up_at && new Date(lead.next_follow_up_at) < now && ukDateKey(new Date(lead.next_follow_up_at)) !== todayKey).length;
+  const dueToday = activePipeline.filter((lead) => lead.next_follow_up_at && ukDateKey(new Date(lead.next_follow_up_at)) === todayKey).length;
+  const upcomingTrials = activePipeline.filter((lead) => lead.trial_status === "scheduled" && lead.trial_scheduled_for && new Date(lead.trial_scheduled_for) >= now).length;
 
   let query = supabase
     .from("tutoring_leads")
@@ -54,6 +78,19 @@ export default async function AdminDashboard({ searchParams }: { searchParams: S
           <p>Review new tutoring enquiries, track matching progress and move students towards a first lesson.</p>
         </div>
       </header>
+
+      <section className="admin-action-centre" aria-label="Follow-up action centre">
+        <Link className={overdueFollowUps ? "urgent" : ""} href="/admin/follow-ups">
+          <span>Overdue follow-ups</span><strong>{overdueFollowUps}</strong><small>{overdueFollowUps ? "Needs attention" : "Nothing overdue"}</small>
+        </Link>
+        <Link href="/admin/follow-ups">
+          <span>Due today</span><strong>{dueToday}</strong><small>Scheduled student contacts</small>
+        </Link>
+        <Link href="/admin/follow-ups">
+          <span>Upcoming trials</span><strong>{upcomingTrials}</strong><small>Trial sessions scheduled</small>
+        </Link>
+        <Link className="open-queue" href="/admin/follow-ups"><span>Daily queue</span><strong>→</strong><small>Open follow-ups & trials</small></Link>
+      </section>
 
       <section className="admin-metrics">
         <div><span>New</span><strong>{counts.new}</strong></div>

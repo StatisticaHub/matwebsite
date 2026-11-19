@@ -53,6 +53,15 @@ export type TutoringLead = {
   currency: string;
   internal_notes: string | null;
   last_contacted_at: string | null;
+  next_follow_up_at: string | null;
+  follow_up_note: string | null;
+  trial_status: "not_scheduled" | "scheduled" | "completed" | "cancelled" | "no_show";
+  trial_scheduled_for: string | null;
+  trial_duration_minutes: number | null;
+  trial_meeting_url: string | null;
+  trial_outcome: string | null;
+  trial_notes: string | null;
+  trial_completed_at: string | null;
 };
 
 export type Tutor = {

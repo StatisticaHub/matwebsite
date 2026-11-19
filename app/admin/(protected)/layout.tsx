@@ -15,6 +15,7 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
         <Link href="/admin" className="admin-brand">MAT <span>Admin</span></Link>
         <nav>
           <Link href="/admin">Lead inbox</Link>
+          <Link href="/admin/follow-ups">Follow-ups</Link>
           <Link href="/admin/students">Students</Link>
           <Link href="/admin/onboarding">Onboarding</Link>
           <Link href="/admin/sessions">Sessions</Link>
