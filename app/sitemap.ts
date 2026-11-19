@@ -58,17 +58,31 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.9,
   }));
 
-  const resourceCategoryPages = resourceCategories.map((category) => ({
-    url: url(`/learn/${category.slug}`),
-    changeFrequency: "weekly" as const,
-    priority: 0.8,
-  }));
+  const resourceCategoryPages = resourceCategories.map((category) => {
+    const latestDate = resources
+      .filter((resource) => resource.categorySlug === category.slug)
+      .map((resource) => resource.updatedAt || resource.publishedAt)
+      .filter(Boolean)
+      .sort()
+      .at(-1);
 
-  const resourcePages = resources.map((resource) => ({
-    url: url(`/learn/${resource.slug}`),
-    changeFrequency: "monthly" as const,
-    priority: 0.75,
-  }));
+    return {
+      url: url(`/learn/${category.slug}`),
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+      ...(latestDate ? { lastModified: new Date(`${latestDate}T12:00:00Z`) } : {}),
+    };
+  });
+
+  const resourcePages = resources.map((resource) => {
+    const lastModified = resource.updatedAt || resource.publishedAt;
+    return {
+      url: url(`/learn/${resource.slug}`),
+      changeFrequency: "monthly" as const,
+      priority: 0.75,
+      ...(lastModified ? { lastModified: new Date(`${lastModified}T12:00:00Z`) } : {}),
+    };
+  });
 
   return [
     ...staticPages,
