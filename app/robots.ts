@@ -1,25 +1,12 @@
 import type { MetadataRoute } from "next";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-  "https://www.myacademictutor.com";
-
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: [
-      {
-        userAgent: "*",
-        allow: "/",
-        disallow: [
-          "/admin/",
-          "/api/",
-          "/portal/",
-          "/intake/",
-        ],
-      },
-    ],
-
-    sitemap: `${siteUrl}/sitemap.xml`,
-    host: siteUrl,
+    rules: {
+      userAgent: "*",
+      allow: "/",
+      disallow: ["/admin/", "/api/", "/portal/", "/intake/", "/tutor/"],
+    },
+    sitemap: "https://www.myacademictutor.com/sitemap.xml",
   };
 }

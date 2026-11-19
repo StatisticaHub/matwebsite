@@ -29,5 +29,5 @@ export async function proxy(request: NextRequest) {
 export const config = {
   // Authentication is isolated to the private admin area. Public acquisition
   // pages do not make an auth request and remain available during auth outages.
-  matcher: ["/admin/:path*", "/api/admin/:path*"],
+  matcher: ["/admin/:path*", "/api/admin/:path*", "/tutor/:path*", "/api/tutor/:path*"],
 };

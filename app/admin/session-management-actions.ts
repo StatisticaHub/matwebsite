@@ -30,6 +30,16 @@ function nullableNumber(formData: FormData, key: string) {
   return Number.isFinite(value) ? value : null;
 }
 
+function safeUrl(value: string | null) {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    return ["https:", "http:"].includes(url.protocol) ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
 function timezoneOffsetMs(date: Date, timeZone: string) {
   const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone,
@@ -89,6 +99,7 @@ async function notifySession(args: {
     duration_minutes: number;
     next_topic: string | null;
     homework_summary: string | null;
+    meeting_url: string | null;
   };
 }) {
   const { data: student } = await args.supabase.from("students").select("name,email").eq("id", args.studentId).maybeSingle();
@@ -104,6 +115,7 @@ async function notifySession(args: {
     durationMinutes: args.sessionRow.duration_minutes,
     nextTopic: args.sessionRow.next_topic,
     homeworkSummary: args.sessionRow.homework_summary,
+    meetingUrl: args.sessionRow.meeting_url,
   });
 
   const subject = args.sessionRow.status === "completed"
@@ -238,10 +250,11 @@ export async function createTutoringSessionFromAdmin(formData: FormData) {
     understanding_rating: null,
     next_topic: nullableText(formData, "nextTopic", 1000),
     homework_summary: nullableText(formData, "homeworkSummary", 2000),
+    meeting_url: safeUrl(nullableText(formData, "meetingUrl", 1000)),
     student_rate: engagement.student_rate,
     tutor_rate: engagement.tutor_rate,
     currency: engagement.currency || "GBP",
-  }).select("id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary").single();
+  }).select("id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary,meeting_url").single();
   if (error || !created) throw new Error(error?.message || "Could not create session.");
 
   if (formData.get("notifyStudent") === "on") {
@@ -292,8 +305,9 @@ export async function updateTutoringSession(formData: FormData) {
     understanding_rating: rating && rating >= 1 && rating <= 5 ? Math.round(rating) : null,
     next_topic: nullableText(formData, "nextTopic", 1000),
     homework_summary: nullableText(formData, "homeworkSummary", 2000),
+    meeting_url: safeUrl(nullableText(formData, "meetingUrl", 1000)),
     updated_at: new Date().toISOString(),
-  }).eq("id", sessionId).select("id,engagement_id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary").single();
+  }).eq("id", sessionId).select("id,engagement_id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary,meeting_url").single();
   if (error || !updated) throw new Error(error?.message || "Could not update session.");
 
   if (formData.get("notifyStudent") === "on") {
@@ -330,7 +344,7 @@ export async function cancelTutoringSession(formData: FormData) {
     status: "cancelled",
     completed_at: null,
     updated_at: new Date().toISOString(),
-  }).eq("id", sessionId).select("id,engagement_id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary").single();
+  }).eq("id", sessionId).select("id,engagement_id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary,meeting_url").single();
   if (error || !updated) throw new Error(error?.message || "Could not cancel session.");
 
   if (formData.get("notifyStudent") === "on") {
@@ -356,7 +370,7 @@ export async function sendTutoringSessionReminder(formData: FormData) {
 
   const { data: sessionRow, error } = await supabase
     .from("tutoring_sessions")
-    .select("id,engagement_id,tutor_id,scheduled_for,status,topic,duration_minutes,tutoring_engagements(student_id)")
+    .select("id,engagement_id,tutor_id,scheduled_for,status,topic,duration_minutes,meeting_url,tutoring_engagements(student_id)")
     .eq("id", sessionId)
     .single();
   if (error || !sessionRow) throw new Error(error?.message || "Session not found.");
@@ -379,6 +393,7 @@ export async function sendTutoringSessionReminder(formData: FormData) {
     scheduledFor: sessionRow.scheduled_for,
     durationMinutes: sessionRow.duration_minutes,
     tutorName: tutor?.name || null,
+    meetingUrl: sessionRow.meeting_url,
   });
 
   await recordStudentCommunication({

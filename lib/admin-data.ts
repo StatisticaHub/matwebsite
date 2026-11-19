@@ -83,6 +83,9 @@ export type Tutor = {
   weekly_capacity_hours: number | null;
   max_active_students: number | null;
   accepts_trials: boolean;
+  auth_user_id: string | null;
+  portal_enabled: boolean;
+  portal_invited_at: string | null;
   verified: boolean;
 };
 

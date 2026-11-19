@@ -3,12 +3,13 @@ import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Tutor } from "@/lib/admin-data";
 import { deleteTutor, updateTutor } from "@/app/admin/actions";
+import { disableTutorPortal, sendTutorPortalInvite } from "@/app/admin/tutor-portal-actions";
 
 export const metadata = { title: "Edit tutor" };
 export const dynamic = "force-dynamic";
 
 type Params = Promise<{ id: string }>;
-type SearchParams = Promise<{ updated?: string; delete?: string }>;
+type SearchParams = Promise<{ updated?: string; delete?: string; portal?: string }>;
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
@@ -70,6 +71,8 @@ export default async function TutorDetailPage({
       {query.delete === "linked" && (
         <div className="admin-inline-message warning">This tutor has linked CRM or session records, so permanent deletion is blocked. Set the tutor to inactive instead.</div>
       )}
+      {query.portal === "sent" && <div className="admin-inline-message success">Tutor portal access email sent.</div>}
+      {query.portal === "disabled" && <div className="admin-inline-message warning">Tutor portal access disabled.</div>}
 
       <div className="admin-tutor-layout">
         <section className="admin-panel admin-detail-card admin-tutor-edit-card">
@@ -110,6 +113,21 @@ export default async function TutorDetailPage({
               <div><dt>Engagements</dt><dd>{engagementCount}</dd></div>
               <div><dt>Sessions</dt><dd>{sessionCount}</dd></div>
             </dl>
+          </section>
+
+          <section className="admin-panel admin-action-card">
+            <h2>Tutor portal</h2>
+            <p className="admin-help">Give this tutor secure access to only their assigned students, trials, sessions and availability.</p>
+            <dl className="admin-tutor-record-summary">
+              <div><dt>Portal</dt><dd>{tutor.portal_enabled ? "Enabled" : "Disabled"}</dd></div>
+              <div><dt>Auth account</dt><dd>{tutor.auth_user_id ? "Linked" : "Not linked"}</dd></div>
+              <div><dt>Last access email</dt><dd>{tutor.portal_invited_at ? formatDate(tutor.portal_invited_at) : "Never"}</dd></div>
+            </dl>
+            <form action={sendTutorPortalInvite}>
+              <input type="hidden" name="tutorId" value={tutor.id} />
+              <button className="admin-primary-button" type="submit">{tutor.auth_user_id ? "Send password / access link" : "Enable & send portal invite"}</button>
+            </form>
+            {tutor.portal_enabled && <form action={disableTutorPortal} style={{ marginTop: 10 }}><input type="hidden" name="tutorId" value={tutor.id} /><button className="admin-secondary-button" type="submit">Disable portal access</button></form>}
           </section>
 
           <section className="admin-panel admin-action-card admin-danger-zone">

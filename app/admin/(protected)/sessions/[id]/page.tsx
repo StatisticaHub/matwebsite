@@ -19,6 +19,7 @@ type SessionDetail = {
   understanding_rating: number | null;
   next_topic: string | null;
   homework_summary: string | null;
+  meeting_url: string | null;
   tutor_id: string | null;
   session_tutor: { name: string } | null;
   student_rate: number | null;
@@ -64,7 +65,7 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
   const [{ data, error }, { data: tutorData }] = await Promise.all([
     supabase
       .from("tutoring_sessions")
-      .select("id,created_at,scheduled_for,completed_at,duration_minutes,status,topic,lesson_notes,understanding_rating,next_topic,homework_summary,tutor_id,session_tutor:tutors(name),student_rate,tutor_rate,currency,engagement_id,tutoring_engagements(student_id,subject,title,students(name,email),tutors(name))")
+      .select("id,created_at,scheduled_for,completed_at,duration_minutes,status,topic,lesson_notes,understanding_rating,next_topic,homework_summary,meeting_url,tutor_id,session_tutor:tutors(name),student_rate,tutor_rate,currency,engagement_id,tutoring_engagements(student_id,subject,title,students(name,email),tutors(name))")
       .eq("id", id)
       .single(),
     supabase.from("tutors").select("id,name,status").order("name"),
@@ -95,6 +96,7 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
               <div className="admin-form-grid-3"><label><span>Date & time (UK)</span><input name="scheduledFor" type="datetime-local" defaultValue={toDateTimeLocalUk(session.scheduled_for)} /></label><label><span>Status</span><select name="status" defaultValue={session.status}>{sessionStatuses.map((status) => <option key={status} value={status}>{sessionStatusLabels[status]}</option>)}</select></label><label><span>Duration</span><input name="durationMinutes" type="number" min="15" max="480" defaultValue={session.duration_minutes} /></label></div>
               <label><span>Topic / lesson title</span><input name="topic" required defaultValue={session.topic} /></label>
               <label><span>Tutor</span><select name="tutorId" defaultValue={session.tutor_id || ""}><option value="">Not assigned</option>{tutors.map((tutor) => <option key={tutor.id} value={tutor.id}>{tutor.name}{tutor.status !== "active" ? ` (${tutor.status})` : ""}</option>)}</select></label>
+              <label><span>Meeting link</span><input name="meetingUrl" type="url" defaultValue={session.meeting_url || ""} placeholder="https://meet.google.com/…" /></label>
               <label><span>Lesson / preparation notes</span><textarea name="lessonNotes" defaultValue={session.lesson_notes || ""} placeholder="Concepts covered, preparation notes, misconceptions addressed…" /></label>
               <div className="admin-form-grid-2"><label><span>Understanding (1–5)</span><input name="understandingRating" type="number" min="1" max="5" defaultValue={session.understanding_rating ?? ""} /></label><label><span>Next topic</span><input name="nextTopic" defaultValue={session.next_topic || ""} /></label></div>
               <label><span>Homework / practice summary</span><textarea name="homeworkSummary" defaultValue={session.homework_summary || ""} /></label>
@@ -112,6 +114,7 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
               <div><dt>Scheduled</dt><dd>{formatDateTime(session.scheduled_for)}</dd></div>
               <div><dt>Completed</dt><dd>{session.completed_at ? formatDateTime(session.completed_at) : "—"}</dd></div>
               <div><dt>Duration</dt><dd>{session.duration_minutes} minutes</dd></div>
+              <div><dt>Meeting link</dt><dd>{session.meeting_url ? <a href={session.meeting_url} target="_blank" rel="noreferrer">Open link ↗</a> : "—"}</dd></div>
               <div><dt>Student rate</dt><dd>{money(session.student_rate, session.currency)}</dd></div>
               <div><dt>Tutor rate</dt><dd>{money(session.tutor_rate, session.currency)}</dd></div>
             </dl>

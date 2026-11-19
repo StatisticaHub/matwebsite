@@ -123,6 +123,7 @@ export default async function SessionsPage() {
           <div className="admin-form-grid-3"><label><span>Date & time (UK)</span><input name="scheduledFor" type="datetime-local" required /></label><label><span>Status</span><select name="status" defaultValue="planned">{sessionStatuses.map((status) => <option key={status} value={status}>{sessionStatusLabels[status]}</option>)}</select></label><label><span>Duration</span><input name="durationMinutes" type="number" min="15" max="480" defaultValue="60" /></label></div>
           <label><span>Topic / lesson title</span><input name="topic" required placeholder="Regression inference and confidence intervals" /></label>
           <label><span>Tutor override (optional)</span><select name="tutorId" defaultValue=""><option value="">Use engagement tutor</option>{tutors.map((tutor) => <option key={tutor.id} value={tutor.id}>{tutor.name}</option>)}</select></label>
+          <label><span>Meeting link (optional)</span><input name="meetingUrl" type="url" placeholder="https://meet.google.com/…" /></label>
           <label><span>Preparation / internal note</span><textarea name="lessonNotes" placeholder="What should the tutor prepare or cover?" /></label>
           <label className="admin-email-toggle admin-email-toggle-block"><input name="notifyStudent" type="checkbox" defaultChecked /> Email the student when this session is scheduled</label>
           <button className="admin-primary-button" type="submit">Schedule session</button>

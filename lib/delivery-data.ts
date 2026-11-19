@@ -112,6 +112,7 @@ export type TutoringSession = {
   understanding_rating: number | null;
   next_topic: string | null;
   homework_summary: string | null;
+  meeting_url: string | null;
   student_rate: number | null;
   tutor_rate: number | null;
   currency: string;
