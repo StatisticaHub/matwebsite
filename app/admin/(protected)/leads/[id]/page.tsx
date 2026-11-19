@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { leadStatusLabels, leadStatuses, type LeadActivity, type LeadStatus, type Tutor, type TutoringLead } from "@/lib/admin-data";
 import { saveLeadNotes, updateLeadAssignment, updateLeadStatus } from "@/app/admin/actions";
+import { logLeadContact } from "@/app/admin/lead-activity-actions";
 import { convertLeadToStudent } from "@/app/admin/delivery-actions";
 
 export const dynamic = "force-dynamic";
@@ -64,7 +65,16 @@ export default async function LeadDetailPage({ params }: { params: Params }) {
           </section>
 
           <section className="admin-panel admin-detail-card">
-            <div className="admin-card-head"><h2>Activity</h2><span>{activity.length} events</span></div>
+            <div className="admin-card-head"><div><span className="admin-eyebrow">CRM history</span><h2>Activity timeline</h2></div><span>{activity.length} events</span></div>
+            <details className="admin-disclosure admin-contact-log">
+              <summary>Log student contact</summary>
+              <form action={logLeadContact} className="admin-compact-form">
+                <input type="hidden" name="leadId" value={lead.id} />
+                <label><span>Channel</span><select name="channel" defaultValue="email"><option value="email">Email</option><option value="whatsapp">WhatsApp</option><option value="phone">Phone call</option><option value="video">Video call</option><option value="other">Other</option></select></label>
+                <label><span>Outcome / note</span><textarea name="note" placeholder="What was discussed, what did the student decide, and what happens next?" /></label>
+                <button type="submit" className="admin-primary-button">Log contact now</button>
+              </form>
+            </details>
             <form action={saveLeadNotes} className="admin-note-form">
               <input type="hidden" name="leadId" value={lead.id} />
               <textarea name="note" required placeholder="Add a private note about the student, follow-up or matching decision…" />

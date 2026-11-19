@@ -105,6 +105,7 @@ export default async function StudentDetailPage({ params }: { params: Params }) 
           <p>{student.academic_level || "Academic level not set"}{student.programme ? ` · ${student.programme}` : ""}{student.institution ? ` · ${student.institution}` : ""}</p>
         </div>
         <div className="admin-head-actions">
+          <Link className="admin-secondary-button" href={`/admin/students/${student.id}/edit`}>Edit profile</Link>
           <Link className="admin-secondary-button" href={`/admin/onboarding?student=${student.id}`}>Onboarding</Link>
           <Link className="admin-secondary-button" href={`/admin/portals?student=${student.id}`}>Portal access</Link>
           <span className={`admin-status student-${student.status}`}>{student.status}</span>

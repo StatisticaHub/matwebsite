@@ -77,7 +77,7 @@ export default async function StudentsPage({ searchParams }: { searchParams: Sea
                       <td><strong>{student.academic_level || "Level not set"}</strong><span>{student.programme || student.institution || "Academic context not set"}</span><small>{student.institution || ""}</small></td>
                       <td><strong>{engagement?.subject || "No engagement"}</strong><span>{tutor?.name || "Tutor not assigned"}</span><small>{engagement?.frequency || "Frequency not set"}</small></td>
                       <td><span>{engagement?.current_focus || engagement?.module || "Not set"}</span><small>{engagement?.status || ""}</small></td>
-                      <td><Link className="admin-row-link" href={`/admin/students/${student.id}`}>Open →</Link></td>
+                      <td><div className="admin-row-actions"><Link className="admin-row-link" href={`/admin/students/${student.id}`}>Open →</Link><Link className="admin-row-link muted" href={`/admin/students/${student.id}/edit`}>Edit</Link></div></td>
                     </tr>
                   );
                 })}
