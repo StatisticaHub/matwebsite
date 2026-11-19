@@ -3,8 +3,13 @@ import TutoringLeadForm from "@/components/TutoringLeadForm";
 import { subjects } from "@/lib/tutoring-data";
 import { tutoringServices } from "@/lib/tutoring-services";
 import { resources } from "@/lib/resources";
+import TestimonialCard from "@/components/TestimonialCard";
+import { getApprovedTestimonials } from "@/lib/testimonials";
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const testimonials = await getApprovedTestimonials({ featuredFirst: true, limit: 3 });
   return (
     <>
       <section className="hero">
@@ -370,6 +375,18 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {testimonials.length ? (
+        <section className="section section-soft testimonial-home-section">
+          <div className="shell">
+            <div className="section-head">
+              <div><div className="eyebrow">STUDENT EXPERIENCES</div><h2>Learning support students can describe in their own words.</h2><p className="section-intro">Approved feedback from students who have used My Academic Tutor. Testimonials are published only with the student’s permission.</p></div>
+              <Link href="/testimonials" className="text-link">Read all testimonials</Link>
+            </div>
+            <div className="testimonial-grid testimonial-grid-home">{testimonials.map((item) => <TestimonialCard key={item.id} testimonial={item} />)}</div>
+          </div>
+        </section>
+      ) : null}
 
       <section className="section">
         <div className="shell integrity-grid">

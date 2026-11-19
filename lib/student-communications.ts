@@ -8,6 +8,7 @@ export const communicationTypes = [
   "homework_assigned",
   "homework_update",
   "progress_report",
+  "feedback_request",
 ] as const;
 
 export type CommunicationType = (typeof communicationTypes)[number];
