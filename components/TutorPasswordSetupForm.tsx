@@ -1,17 +1,21 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { completeTutorPortalSetup } from "@/app/tutor/setup-actions";
 
-export default function TutorPasswordSetupForm() {
+type Props = {
+  tokenHash: string;
+  type: string;
+};
+
+export default function TutorPasswordSetupForm({ tokenHash, type }: Props) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [state, setState] = useState({ loading: false, error: "" });
 
-  const tokenHash = searchParams.get("token_hash") || "";
-  const type = searchParams.get("type") || "";
-  const linkReady = Boolean(tokenHash && ["invite", "recovery"].includes(type));
+  const linkReady = Boolean(
+    tokenHash && ["invite", "recovery"].includes(type),
+  );
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -22,18 +26,22 @@ export default function TutorPasswordSetupForm() {
     const confirm = String(form.get("confirmPassword") || "");
 
     if (!linkReady) {
-      return setState({
+      setState({
         loading: false,
-        error: "This portal link is incomplete. Ask the MAT team to send a new access link.",
+        error:
+          "This portal link is incomplete. Ask the MAT team to send a new access link.",
       });
+      return;
     }
 
     if (password.length < 10) {
-      return setState({ loading: false, error: "Use at least 10 characters." });
+      setState({ loading: false, error: "Use at least 10 characters." });
+      return;
     }
 
     if (password !== confirm) {
-      return setState({ loading: false, error: "Passwords do not match." });
+      setState({ loading: false, error: "Passwords do not match." });
+      return;
     }
 
     try {
@@ -44,7 +52,8 @@ export default function TutorPasswordSetupForm() {
 
       const result = await completeTutorPortalSetup(payload);
       if (!result.ok) {
-        return setState({ loading: false, error: result.error });
+        setState({ loading: false, error: result.error });
+        return;
       }
 
       router.replace("/tutor");
@@ -52,7 +61,8 @@ export default function TutorPasswordSetupForm() {
     } catch (error) {
       setState({
         loading: false,
-        error: error instanceof Error ? error.message : "Could not set password.",
+        error:
+          error instanceof Error ? error.message : "Could not set password.",
       });
     }
   }
@@ -70,6 +80,7 @@ export default function TutorPasswordSetupForm() {
           disabled={!linkReady}
         />
       </label>
+
       <label>
         <span>Confirm password</span>
         <input
@@ -81,6 +92,7 @@ export default function TutorPasswordSetupForm() {
           disabled={!linkReady}
         />
       </label>
+
       <button
         className="tutor-primary-button"
         type="submit"
@@ -88,11 +100,14 @@ export default function TutorPasswordSetupForm() {
       >
         {state.loading ? "Saving…" : "Set password and open portal"}
       </button>
+
       {!linkReady && !state.error ? (
         <p className="form-error" role="alert">
-          This portal link is incomplete. Ask the MAT team to send a new access link.
+          This portal link is incomplete. Ask the MAT team to send a new access
+          link.
         </p>
       ) : null}
+
       {state.error ? (
         <p className="form-error" role="alert">
           {state.error}
