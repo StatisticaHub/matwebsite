@@ -1,8 +1,10 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function StudentSupportForm({ token }: { token: string }) {
+  const router = useRouter();
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [message, setMessage] = useState("");
   const [category, setCategory] = useState("general");
@@ -21,6 +23,7 @@ export default function StudentSupportForm({ token }: { token: string }) {
       if (!response.ok) throw new Error("Request failed");
       setMessage("");
       setStatus("sent");
+      router.refresh();
     } catch {
       setStatus("error");
     }

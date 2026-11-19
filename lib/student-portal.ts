@@ -55,16 +55,43 @@ export type StudentSupportRequest = {
   resolved_at: string | null;
 };
 
+export type PortalSupportRequest = Pick<
+  StudentSupportRequest,
+  "id" | "created_at" | "category" | "message" | "status" | "resolved_at"
+>;
+
+export type PortalOnboarding = {
+  status: "awaiting_intake" | "review" | "ready" | "complete";
+  target_outcome: string | null;
+  target_date: string | null;
+  intake_completed_at: string | null;
+  reviewed_at: string | null;
+};
+
+export type PortalTutor = {
+  name: string;
+  headline: string | null;
+  timezone: string | null;
+  verified: boolean;
+};
+
+export type PortalSession = TutoringSession & {
+  meeting_url: string | null;
+};
+
 export type PortalContext = {
   link: StudentPortalLink;
   student: Student;
   engagement: TutoringEngagement | null;
   plan: LearningPlanItem[];
-  sessions: TutoringSession[];
+  sessions: PortalSession[];
   homework: Homework[];
   resources: LearningResource[];
   submissions: HomeworkSubmission[];
   tutorName: string | null;
+  tutor: PortalTutor | null;
+  onboarding: PortalOnboarding | null;
+  supportRequests: PortalSupportRequest[];
 };
 
 const tokenPattern = /^[A-Za-z0-9_-]{40,128}$/;
@@ -124,7 +151,7 @@ export async function getPortalContext(tokenInput: string): Promise<PortalContex
   if (!link) return null;
 
   const supabase = createAdminClient();
-  const [{ data: studentData, error: studentError }, { data: engagementData }] = await Promise.all([
+  const [studentResult, engagementResult, onboardingResult, supportResult] = await Promise.all([
     supabase
       .from("students")
       .select("id,created_at,updated_at,source_lead_id,name,email,phone,country,academic_level,institution,programme,curriculum,status,notes")
@@ -135,20 +162,34 @@ export async function getPortalContext(tokenInput: string): Promise<PortalContex
       .select("id,created_at,updated_at,student_id,source_lead_id,tutor_id,subject,title,module,goal,target,start_date,end_date,status,frequency,session_duration_minutes,currency,current_focus,confidence,upcoming_deadline,preferred_learning_style,weak_topics,assessment_summary,notes,student_rate,tutor_rate")
       .eq("student_id", link.student_id)
       .order("created_at", { ascending: false }),
+    supabase
+      .from("student_onboarding")
+      .select("status,target_outcome,target_date,intake_completed_at,reviewed_at")
+      .eq("student_id", link.student_id)
+      .maybeSingle(),
+    supabase
+      .from("student_support_requests")
+      .select("id,created_at,category,message,status,resolved_at")
+      .eq("student_id", link.student_id)
+      .order("created_at", { ascending: false })
+      .limit(12),
   ]);
 
-  if (studentError || !studentData) return null;
+  if (studentResult.error || !studentResult.data) return null;
 
-  const student = studentData as Student;
-  const engagements = (engagementData || []) as TutoringEngagement[];
+  const student = studentResult.data as Student;
+  const engagements = (engagementResult.data || []) as TutoringEngagement[];
   const engagement = engagements.find((item) => item.status === "active") || engagements[0] || null;
+  const onboarding = (onboardingResult.data || null) as PortalOnboarding | null;
+  const supportRequests = (supportResult.data || []) as PortalSupportRequest[];
 
   let plan: LearningPlanItem[] = [];
-  let sessions: TutoringSession[] = [];
+  let sessions: PortalSession[] = [];
   let homework: Homework[] = [];
   let resources: LearningResource[] = [];
   let submissions: HomeworkSubmission[] = [];
   let tutorName: string | null = null;
+  let tutor: PortalTutor | null = null;
 
   if (engagement) {
     const [planResult, sessionResult, homeworkResult, resourceResult, submissionResult] = await Promise.all([
@@ -160,7 +201,7 @@ export async function getPortalContext(tokenInput: string): Promise<PortalContex
         .order("created_at"),
       supabase
         .from("tutoring_sessions")
-        .select("id,created_at,updated_at,engagement_id,tutor_id,scheduled_for,completed_at,duration_minutes,status,topic,lesson_notes,understanding_rating,next_topic,homework_summary,currency,student_rate,tutor_rate")
+        .select("id,created_at,updated_at,engagement_id,tutor_id,scheduled_for,completed_at,duration_minutes,status,topic,lesson_notes,understanding_rating,next_topic,homework_summary,meeting_url,currency,student_rate,tutor_rate")
         .eq("engagement_id", engagement.id)
         .order("scheduled_for", { ascending: false, nullsFirst: false }),
       supabase
@@ -181,14 +222,21 @@ export async function getPortalContext(tokenInput: string): Promise<PortalContex
     ]);
 
     plan = (planResult.data || []) as LearningPlanItem[];
-    sessions = (sessionResult.data || []) as TutoringSession[];
+    sessions = (sessionResult.data || []) as PortalSession[];
     homework = (homeworkResult.data || []) as Homework[];
     resources = (resourceResult.data || []) as LearningResource[];
     submissions = (submissionResult.data || []) as HomeworkSubmission[];
 
     if (engagement.tutor_id) {
-      const { data: tutor } = await supabase.from("tutors").select("name").eq("id", engagement.tutor_id).maybeSingle();
-      tutorName = tutor?.name || null;
+      const { data: tutorData } = await supabase
+        .from("tutors")
+        .select("name,headline,timezone,verified")
+        .eq("id", engagement.tutor_id)
+        .maybeSingle();
+      if (tutorData) {
+        tutor = tutorData as PortalTutor;
+        tutorName = tutor.name;
+      }
     }
   }
 
@@ -197,5 +245,18 @@ export async function getPortalContext(tokenInput: string): Promise<PortalContex
     .update({ last_accessed_at: new Date().toISOString(), updated_at: new Date().toISOString() })
     .eq("id", link.id);
 
-  return { link, student, engagement, plan, sessions, homework, resources, submissions, tutorName };
+  return {
+    link,
+    student,
+    engagement,
+    plan,
+    sessions,
+    homework,
+    resources,
+    submissions,
+    tutorName,
+    tutor,
+    onboarding,
+    supportRequests,
+  };
 }

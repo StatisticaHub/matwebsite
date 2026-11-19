@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type ExistingSubmission = { note: string | null; submission_url: string | null } | null;
 
@@ -13,6 +14,7 @@ export default function HomeworkSubmissionForm({
   homeworkId: string;
   existing: ExistingSubmission;
 }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState(existing?.note || "");
   const [url, setUrl] = useState(existing?.submission_url || "");
@@ -34,6 +36,7 @@ export default function HomeworkSubmissionForm({
       if (!response.ok) throw new Error("Request failed");
       setStatus("saved");
       setOpen(false);
+      router.refresh();
     } catch {
       setStatus("error");
     }
