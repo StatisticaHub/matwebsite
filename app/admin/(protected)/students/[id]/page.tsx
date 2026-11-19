@@ -194,7 +194,7 @@ export default async function StudentDetailPage({ params }: { params: Params }) 
                 <article key={item.id}>
                   <div className="admin-session-date"><strong>{formatDateTime(item.scheduled_for)}</strong><span>{item.duration_minutes} min</span></div>
                   <div className="admin-session-copy"><strong>{item.topic}</strong>{item.lesson_notes && <p>{item.lesson_notes}</p>}{item.next_topic && <small>Next: {item.next_topic}</small>}</div>
-                  <div className="admin-session-meta"><span className={`admin-status session-${item.status}`}>{sessionStatusLabels[item.status]}</span>{item.understanding_rating && <small>Understanding {item.understanding_rating}/5</small>}<small>{money(item.student_rate, item.currency)} student</small></div>
+                  <div className="admin-session-meta"><span className={`admin-status session-${item.status}`}>{sessionStatusLabels[item.status]}</span>{item.understanding_rating && <small>Understanding {item.understanding_rating}/5</small>}<small>{money(item.student_rate, item.currency)} student</small><Link className="admin-row-link" href={`/admin/sessions/${item.id}`}>Manage session →</Link></div>
                   <form action={updateTutoringSessionStatus} className="admin-inline-form"><input type="hidden" name="sessionId" value={item.id} /><input type="hidden" name="studentId" value={student.id} /><select name="status" defaultValue={item.status}>{sessionStatuses.map((status) => <option key={status} value={status}>{sessionStatusLabels[status]}</option>)}</select><label className="admin-email-toggle"><input name="notifyStudent" type="checkbox" /> Email</label><button type="submit">Save</button></form>
                 </article>
               ))}

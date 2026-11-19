@@ -171,3 +171,20 @@ export async function sendHomeworkNotification(input: HomeworkNotification): Pro
   const html = `<!doctype html><html><head><meta charset="utf-8"><style>${styles()}</style></head><body><div class="wrap"><div class="card"><div class="top"><strong>My Academic Tutor</strong><div style="margin-top:5px;font-size:13px;opacity:.78">Homework & practice</div></div><div class="body"><h1>${escapeHtml(input.title)}</h1><p>Hi ${escapeHtml(name)},</p><p>${escapeHtml(opening)}</p><div class="box">${input.description ? `<strong>Task:</strong> ${escapeHtml(input.description)}<br>` : ""}${due ? `<strong>Due:</strong> ${escapeHtml(due)}<br>` : ""}${input.status ? `<strong>Status:</strong> ${escapeHtml(input.status.replaceAll("_", " "))}` : ""}</div>${input.feedback ? `<p><strong>Tutor feedback</strong></p><div class="box">${escapeHtml(input.feedback).replaceAll("\n", "<br>")}</div>` : ""}<p>Kind regards,<br><strong>My Academic Tutor</strong></p></div><div class="footer">This message relates to your tutoring delivery record.</div></div></div></body></html>`;
   return deliver({ to: input.email, subject, html, text, idempotencyKey: `mat-homework/${input.homeworkId}/${input.status || "assigned"}/${input.feedback ? "feedback" : "notice"}` });
 }
+
+export async function sendSessionReminder(input: StudentRecipient & {
+  sessionId: string;
+  topic: string;
+  scheduledFor: string;
+  durationMinutes: number;
+  tutorName?: string | null;
+}): Promise<StudentEmailResult> {
+  const name = firstName(input.name);
+  const scheduled = prettyDate(input.scheduledFor, true) || input.scheduledFor;
+  const subject = `Reminder: ${input.topic}`;
+  const tutorLine = input.tutorName ? `\nTutor: ${input.tutorName}` : "";
+  const text = `Hi ${name},\n\nA quick reminder about your upcoming My Academic Tutor session.\n\nTopic: ${input.topic}\nWhen: ${scheduled}\nDuration: ${input.durationMinutes} minutes${tutorLine}\n\nIf anything needs changing, reply to this email.\n\nKind regards,\nMy Academic Tutor`;
+  const html = `<!doctype html><html><head><meta charset="utf-8"><style>${styles()}</style></head><body><div class="wrap"><div class="card"><div class="top"><strong>My Academic Tutor</strong><div style="margin-top:5px;font-size:13px;opacity:.78">Session reminder</div></div><div class="body"><h1>${escapeHtml(input.topic)}</h1><p>Hi ${escapeHtml(name)},</p><p>A quick reminder about your upcoming tutoring session.</p><div class="box"><strong>When:</strong> ${escapeHtml(scheduled)}<br><strong>Duration:</strong> ${input.durationMinutes} minutes${input.tutorName ? `<br><strong>Tutor:</strong> ${escapeHtml(input.tutorName)}` : ""}</div><p>If anything needs changing, reply to this email.</p><p>Kind regards,<br><strong>My Academic Tutor</strong></p></div><div class="footer">This reminder relates to your upcoming tutoring session.</div></div></div></body></html>`;
+  const reminderDay = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+  return deliver({ to: input.email, subject, html, text, idempotencyKey: `mat-session-reminder/${input.sessionId}/${input.scheduledFor}/${reminderDay}` });
+}

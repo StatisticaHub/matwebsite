@@ -6,6 +6,7 @@ import { saveLeadNotes, updateLeadAssignment, updateLeadStatus } from "@/app/adm
 import { logLeadContact } from "@/app/admin/lead-activity-actions";
 import { clearLeadFollowUp, scheduleLeadTrial, setLeadFollowUp, updateLeadTrialOutcome } from "@/app/admin/follow-up-actions";
 import { convertLeadToStudent } from "@/app/admin/delivery-actions";
+import { convertBookedTrialToStudent } from "@/app/admin/session-management-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -173,6 +174,14 @@ export default async function LeadDetailPage({ params }: { params: Params }) {
             ) : (
               <>
                 <p className="admin-help">Once tutoring is agreed, create the operational student record and learning engagement from this lead.</p>
+                {(lead.status === "booked" || lead.trial_outcome === "Proceed with tutoring") && (
+                  <form action={convertBookedTrialToStudent} className="admin-quick-convert">
+                    <input type="hidden" name="leadId" value={lead.id} />
+                    <strong>Trial successful?</strong>
+                    <span>Create the student and active engagement immediately using the lead, assigned tutor, quoted rate and trial notes.</span>
+                    <button className="admin-primary-button" type="submit">Convert to active student</button>
+                  </form>
+                )}
                 <details className="admin-disclosure compact-disclosure">
                   <summary>Create student record</summary>
                   <form action={convertLeadToStudent} className="admin-compact-form">
