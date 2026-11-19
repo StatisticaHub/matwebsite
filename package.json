@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "email:test": "node --env-file=.env.local scripts/send-test-email.mjs"
+    "email:test": "node --env-file=.env.local scripts/send-test-email.mjs",
+    "content:audit": "node scripts/audit-learning-hub.cjs"
   },
   "dependencies": {
     "@next/third-parties": "^16.4.6",

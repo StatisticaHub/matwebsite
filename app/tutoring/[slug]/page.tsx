@@ -14,6 +14,8 @@ import StickyTutoringCta from "@/components/StickyTutoringCta";
 import ConversionProofBar from "@/components/ConversionProofBar";
 import TrackedLink from "@/components/TrackedLink";
 import { serviceConversionFaqs, specialistConversionFaqs } from "@/lib/seo-conversion";
+import LearningResourceCard from "@/components/LearningResourceCard";
+import { getResourcesForTutoring } from "@/lib/resources";
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
   "https://www.myacademictutor.com";
@@ -74,6 +76,7 @@ function SpecialistPage({
   page: NonNullable<ReturnType<typeof getHighIntentTutoringPage>>;
 }) {
   const pageUrl = `${siteUrl}/tutoring/${page.slug}`;
+  const relatedLearning = getResourcesForTutoring(page.slug, page.subject, 3);
 
   const serviceSchema = {
     "@context": "https://schema.org",
@@ -173,7 +176,26 @@ function SpecialistPage({
         </div>
       </section>
 
-      <section className="section">
+            {/* specialist_related_learning_marker */}
+      {relatedLearning.length ? (
+        <section className="section learning-on-tutoring-section">
+          <div className="shell">
+            <div className="section-head">
+              <div>
+                <div className="eyebrow">LEARN THE METHOD FIRST</div>
+                <h2>Free guides related to {page.title.toLowerCase()}.</h2>
+                <p>Build the underlying concept, then use tutoring for course-specific explanation and practice.</p>
+              </div>
+              <Link href="/learn" className="text-link">Browse Learning Hub</Link>
+            </div>
+            <div className="resource-grid">
+              {relatedLearning.map((resource) => <LearningResourceCard key={resource.slug} resource={resource} />)}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+<section className="section">
         <div className="shell two-col">
           <div>
             <div className="eyebrow">RELATED SUPPORT</div>

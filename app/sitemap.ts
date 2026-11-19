@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 import { subjects, academicLevels } from "@/lib/tutoring-data";
 import { tutoringServices } from "@/lib/tutoring-services";
 import { highIntentTutoringPages } from "@/lib/high-intent-tutoring";
-import { resources } from "@/lib/resources";
+import { resourceCategories, resources } from "@/lib/resources";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
@@ -20,6 +20,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: url("/subjects"), changeFrequency: "weekly", priority: 0.9 },
     { url: url("/tutoring"), changeFrequency: "weekly", priority: 0.9 },
     { url: url("/learn"), changeFrequency: "weekly", priority: 0.85 },
+    { url: url("/learn/editorial-policy"), changeFrequency: "yearly", priority: 0.4 },
     { url: url("/levels"), changeFrequency: "monthly", priority: 0.8 },
     { url: url("/how-it-works"), changeFrequency: "monthly", priority: 0.7 },
     { url: url("/tutors"), changeFrequency: "monthly", priority: 0.65 },
@@ -57,6 +58,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.9,
   }));
 
+  const resourceCategoryPages = resourceCategories.map((category) => ({
+    url: url(`/learn/${category.slug}`),
+    changeFrequency: "weekly" as const,
+    priority: 0.8,
+  }));
+
   const resourcePages = resources.map((resource) => ({
     url: url(`/learn/${resource.slug}`),
     changeFrequency: "monthly" as const,
@@ -69,6 +76,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...levelPages,
     ...servicePages,
     ...specialistPages,
+    ...resourceCategoryPages,
     ...resourcePages,
   ];
 }

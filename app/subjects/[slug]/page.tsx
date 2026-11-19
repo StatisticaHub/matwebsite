@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import TutoringLeadForm from "@/components/TutoringLeadForm";
 import { subjects } from "@/lib/tutoring-data";
-import { resources } from "@/lib/resources";
+import { getResourcesForSubject, resources } from "@/lib/resources";
 
 import ConversionFaq from "@/components/ConversionFaq";
 import StickyTutoringCta from "@/components/StickyTutoringCta";
