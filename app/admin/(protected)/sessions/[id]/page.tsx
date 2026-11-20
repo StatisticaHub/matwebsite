@@ -24,6 +24,9 @@ type SessionDetail = {
   zoom_meeting_uuid: string | null;
   zoom_host_user_id: string | null;
   zoom_synced_at: string | null;
+  zoom_started_at: string | null;
+  zoom_ended_at: string | null;
+  zoom_last_event_at: string | null;
   tutor_id: string | null;
   session_tutor: { name: string } | null;
   student_rate: number | null;
@@ -69,7 +72,7 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
   const [{ data, error }, { data: tutorData }] = await Promise.all([
     supabase
       .from("tutoring_sessions")
-      .select("id,created_at,scheduled_for,completed_at,duration_minutes,status,topic,lesson_notes,understanding_rating,next_topic,homework_summary,meeting_url,zoom_meeting_id,zoom_meeting_uuid,zoom_host_user_id,zoom_synced_at,tutor_id,session_tutor:tutors(name),student_rate,tutor_rate,currency,engagement_id,tutoring_engagements(student_id,subject,title,students(name,email),tutors(name))")
+      .select("id,created_at,scheduled_for,completed_at,duration_minutes,status,topic,lesson_notes,understanding_rating,next_topic,homework_summary,meeting_url,zoom_meeting_id,zoom_meeting_uuid,zoom_host_user_id,zoom_synced_at,zoom_started_at,zoom_ended_at,zoom_last_event_at,tutor_id,session_tutor:tutors(name),student_rate,tutor_rate,currency,engagement_id,tutoring_engagements(student_id,subject,title,students(name,email),tutors(name))")
       .eq("id", id)
       .single(),
     supabase.from("tutors").select("id,name,status").order("name"),
@@ -135,6 +138,17 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
               <button className="admin-primary-button" type="submit">Save session</button>
             </form>
           </section>
+
+
+          {session.zoom_ended_at && session.status === "planned" && (
+            <section className="admin-panel admin-action-card">
+              <h2>Zoom meeting ended</h2>
+              <p className="admin-help">
+                Zoom reported this meeting ended at {formatDateTime(session.zoom_ended_at)}.
+                Review the lesson outcome below and complete the tutoring record, or mark a no-show if appropriate.
+              </p>
+            </section>
+          )}
 
 
           {canCloseOut && (
@@ -333,6 +347,24 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
                     <dd>
                       {session.zoom_synced_at
                         ? formatDateTime(session.zoom_synced_at)
+                        : "—"}
+                    </dd>
+                  </div>
+
+                  <div>
+                    <dt>Zoom started</dt>
+                    <dd>
+                      {session.zoom_started_at
+                        ? formatDateTime(session.zoom_started_at)
+                        : "—"}
+                    </dd>
+                  </div>
+
+                  <div>
+                    <dt>Zoom ended</dt>
+                    <dd>
+                      {session.zoom_ended_at
+                        ? formatDateTime(session.zoom_ended_at)
                         : "—"}
                     </dd>
                   </div>

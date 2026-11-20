@@ -28,6 +28,9 @@ type SessionRow = {
   status: SessionStatus;
   topic: string;
   understanding_rating: number | null;
+  zoom_meeting_id: string | null;
+  zoom_started_at: string | null;
+  zoom_ended_at: string | null;
   engagement_id: string;
   tutor_id: string | null;
   session_tutor: {
@@ -453,7 +456,7 @@ export default async function SessionsPage() {
         "tutoring_sessions"
       )
       .select(
-        "id,scheduled_for,duration_minutes,status,topic,understanding_rating,engagement_id,tutor_id,session_tutor:tutors(name),tutoring_engagements(student_id,subject,title,students(name),tutors(name))"
+        "id,scheduled_for,duration_minutes,status,topic,understanding_rating,zoom_meeting_id,zoom_started_at,zoom_ended_at,engagement_id,tutor_id,session_tutor:tutors(name),tutoring_engagements(student_id,subject,title,students(name),tutors(name))"
       )
       .order(
         "scheduled_for",
@@ -589,6 +592,22 @@ export default async function SessionsPage() {
   const todayKey =
     ukDateKey(now);
 
+  const needsCloseOut = sessions
+    .filter(
+      (item) =>
+        item.status === "planned" &&
+        Boolean(item.zoom_ended_at)
+    )
+    .sort(
+      (a, b) =>
+        new Date(
+          b.zoom_ended_at || 0
+        ).getTime() -
+        new Date(
+          a.zoom_ended_at || 0
+        ).getTime()
+    );
+
   const today = sessions
     .filter(
       (item) =>
@@ -598,7 +617,8 @@ export default async function SessionsPage() {
             item.scheduled_for
           )
         ) === todayKey &&
-        item.status === "planned"
+        item.status === "planned" &&
+        !item.zoom_ended_at
     )
     .sort(
       (a, b) =>
@@ -614,6 +634,7 @@ export default async function SessionsPage() {
     .filter(
       (item) =>
         item.status === "planned" &&
+        !item.zoom_ended_at &&
         item.scheduled_for &&
         new Date(
           item.scheduled_for
@@ -788,6 +809,79 @@ export default async function SessionsPage() {
           </strong>
         </div>
       </section>
+
+
+      {needsCloseOut.length > 0 && (
+        <section
+          className="admin-panel admin-detail-card"
+          id="session-closeout"
+        >
+          <div className="admin-card-head">
+            <div>
+              <span className="admin-eyebrow">
+                Zoom activity
+              </span>
+
+              <h2>
+                Sessions waiting for close-out
+              </h2>
+            </div>
+
+            <span>
+              {needsCloseOut.length} waiting
+            </span>
+          </div>
+
+          <p className="admin-help">
+            Zoom has reported that these meetings ended, but the
+            tutoring record is still planned. Open each session,
+            review the lesson outcome and mark it completed or
+            no-show.
+          </p>
+
+          <div className="admin-session-queue">
+            {needsCloseOut.map(
+              (item) => (
+                <Link
+                  key={item.id}
+                  href={`/admin/sessions/${item.id}`}
+                >
+                  <div>
+                    <strong>
+                      {item.tutoring_engagements
+                        ?.students?.name ||
+                        "Student"}
+                    </strong>
+
+                    <span>
+                      {item.tutoring_engagements
+                        ?.subject ||
+                        "Tutoring"}
+                    </span>
+                  </div>
+
+                  <div>
+                    <strong>
+                      {item.topic}
+                    </strong>
+
+                    <span>
+                      Zoom ended{" "}
+                      {formatDateTime(
+                        item.zoom_ended_at
+                      )}
+                    </span>
+                  </div>
+
+                  <b>
+                    Close out →
+                  </b>
+                </Link>
+              )
+            )}
+          </div>
+        </section>
+      )}
 
 
       {/* ================================================================
