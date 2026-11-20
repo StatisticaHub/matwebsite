@@ -240,41 +240,20 @@ async function updateSessionFromZoomEvent(
   }
 }
 
+export async function GET() {
+  return NextResponse.json({
+    ok: true,
+    service:
+      "My Academic Tutor Zoom webhook",
+  });
+}
+
 export async function POST(
   request: Request
 ) {
   try {
     const rawBody =
       await request.text();
-
-    const timestamp =
-      request.headers.get(
-        "x-zm-request-timestamp"
-      );
-
-    const signature =
-      request.headers.get(
-        "x-zm-signature"
-      );
-
-    if (
-      !verifyZoomSignature({
-        rawBody,
-        timestamp,
-        signature,
-      })
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Invalid Zoom webhook signature.",
-        },
-        {
-          status:
-            401,
-        }
-      );
-    }
 
     let body:
       ZoomWebhookPayload;
@@ -297,6 +276,10 @@ export async function POST(
       );
     }
 
+    /*
+     * Zoom's endpoint validation challenge is handled first.
+     * Zoom expects HMAC-SHA256(secret, plainToken).
+     */
     if (
       body.event ===
       "endpoint.url_validation"
@@ -332,6 +315,38 @@ export async function POST(
         plainToken,
         encryptedToken,
       });
+    }
+
+    /*
+     * Normal Zoom event notifications are signature verified.
+     */
+    const timestamp =
+      request.headers.get(
+        "x-zm-request-timestamp"
+      );
+
+    const signature =
+      request.headers.get(
+        "x-zm-signature"
+      );
+
+    if (
+      !verifyZoomSignature({
+        rawBody,
+        timestamp,
+        signature,
+      })
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Invalid Zoom webhook signature.",
+        },
+        {
+          status:
+            401,
+        }
+      );
     }
 
     await updateSessionFromZoomEvent(
