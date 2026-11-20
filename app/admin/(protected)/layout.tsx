@@ -29,6 +29,7 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
           <Link href="/admin/content-growth">Content growth</Link>
           <Link href="/admin/analytics">Analytics</Link>
           <Link href="/admin/business-intelligence">Business intelligence</Link>
+          <Link href="/admin/system-health">System health</Link>
           <Link href="/" target="_blank">View website ↗</Link>
         </nav>
         <div className="admin-sidebar-footer">
