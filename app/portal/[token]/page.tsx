@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 
 import HomeworkSubmissionForm from "@/components/HomeworkSubmissionForm";
 import SessionRequestForm from "@/components/SessionRequestForm";
+import SessionChangeRequestForm from "@/components/SessionChangeRequestForm";
 import StudentSupportForm from "@/components/StudentSupportForm";
 
 import {
@@ -608,6 +609,16 @@ export default async function StudentPortalPage({
                   appear here
                 </span>
               ) : null}
+
+
+              {nextSession && (
+                <a
+                  className="button button-secondary"
+                  href="#session-change"
+                >
+                  Change this session ↓
+                </a>
+              )}
 
 
               {engagement ? (
@@ -1447,6 +1458,57 @@ export default async function StudentPortalPage({
                   </div>
 
                 </section>
+
+
+                {/* ==========================================================
+                    SESSION CHANGE REQUEST
+                   ========================================================== */}
+
+                {upcomingSessions.length > 0 && (
+                  <section
+                    className="portal-panel portal-help-card"
+                    id="session-change"
+                  >
+                    <span className="portal-kicker">
+                      Existing booking
+                    </span>
+
+                    <h2>
+                      Need to change a
+                      session?
+                    </h2>
+
+                    <p>
+                      Request a new time
+                      or ask to cancel an
+                      upcoming lesson.
+                      Your current
+                      booking stays in
+                      place until your
+                      tutoring team
+                      confirms the
+                      change.
+                    </p>
+
+                    <SessionChangeRequestForm
+                      token={token}
+                      defaultSessionId={
+                        nextSession?.id
+                      }
+                      sessions={upcomingSessions.map(
+                        (item) => ({
+                          id: item.id,
+                          scheduledFor:
+                            item.scheduled_for as string,
+                          topic:
+                            item.topic,
+                          durationMinutes:
+                            item.duration_minutes,
+                        })
+                      )}
+                    />
+                  </section>
+                )}
 
 
                 {/* ==========================================================

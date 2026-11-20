@@ -613,6 +613,558 @@ export async function cancelTutoringSession(formData: FormData) {
   revalidatePath(`/admin/students/${relation.student_id}`);
 }
 
+
+function supportMessageLine(
+  message: string,
+  label: string
+) {
+  const prefix = `${label}:`;
+
+  const line =
+    message
+      .split(/\r?\n/)
+      .find(
+        (item) =>
+          item
+            .trim()
+            .startsWith(
+              prefix
+            )
+      );
+
+  if (!line) {
+    return null;
+  }
+
+  const value =
+    line
+      .trim()
+      .slice(
+        prefix.length
+      )
+      .trim();
+
+  return value || null;
+}
+
+async function resolveSessionChangeRequest(args: {
+  supabase: ReturnType<typeof createAdminClient>;
+  requestId: string;
+  note: string;
+}) {
+  const now =
+    new Date()
+      .toISOString();
+
+  const {
+    data: request,
+    error:
+      requestError,
+  } =
+    await args.supabase
+      .from(
+        "student_support_requests"
+      )
+      .select(
+        "id,admin_note"
+      )
+      .eq(
+        "id",
+        args.requestId
+      )
+      .single();
+
+  if (
+    requestError ||
+    !request
+  ) {
+    throw new Error(
+      requestError?.message ||
+        "Session change request not found."
+    );
+  }
+
+  const nextAdminNote =
+    request.admin_note
+      ? `${request.admin_note}\n${args.note}`
+      : args.note;
+
+  const {
+    error,
+  } =
+    await args.supabase
+      .from(
+        "student_support_requests"
+      )
+      .update({
+        status:
+          "resolved",
+
+        admin_note:
+          nextAdminNote,
+
+        resolved_at:
+          now,
+
+        updated_at:
+          now,
+      })
+      .eq(
+        "id",
+        args.requestId
+      );
+
+  if (error) {
+    throw new Error(
+      error.message
+    );
+  }
+}
+
+async function sessionChangeContext(
+  formData: FormData,
+  expectedType:
+    | "Reschedule"
+    | "Cancellation"
+) {
+  const {
+    session,
+    supabase,
+  } =
+    await adminContext();
+
+  const requestId =
+    text(
+      formData,
+      "requestId",
+      100
+    );
+
+  const sessionId =
+    text(
+      formData,
+      "sessionId",
+      100
+    );
+
+  if (
+    !requestId ||
+    !sessionId
+  ) {
+    throw new Error(
+      "Session change request is incomplete."
+    );
+  }
+
+  const {
+    data: request,
+    error:
+      requestError,
+  } =
+    await supabase
+      .from(
+        "student_support_requests"
+      )
+      .select(
+        "id,student_id,engagement_id,category,message,status"
+      )
+      .eq(
+        "id",
+        requestId
+      )
+      .single();
+
+  if (
+    requestError ||
+    !request
+  ) {
+    throw new Error(
+      requestError?.message ||
+        "Session change request not found."
+    );
+  }
+
+  if (
+    request.category !==
+      "session_request" ||
+    request.status ===
+      "resolved" ||
+    !request.message.startsWith(
+      "SESSION CHANGE REQUEST"
+    )
+  ) {
+    throw new Error(
+      "This request cannot be applied as a session change."
+    );
+  }
+
+  const changeType =
+    supportMessageLine(
+      request.message,
+      "Change type"
+    );
+
+  const referencedSessionId =
+    supportMessageLine(
+      request.message,
+      "Session ID"
+    );
+
+  if (
+    changeType !==
+      expectedType ||
+    referencedSessionId !==
+      sessionId
+  ) {
+    throw new Error(
+      "Session change request details do not match."
+    );
+  }
+
+  const {
+    data: sessionRow,
+    error:
+      sessionError,
+  } =
+    await supabase
+      .from(
+        "tutoring_sessions"
+      )
+      .select(
+        "id,engagement_id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary,meeting_url,tutoring_engagements(student_id)"
+      )
+      .eq(
+        "id",
+        sessionId
+      )
+      .single();
+
+  if (
+    sessionError ||
+    !sessionRow
+  ) {
+    throw new Error(
+      sessionError?.message ||
+        "Session not found."
+    );
+  }
+
+  const relation =
+    sessionRow
+      .tutoring_engagements as unknown as {
+        student_id: string;
+      } | null;
+
+  if (
+    !relation?.student_id
+  ) {
+    throw new Error(
+      "Session student could not be resolved."
+    );
+  }
+
+  if (
+    relation.student_id !==
+    request.student_id
+  ) {
+    throw new Error(
+      "This request does not belong to the session student."
+    );
+  }
+
+  if (
+    request.engagement_id &&
+    request.engagement_id !==
+      sessionRow.engagement_id
+  ) {
+    throw new Error(
+      "This request does not belong to the session engagement."
+    );
+  }
+
+  return {
+    session,
+    supabase,
+    request,
+    requestId,
+    sessionId,
+    sessionRow,
+    studentId:
+      relation.student_id,
+  };
+}
+
+export async function acceptSessionRescheduleRequest(
+  formData: FormData
+) {
+  const context =
+    await sessionChangeContext(
+      formData,
+      "Reschedule"
+    );
+
+  const rawScheduledFor =
+    text(
+      formData,
+      "scheduledFor",
+      40
+    );
+
+  const scheduledFor =
+    rawScheduledFor
+      ? ukLocalToIso(
+          rawScheduledFor
+        )
+      : null;
+
+  if (
+    !scheduledFor
+  ) {
+    throw new Error(
+      "Choose a valid UK date and time."
+    );
+  }
+
+  if (
+    context.sessionRow
+      .status !==
+    "planned"
+  ) {
+    throw new Error(
+      "Only planned sessions can be rescheduled."
+    );
+  }
+
+  const {
+    data: updated,
+    error,
+  } =
+    await context.supabase
+      .from(
+        "tutoring_sessions"
+      )
+      .update({
+        scheduled_for:
+          scheduledFor,
+
+        updated_at:
+          new Date()
+            .toISOString(),
+      })
+      .eq(
+        "id",
+        context.sessionId
+      )
+      .select(
+        "id,engagement_id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary,meeting_url"
+      )
+      .single();
+
+  if (
+    error ||
+    !updated
+  ) {
+    throw new Error(
+      error?.message ||
+        "Could not reschedule session."
+    );
+  }
+
+  await resolveSessionChangeRequest({
+    supabase:
+      context.supabase,
+
+    requestId:
+      context.requestId,
+
+    note:
+      `Accepted reschedule for session ${context.sessionId}. New UK time: ${rawScheduledFor}.`,
+  });
+
+  if (
+    formData.get(
+      "notifyStudent"
+    ) === "on"
+  ) {
+    try {
+      await notifySession({
+        supabase:
+          context.supabase,
+
+        adminEmail:
+          context.session.user.email ||
+          null,
+
+        studentId:
+          context.studentId,
+
+        engagementId:
+          updated.engagement_id,
+
+        sessionRow:
+          updated,
+      });
+    } catch (
+      notificationError
+    ) {
+      console.error(
+        "Session was rescheduled but the student notification failed:",
+        notificationError
+      );
+    }
+  }
+
+  revalidatePath(
+    "/admin"
+  );
+
+  revalidatePath(
+    "/admin/sessions"
+  );
+
+  revalidatePath(
+    "/admin/portals"
+  );
+
+  revalidatePath(
+    `/admin/sessions/${context.sessionId}`
+  );
+
+  revalidatePath(
+    `/admin/students/${context.studentId}`
+  );
+
+  redirect(
+    `/admin/sessions/${context.sessionId}`
+  );
+}
+
+export async function acceptSessionCancellationRequest(
+  formData: FormData
+) {
+  const context =
+    await sessionChangeContext(
+      formData,
+      "Cancellation"
+    );
+
+  if (
+    context.sessionRow
+      .status !==
+    "planned"
+  ) {
+    throw new Error(
+      "Only planned sessions can be cancelled from a student request."
+    );
+  }
+
+  const {
+    data: updated,
+    error,
+  } =
+    await context.supabase
+      .from(
+        "tutoring_sessions"
+      )
+      .update({
+        status:
+          "cancelled",
+
+        completed_at:
+          null,
+
+        updated_at:
+          new Date()
+            .toISOString(),
+      })
+      .eq(
+        "id",
+        context.sessionId
+      )
+      .select(
+        "id,engagement_id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary,meeting_url"
+      )
+      .single();
+
+  if (
+    error ||
+    !updated
+  ) {
+    throw new Error(
+      error?.message ||
+        "Could not cancel session."
+    );
+  }
+
+  await resolveSessionChangeRequest({
+    supabase:
+      context.supabase,
+
+    requestId:
+      context.requestId,
+
+    note:
+      `Accepted cancellation request for session ${context.sessionId}.`,
+  });
+
+  if (
+    formData.get(
+      "notifyStudent"
+    ) === "on"
+  ) {
+    try {
+      await notifySession({
+        supabase:
+          context.supabase,
+
+        adminEmail:
+          context.session.user.email ||
+          null,
+
+        studentId:
+          context.studentId,
+
+        engagementId:
+          updated.engagement_id,
+
+        sessionRow:
+          updated,
+      });
+    } catch (
+      notificationError
+    ) {
+      console.error(
+        "Session was cancelled but the student notification failed:",
+        notificationError
+      );
+    }
+  }
+
+  revalidatePath(
+    "/admin"
+  );
+
+  revalidatePath(
+    "/admin/sessions"
+  );
+
+  revalidatePath(
+    "/admin/portals"
+  );
+
+  revalidatePath(
+    `/admin/sessions/${context.sessionId}`
+  );
+
+  revalidatePath(
+    `/admin/students/${context.studentId}`
+  );
+
+  redirect(
+    `/admin/sessions/${context.sessionId}`
+  );
+}
+
 export async function sendTutoringSessionReminder(
   formData: FormData
 ) {

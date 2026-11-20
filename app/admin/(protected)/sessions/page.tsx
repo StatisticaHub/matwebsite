@@ -6,6 +6,8 @@ import {
   type SessionStatus,
 } from "@/lib/delivery-data";
 import {
+  acceptSessionCancellationRequest,
+  acceptSessionRescheduleRequest,
   createTutoringSessionFromAdmin,
 } from "@/app/admin/session-management-actions";
 import {
@@ -77,6 +79,18 @@ type ParsedSessionRequest = {
   urgency: string | null;
   topic: string | null;
   notes: string | null;
+};
+
+type ParsedSessionChangeRequest = {
+  changeType: "Reschedule" | "Cancellation" | null;
+  sessionId: string | null;
+  currentScheduledUtc: string | null;
+  sessionTopic: string | null;
+  requestedDate: string | null;
+  requestedTime: string | null;
+  timezone: string | null;
+  requestedUtc: string | null;
+  reason: string | null;
 };
 
 function formatDateTime(value: string | null) {
@@ -326,6 +340,76 @@ function parseSessionRequest(
   };
 }
 
+function parseSessionChangeRequest(
+  message: string
+): ParsedSessionChangeRequest {
+  const rawType =
+    messageLine(
+      message,
+      "Change type"
+    );
+
+  const changeType =
+    rawType ===
+      "Reschedule" ||
+    rawType ===
+      "Cancellation"
+      ? rawType
+      : null;
+
+  return {
+    changeType,
+
+    sessionId:
+      messageLine(
+        message,
+        "Session ID"
+      ),
+
+    currentScheduledUtc:
+      messageLine(
+        message,
+        "Current scheduled UTC"
+      ),
+
+    sessionTopic:
+      messageLine(
+        message,
+        "Session topic"
+      ),
+
+    requestedDate:
+      messageLine(
+        message,
+        "Requested local date"
+      ),
+
+    requestedTime:
+      messageLine(
+        message,
+        "Requested local time"
+      ),
+
+    timezone:
+      messageLine(
+        message,
+        "Student timezone"
+      ),
+
+    requestedUtc:
+      messageLine(
+        message,
+        "Requested UTC"
+      ),
+
+    reason:
+      messageSection(
+        message,
+        "Reason"
+      ),
+  };
+}
+
 function requestStatusLabel(
   status: SessionRequestRow["status"]
 ) {
@@ -452,13 +536,43 @@ export default async function SessionsPage() {
       name: string;
     }>;
 
-  const sessionRequests =
+  const allSessionRequests =
     (requestData ||
       []) as SessionRequestRow[];
+
+  const sessionChangeRequests =
+    allSessionRequests.filter(
+      (item) =>
+        item.message.startsWith(
+          "SESSION CHANGE REQUEST"
+        )
+    );
+
+  const sessionRequests =
+    allSessionRequests.filter(
+      (item) =>
+        !item.message.startsWith(
+          "SESSION CHANGE REQUEST"
+        )
+    );
+
+  const openSessionOperations =
+    sessionRequests.length +
+    sessionChangeRequests.length;
 
   const engagementById =
     new Map(
       engagements.map(
+        (item) => [
+          item.id,
+          item,
+        ]
+      )
+    );
+
+  const sessionById =
+    new Map(
+      sessions.map(
         (item) => [
           item.id,
           item,
@@ -665,9 +779,479 @@ export default async function SessionsPage() {
 
           <strong>
             {
-              sessionRequests.length
+              openSessionOperations
             }
           </strong>
+        </div>
+      </section>
+
+
+      {/* ================================================================
+          STUDENT SESSION CHANGE QUEUE
+         ================================================================ */}
+
+      <section
+        className="admin-panel admin-detail-card"
+        id="session-changes"
+      >
+        <div className="admin-card-head">
+          <div>
+            <span className="admin-eyebrow">
+              Existing bookings
+            </span>
+
+            <h2>
+              Session changes
+            </h2>
+          </div>
+
+          <span>
+            {
+              sessionChangeRequests.length
+            }{" "}
+            open
+          </span>
+        </div>
+
+
+        <div className="admin-support-list">
+
+          {sessionChangeRequests.map(
+            (request) => {
+
+              const details =
+                parseSessionChangeRequest(
+                  request.message
+                );
+
+              const sessionRecord =
+                details.sessionId
+                  ? sessionById.get(
+                      details.sessionId
+                    )
+                  : undefined;
+
+              const engagement =
+                request.engagement_id
+                  ? engagementById.get(
+                      request.engagement_id
+                    )
+                  : undefined;
+
+              const studentName =
+                sessionRecord
+                  ?.tutoring_engagements
+                  ?.students?.name ||
+                engagement
+                  ?.students?.name ||
+                "Student";
+
+              const subject =
+                sessionRecord
+                  ?.tutoring_engagements
+                  ?.subject ||
+                engagement?.subject ||
+                "Tutoring";
+
+              const currentScheduled =
+                sessionRecord
+                  ?.scheduled_for ||
+                details.currentScheduledUtc;
+
+              const requestedWhen = [
+                details.requestedDate,
+                details.requestedTime,
+              ]
+                .filter(Boolean)
+                .join(" · ");
+
+              const ukEquivalent =
+                details.requestedUtc
+                  ? formatDateTimeInZone(
+                      details.requestedUtc,
+                      "Europe/London"
+                    )
+                  : null;
+
+              const defaultUkDateTime =
+                details.requestedUtc
+                  ? toDateTimeLocalInZone(
+                      details.requestedUtc,
+                      "Europe/London"
+                    )
+                  : "";
+
+              const canApply =
+                Boolean(
+                  details.sessionId
+                ) &&
+                Boolean(
+                  details.changeType
+                );
+
+              return (
+                <article
+                  key={request.id}
+                >
+                  <div className="admin-support-copy">
+
+                    <div>
+                      <span>
+                        {requestStatusLabel(
+                          request.status
+                        )}
+                      </span>
+
+                      <strong>
+                        {studentName}
+                      </strong>
+
+                      <small>
+                        {formatDateTime(
+                          request.created_at
+                        )}
+                      </small>
+                    </div>
+
+
+                    <p>
+                      <strong>
+                        {subject}
+                      </strong>
+                    </p>
+
+
+                    <dl className="admin-details-list">
+
+                      <div>
+                        <dt>
+                          Change
+                        </dt>
+
+                        <dd>
+                          {details.changeType ||
+                            "Unknown"}
+                        </dd>
+                      </div>
+
+
+                      <div>
+                        <dt>
+                          Current booking
+                        </dt>
+
+                        <dd>
+                          {currentScheduled
+                            ? formatDateTimeInZone(
+                                currentScheduled,
+                                "Europe/London"
+                              )
+                            : "Not available"}
+                        </dd>
+                      </div>
+
+
+                      {details.changeType ===
+                        "Reschedule" && (
+                        <>
+                          <div>
+                            <dt>
+                              Student preference
+                            </dt>
+
+                            <dd>
+                              {requestedWhen ||
+                                "Not specified"}
+                            </dd>
+                          </div>
+
+
+                          <div>
+                            <dt>
+                              Student timezone
+                            </dt>
+
+                            <dd>
+                              {details.timezone ||
+                                "Not provided"}
+                            </dd>
+                          </div>
+
+
+                          <div>
+                            <dt>
+                              UK equivalent
+                            </dt>
+
+                            <dd>
+                              {ukEquivalent ||
+                                "Not available"}
+                            </dd>
+                          </div>
+                        </>
+                      )}
+
+                    </dl>
+
+
+                    <p
+                      style={{
+                        whiteSpace:
+                          "pre-line",
+                      }}
+                    >
+                      <strong>
+                        Session
+                      </strong>
+                      <br />
+                      {sessionRecord?.topic ||
+                        details.sessionTopic ||
+                        "Tutoring session"}
+                    </p>
+
+
+                    <p
+                      style={{
+                        whiteSpace:
+                          "pre-line",
+                      }}
+                    >
+                      <strong>
+                        Reason
+                      </strong>
+                      <br />
+                      {details.reason ||
+                        "No reason provided."}
+                    </p>
+
+
+                    <Link
+                      href={`/admin/students/${request.student_id}`}
+                    >
+                      Open student record →
+                    </Link>
+
+                  </div>
+
+
+                  <div className="admin-support-action">
+
+                    {!canApply && (
+                      <div className="admin-empty compact">
+                        This request is
+                        missing the session
+                        details required to
+                        apply it.
+                      </div>
+                    )}
+
+
+                    {canApply &&
+                      details.changeType ===
+                        "Reschedule" && (
+                        <form
+                          action={
+                            acceptSessionRescheduleRequest
+                          }
+                          className="admin-compact-form"
+                        >
+                          <input
+                            type="hidden"
+                            name="requestId"
+                            value={
+                              request.id
+                            }
+                          />
+
+                          <input
+                            type="hidden"
+                            name="sessionId"
+                            value={
+                              details.sessionId ||
+                              ""
+                            }
+                          />
+
+
+                          <label>
+                            <span>
+                              Confirmed new
+                              date & time (UK)
+                            </span>
+
+                            <input
+                              name="scheduledFor"
+                              type="datetime-local"
+                              required
+                              defaultValue={
+                                defaultUkDateTime
+                              }
+                            />
+                          </label>
+
+
+                          <label className="admin-email-toggle admin-email-toggle-block">
+                            <input
+                              name="notifyStudent"
+                              type="checkbox"
+                              defaultChecked
+                            />
+
+                            Email the student
+                            when the new time
+                            is confirmed
+                          </label>
+
+
+                          <button
+                            className="admin-primary-button"
+                            type="submit"
+                          >
+                            Accept new time
+                          </button>
+                        </form>
+                      )}
+
+
+                    {canApply &&
+                      details.changeType ===
+                        "Cancellation" && (
+                        <form
+                          action={
+                            acceptSessionCancellationRequest
+                          }
+                          className="admin-compact-form"
+                        >
+                          <input
+                            type="hidden"
+                            name="requestId"
+                            value={
+                              request.id
+                            }
+                          />
+
+                          <input
+                            type="hidden"
+                            name="sessionId"
+                            value={
+                              details.sessionId ||
+                              ""
+                            }
+                          />
+
+
+                          <label className="admin-email-toggle admin-email-toggle-block">
+                            <input
+                              name="notifyStudent"
+                              type="checkbox"
+                              defaultChecked
+                            />
+
+                            Email the student
+                            when cancellation
+                            is confirmed
+                          </label>
+
+
+                          <button
+                            className="admin-danger-button"
+                            type="submit"
+                          >
+                            Cancel session
+                          </button>
+                        </form>
+                      )}
+
+
+                    {request.status !==
+                      "in_progress" && (
+                      <form
+                        action={
+                          updateSupportRequest
+                        }
+                      >
+                        <input
+                          type="hidden"
+                          name="requestId"
+                          value={
+                            request.id
+                          }
+                        />
+
+                        <input
+                          type="hidden"
+                          name="status"
+                          value="in_progress"
+                        />
+
+                        <input
+                          type="hidden"
+                          name="adminNote"
+                          value={
+                            request.admin_note ||
+                            ""
+                          }
+                        />
+
+                        <button
+                          type="submit"
+                        >
+                          Mark in progress
+                        </button>
+                      </form>
+                    )}
+
+
+                    <form
+                      action={
+                        updateSupportRequest
+                      }
+                    >
+                      <input
+                        type="hidden"
+                        name="requestId"
+                        value={
+                          request.id
+                        }
+                      />
+
+                      <input
+                        type="hidden"
+                        name="status"
+                        value="resolved"
+                      />
+
+                      <input
+                        type="hidden"
+                        name="adminNote"
+                        value={
+                          request.admin_note ||
+                          ""
+                        }
+                      />
+
+                      <button
+                        type="submit"
+                      >
+                        Resolve without
+                        applying change
+                      </button>
+                    </form>
+
+                  </div>
+                </article>
+              );
+            }
+          )}
+
+
+          {!sessionChangeRequests.length && (
+            <div className="admin-empty compact">
+              No open session change
+              requests.
+            </div>
+          )}
+
         </div>
       </section>
 
