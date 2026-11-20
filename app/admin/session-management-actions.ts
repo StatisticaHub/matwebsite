@@ -32,6 +32,7 @@ function nullableNumber(formData: FormData, key: string) {
 
 function safeUrl(value: string | null) {
   if (!value) return null;
+
   try {
     const url = new URL(value);
     return ["https:", "http:"].includes(url.protocol) ? url.toString() : null;
@@ -51,20 +52,50 @@ function timezoneOffsetMs(date: Date, timeZone: string) {
     second: "2-digit",
     hourCycle: "h23",
   }).formatToParts(date);
-  const map = Object.fromEntries(parts.filter((part) => part.type !== "literal").map((part) => [part.type, part.value]));
-  const asUtc = Date.UTC(Number(map.year), Number(map.month) - 1, Number(map.day), Number(map.hour), Number(map.minute), Number(map.second));
+
+  const map = Object.fromEntries(
+    parts
+      .filter((part) => part.type !== "literal")
+      .map((part) => [part.type, part.value])
+  );
+
+  const asUtc = Date.UTC(
+    Number(map.year),
+    Number(map.month) - 1,
+    Number(map.day),
+    Number(map.hour),
+    Number(map.minute),
+    Number(map.second)
+  );
+
   return asUtc - date.getTime();
 }
 
 function ukLocalToIso(value: string) {
   const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(value);
   if (!match) return null;
+
   const [, y, m, d, hh, mm] = match;
-  const provisional = new Date(Date.UTC(Number(y), Number(m) - 1, Number(d), Number(hh), Number(mm), 0));
+
+  const provisional = new Date(
+    Date.UTC(
+      Number(y),
+      Number(m) - 1,
+      Number(d),
+      Number(hh),
+      Number(mm),
+      0
+    )
+  );
+
   const firstOffset = timezoneOffsetMs(provisional, "Europe/London");
   let resolved = new Date(provisional.getTime() - firstOffset);
+
   const secondOffset = timezoneOffsetMs(resolved, "Europe/London");
-  if (secondOffset !== firstOffset) resolved = new Date(provisional.getTime() - secondOffset);
+  if (secondOffset !== firstOffset) {
+    resolved = new Date(provisional.getTime() - secondOffset);
+  }
+
   return Number.isNaN(resolved.getTime()) ? null : resolved.toISOString();
 }
 
@@ -83,6 +114,7 @@ async function leadActivity(args: {
     created_by: args.userId,
     created_by_email: args.userEmail,
   });
+
   if (error) throw new Error(error.message);
 }
 
@@ -102,7 +134,12 @@ async function notifySession(args: {
     meeting_url: string | null;
   };
 }) {
-  const { data: student } = await args.supabase.from("students").select("name,email").eq("id", args.studentId).maybeSingle();
+  const { data: student } = await args.supabase
+    .from("students")
+    .select("name,email")
+    .eq("id", args.studentId)
+    .maybeSingle();
+
   if (!student?.email) return;
 
   const result = await sendSessionNotification({
@@ -118,11 +155,12 @@ async function notifySession(args: {
     meetingUrl: args.sessionRow.meeting_url,
   });
 
-  const subject = args.sessionRow.status === "completed"
-    ? `Session follow-up: ${args.sessionRow.topic}`
-    : args.sessionRow.status === "cancelled"
-      ? `Session update: ${args.sessionRow.topic}`
-      : `Tutoring session scheduled: ${args.sessionRow.topic}`;
+  const subject =
+    args.sessionRow.status === "completed"
+      ? `Session follow-up: ${args.sessionRow.topic}`
+      : args.sessionRow.status === "cancelled"
+        ? `Session update: ${args.sessionRow.topic}`
+        : `Tutoring session scheduled: ${args.sessionRow.topic}`;
 
   await recordStudentCommunication({
     studentId: args.studentId,
@@ -137,17 +175,39 @@ async function notifySession(args: {
 
 export async function convertBookedTrialToStudent(formData: FormData) {
   const { session, supabase } = await adminContext();
+
   const leadId = text(formData, "leadId", 100);
   if (!leadId) return;
 
-  const { data: lead, error: leadError } = await supabase.from("tutoring_leads").select("*").eq("id", leadId).single();
-  if (leadError || !lead) throw new Error(leadError?.message || "Lead not found.");
+  const { data: lead, error: leadError } = await supabase
+    .from("tutoring_leads")
+    .select("*")
+    .eq("id", leadId)
+    .single();
 
-  const canConvert = lead.status === "booked" || lead.trial_outcome === "Proceed with tutoring";
-  if (!canConvert) throw new Error("Record a successful trial outcome before using quick conversion.");
+  if (leadError || !lead) {
+    throw new Error(leadError?.message || "Lead not found.");
+  }
 
-  const { data: existingStudent } = await supabase.from("students").select("id").eq("source_lead_id", leadId).maybeSingle();
-  if (existingStudent?.id) redirect(`/admin/students/${existingStudent.id}`);
+  const canConvert =
+    lead.status === "booked" ||
+    lead.trial_outcome === "Proceed with tutoring";
+
+  if (!canConvert) {
+    throw new Error(
+      "Record a successful trial outcome before using quick conversion."
+    );
+  }
+
+  const { data: existingStudent } = await supabase
+    .from("students")
+    .select("id")
+    .eq("source_lead_id", leadId)
+    .maybeSingle();
+
+  if (existingStudent?.id) {
+    redirect(`/admin/students/${existingStudent.id}`);
+  }
 
   const { data: student, error: studentError } = await supabase
     .from("students")
@@ -165,51 +225,83 @@ export async function convertBookedTrialToStudent(formData: FormData) {
     })
     .select("id")
     .single();
-  if (studentError || !student) throw new Error(studentError?.message || "Could not create student.");
 
-  const { error: onboardingError } = await supabase.from("student_onboarding").insert({ student_id: student.id, status: "awaiting_intake" });
-  if (onboardingError && onboardingError.code !== "23505") throw new Error(onboardingError.message);
+  if (studentError || !student) {
+    throw new Error(studentError?.message || "Could not create student.");
+  }
+
+  const { error: onboardingError } = await supabase
+    .from("student_onboarding")
+    .insert({
+      student_id: student.id,
+      status: "awaiting_intake",
+    });
+
+  if (onboardingError && onboardingError.code !== "23505") {
+    throw new Error(onboardingError.message);
+  }
 
   let tutorRate: number | null = null;
   let tutorName: string | null = null;
+
   if (lead.assigned_tutor_id) {
-    const { data: tutor } = await supabase.from("tutors").select("name,hourly_rate").eq("id", lead.assigned_tutor_id).maybeSingle();
+    const { data: tutor } = await supabase
+      .from("tutors")
+      .select("name,hourly_rate")
+      .eq("id", lead.assigned_tutor_id)
+      .maybeSingle();
+
     tutorRate = tutor?.hourly_rate ?? null;
     tutorName = tutor?.name || null;
   }
 
-  const { data: engagement, error: engagementError } = await supabase.from("tutoring_engagements").insert({
-    student_id: student.id,
-    source_lead_id: lead.id,
-    tutor_id: lead.assigned_tutor_id,
-    subject: lead.subject,
-    title: `${lead.subject} tutoring`,
-    module: lead.topic || null,
-    goal: lead.requirements,
-    start_date: new Date().toISOString().slice(0, 10),
-    status: "active",
-    session_duration_minutes: 60,
-    student_rate: lead.quoted_rate,
-    tutor_rate: tutorRate,
-    currency: lead.currency || "GBP",
-    current_focus: lead.topic || null,
-    assessment_summary: lead.trial_notes || null,
-  }).select("id").single();
-  if (engagementError || !engagement) throw new Error(engagementError?.message || "Could not create tutoring engagement.");
+  const { data: engagement, error: engagementError } = await supabase
+    .from("tutoring_engagements")
+    .insert({
+      student_id: student.id,
+      source_lead_id: lead.id,
+      tutor_id: lead.assigned_tutor_id,
+      subject: lead.subject,
+      title: `${lead.subject} tutoring`,
+      module: lead.topic || null,
+      goal: lead.requirements,
+      start_date: new Date().toISOString().slice(0, 10),
+      status: "active",
+      session_duration_minutes: 60,
+      student_rate: lead.quoted_rate,
+      tutor_rate: tutorRate,
+      currency: lead.currency || "GBP",
+      current_focus: lead.topic || null,
+      assessment_summary: lead.trial_notes || null,
+    })
+    .select("id")
+    .single();
 
-  const { error: updateError } = await supabase.from("tutoring_leads").update({
-    status: "ongoing",
-    next_follow_up_at: null,
-    follow_up_note: null,
-    updated_at: new Date().toISOString(),
-  }).eq("id", leadId);
+  if (engagementError || !engagement) {
+    throw new Error(
+      engagementError?.message || "Could not create tutoring engagement."
+    );
+  }
+
+  const { error: updateError } = await supabase
+    .from("tutoring_leads")
+    .update({
+      status: "ongoing",
+      next_follow_up_at: null,
+      follow_up_note: null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", leadId);
+
   if (updateError) throw new Error(updateError.message);
 
   await leadActivity({
     supabase,
     leadId,
     eventType: "student_created",
-    note: `Successful trial converted to an active student and tutoring engagement${tutorName ? ` with ${tutorName}` : ""}.`,
+    note: `Successful trial converted to an active student and tutoring engagement${
+      tutorName ? ` with ${tutorName}` : ""
+    }.`,
     userId: session.user.id,
     userEmail: session.user.email || null,
   });
@@ -218,44 +310,83 @@ export async function convertBookedTrialToStudent(formData: FormData) {
   revalidatePath("/admin/follow-ups");
   revalidatePath("/admin/students");
   revalidatePath("/admin/sessions");
+
   redirect(`/admin/students/${student.id}`);
 }
 
 export async function createTutoringSessionFromAdmin(formData: FormData) {
   const { session, supabase } = await adminContext();
+
   const engagementId = text(formData, "engagementId", 100);
+  const supportRequestId = text(formData, "supportRequestId", 100);
   const topic = text(formData, "topic", 500);
-  const status = (text(formData, "status", 30) || "planned") as SessionStatus;
+  const status =
+    (text(formData, "status", 30) || "planned") as SessionStatus;
+
   const rawScheduledFor = text(formData, "scheduledFor", 40);
-  const scheduledFor = rawScheduledFor ? ukLocalToIso(rawScheduledFor) : null;
+  const scheduledFor = rawScheduledFor
+    ? ukLocalToIso(rawScheduledFor)
+    : null;
+
   const duration = nullableNumber(formData, "durationMinutes");
-  if (!engagementId || !topic || !sessionStatuses.includes(status)) return;
+
+  if (!engagementId || !topic || !sessionStatuses.includes(status)) {
+    return;
+  }
 
   const { data: engagement, error: engagementError } = await supabase
     .from("tutoring_engagements")
-    .select("id,student_id,tutor_id,session_duration_minutes,student_rate,tutor_rate,currency")
+    .select(
+      "id,student_id,tutor_id,session_duration_minutes,student_rate,tutor_rate,currency"
+    )
     .eq("id", engagementId)
     .single();
-  if (engagementError || !engagement) throw new Error(engagementError?.message || "Engagement not found.");
 
-  const { data: created, error } = await supabase.from("tutoring_sessions").insert({
-    engagement_id: engagement.id,
-    tutor_id: nullableText(formData, "tutorId", 100) || engagement.tutor_id,
-    scheduled_for: scheduledFor,
-    completed_at: status === "completed" ? new Date().toISOString() : null,
-    duration_minutes: duration && duration >= 15 && duration <= 480 ? Math.round(duration) : engagement.session_duration_minutes || 60,
-    status,
-    topic,
-    lesson_notes: nullableText(formData, "lessonNotes", 8000),
-    understanding_rating: null,
-    next_topic: nullableText(formData, "nextTopic", 1000),
-    homework_summary: nullableText(formData, "homeworkSummary", 2000),
-    meeting_url: safeUrl(nullableText(formData, "meetingUrl", 1000)),
-    student_rate: engagement.student_rate,
-    tutor_rate: engagement.tutor_rate,
-    currency: engagement.currency || "GBP",
-  }).select("id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary,meeting_url").single();
-  if (error || !created) throw new Error(error?.message || "Could not create session.");
+  if (engagementError || !engagement) {
+    throw new Error(engagementError?.message || "Engagement not found.");
+  }
+
+  const { data: created, error } = await supabase
+    .from("tutoring_sessions")
+    .insert({
+      engagement_id: engagement.id,
+      tutor_id:
+        nullableText(formData, "tutorId", 100) ||
+        engagement.tutor_id,
+      scheduled_for: scheduledFor,
+      completed_at:
+        status === "completed"
+          ? new Date().toISOString()
+          : null,
+      duration_minutes:
+        duration && duration >= 15 && duration <= 480
+          ? Math.round(duration)
+          : engagement.session_duration_minutes || 60,
+      status,
+      topic,
+      lesson_notes: nullableText(formData, "lessonNotes", 8000),
+      understanding_rating: null,
+      next_topic: nullableText(formData, "nextTopic", 1000),
+      homework_summary: nullableText(
+        formData,
+        "homeworkSummary",
+        2000
+      ),
+      meeting_url: safeUrl(
+        nullableText(formData, "meetingUrl", 1000)
+      ),
+      student_rate: engagement.student_rate,
+      tutor_rate: engagement.tutor_rate,
+      currency: engagement.currency || "GBP",
+    })
+    .select(
+      "id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary,meeting_url"
+    )
+    .single();
+
+  if (error || !created) {
+    throw new Error(error?.message || "Could not create session.");
+  }
 
   if (formData.get("notifyStudent") === "on") {
     await notifySession({
@@ -267,48 +398,146 @@ export async function createTutoringSessionFromAdmin(formData: FormData) {
     });
   }
 
+  /*
+   * If the session was created from a student portal session request,
+   * resolve that request only after the session creation succeeds.
+   *
+   * We also verify the request belongs to the same student/engagement
+   * before resolving it.
+   */
+  if (supportRequestId) {
+    const { data: supportRequest, error: requestError } = await supabase
+      .from("student_support_requests")
+      .select(
+        "id,student_id,engagement_id,category,admin_note,status"
+      )
+      .eq("id", supportRequestId)
+      .maybeSingle();
+
+    if (requestError) {
+      throw new Error(requestError.message);
+    }
+
+    const belongsToSession =
+      supportRequest &&
+      supportRequest.category === "session_request" &&
+      supportRequest.student_id === engagement.student_id &&
+      (!supportRequest.engagement_id ||
+        supportRequest.engagement_id === engagement.id);
+
+    if (belongsToSession) {
+      const now = new Date().toISOString();
+      const resolutionNote =
+        `Scheduled as tutoring session ${created.id}.`;
+
+      const nextAdminNote = supportRequest.admin_note
+        ? `${supportRequest.admin_note}\n${resolutionNote}`
+        : resolutionNote;
+
+      const { error: resolveError } = await supabase
+        .from("student_support_requests")
+        .update({
+          status: "resolved",
+          admin_note: nextAdminNote,
+          resolved_at: now,
+          updated_at: now,
+        })
+        .eq("id", supportRequestId);
+
+      if (resolveError) {
+        throw new Error(resolveError.message);
+      }
+    }
+  }
+
   revalidatePath("/admin");
   revalidatePath("/admin/sessions");
+  revalidatePath("/admin/portals");
   revalidatePath(`/admin/students/${engagement.student_id}`);
+
   redirect(`/admin/sessions/${created.id}`);
 }
 
 export async function updateTutoringSession(formData: FormData) {
   const { session, supabase } = await adminContext();
+
   const sessionId = text(formData, "sessionId", 100);
   const status = text(formData, "status", 30) as SessionStatus;
   const topic = text(formData, "topic", 500);
   const rawScheduledFor = text(formData, "scheduledFor", 40);
-  const scheduledFor = rawScheduledFor ? ukLocalToIso(rawScheduledFor) : null;
+  const scheduledFor = rawScheduledFor
+    ? ukLocalToIso(rawScheduledFor)
+    : null;
   const duration = nullableNumber(formData, "durationMinutes");
   const rating = nullableNumber(formData, "understandingRating");
-  if (!sessionId || !topic || !sessionStatuses.includes(status)) return;
+
+  if (!sessionId || !topic || !sessionStatuses.includes(status)) {
+    return;
+  }
 
   const { data: current, error: currentError } = await supabase
     .from("tutoring_sessions")
-    .select("id,engagement_id,completed_at,tutoring_engagements(student_id)")
+    .select(
+      "id,engagement_id,completed_at,tutoring_engagements(student_id)"
+    )
     .eq("id", sessionId)
     .single();
-  if (currentError || !current) throw new Error(currentError?.message || "Session not found.");
-  const relation = current.tutoring_engagements as unknown as { student_id: string } | null;
-  if (!relation?.student_id) throw new Error("Session student could not be resolved.");
 
-  const completedAt = status === "completed" ? (current.completed_at || new Date().toISOString()) : null;
-  const { data: updated, error } = await supabase.from("tutoring_sessions").update({
-    tutor_id: nullableText(formData, "tutorId", 100),
-    scheduled_for: scheduledFor,
-    completed_at: completedAt,
-    duration_minutes: duration && duration >= 15 && duration <= 480 ? Math.round(duration) : 60,
-    status,
-    topic,
-    lesson_notes: nullableText(formData, "lessonNotes", 8000),
-    understanding_rating: rating && rating >= 1 && rating <= 5 ? Math.round(rating) : null,
-    next_topic: nullableText(formData, "nextTopic", 1000),
-    homework_summary: nullableText(formData, "homeworkSummary", 2000),
-    meeting_url: safeUrl(nullableText(formData, "meetingUrl", 1000)),
-    updated_at: new Date().toISOString(),
-  }).eq("id", sessionId).select("id,engagement_id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary,meeting_url").single();
-  if (error || !updated) throw new Error(error?.message || "Could not update session.");
+  if (currentError || !current) {
+    throw new Error(currentError?.message || "Session not found.");
+  }
+
+  const relation =
+    current.tutoring_engagements as unknown as {
+      student_id: string;
+    } | null;
+
+  if (!relation?.student_id) {
+    throw new Error("Session student could not be resolved.");
+  }
+
+  const completedAt =
+    status === "completed"
+      ? current.completed_at || new Date().toISOString()
+      : null;
+
+  const { data: updated, error } = await supabase
+    .from("tutoring_sessions")
+    .update({
+      tutor_id: nullableText(formData, "tutorId", 100),
+      scheduled_for: scheduledFor,
+      completed_at: completedAt,
+      duration_minutes:
+        duration && duration >= 15 && duration <= 480
+          ? Math.round(duration)
+          : 60,
+      status,
+      topic,
+      lesson_notes: nullableText(formData, "lessonNotes", 8000),
+      understanding_rating:
+        rating && rating >= 1 && rating <= 5
+          ? Math.round(rating)
+          : null,
+      next_topic: nullableText(formData, "nextTopic", 1000),
+      homework_summary: nullableText(
+        formData,
+        "homeworkSummary",
+        2000
+      ),
+      meeting_url: safeUrl(
+        nullableText(formData, "meetingUrl", 1000)
+      ),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", sessionId)
+    .select(
+      "id,engagement_id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary,meeting_url"
+    )
+    .single();
+
+  if (error || !updated) {
+    throw new Error(error?.message || "Could not update session.");
+  }
 
   if (formData.get("notifyStudent") === "on") {
     await notifySession({
@@ -328,6 +557,7 @@ export async function updateTutoringSession(formData: FormData) {
 
 export async function cancelTutoringSession(formData: FormData) {
   const { session, supabase } = await adminContext();
+
   const sessionId = text(formData, "sessionId", 100);
   if (!sessionId) return;
 
@@ -336,16 +566,36 @@ export async function cancelTutoringSession(formData: FormData) {
     .select("id,engagement_id,tutoring_engagements(student_id)")
     .eq("id", sessionId)
     .single();
-  if (currentError || !current) throw new Error(currentError?.message || "Session not found.");
-  const relation = current.tutoring_engagements as unknown as { student_id: string } | null;
-  if (!relation?.student_id) throw new Error("Session student could not be resolved.");
 
-  const { data: updated, error } = await supabase.from("tutoring_sessions").update({
-    status: "cancelled",
-    completed_at: null,
-    updated_at: new Date().toISOString(),
-  }).eq("id", sessionId).select("id,engagement_id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary,meeting_url").single();
-  if (error || !updated) throw new Error(error?.message || "Could not cancel session.");
+  if (currentError || !current) {
+    throw new Error(currentError?.message || "Session not found.");
+  }
+
+  const relation =
+    current.tutoring_engagements as unknown as {
+      student_id: string;
+    } | null;
+
+  if (!relation?.student_id) {
+    throw new Error("Session student could not be resolved.");
+  }
+
+  const { data: updated, error } = await supabase
+    .from("tutoring_sessions")
+    .update({
+      status: "cancelled",
+      completed_at: null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", sessionId)
+    .select(
+      "id,engagement_id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary,meeting_url"
+    )
+    .single();
+
+  if (error || !updated) {
+    throw new Error(error?.message || "Could not cancel session.");
+  }
 
   if (formData.get("notifyStudent") === "on") {
     await notifySession({
@@ -363,27 +613,64 @@ export async function cancelTutoringSession(formData: FormData) {
   revalidatePath(`/admin/students/${relation.student_id}`);
 }
 
-export async function sendTutoringSessionReminder(formData: FormData) {
+export async function sendTutoringSessionReminder(
+  formData: FormData
+) {
   const { session, supabase } = await adminContext();
+
   const sessionId = text(formData, "sessionId", 100);
   if (!sessionId) return;
 
   const { data: sessionRow, error } = await supabase
     .from("tutoring_sessions")
-    .select("id,engagement_id,tutor_id,scheduled_for,status,topic,duration_minutes,meeting_url,tutoring_engagements(student_id)")
+    .select(
+      "id,engagement_id,tutor_id,scheduled_for,status,topic,duration_minutes,meeting_url,tutoring_engagements(student_id)"
+    )
     .eq("id", sessionId)
     .single();
-  if (error || !sessionRow) throw new Error(error?.message || "Session not found.");
-  if (sessionRow.status !== "planned" || !sessionRow.scheduled_for) throw new Error("Only scheduled sessions can receive reminders.");
 
-  const relation = sessionRow.tutoring_engagements as unknown as { student_id: string } | null;
-  if (!relation?.student_id) throw new Error("Session student could not be resolved.");
+  if (error || !sessionRow) {
+    throw new Error(error?.message || "Session not found.");
+  }
 
-  const [{ data: student }, { data: tutor }] = await Promise.all([
-    supabase.from("students").select("name,email").eq("id", relation.student_id).maybeSingle(),
-    sessionRow.tutor_id ? supabase.from("tutors").select("name").eq("id", sessionRow.tutor_id).maybeSingle() : Promise.resolve({ data: null }),
-  ]);
-  if (!student?.email) throw new Error("Student email not found.");
+  if (
+    sessionRow.status !== "planned" ||
+    !sessionRow.scheduled_for
+  ) {
+    throw new Error(
+      "Only scheduled sessions can receive reminders."
+    );
+  }
+
+  const relation =
+    sessionRow.tutoring_engagements as unknown as {
+      student_id: string;
+    } | null;
+
+  if (!relation?.student_id) {
+    throw new Error("Session student could not be resolved.");
+  }
+
+  const [{ data: student }, { data: tutor }] =
+    await Promise.all([
+      supabase
+        .from("students")
+        .select("name,email")
+        .eq("id", relation.student_id)
+        .maybeSingle(),
+
+      sessionRow.tutor_id
+        ? supabase
+            .from("tutors")
+            .select("name")
+            .eq("id", sessionRow.tutor_id)
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
+    ]);
+
+  if (!student?.email) {
+    throw new Error("Student email not found.");
+  }
 
   const result = await sendSessionReminder({
     sessionId,
