@@ -24,6 +24,7 @@ type Status = {
 };
 
 export default function TutoringLeadForm({
+  compact = false,
   defaultSubject = "Statistics",
   defaultSupportType = "Regular 1:1 tutoring",
   submitLabel,
@@ -167,7 +168,7 @@ export default function TutoringLeadForm({
   }
 
   return (
-    <form className="lead-form" onSubmit={submit}>
+    <form className={`lead-form ${compact ? "lead-form-compact" : ""}`} onSubmit={submit}>
       <input
         className="honeypot"
         name="companyWebsite"
@@ -210,56 +211,38 @@ export default function TutoringLeadForm({
             }
           >
             {subjects.map((subject) => (
-              <option
-                key={subject.slug}
-                value={subject.name}
-              >
+              <option key={subject.slug} value={subject.name}>
                 {subject.name}
               </option>
             ))}
-
             <option value="Other">Other</option>
           </select>
         </label>
 
         <label>
           <span>Academic level</span>
-          <select
-            name="level"
-            required
-            defaultValue="Master's"
-          >
+          <select name="level" required defaultValue="Master's">
             {levels.map((level) => (
-              <option
-                key={level}
-                value={level}
-              >
+              <option key={level} value={level}>
                 {level}
               </option>
             ))}
           </select>
         </label>
 
-        <label>
-          <span>Country</span>
-          <select
-            name="country"
+        <label className="form-span-2">
+          <span>What do you want help understanding?</span>
+          <textarea
+            name="requirements"
             required
-            defaultValue="United Kingdom"
-          >
-            {countries.map((country) => (
-              <option
-                key={country}
-                value={country}
-              >
-                {country}
-              </option>
-            ))}
-          </select>
+            minLength={20}
+            rows={4}
+            placeholder="For example: I am studying MSc Finance and need help understanding regression, hypothesis testing and econometrics before my next assessment."
+          />
         </label>
 
         <label>
-          <span>What support do you need?</span>
+          <span>Type of support</span>
           <select
             name="supportType"
             required
@@ -270,25 +253,22 @@ export default function TutoringLeadForm({
             }
           >
             {supportTypes.map((type) => (
-              <option
-                key={type}
-                value={type}
-              >
+              <option key={type} value={type}>
                 {type}
               </option>
             ))}
           </select>
         </label>
 
-        <label className="form-span-2">
-          <span>Tell us briefly what you need help with</span>
-          <textarea
-            name="requirements"
-            required
-            minLength={20}
-            rows={4}
-            placeholder="For example: I am studying MSc Finance and need help understanding regression, hypothesis testing and econometrics."
-          />
+        <label>
+          <span>Country</span>
+          <select name="country" required defaultValue="United Kingdom">
+            {countries.map((country) => (
+              <option key={country} value={country}>
+                {country}
+              </option>
+            ))}
+          </select>
         </label>
       </div>
 
@@ -325,8 +305,8 @@ export default function TutoringLeadForm({
       )}
 
       <p className="form-note">
-        No obligation. We’ll review your requirements and recommend suitable
-        one-to-one support.
+        No obligation. Submitting this form does not book a lesson or commit you
+        to ongoing tutoring.
       </p>
     </form>
   );

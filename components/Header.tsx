@@ -33,9 +33,13 @@ export default function Header() {
           ))}
         </nav>
 
-        <Link className="button button-primary header-cta" href="/find-a-tutor">
+        <TrackedLink
+          className="button button-primary header-cta"
+          href="/find-a-tutor"
+          trackingId="header_request_tutoring"
+        >
           Request tutoring
-        </Link>
+        </TrackedLink>
 
         <details className="mobile-menu">
           <summary aria-label="Open navigation">Menu</summary>
@@ -47,9 +51,12 @@ export default function Header() {
               </Link>
             ))}
 
-            <Link href="/find-a-tutor">
+            <TrackedLink
+              href="/find-a-tutor"
+              trackingId="mobile_menu_request_tutoring"
+            >
               <strong>Request tutoring</strong>
-            </Link>
+            </TrackedLink>
           </nav>
         </details>
       </div>

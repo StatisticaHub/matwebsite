@@ -23,34 +23,37 @@ export default async function HomePage() {
             </div>
 
             <h1>
-              Understand difficult subjects with personalised one-to-one tutoring.
+              Specialist one-to-one tutoring for difficult quantitative, technical and research subjects.
             </h1>
 
             <p className="hero-lead">
-              Online tutoring for school, university and postgraduate students.
-              Learn difficult concepts clearly, practise with guidance and build
-              the confidence to work independently.
+              Get personalised help with statistics, mathematics, data science,
+              bioinformatics, coding and research methods. Learn the method,
+              practise with guidance and build the confidence to work independently.
             </p>
 
             <div className="button-row">
-              <Link
+              <TrackedLink
                 className="button button-primary button-large"
                 href="/find-a-tutor"
+                trackingId="home_hero_request_tutoring"
               >
                 Request tutoring
-              </Link>
+              </TrackedLink>
 
-              <Link
+              <TrackedLink
                 className="button button-secondary button-large"
-                href="/subjects"
+                href="/learn"
+                trackingId="home_hero_free_learning"
+                contentType="learning_cta"
               >
-                Explore subjects
-              </Link>
+                Explore free learning
+              </TrackedLink>
             </div>
 
             <div className="trust-row" aria-label="Service highlights">
               <span>Since 2020</span>
-              <span>Live 1:1 teaching</span>
+              <span>Specialist subject matching</span>
               <span>School to postgraduate</span>
               <span>Online worldwide</span>
             </div>
@@ -117,6 +120,33 @@ export default async function HomePage() {
       </section>
 
       <ConversionProofBar />
+
+      <section className="section home-tutoring-journey">
+        <div className="shell">
+          <div className="conversion-section-head">
+            <div className="eyebrow">HOW TUTORING WORKS</div>
+            <h2>Tell us the problem. We organise the right support.</h2>
+            <p>You do not need to browse tutor profiles or diagnose the right service yourself.</p>
+          </div>
+          <div className="conversion-journey">
+            <article><span>1</span><h3>Tell us what you need</h3><p>Share your subject, academic level and the exact topic or difficulty.</p></article>
+            <article><span>2</span><h3>We review and match</h3><p>We assess the academic context and identify suitable available support.</p></article>
+            <article><span>3</span><h3>Start learning one-to-one</h3><p>Work through explanation, examples and guided practice around your priorities.</p></article>
+          </div>
+        </div>
+      </section>
+      {testimonials.length ? (
+        <section className="section section-soft testimonial-home-section">
+          <div className="shell">
+            <div className="section-head">
+              <div><div className="eyebrow">STUDENT EXPERIENCES</div><h2>Learning support students can describe in their own words.</h2><p className="section-intro">Approved feedback from students who have used My Academic Tutor. Testimonials are published only with the student’s permission.</p></div>
+              <Link href="/testimonials" className="text-link">Read all testimonials</Link>
+            </div>
+            <div className="testimonial-grid testimonial-grid-home">{testimonials.map((item) => <TestimonialCard key={item.id} testimonial={item} />)}</div>
+          </div>
+        </section>
+      ) : null}
+
 
       <section className="section">
         <div className="shell">
@@ -268,55 +298,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="section section-dark">
-        <div className="shell">
-          <div className="eyebrow eyebrow-light">
-            HOW IT WORKS
-          </div>
-
-          <h2>
-            Start from where you are now.
-          </h2>
-
-          <div className="steps-grid">
-            <article>
-              <strong>01</strong>
-              <h3>Tell us what you need</h3>
-              <p>
-                Share your subject, academic level and the problem you want help
-                understanding.
-              </p>
-            </article>
-
-            <article>
-              <strong>02</strong>
-              <h3>We review your request</h3>
-              <p>
-                We identify suitable support based on your subject and academic
-                context.
-              </p>
-            </article>
-
-            <article>
-              <strong>03</strong>
-              <h3>Start one-to-one tutoring</h3>
-              <p>
-                Learn through explanation, examples, questions and guided
-                practice.
-              </p>
-            </article>
-
-            <article>
-              <strong>04</strong>
-              <h3>Keep progressing</h3>
-              <p>
-                Sessions adapt as your course, assessments and learning needs
-                change.
-              </p>
-            </article>
-          </div>
-        </div>
-      </section>
 
       <section className="section section-soft">
         <div className="shell lead-section-grid">
@@ -392,18 +373,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {testimonials.length ? (
-        <section className="section section-soft testimonial-home-section">
-          <div className="shell">
-            <div className="section-head">
-              <div><div className="eyebrow">STUDENT EXPERIENCES</div><h2>Learning support students can describe in their own words.</h2><p className="section-intro">Approved feedback from students who have used My Academic Tutor. Testimonials are published only with the student’s permission.</p></div>
-              <Link href="/testimonials" className="text-link">Read all testimonials</Link>
-            </div>
-            <div className="testimonial-grid testimonial-grid-home">{testimonials.map((item) => <TestimonialCard key={item.id} testimonial={item} />)}</div>
-          </div>
-        </section>
-      ) : null}
-
       <section className="section">
         <div className="shell integrity-grid">
           <div>
@@ -458,12 +427,13 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <Link
+          <TrackedLink
             className="button button-light button-large"
             href="/find-a-tutor"
+            trackingId="home_footer_request_tutoring"
           >
             Request tutoring
-          </Link>
+          </TrackedLink>
         </div>
       </section>
     </>

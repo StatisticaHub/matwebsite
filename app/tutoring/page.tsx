@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import TrackedLink from "@/components/TrackedLink";
 import { tutoringServices } from "@/lib/tutoring-services";
 import { highIntentTutoringPages } from "@/lib/high-intent-tutoring";
 
@@ -23,7 +24,13 @@ export default function Page() {
             <h1>One-to-one teaching for the work you are actually doing.</h1>
             <p className="page-lead">Choose the kind of support that fits your current goal. Sessions can follow a course over time, focus on an exam, strengthen a technical method or help you understand a research problem.</p>
             <div className="button-row">
-              <Link href="/find-a-tutor" className="button button-primary button-large">Request tutoring</Link>
+              <TrackedLink
+                href="/find-a-tutor"
+                className="button button-primary button-large"
+                trackingId="tutoring_index_hero"
+              >
+                Request tutoring
+              </TrackedLink>
               <Link href="/subjects" className="button button-secondary button-large">Explore subjects</Link>
             </div>
           </div>
@@ -41,7 +48,21 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="section">
+      <section className="section tutoring-process-section">
+        <div className="shell">
+          <div className="conversion-section-head">
+            <div className="eyebrow">HOW TUTORING WORKS</div>
+            <h2>Start with the learning problem. We handle the matching.</h2>
+          </div>
+          <div className="conversion-journey">
+            <article><span>1</span><h3>Tell us what you need</h3><p>Share the subject, level and exact topic or difficulty.</p></article>
+            <article><span>2</span><h3>We review and match</h3><p>We identify suitable support based on the academic context and availability.</p></article>
+            <article><span>3</span><h3>Start one-to-one tutoring</h3><p>Begin with explanation, examples and guided practice around your priorities.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section className="section section-soft tutoring-service-choice">
         <div className="shell">
           <div className="eyebrow">CHOOSE YOUR SUPPORT</div>
           <h2>Start with the academic goal, not the tutor profile.</h2>
@@ -97,14 +118,23 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="section">
-        <div className="shell process-band">
-          <div><span>01</span><strong>Tell us what you are studying</strong><p>Subject, level and current difficulty.</p></div>
-          <div><span>02</span><strong>We arrange suitable support</strong><p>We review the academic depth and teaching needs.</p></div>
-          <div><span>03</span><strong>Start learning one-to-one</strong><p>Your sessions begin from the priorities you shared.</p></div>
-          <div><span>04</span><strong>Adjust as you progress</strong><p>Change the focus or frequency as needed.</p></div>
+      <section className="cta-band">
+        <div className="shell cta-band-inner">
+          <div>
+            <div className="eyebrow eyebrow-light">NEED PERSONALISED HELP?</div>
+            <h2>Tell us what you are studying and where you are stuck.</h2>
+            <p>We will review the academic context and arrange suitable one-to-one support.</p>
+          </div>
+          <TrackedLink
+            href="/find-a-tutor"
+            className="button button-light button-large"
+            trackingId="tutoring_index_footer"
+          >
+            Request tutoring
+          </TrackedLink>
         </div>
       </section>
+
     </>
   );
 }

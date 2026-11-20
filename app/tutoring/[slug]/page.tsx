@@ -277,7 +277,7 @@ export default async function Page({
             <h1>{service.title}</h1>
             <p className="page-lead">{service.hero}</p>
             <div className="button-row">
-              <TrackedLink href="/find-a-tutor" className="button button-primary button-large" trackingId={`service_${service.slug}_hero`}>Get this support</TrackedLink>
+              <TrackedLink href="/find-a-tutor" className="button button-primary button-large" trackingId={`service_${service.slug}_hero`}>Request tutoring</TrackedLink>
               <Link href="/tutoring" className="button button-secondary button-large">All tutoring services</Link>
             </div>
           </div>
@@ -333,12 +333,12 @@ export default async function Page({
             <p className="service-integrity-note">We teach, explain, review and guide. We do not complete assessed work on a student’s behalf.</p>
           </div>
           <div className="card form-card">
-            <TutoringLeadForm compact defaultSupportType={service.defaultSupportType} submitLabel="Get personalised tutoring" />
+            <TutoringLeadForm compact defaultSupportType={service.defaultSupportType} submitLabel="Request tutoring" />
           </div>
         </div>
       </section>
       {/* service_sticky_cta_marker */}
-      <StickyTutoringCta label="Get personalised tutoring" trackingId={`service_${service.slug}_sticky`} />
+      <StickyTutoringCta label="Request tutoring" trackingId={`service_${service.slug}_sticky`} />
     </>
   );
 }

@@ -701,3 +701,37 @@ body:has(.student-portal-shell) main{min-height:100vh}
 
 /* MAT_SYSTEM_HEALTH_OPERATIONAL_QA */
 .system-health-page{max-width:1500px}.system-health-head{align-items:flex-start}.system-health-overall{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.4rem 1.5rem;align-items:center;border:1px solid var(--border,#e2e8f0);border-radius:18px;padding:1.1rem 1.2rem;margin:1rem 0 1.25rem;background:#fff}.system-health-overall>div{display:flex;align-items:center;gap:.85rem}.system-health-overall>div>div{display:grid;gap:.1rem}.system-health-overall span{font-size:.78rem;color:#64748b}.system-health-overall strong{font-size:1.25rem}.system-health-overall p{margin:0;font-size:.9rem;color:#475569}.system-health-overall small{grid-column:1/-1;color:#64748b}.system-health-dot{width:.72rem;height:.72rem;border-radius:999px;display:inline-block;background:#64748b;box-shadow:0 0 0 4px rgba(100,116,139,.1)}.system-health-overall.healthy,.system-health-check.healthy{border-color:#bbf7d0}.system-health-overall.attention,.system-health-check.attention{border-color:#fde68a}.system-health-overall.failed,.system-health-check.failed{border-color:#fecaca}.system-health-overall.healthy .system-health-dot,.system-health-check.healthy .system-health-dot{background:#16a34a;box-shadow:0 0 0 4px rgba(22,163,74,.1)}.system-health-overall.attention .system-health-dot,.system-health-check.attention .system-health-dot{background:#d97706;box-shadow:0 0 0 4px rgba(217,119,6,.1)}.system-health-overall.failed .system-health-dot,.system-health-check.failed .system-health-dot{background:#dc2626;box-shadow:0 0 0 4px rgba(220,38,38,.1)}.system-health-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;margin-bottom:1.25rem}.system-health-summary-grid article{border:1px solid #e2e8f0;border-radius:16px;background:#fff;padding:1rem;display:grid;gap:.2rem}.system-health-summary-grid article.healthy{border-top:3px solid #16a34a}.system-health-summary-grid article.attention{border-top:3px solid #d97706}.system-health-summary-grid article.failed{border-top:3px solid #dc2626}.system-health-summary-grid span,.system-health-summary-grid small{color:#64748b}.system-health-summary-grid strong{font-size:1.8rem}.system-health-principle{display:grid;grid-template-columns:minmax(220px,.75fr) minmax(0,1.5fr);gap:1.5rem;align-items:center}.system-health-principle p{margin:0;color:#475569}.system-health-group{margin-top:1rem}.system-health-check-list{display:grid;gap:.75rem;margin-top:1rem}.system-health-check{display:grid;grid-template-columns:140px minmax(0,1fr) auto;gap:1rem;align-items:center;border:1px solid #e2e8f0;border-radius:14px;padding:.9rem 1rem;background:#fff}.system-health-check-status{display:flex;align-items:center;gap:.55rem;font-size:.85rem}.system-health-check-title{display:flex;align-items:center;gap:.6rem}.system-health-check-title h3{margin:0;font-size:1rem}.system-health-count{display:inline-flex;min-width:1.65rem;height:1.65rem;align-items:center;justify-content:center;border-radius:999px;background:#f1f5f9;color:#334155;font-size:.78rem;font-weight:700}.system-health-check-copy p{margin:.22rem 0;color:#334155}.system-health-check-copy small{display:block;color:#64748b;line-height:1.45}.system-health-link{white-space:nowrap}.system-health-runbook ol{margin:.8rem 0 0;padding-left:1.25rem;display:grid;gap:.6rem;color:#475569}.system-health-runbook li{padding-left:.2rem}@media(max-width:900px){.system-health-summary-grid{grid-template-columns:1fr}.system-health-principle{grid-template-columns:1fr}.system-health-check{grid-template-columns:1fr}.system-health-link{width:max-content}.system-health-overall{grid-template-columns:1fr}.system-health-overall small{grid-column:auto}}
+
+
+/* ============================================================
+   MAT final conversion + mobile polish
+   ============================================================ */
+.home-tutoring-journey{padding-top:68px;padding-bottom:68px}.home-tutoring-journey .conversion-section-head{margin-bottom:26px}.testimonial-home-section{border-top:1px solid var(--line)}.conversion-request-form-section{padding-top:64px}.conversion-request-card{box-shadow:0 20px 54px rgba(16,35,63,.1)}.conversion-request-card .conversion-form-reassurance{margin-top:18px;margin-bottom:0}.conversion-next-steps{padding-top:70px}.tutoring-process-section{padding-bottom:72px}.tutoring-service-choice{border-top:1px solid #e8edf3}.lead-form .form-span-2 textarea{font-size:15px}.lead-form-compact .form-note{margin-bottom:0!important}
+
+@media(max-width:700px){
+  .hero .lesson-panel{display:none}
+  .hero .button-row,.page-hero .button-row{display:grid;grid-template-columns:1fr;gap:9px}
+  .hero .button-row .button,.page-hero .button-row .button{width:100%}
+  .hero .trust-row,.page-hero .trust-row{margin-top:24px}
+  .home-tutoring-journey,.conversion-request-form-section,.conversion-next-steps,.tutoring-process-section{padding-top:52px;padding-bottom:52px}
+  .conversion-request-card{padding:20px}
+  .conversion-request-card .form-intro{margin-bottom:20px;padding-bottom:18px}
+  .conversion-request-card .form-intro h2{font-size:31px}
+  .conversion-form-reassurance{gap:6px}
+  .conversion-form-reassurance span{font-size:9.5px;padding:5px 8px}
+  .conversion-proof-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .conversion-proof-grid>div{padding:15px 13px;border-left:0;border-top:1px solid var(--line,#dce4ee)}
+  .conversion-proof-grid>div:nth-child(-n+2){border-top:0}
+  .conversion-proof-grid>div:nth-child(even){border-left:1px solid var(--line,#dce4ee)}
+  .conversion-proof-grid strong{font-size:11.5px}
+  .conversion-proof-grid span{font-size:10.5px;line-height:1.45}
+  .cta-band-inner .button{width:100%}
+  .testimonial-home-section .section-head{margin-bottom:22px}
+}
+
+@media(max-width:420px){
+  .hero h1,.page-hero h1,.compact-hero h1{font-size:38px}
+  .conversion-proof-grid{grid-template-columns:1fr}
+  .conversion-proof-grid>div,.conversion-proof-grid>div:nth-child(even){border-left:0;border-top:1px solid var(--line,#dce4ee)}
+  .conversion-proof-grid>div:first-child{border-top:0}
+}

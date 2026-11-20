@@ -185,12 +185,13 @@ export default async function Page({
             </p>
 
             <div className="button-row">
-              <Link
+              <TrackedLink
                 className="button button-primary button-large"
                 href="/find-a-tutor"
+                trackingId={`subject_${subject.slug}_hero`}
               >
                 Request {subject.name} tutoring
-              </Link>
+              </TrackedLink>
 
               <Link
                 className="button button-secondary button-large"
@@ -433,7 +434,7 @@ export default async function Page({
           </div>
         </div>
       </section>
-      <StickyTutoringCta label={`Get ${subject.name} tutoring`} trackingId={`subject_${subject.slug}_sticky`} />
+      <StickyTutoringCta label={`Request ${subject.name} tutoring`} trackingId={`subject_${subject.slug}_sticky`} />
     </>
   );
 }
