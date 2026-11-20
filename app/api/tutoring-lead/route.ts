@@ -18,6 +18,28 @@ function validEmail(email: string) {
   return /^\S+@\S+\.\S+$/.test(email);
 }
 
+function gaClientIdFromCookie(value: string) {
+  const cleanValue = String(value || "").trim();
+  if (!cleanValue) return "";
+  const match = cleanValue.match(/^(?:GA\d+\.\d+\.)?(\d+\.\d+)$/);
+  return match?.[1] || cleanValue;
+}
+
+function gaSessionIdFromCookie(value: string) {
+  const cleanValue = String(value || "").trim();
+  if (!cleanValue) return "";
+
+  // Google Analytics session cookies commonly contain a value such as
+  // GS2.1.s1700000000$o1$g0$t1700000000$j0$l0$h0. Prefer the "s" value,
+  // while still accepting a plain session id if Google changes formatting.
+  const match = cleanValue.match(/(?:^|\$)s(\d+)(?:\$|$)/);
+  return match?.[1] || cleanValue;
+}
+
+function gaSessionCookieName(measurementId: string) {
+  return `_ga_${measurementId.replace(/^G-/, "").replace(/-/g, "_")}`;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const raw = await request.json();
@@ -36,6 +58,20 @@ export async function POST(request: NextRequest) {
     const supportType = clean(raw.supportType, 160);
     const consent = clean(raw.consent, 20);
 
+    const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "";
+    const gaClientId =
+      clean(raw.gaClientId, 240) ||
+      clean(gaClientIdFromCookie(request.cookies.get("_ga")?.value || ""), 240);
+    const gaSessionId =
+      clean(raw.gaSessionId, 500) ||
+      (measurementId
+        ? clean(
+            gaSessionIdFromCookie(
+              request.cookies.get(gaSessionCookieName(measurementId))?.value || "",
+            ),
+            500,
+          )
+        : "");
     if (!name || !email || !requirements || !country || !level || !subject || !supportType || consent !== "yes") {
       return NextResponse.json({ error: "Please complete all required fields." }, { status: 400 });
     }
@@ -71,6 +107,9 @@ export async function POST(request: NextRequest) {
       utm_content: clean(raw.utmContent, 240) || null,
       status: "new",
       currency: "GBP",
+      ga_client_id: gaClientId || null,
+      ga_session_id: gaSessionId || null,
+      ga_captured_at: gaClientId ? new Date().toISOString() : null,
     };
 
     if (!hasServerSupabaseConfig()) {
