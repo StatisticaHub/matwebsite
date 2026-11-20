@@ -72,6 +72,7 @@ type ParsedSessionRequest = {
   preferredDate: string | null;
   preferredTime: string | null;
   timezone: string | null;
+  preferredUtc: string | null;
   durationMinutes: number | null;
   urgency: string | null;
   topic: string | null;
@@ -86,6 +87,77 @@ function formatDateTime(value: string | null) {
     timeStyle: "short",
     timeZone: "Europe/London",
   }).format(new Date(value));
+}
+
+function formatDateTimeInZone(
+  value: string | null,
+  timeZone: string
+) {
+  if (!value) {
+    return "Not specified";
+  }
+
+  try {
+    return new Intl.DateTimeFormat(
+      "en-GB",
+      {
+        dateStyle: "medium",
+        timeStyle: "short",
+        timeZone,
+      }
+    ).format(
+      new Date(value)
+    );
+  } catch {
+    return "Not specified";
+  }
+}
+
+function toDateTimeLocalInZone(
+  value: string | null,
+  timeZone: string
+) {
+  if (!value) {
+    return "";
+  }
+
+  try {
+    const parts =
+      new Intl.DateTimeFormat(
+        "en-GB",
+        {
+          timeZone,
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hourCycle: "h23",
+        }
+      ).formatToParts(
+        new Date(value)
+      );
+
+    const map =
+      Object.fromEntries(
+        parts
+          .filter(
+            (part) =>
+              part.type !==
+              "literal"
+          )
+          .map(
+            (part) => [
+              part.type,
+              part.value,
+            ]
+          )
+      );
+
+    return `${map.year}-${map.month}-${map.day}T${map.hour}:${map.minute}`;
+  } catch {
+    return "";
+  }
 }
 
 function ukDateKey(value: Date) {
@@ -193,10 +265,18 @@ function parseSessionRequest(
     preferredDate:
       messageLine(
         message,
+        "Preferred local date"
+      ) ||
+      messageLine(
+        message,
         "Preferred date"
       ),
 
     preferredTime:
+      messageLine(
+        message,
+        "Preferred local time"
+      ) ||
       messageLine(
         message,
         "Preferred time"
@@ -205,7 +285,17 @@ function parseSessionRequest(
     timezone:
       messageLine(
         message,
+        "Student timezone"
+      ) ||
+      messageLine(
+        message,
         "Timezone"
+      ),
+
+    preferredUtc:
+      messageLine(
+        message,
+        "Preferred UTC"
       ),
 
     durationMinutes:
@@ -645,6 +735,22 @@ export default async function SessionsPage() {
                 .filter(Boolean)
                 .join(" · ");
 
+              const ukEquivalent =
+                details.preferredUtc
+                  ? formatDateTimeInZone(
+                      details.preferredUtc,
+                      "Europe/London"
+                    )
+                  : null;
+
+              const defaultUkDateTime =
+                details.preferredUtc
+                  ? toDateTimeLocalInZone(
+                      details.preferredUtc,
+                      "Europe/London"
+                    )
+                  : "";
+
               const lessonNotes = [
                 details.preferredDate ||
                 details.preferredTime
@@ -725,6 +831,18 @@ export default async function SessionsPage() {
                         <dd>
                           {details.timezone ||
                             "Not provided"}
+                        </dd>
+                      </div>
+
+
+                      <div>
+                        <dt>
+                          UK equivalent
+                        </dt>
+
+                        <dd>
+                          {ukEquivalent ||
+                            "Not available"}
                         </dd>
                       </div>
 
@@ -844,6 +962,9 @@ export default async function SessionsPage() {
                             name="scheduledFor"
                             type="datetime-local"
                             required
+                            defaultValue={
+                              defaultUkDateTime
+                            }
                           />
                         </label>
 

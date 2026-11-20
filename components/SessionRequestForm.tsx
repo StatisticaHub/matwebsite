@@ -1,7 +1,14 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import {
+  FormEvent,
+  useMemo,
+  useState,
+} from "react";
+
+import {
+  useRouter,
+} from "next/navigation";
 
 type Status =
   | "idle"
@@ -14,27 +21,69 @@ export default function SessionRequestForm({
 }: {
   token: string;
 }) {
-  const router = useRouter();
+  const router =
+    useRouter();
 
-  const [status, setStatus] =
-    useState<Status>("idle");
+  const timezone =
+    useMemo(
+      () =>
+        Intl.DateTimeFormat()
+          .resolvedOptions()
+          .timeZone ||
+        "Not provided",
+      []
+    );
 
-  const [preferredDate, setPreferredDate] =
+  const [
+    status,
+    setStatus,
+  ] =
+    useState<Status>(
+      "idle"
+    );
+
+  const [
+    errorMessage,
+    setErrorMessage,
+  ] =
     useState("");
 
-  const [preferredTime, setPreferredTime] =
+  const [
+    preferredDate,
+    setPreferredDate,
+  ] =
     useState("");
 
-  const [duration, setDuration] =
+  const [
+    preferredTime,
+    setPreferredTime,
+  ] =
+    useState("");
+
+  const [
+    duration,
+    setDuration,
+  ] =
     useState("60");
 
-  const [urgency, setUrgency] =
-    useState("flexible");
+  const [
+    urgency,
+    setUrgency,
+  ] =
+    useState(
+      "flexible"
+    );
 
-  const [topic, setTopic] =
+  const [
+    topic,
+    setTopic,
+  ] =
     useState("");
 
-  const [notes, setNotes] =
+  const [
+    notes,
+    setNotes,
+  ] =
     useState("");
 
   async function submit(
@@ -46,31 +95,66 @@ export default function SessionRequestForm({
       !preferredDate ||
       !preferredTime ||
       !topic.trim() ||
-      status === "sending"
+      status ===
+        "sending"
     ) {
       return;
     }
 
-    setStatus("sending");
+    setStatus(
+      "sending"
+    );
 
-    const timezone =
-      Intl.DateTimeFormat()
-        .resolvedOptions()
-        .timeZone || "Not provided";
+    setErrorMessage(
+      ""
+    );
+
+    /*
+     * datetime-local values are interpreted by the browser in the
+     * student's current local timezone. Converting that Date to ISO
+     * gives us an exact UTC instant that can later be rendered in UK
+     * time or any other timezone without ambiguity.
+     */
+    const preferredLocalDate =
+      new Date(
+        `${preferredDate}T${preferredTime}:00`
+      );
+
+    if (
+      Number.isNaN(
+        preferredLocalDate.getTime()
+      )
+    ) {
+      setStatus(
+        "error"
+      );
+
+      setErrorMessage(
+        "Please choose a valid date and time."
+      );
+
+      return;
+    }
+
+    const preferredUtc =
+      preferredLocalDate.toISOString();
 
     const urgencyLabel =
-      urgency === "urgent"
+      urgency ===
+      "urgent"
         ? "As soon as possible"
-        : urgency === "this_week"
+        : urgency ===
+            "this_week"
           ? "This week"
           : "Flexible";
 
     const message = [
       "SESSION REQUEST",
       "",
-      `Preferred date: ${preferredDate}`,
-      `Preferred time: ${preferredTime}`,
-      `Timezone: ${timezone}`,
+      `Preferred local date: ${preferredDate}`,
+      `Preferred local time: ${preferredTime}`,
+      `Student timezone: ${timezone}`,
+      `Preferred UTC: ${preferredUtc}`,
       `Session length: ${duration} minutes`,
       `Urgency: ${urgencyLabel}`,
       "",
@@ -82,50 +166,96 @@ export default function SessionRequestForm({
     ].join("\n");
 
     try {
-      const response = await fetch(
-        `/api/portal/${encodeURIComponent(
-          token
-        )}/support`,
-        {
-          method: "POST",
+      const response =
+        await fetch(
+          `/api/portal/${encodeURIComponent(
+            token
+          )}/support`,
+          {
+            method:
+              "POST",
 
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
 
-          body: JSON.stringify({
-            category:
-              "session_request",
-            message,
-          }),
-        }
-      );
+            body:
+              JSON.stringify({
+                category:
+                  "session_request",
+                message,
+              }),
+          }
+        );
 
-      if (!response.ok) {
+      const result =
+        await response
+          .json()
+          .catch(
+            () => null
+          );
+
+      if (
+        !response.ok
+      ) {
         throw new Error(
-          "Request failed"
+          result?.error ||
+            "Could not send your session request."
         );
       }
 
-      setPreferredDate("");
-      setPreferredTime("");
-      setDuration("60");
-      setUrgency("flexible");
-      setTopic("");
-      setNotes("");
-      setStatus("sent");
+      setPreferredDate(
+        ""
+      );
+
+      setPreferredTime(
+        ""
+      );
+
+      setDuration(
+        "60"
+      );
+
+      setUrgency(
+        "flexible"
+      );
+
+      setTopic(
+        ""
+      );
+
+      setNotes(
+        ""
+      );
+
+      setStatus(
+        "sent"
+      );
 
       router.refresh();
-    } catch {
-      setStatus("error");
+    } catch (
+      error
+    ) {
+      setStatus(
+        "error"
+      );
+
+      setErrorMessage(
+        error instanceof
+          Error
+          ? error.message
+          : "Could not send your session request."
+      );
     }
   }
 
   return (
     <form
       className="portal-form"
-      onSubmit={submit}
+      onSubmit={
+        submit
+      }
     >
       <label>
         <span>
@@ -134,15 +264,21 @@ export default function SessionRequestForm({
 
         <input
           type="date"
-          value={preferredDate}
+          value={
+            preferredDate
+          }
           required
-          onChange={(event) =>
+          onChange={(
+            event
+          ) =>
             setPreferredDate(
-              event.target.value
+              event.target
+                .value
             )
           }
         />
       </label>
+
 
       <label>
         <span>
@@ -151,15 +287,26 @@ export default function SessionRequestForm({
 
         <input
           type="time"
-          value={preferredTime}
+          value={
+            preferredTime
+          }
           required
-          onChange={(event) =>
+          onChange={(
+            event
+          ) =>
             setPreferredTime(
-              event.target.value
+              event.target
+                .value
             )
           }
         />
+
+        <small>
+          Your time zone:{" "}
+          {timezone}
+        </small>
       </label>
+
 
       <label>
         <span>
@@ -167,10 +314,15 @@ export default function SessionRequestForm({
         </span>
 
         <select
-          value={duration}
-          onChange={(event) =>
+          value={
+            duration
+          }
+          onChange={(
+            event
+          ) =>
             setDuration(
-              event.target.value
+              event.target
+                .value
             )
           }
         >
@@ -192,16 +344,22 @@ export default function SessionRequestForm({
         </select>
       </label>
 
+
       <label>
         <span>
           How soon do you need it?
         </span>
 
         <select
-          value={urgency}
-          onChange={(event) =>
+          value={
+            urgency
+          }
+          onChange={(
+            event
+          ) =>
             setUrgency(
-              event.target.value
+              event.target
+                .value
             )
           }
         >
@@ -219,69 +377,90 @@ export default function SessionRequestForm({
         </select>
       </label>
 
+
       <label>
         <span>
-          What would you like to
-          cover?
+          What would you like to cover?
         </span>
 
         <textarea
-          value={topic}
+          value={
+            topic
+          }
           required
-          maxLength={500}
-          onChange={(event) =>
+          maxLength={
+            500
+          }
+          onChange={(
+            event
+          ) =>
             setTopic(
-              event.target.value
+              event.target
+                .value
             )
           }
           placeholder="For example: confidence intervals, regression diagnostics, exam preparation, R coding, dissertation analysis..."
         />
       </label>
 
+
       <label>
         <span>
-          Anything else we should
-          know?
+          Anything else we should know?
         </span>
 
         <textarea
-          value={notes}
-          maxLength={1200}
-          onChange={(event) =>
+          value={
+            notes
+          }
+          maxLength={
+            1200
+          }
+          onChange={(
+            event
+          ) =>
             setNotes(
-              event.target.value
+              event.target
+                .value
             )
           }
           placeholder="Alternative availability, a deadline, particular questions or anything your tutor should know."
         />
       </label>
 
+
       <button
         className="button button-primary"
         disabled={
-          status === "sending"
+          status ===
+          "sending"
         }
         type="submit"
       >
-        {status === "sending"
+        {status ===
+        "sending"
           ? "Sending…"
           : "Request session"}
       </button>
 
-      {status === "sent" && (
+
+      {status ===
+        "sent" && (
         <p className="portal-form-success">
           Session request sent.
-          Your tutoring team can now
-          review your preferred time
-          and learning goal.
+          Your tutoring team can
+          now review your
+          preferred time and
+          learning goal.
         </p>
       )}
 
-      {status === "error" && (
+
+      {status ===
+        "error" && (
         <p className="portal-form-error">
-          We could not send your
-          session request. Please try
-          again.
+          {errorMessage ||
+            "We could not send your session request. Please try again."}
         </p>
       )}
     </form>

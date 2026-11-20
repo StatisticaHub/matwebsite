@@ -32,7 +32,7 @@ create table if not exists public.student_support_requests (
   student_id uuid not null references public.students(id) on delete cascade,
   engagement_id uuid references public.tutoring_engagements(id) on delete set null,
   portal_link_id uuid references public.student_portal_links(id) on delete set null,
-  category text not null default 'general' check (category in ('general','lesson','homework','resource','technical')),
+  category text not null default 'general' check (category in ('general','lesson','homework','resource','technical','session_request')),
   message text not null,
   status text not null default 'new' check (status in ('new','in_progress','resolved')),
   admin_note text,
