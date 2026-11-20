@@ -17,6 +17,7 @@ export default async function TutorProtectedLayout({ children }: { children: Rea
         <Link href="/tutor/sessions">Sessions</Link>
         <Link href="/tutor/students">Students</Link>
         <Link href="/tutor/progress">Progress</Link>
+        <Link href="/tutor/retention">Retention</Link>
         <Link href="/tutor/trials">Trials</Link>
         <Link href="/tutor/availability">Availability</Link>
         <Link href="/" target="_blank">View website ↗</Link>
