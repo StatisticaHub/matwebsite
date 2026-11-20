@@ -1062,7 +1062,44 @@ export async function completeTutoringSession(
     2000
   );
 
+  const shouldCreateHomework =
+    formData.get("createHomework") === "on";
+
+  const homeworkTitle = nullableText(
+    formData,
+    "homeworkTitle",
+    500
+  );
+
+  const homeworkDescription = nullableText(
+    formData,
+    "homeworkDescription",
+    8000
+  );
+
+  const rawHomeworkDueDate = text(
+    formData,
+    "homeworkDueDate",
+    20
+  );
+
+  const homeworkDueDate =
+    /^\d{4}-\d{2}-\d{2}$/.test(
+      rawHomeworkDueDate
+    )
+      ? rawHomeworkDueDate
+      : null;
+
   if (!sessionId) return;
+
+  if (
+    shouldCreateHomework &&
+    !homeworkTitle
+  ) {
+    throw new Error(
+      "Add a homework title or untick the homework assignment option."
+    );
+  }
 
   const {
     data: current,
@@ -1123,6 +1160,46 @@ export async function completeTutoringSession(
   const now =
     new Date().toISOString();
 
+  /*
+   * Create/update the standalone homework record before publishing
+   * the completed session. source_session_id is unique, so a retry
+   * cannot create a duplicate assignment for the same lesson.
+   *
+   * We intentionally omit homework.status so the existing homework
+   * table's normal default status continues to be used.
+   */
+  if (shouldCreateHomework) {
+    const {
+      error: homeworkError,
+    } = await supabase
+      .from("homework")
+      .upsert(
+        {
+          engagement_id:
+            current.engagement_id,
+          source_session_id:
+            sessionId,
+          title:
+            homeworkTitle,
+          description:
+            homeworkDescription ||
+            homeworkSummary,
+          due_date:
+            homeworkDueDate,
+        },
+        {
+          onConflict:
+            "source_session_id",
+        }
+      );
+
+    if (homeworkError) {
+      throw new Error(
+        `Could not create homework: ${homeworkError.message}`
+      );
+    }
+  }
+
   const {
     data: updated,
     error,
@@ -1153,6 +1230,30 @@ export async function completeTutoringSession(
     error ||
     !updated
   ) {
+    /*
+     * Keep the close-out atomic from the admin's perspective.
+     * If the session update fails after homework was prepared,
+     * remove that session-linked homework so the lesson can be retried.
+     */
+    if (shouldCreateHomework) {
+      const {
+        error: cleanupError,
+      } = await supabase
+        .from("homework")
+        .delete()
+        .eq(
+          "source_session_id",
+          sessionId
+        );
+
+      if (cleanupError) {
+        console.error(
+          "Session completion failed and homework cleanup also failed:",
+          cleanupError
+        );
+      }
+    }
+
     throw new Error(
       error?.message ||
         "Could not complete session."
@@ -1202,6 +1303,9 @@ export async function completeTutoringSession(
   );
   revalidatePath(
     "/admin/retention"
+  );
+  revalidatePath(
+    "/admin/portals"
   );
 }
 

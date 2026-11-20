@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import PostSessionHomeworkFields from "@/components/PostSessionHomeworkFields";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sessionStatusLabels, sessionStatuses, type SessionStatus } from "@/lib/delivery-data";
 import { attachZoomMeetingToSession, cancelTutoringSession, completeTutoringSession, markTutoringSessionNoShow, sendTutoringSessionReminder, updateTutoringSession } from "@/app/admin/session-management-actions";
@@ -261,6 +262,12 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
                     placeholder="Exercises, reading, revision or coding practice to complete before the next lesson."
                   />
                 </label>
+
+
+                <PostSessionHomeworkFields
+                  defaultTitle={`${session.topic} — practice`}
+                  defaultDescription={session.homework_summary}
+                />
 
 
                 <label className="admin-email-toggle admin-email-toggle-block">
