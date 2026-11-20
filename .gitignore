@@ -13,3 +13,7 @@ out
 .env*.local
 node_modules
 .next
+
+# Local development artifacts
+.mat-backups/
+supabase/.temp/
