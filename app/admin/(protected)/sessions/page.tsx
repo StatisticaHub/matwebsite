@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isZoomConfigured } from "@/lib/zoom";
 import {
   sessionStatusLabels,
   sessionStatuses,
@@ -427,6 +428,9 @@ function requestStatusLabel(
 export default async function SessionsPage() {
   const supabase =
     createAdminClient();
+
+  const zoomReady =
+    isZoomConfigured();
 
   const [
     {
@@ -1623,6 +1627,25 @@ export default async function SessionsPage() {
                         </label>
 
 
+
+                        <label className="admin-email-toggle admin-email-toggle-block">
+                          <input
+                            name="createZoomMeeting"
+                            type="checkbox"
+                            defaultChecked={
+                              zoomReady
+                            }
+                            disabled={
+                              !zoomReady
+                            }
+                          />
+
+                          {zoomReady
+                            ? "Create Zoom meeting automatically using the shared MAT Pro account"
+                            : "Zoom automation is not configured yet"}
+                        </label>
+
+
                         <label>
                           <span>
                             Meeting link
@@ -1631,7 +1654,7 @@ export default async function SessionsPage() {
                           <input
                             name="meetingUrl"
                             type="url"
-                            placeholder="https://meet.google.com/…"
+                            placeholder="Manual fallback link if Zoom automation is off"
                           />
                         </label>
 
@@ -1965,6 +1988,25 @@ export default async function SessionsPage() {
           </label>
 
 
+
+          <label className="admin-email-toggle admin-email-toggle-block">
+            <input
+              name="createZoomMeeting"
+              type="checkbox"
+              defaultChecked={
+                zoomReady
+              }
+              disabled={
+                !zoomReady
+              }
+            />
+
+            {zoomReady
+              ? "Create Zoom meeting automatically using the shared MAT Pro account"
+              : "Zoom automation is not configured yet"}
+          </label>
+
+
           <label>
             <span>
               Meeting link
@@ -1974,7 +2016,7 @@ export default async function SessionsPage() {
             <input
               name="meetingUrl"
               type="url"
-              placeholder="https://meet.google.com/…"
+              placeholder="Manual fallback link if Zoom automation is off"
             />
           </label>
 

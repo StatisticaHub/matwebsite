@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sessionStatusLabels, sessionStatuses, type SessionStatus } from "@/lib/delivery-data";
-import { cancelTutoringSession, sendTutoringSessionReminder, updateTutoringSession } from "@/app/admin/session-management-actions";
+import { cancelTutoringSession, completeTutoringSession, markTutoringSessionNoShow, sendTutoringSessionReminder, updateTutoringSession } from "@/app/admin/session-management-actions";
 
 export const dynamic = "force-dynamic";
 type Params = Promise<{ id: string }>;
@@ -20,6 +20,10 @@ type SessionDetail = {
   next_topic: string | null;
   homework_summary: string | null;
   meeting_url: string | null;
+  zoom_meeting_id: string | null;
+  zoom_meeting_uuid: string | null;
+  zoom_host_user_id: string | null;
+  zoom_synced_at: string | null;
   tutor_id: string | null;
   session_tutor: { name: string } | null;
   student_rate: number | null;
@@ -65,7 +69,7 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
   const [{ data, error }, { data: tutorData }] = await Promise.all([
     supabase
       .from("tutoring_sessions")
-      .select("id,created_at,scheduled_for,completed_at,duration_minutes,status,topic,lesson_notes,understanding_rating,next_topic,homework_summary,meeting_url,tutor_id,session_tutor:tutors(name),student_rate,tutor_rate,currency,engagement_id,tutoring_engagements(student_id,subject,title,students(name,email),tutors(name))")
+      .select("id,created_at,scheduled_for,completed_at,duration_minutes,status,topic,lesson_notes,understanding_rating,next_topic,homework_summary,meeting_url,zoom_meeting_id,zoom_meeting_uuid,zoom_host_user_id,zoom_synced_at,tutor_id,session_tutor:tutors(name),student_rate,tutor_rate,currency,engagement_id,tutoring_engagements(student_id,subject,title,students(name,email),tutors(name))")
       .eq("id", id)
       .single(),
     supabase.from("tutors").select("id,name,status").order("name"),
@@ -78,6 +82,7 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
   const studentId = session.tutoring_engagements?.student_id;
   const canRemind = session.status === "planned" && Boolean(session.scheduled_for);
   const canCancel = session.status === "planned";
+  const canCloseOut = session.status === "planned";
 
   return (
     <div className="admin-page">
@@ -96,7 +101,25 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
               <div className="admin-form-grid-3"><label><span>Date & time (UK)</span><input name="scheduledFor" type="datetime-local" defaultValue={toDateTimeLocalUk(session.scheduled_for)} /></label><label><span>Status</span><select name="status" defaultValue={session.status}>{sessionStatuses.map((status) => <option key={status} value={status}>{sessionStatusLabels[status]}</option>)}</select></label><label><span>Duration</span><input name="durationMinutes" type="number" min="15" max="480" defaultValue={session.duration_minutes} /></label></div>
               <label><span>Topic / lesson title</span><input name="topic" required defaultValue={session.topic} /></label>
               <label><span>Tutor</span><select name="tutorId" defaultValue={session.tutor_id || ""}><option value="">Not assigned</option>{tutors.map((tutor) => <option key={tutor.id} value={tutor.id}>{tutor.name}{tutor.status !== "active" ? ` (${tutor.status})` : ""}</option>)}</select></label>
-              <label><span>Meeting link</span><input name="meetingUrl" type="url" defaultValue={session.meeting_url || ""} placeholder="https://meet.google.com/…" /></label>
+              <label>
+                <span>
+                  {session.zoom_meeting_id
+                    ? "Zoom join link (managed automatically)"
+                    : "Meeting link"}
+                </span>
+
+                <input
+                  name="meetingUrl"
+                  type="url"
+                  defaultValue={session.meeting_url || ""}
+                  readOnly={Boolean(session.zoom_meeting_id)}
+                  placeholder={
+                    session.zoom_meeting_id
+                      ? "Managed by MAT Zoom integration"
+                      : "https://…"
+                  }
+                />
+              </label>
               <label><span>Lesson / preparation notes</span><textarea name="lessonNotes" defaultValue={session.lesson_notes || ""} placeholder="Concepts covered, preparation notes, misconceptions addressed…" /></label>
               <div className="admin-form-grid-2"><label><span>Understanding (1–5)</span><input name="understandingRating" type="number" min="1" max="5" defaultValue={session.understanding_rating ?? ""} /></label><label><span>Next topic</span><input name="nextTopic" defaultValue={session.next_topic || ""} /></label></div>
               <label><span>Homework / practice summary</span><textarea name="homeworkSummary" defaultValue={session.homework_summary || ""} /></label>
@@ -104,6 +127,176 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
               <button className="admin-primary-button" type="submit">Save session</button>
             </form>
           </section>
+
+
+          {canCloseOut && (
+            <section className="admin-panel admin-detail-card">
+              <div className="admin-card-head">
+                <div>
+                  <span className="admin-eyebrow">
+                    After the lesson
+                  </span>
+
+                  <h2>
+                    Complete session
+                  </h2>
+                </div>
+
+                <span>
+                  Publish the lesson record
+                </span>
+              </div>
+
+
+              <p className="admin-help">
+                Close out the lesson once teaching has finished.
+                The notes, understanding rating, next topic and
+                practice summary will feed the student&apos;s
+                learning record and progress history.
+              </p>
+
+
+              <form
+                action={completeTutoringSession}
+                className="admin-compact-form admin-session-edit-form"
+              >
+                <input
+                  type="hidden"
+                  name="sessionId"
+                  value={session.id}
+                />
+
+
+                <div className="admin-form-grid-2">
+                  <label>
+                    <span>
+                      Actual duration
+                    </span>
+
+                    <input
+                      name="durationMinutes"
+                      type="number"
+                      min="15"
+                      max="480"
+                      defaultValue={session.duration_minutes}
+                    />
+                  </label>
+
+
+                  <label>
+                    <span>
+                      Understanding (1–5)
+                    </span>
+
+                    <input
+                      name="understandingRating"
+                      type="number"
+                      min="1"
+                      max="5"
+                      defaultValue={
+                        session.understanding_rating ?? ""
+                      }
+                      placeholder="4"
+                    />
+                  </label>
+                </div>
+
+
+                <label>
+                  <span>
+                    Lesson notes
+                  </span>
+
+                  <textarea
+                    name="lessonNotes"
+                    defaultValue={session.lesson_notes || ""}
+                    placeholder="What was covered, what the student understood well, misconceptions addressed, examples used..."
+                  />
+                </label>
+
+
+                <label>
+                  <span>
+                    Next topic / next lesson focus
+                  </span>
+
+                  <input
+                    name="nextTopic"
+                    defaultValue={session.next_topic || ""}
+                    placeholder="For example: hypothesis testing for regression coefficients"
+                  />
+                </label>
+
+
+                <label>
+                  <span>
+                    Homework / practice summary
+                  </span>
+
+                  <textarea
+                    name="homeworkSummary"
+                    defaultValue={session.homework_summary || ""}
+                    placeholder="Exercises, reading, revision or coding practice to complete before the next lesson."
+                  />
+                </label>
+
+
+                <label className="admin-email-toggle admin-email-toggle-block">
+                  <input
+                    name="notifyStudent"
+                    type="checkbox"
+                  />
+
+                  Email the student the completed-session follow-up
+                </label>
+
+
+                <button
+                  className="admin-primary-button"
+                  type="submit"
+                >
+                  Complete session & publish follow-up
+                </button>
+              </form>
+
+
+              <details className="admin-disclosure">
+                <summary>
+                  Student did not attend?
+                </summary>
+
+                <form
+                  action={markTutoringSessionNoShow}
+                  className="admin-compact-form"
+                >
+                  <input
+                    type="hidden"
+                    name="sessionId"
+                    value={session.id}
+                  />
+
+                  <label>
+                    <span>
+                      No-show note
+                    </span>
+
+                    <textarea
+                      name="noShowNote"
+                      placeholder="Optional: how long the tutor waited, whether the student contacted you, or any follow-up needed."
+                    />
+                  </label>
+
+                  <button
+                    className="admin-danger-button"
+                    type="submit"
+                  >
+                    Mark student no-show
+                  </button>
+                </form>
+              </details>
+            </section>
+          )}
+
 
           <section className="admin-panel admin-detail-card">
             <div className="admin-card-head"><h2>Delivery summary</h2><span>{session.status === "completed" ? "Delivered" : "Session record"}</span></div>
@@ -115,6 +308,28 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
               <div><dt>Completed</dt><dd>{session.completed_at ? formatDateTime(session.completed_at) : "—"}</dd></div>
               <div><dt>Duration</dt><dd>{session.duration_minutes} minutes</dd></div>
               <div><dt>Meeting link</dt><dd>{session.meeting_url ? <a href={session.meeting_url} target="_blank" rel="noreferrer">Open link ↗</a> : "—"}</dd></div>
+              {session.zoom_meeting_id && (
+                <>
+                  <div>
+                    <dt>Video platform</dt>
+                    <dd>Zoom · shared MAT Pro host</dd>
+                  </div>
+
+                  <div>
+                    <dt>Zoom meeting ID</dt>
+                    <dd>{session.zoom_meeting_id}</dd>
+                  </div>
+
+                  <div>
+                    <dt>Zoom last synced</dt>
+                    <dd>
+                      {session.zoom_synced_at
+                        ? formatDateTime(session.zoom_synced_at)
+                        : "—"}
+                    </dd>
+                  </div>
+                </>
+              )}
               <div><dt>Student rate</dt><dd>{money(session.student_rate, session.currency)}</dd></div>
               <div><dt>Tutor rate</dt><dd>{money(session.tutor_rate, session.currency)}</dd></div>
             </dl>

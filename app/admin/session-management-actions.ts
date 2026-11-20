@@ -7,6 +7,12 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sendSessionNotification, sendSessionReminder } from "@/lib/email/student";
 import { recordStudentCommunication } from "@/lib/student-communications";
 import { sessionStatuses, type SessionStatus } from "@/lib/delivery-data";
+import {
+  createZoomMeeting,
+  deleteZoomMeeting,
+  updateZoomMeeting,
+  zoomHostUserId,
+} from "@/lib/zoom";
 
 async function adminContext() {
   const session = await getAdminSession();
@@ -97,6 +103,77 @@ function ukLocalToIso(value: string) {
   }
 
   return Number.isNaN(resolved.getTime()) ? null : resolved.toISOString();
+}
+
+function formatUkDateTimeForError(
+  value: string
+) {
+  return new Intl.DateTimeFormat(
+    "en-GB",
+    {
+      dateStyle: "medium",
+      timeStyle: "short",
+      timeZone: "Europe/London",
+    }
+  ).format(new Date(value));
+}
+
+async function assertZoomSlotAvailable(args: {
+  supabase: ReturnType<typeof createAdminClient>;
+  scheduledFor: string;
+  durationMinutes: number;
+  excludeSessionId?: string | null;
+}) {
+  const { data, error } = await args.supabase
+    .from("tutoring_sessions")
+    .select("id,topic,scheduled_for,duration_minutes")
+    .eq("status", "planned")
+    .not("zoom_meeting_id", "is", null)
+    .not("scheduled_for", "is", null);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const newStart = new Date(args.scheduledFor).getTime();
+  const newEnd =
+    newStart +
+    args.durationMinutes * 60 * 1000;
+
+  const conflict = (data || []).find((item) => {
+    if (
+      args.excludeSessionId &&
+      item.id === args.excludeSessionId
+    ) {
+      return false;
+    }
+
+    if (!item.scheduled_for) {
+      return false;
+    }
+
+    const existingStart =
+      new Date(item.scheduled_for).getTime();
+
+    const existingEnd =
+      existingStart +
+      Number(item.duration_minutes || 60) *
+        60 *
+        1000;
+
+    return (
+      newStart < existingEnd &&
+      existingStart < newEnd
+    );
+  });
+
+  if (conflict) {
+    throw new Error(
+      `Zoom scheduling conflict: "${conflict.topic}" is already using the single MAT Zoom host from ${formatUkDateTimeForError(
+        conflict.scheduled_for
+      )} for ${conflict.duration_minutes} minutes. Choose a non-overlapping time.`
+    );
+  }
 }
 
 async function leadActivity(args: {
@@ -329,6 +406,8 @@ export async function createTutoringSessionFromAdmin(formData: FormData) {
     : null;
 
   const duration = nullableNumber(formData, "durationMinutes");
+  const shouldCreateZoom =
+    formData.get("createZoomMeeting") === "on";
 
   if (!engagementId || !topic || !sessionStatuses.includes(status)) {
     return;
@@ -346,6 +425,51 @@ export async function createTutoringSessionFromAdmin(formData: FormData) {
     throw new Error(engagementError?.message || "Engagement not found.");
   }
 
+  const finalDuration =
+    duration && duration >= 15 && duration <= 480
+      ? Math.round(duration)
+      : engagement.session_duration_minutes || 60;
+
+  let zoomMeeting:
+    | {
+        id: string;
+        uuid: string | null;
+        joinUrl: string;
+      }
+    | null = null;
+
+  if (shouldCreateZoom) {
+    if (status !== "planned") {
+      throw new Error(
+        "Zoom meetings can only be created automatically for planned sessions."
+      );
+    }
+
+    if (!scheduledFor) {
+      throw new Error(
+        "Choose a scheduled date and time before creating a Zoom meeting."
+      );
+    }
+
+    await assertZoomSlotAvailable({
+      supabase,
+      scheduledFor,
+      durationMinutes: finalDuration,
+    });
+
+    zoomMeeting = await createZoomMeeting({
+      topic: `My Academic Tutor — ${topic}`,
+      scheduledFor,
+      durationMinutes: finalDuration,
+    });
+  }
+
+  const manualMeetingUrl = safeUrl(
+    nullableText(formData, "meetingUrl", 1000)
+  );
+
+  const now = new Date().toISOString();
+
   const { data: created, error } = await supabase
     .from("tutoring_sessions")
     .insert({
@@ -356,12 +480,9 @@ export async function createTutoringSessionFromAdmin(formData: FormData) {
       scheduled_for: scheduledFor,
       completed_at:
         status === "completed"
-          ? new Date().toISOString()
+          ? now
           : null,
-      duration_minutes:
-        duration && duration >= 15 && duration <= 480
-          ? Math.round(duration)
-          : engagement.session_duration_minutes || 60,
+      duration_minutes: finalDuration,
       status,
       topic,
       lesson_notes: nullableText(formData, "lessonNotes", 8000),
@@ -372,19 +493,44 @@ export async function createTutoringSessionFromAdmin(formData: FormData) {
         "homeworkSummary",
         2000
       ),
-      meeting_url: safeUrl(
-        nullableText(formData, "meetingUrl", 1000)
-      ),
+      meeting_url:
+        zoomMeeting?.joinUrl ||
+        manualMeetingUrl,
+      zoom_meeting_id:
+        zoomMeeting?.id ||
+        null,
+      zoom_meeting_uuid:
+        zoomMeeting?.uuid ||
+        null,
+      zoom_host_user_id:
+        zoomMeeting
+          ? zoomHostUserId()
+          : null,
+      zoom_synced_at:
+        zoomMeeting
+          ? now
+          : null,
       student_rate: engagement.student_rate,
       tutor_rate: engagement.tutor_rate,
       currency: engagement.currency || "GBP",
     })
     .select(
-      "id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary,meeting_url"
+      "id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary,meeting_url,zoom_meeting_id"
     )
     .single();
 
   if (error || !created) {
+    if (zoomMeeting?.id) {
+      try {
+        await deleteZoomMeeting(zoomMeeting.id);
+      } catch (cleanupError) {
+        console.error(
+          "MAT session creation failed and Zoom cleanup also failed:",
+          cleanupError
+        );
+      }
+    }
+
     throw new Error(error?.message || "Could not create session.");
   }
 
@@ -398,13 +544,6 @@ export async function createTutoringSessionFromAdmin(formData: FormData) {
     });
   }
 
-  /*
-   * If the session was created from a student portal session request,
-   * resolve that request only after the session creation succeeds.
-   *
-   * We also verify the request belongs to the same student/engagement
-   * before resolving it.
-   */
   if (supportRequestId) {
     const { data: supportRequest, error: requestError } = await supabase
       .from("student_support_requests")
@@ -426,9 +565,12 @@ export async function createTutoringSessionFromAdmin(formData: FormData) {
         supportRequest.engagement_id === engagement.id);
 
     if (belongsToSession) {
-      const now = new Date().toISOString();
       const resolutionNote =
-        `Scheduled as tutoring session ${created.id}.`;
+        `Scheduled as tutoring session ${created.id}${
+          created.zoom_meeting_id
+            ? " with a Zoom meeting."
+            : "."
+        }`;
 
       const nextAdminNote = supportRequest.admin_note
         ? `${supportRequest.admin_note}\n${resolutionNote}`
@@ -478,7 +620,7 @@ export async function updateTutoringSession(formData: FormData) {
   const { data: current, error: currentError } = await supabase
     .from("tutoring_sessions")
     .select(
-      "id,engagement_id,completed_at,tutoring_engagements(student_id)"
+      "id,engagement_id,completed_at,scheduled_for,status,topic,duration_minutes,meeting_url,zoom_meeting_id,zoom_meeting_uuid,zoom_host_user_id,tutoring_engagements(student_id)"
     )
     .eq("id", sessionId)
     .single();
@@ -496,39 +638,115 @@ export async function updateTutoringSession(formData: FormData) {
     throw new Error("Session student could not be resolved.");
   }
 
+  const finalDuration =
+    duration && duration >= 15 && duration <= 480
+      ? Math.round(duration)
+      : current.duration_minutes || 60;
+
   const completedAt =
     status === "completed"
       ? current.completed_at || new Date().toISOString()
       : null;
 
+  let meetingUrl = safeUrl(
+    nullableText(formData, "meetingUrl", 1000)
+  );
+
+  let zoomMeetingId =
+    current.zoom_meeting_id as string | null;
+
+  let zoomMeetingUuid =
+    current.zoom_meeting_uuid as string | null;
+
+  let zoomHost =
+    current.zoom_host_user_id as string | null;
+
+  let zoomSyncedAt:
+    | string
+    | null = null;
+
+  if (zoomMeetingId) {
+    if (status === "cancelled") {
+      await deleteZoomMeeting(zoomMeetingId);
+
+      zoomMeetingId = null;
+      zoomMeetingUuid = null;
+      zoomHost = null;
+      meetingUrl = null;
+      zoomSyncedAt = new Date().toISOString();
+    } else {
+      meetingUrl = current.meeting_url;
+
+      const zoomDetailsChanged =
+        status === "planned" &&
+        Boolean(scheduledFor) &&
+        (
+          scheduledFor !== current.scheduled_for ||
+          finalDuration !== current.duration_minutes ||
+          topic !== current.topic
+        );
+
+      if (
+        zoomDetailsChanged &&
+        scheduledFor
+      ) {
+        await assertZoomSlotAvailable({
+          supabase,
+          scheduledFor,
+          durationMinutes: finalDuration,
+          excludeSessionId: sessionId,
+        });
+
+        await updateZoomMeeting(
+          zoomMeetingId,
+          {
+            topic: `My Academic Tutor — ${topic}`,
+            scheduledFor,
+            durationMinutes: finalDuration,
+          }
+        );
+
+        zoomSyncedAt = new Date().toISOString();
+      }
+    }
+  }
+
+  const updatePayload: Record<
+    string,
+    unknown
+  > = {
+    tutor_id: nullableText(formData, "tutorId", 100),
+    scheduled_for: scheduledFor,
+    completed_at: completedAt,
+    duration_minutes: finalDuration,
+    status,
+    topic,
+    lesson_notes: nullableText(formData, "lessonNotes", 8000),
+    understanding_rating:
+      rating && rating >= 1 && rating <= 5
+        ? Math.round(rating)
+        : null,
+    next_topic: nullableText(formData, "nextTopic", 1000),
+    homework_summary: nullableText(
+      formData,
+      "homeworkSummary",
+      2000
+    ),
+    meeting_url: meetingUrl,
+    zoom_meeting_id: zoomMeetingId,
+    zoom_meeting_uuid: zoomMeetingUuid,
+    zoom_host_user_id: zoomHost,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (zoomSyncedAt) {
+    updatePayload.zoom_synced_at =
+      zoomSyncedAt;
+  }
+
   const { data: updated, error } = await supabase
     .from("tutoring_sessions")
-    .update({
-      tutor_id: nullableText(formData, "tutorId", 100),
-      scheduled_for: scheduledFor,
-      completed_at: completedAt,
-      duration_minutes:
-        duration && duration >= 15 && duration <= 480
-          ? Math.round(duration)
-          : 60,
-      status,
-      topic,
-      lesson_notes: nullableText(formData, "lessonNotes", 8000),
-      understanding_rating:
-        rating && rating >= 1 && rating <= 5
-          ? Math.round(rating)
-          : null,
-      next_topic: nullableText(formData, "nextTopic", 1000),
-      homework_summary: nullableText(
-        formData,
-        "homeworkSummary",
-        2000
-      ),
-      meeting_url: safeUrl(
-        nullableText(formData, "meetingUrl", 1000)
-      ),
-      updated_at: new Date().toISOString(),
-    })
+    .update(updatePayload)
     .eq("id", sessionId)
     .select(
       "id,engagement_id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary,meeting_url"
@@ -555,6 +773,303 @@ export async function updateTutoringSession(formData: FormData) {
   revalidatePath(`/admin/students/${relation.student_id}`);
 }
 
+
+export async function completeTutoringSession(
+  formData: FormData
+) {
+  const {
+    session,
+    supabase,
+  } = await adminContext();
+
+  const sessionId = text(
+    formData,
+    "sessionId",
+    100
+  );
+
+  const duration = nullableNumber(
+    formData,
+    "durationMinutes"
+  );
+
+  const rating = nullableNumber(
+    formData,
+    "understandingRating"
+  );
+
+  const lessonNotes = nullableText(
+    formData,
+    "lessonNotes",
+    8000
+  );
+
+  const nextTopic = nullableText(
+    formData,
+    "nextTopic",
+    1000
+  );
+
+  const homeworkSummary = nullableText(
+    formData,
+    "homeworkSummary",
+    2000
+  );
+
+  if (!sessionId) return;
+
+  const {
+    data: current,
+    error: currentError,
+  } = await supabase
+    .from("tutoring_sessions")
+    .select(
+      "id,engagement_id,status,duration_minutes,meeting_url,tutoring_engagements(student_id)"
+    )
+    .eq("id", sessionId)
+    .single();
+
+  if (
+    currentError ||
+    !current
+  ) {
+    throw new Error(
+      currentError?.message ||
+        "Session not found."
+    );
+  }
+
+  if (
+    current.status !==
+    "planned"
+  ) {
+    throw new Error(
+      "Only a planned session can be completed from the close-out workflow."
+    );
+  }
+
+  const relation =
+    current.tutoring_engagements as unknown as {
+      student_id: string;
+    } | null;
+
+  if (!relation?.student_id) {
+    throw new Error(
+      "Session student could not be resolved."
+    );
+  }
+
+  const finalDuration =
+    duration &&
+    duration >= 15 &&
+    duration <= 480
+      ? Math.round(duration)
+      : current.duration_minutes ||
+        60;
+
+  const finalRating =
+    rating &&
+    rating >= 1 &&
+    rating <= 5
+      ? Math.round(rating)
+      : null;
+
+  const now =
+    new Date().toISOString();
+
+  const {
+    data: updated,
+    error,
+  } = await supabase
+    .from("tutoring_sessions")
+    .update({
+      status: "completed",
+      completed_at: now,
+      duration_minutes:
+        finalDuration,
+      lesson_notes:
+        lessonNotes,
+      understanding_rating:
+        finalRating,
+      next_topic:
+        nextTopic,
+      homework_summary:
+        homeworkSummary,
+      updated_at: now,
+    })
+    .eq("id", sessionId)
+    .select(
+      "id,engagement_id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary,meeting_url"
+    )
+    .single();
+
+  if (
+    error ||
+    !updated
+  ) {
+    throw new Error(
+      error?.message ||
+        "Could not complete session."
+    );
+  }
+
+  if (
+    formData.get(
+      "notifyStudent"
+    ) === "on"
+  ) {
+    try {
+      await notifySession({
+        supabase,
+        adminEmail:
+          session.user.email ||
+          null,
+        studentId:
+          relation.student_id,
+        engagementId:
+          updated.engagement_id,
+        sessionRow:
+          updated,
+      });
+    } catch (
+      notificationError
+    ) {
+      console.error(
+        "Session was completed but the student follow-up email failed:",
+        notificationError
+      );
+    }
+  }
+
+  revalidatePath("/admin");
+  revalidatePath(
+    "/admin/sessions"
+  );
+  revalidatePath(
+    `/admin/sessions/${sessionId}`
+  );
+  revalidatePath(
+    `/admin/students/${relation.student_id}`
+  );
+  revalidatePath(
+    "/admin/progress"
+  );
+  revalidatePath(
+    "/admin/retention"
+  );
+}
+
+
+export async function markTutoringSessionNoShow(
+  formData: FormData
+) {
+  const {
+    supabase,
+  } = await adminContext();
+
+  const sessionId = text(
+    formData,
+    "sessionId",
+    100
+  );
+
+  const note = nullableText(
+    formData,
+    "noShowNote",
+    2000
+  );
+
+  if (!sessionId) return;
+
+  const {
+    data: current,
+    error: currentError,
+  } = await supabase
+    .from("tutoring_sessions")
+    .select(
+      "id,status,lesson_notes,tutoring_engagements(student_id)"
+    )
+    .eq("id", sessionId)
+    .single();
+
+  if (
+    currentError ||
+    !current
+  ) {
+    throw new Error(
+      currentError?.message ||
+        "Session not found."
+    );
+  }
+
+  if (
+    current.status !==
+    "planned"
+  ) {
+    throw new Error(
+      "Only a planned session can be marked as a no-show."
+    );
+  }
+
+  const relation =
+    current.tutoring_engagements as unknown as {
+      student_id: string;
+    } | null;
+
+  if (!relation?.student_id) {
+    throw new Error(
+      "Session student could not be resolved."
+    );
+  }
+
+  const noShowLine =
+    note
+      ? `Student no-show: ${note}`
+      : "Student no-show.";
+
+  const nextNotes =
+    current.lesson_notes
+      ? `${current.lesson_notes}\n\n${noShowLine}`
+      : noShowLine;
+
+  const {
+    error,
+  } = await supabase
+    .from("tutoring_sessions")
+    .update({
+      status: "no_show",
+      completed_at: null,
+      lesson_notes:
+        nextNotes,
+      understanding_rating:
+        null,
+      updated_at:
+        new Date().toISOString(),
+    })
+    .eq("id", sessionId);
+
+  if (error) {
+    throw new Error(
+      error.message
+    );
+  }
+
+  revalidatePath("/admin");
+  revalidatePath(
+    "/admin/sessions"
+  );
+  revalidatePath(
+    `/admin/sessions/${sessionId}`
+  );
+  revalidatePath(
+    `/admin/students/${relation.student_id}`
+  );
+  revalidatePath(
+    "/admin/retention"
+  );
+}
+
+
 export async function cancelTutoringSession(formData: FormData) {
   const { session, supabase } = await adminContext();
 
@@ -563,7 +1078,9 @@ export async function cancelTutoringSession(formData: FormData) {
 
   const { data: current, error: currentError } = await supabase
     .from("tutoring_sessions")
-    .select("id,engagement_id,tutoring_engagements(student_id)")
+    .select(
+      "id,engagement_id,zoom_meeting_id,tutoring_engagements(student_id)"
+    )
     .eq("id", sessionId)
     .single();
 
@@ -580,13 +1097,31 @@ export async function cancelTutoringSession(formData: FormData) {
     throw new Error("Session student could not be resolved.");
   }
 
+  if (current.zoom_meeting_id) {
+    await deleteZoomMeeting(
+      current.zoom_meeting_id
+    );
+  }
+
+  const now = new Date().toISOString();
+
+  const cancelPayload: Record<string, unknown> = {
+    status: "cancelled",
+    completed_at: null,
+    updated_at: now,
+  };
+
+  if (current.zoom_meeting_id) {
+    cancelPayload.meeting_url = null;
+    cancelPayload.zoom_meeting_id = null;
+    cancelPayload.zoom_meeting_uuid = null;
+    cancelPayload.zoom_host_user_id = null;
+    cancelPayload.zoom_synced_at = now;
+  }
+
   const { data: updated, error } = await supabase
     .from("tutoring_sessions")
-    .update({
-      status: "cancelled",
-      completed_at: null,
-      updated_at: new Date().toISOString(),
-    })
+    .update(cancelPayload)
     .eq("id", sessionId)
     .select(
       "id,engagement_id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary,meeting_url"
@@ -831,7 +1366,7 @@ async function sessionChangeContext(
         "tutoring_sessions"
       )
       .select(
-        "id,engagement_id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary,meeting_url,tutoring_engagements(student_id)"
+        "id,engagement_id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary,meeting_url,zoom_meeting_id,zoom_meeting_uuid,zoom_host_user_id,tutoring_engagements(student_id)"
       )
       .eq(
         "id",
@@ -935,6 +1470,35 @@ export async function acceptSessionRescheduleRequest(
     );
   }
 
+  const zoomMeetingId =
+    context.sessionRow
+      .zoom_meeting_id as string | null;
+
+  if (zoomMeetingId) {
+    await assertZoomSlotAvailable({
+      supabase: context.supabase,
+      scheduledFor,
+      durationMinutes:
+        context.sessionRow.duration_minutes,
+      excludeSessionId:
+        context.sessionId,
+    });
+
+    await updateZoomMeeting(
+      zoomMeetingId,
+      {
+        topic:
+          `My Academic Tutor — ${context.sessionRow.topic}`,
+        scheduledFor,
+        durationMinutes:
+          context.sessionRow.duration_minutes,
+      }
+    );
+  }
+
+  const now =
+    new Date().toISOString();
+
   const {
     data: updated,
     error,
@@ -947,9 +1511,15 @@ export async function acceptSessionRescheduleRequest(
         scheduled_for:
           scheduledFor,
 
+        ...(zoomMeetingId
+          ? {
+              zoom_synced_at:
+                now,
+            }
+          : {}),
+
         updated_at:
-          new Date()
-            .toISOString(),
+          now,
       })
       .eq(
         "id",
@@ -1058,6 +1628,19 @@ export async function acceptSessionCancellationRequest(
     );
   }
 
+  const zoomMeetingId =
+    context.sessionRow
+      .zoom_meeting_id as string | null;
+
+  if (zoomMeetingId) {
+    await deleteZoomMeeting(
+      zoomMeetingId
+    );
+  }
+
+  const now =
+    new Date().toISOString();
+
   const {
     data: updated,
     error,
@@ -1073,9 +1656,27 @@ export async function acceptSessionCancellationRequest(
         completed_at:
           null,
 
+        ...(zoomMeetingId
+          ? {
+              meeting_url:
+                null,
+
+              zoom_meeting_id:
+                null,
+
+              zoom_meeting_uuid:
+                null,
+
+              zoom_host_user_id:
+                null,
+
+              zoom_synced_at:
+                now,
+            }
+          : {}),
+
         updated_at:
-          new Date()
-            .toISOString(),
+          now,
       })
       .eq(
         "id",
