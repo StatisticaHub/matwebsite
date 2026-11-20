@@ -203,22 +203,6 @@ main{min-height:60vh}
 .standard-grid article{padding:25px}
 .standard-grid h2{font-size:27px}
 
-.demo-pill{display:inline-flex;font-size:9px;letter-spacing:.12em;text-transform:uppercase;background:var(--blue-soft);color:var(--blue-dark);border-radius:6px;padding:6px 8px;font-weight:800}
-.ai-demo-card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-sm);overflow:hidden}
-.ai-demo-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:18px;align-items:center}
-.ai-demo-head>div{display:flex;gap:9px;align-items:center}
-.ai-demo-head>span{font-size:11px;color:var(--muted)}
-.ai-demo-body{padding:20px;min-height:280px;max-height:430px;overflow:auto;background:#fbfcfe}
-.chat-bubble{max-width:82%;background:#f1f5fa;border-radius:11px;padding:12px 14px;margin:10px 0;font-size:14px;line-height:1.55}
-.user-bubble{margin-left:auto;background:#e7efff}
-.prompt-row{display:flex;gap:7px;flex-wrap:wrap;padding:0 18px 14px}
-.prompt-row button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 10px;font-size:11px;color:#43546b}
-.ai-composer{display:flex;gap:9px;padding:14px 18px;border-top:1px solid var(--line)}
-.ai-composer input{flex:1;border:1px solid var(--line-strong);border-radius:9px;padding:11px 13px;outline:none}
-.ai-handoff{margin:0 18px 18px;padding:14px 15px;border:1px solid var(--line);border-radius:10px;display:flex;justify-content:space-between;gap:16px;align-items:center}
-.ai-handoff>div{display:grid;gap:4px}
-.ai-handoff span{font-size:12px;color:var(--muted)}
-
 .contact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 .contact-card{padding:27px}
 .contact-card h2{font-size:28px}
@@ -291,7 +275,7 @@ main{min-height:60vh}
   .form-span-2{grid-column:auto}
   .section{padding:62px 0}
   .section h2{font-size:36px}
-  .section-head,.cta-band-inner,.ai-handoff{align-items:flex-start;flex-direction:column}
+  .section-head,.cta-band-inner{align-items:flex-start;flex-direction:column}
   .hero-grid{gap:36px}
   .hero-panel{padding:23px}
   .form-card,.form-card-large{padding:20px}

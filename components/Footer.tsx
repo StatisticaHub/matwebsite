@@ -18,7 +18,6 @@ export default function Footer() {
               <Link href="/learn/editorial-policy">Learning editorial approach</Link>
               <Link href="/subjects">Subjects</Link>
               <Link href="/levels">Academic levels</Link>
-              <Link href="/ai-tutor">AI Tutor</Link>
             </div>
             <div>
               <b>Tutoring</b>
