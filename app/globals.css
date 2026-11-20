@@ -719,3 +719,132 @@ body:has(.student-portal-shell) main{min-height:100vh}
   .conversion-proof-grid>div,.conversion-proof-grid>div:nth-child(even){border-left:0;border-top:1px solid var(--line,#dce4ee)}
   .conversion-proof-grid>div:first-child{border-top:0}
 }
+
+
+/* MAT live conversion optimisation */
+
+.home-pricing-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);
+  gap:32px;
+  align-items:center;
+}
+
+.home-pricing-card{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  box-shadow:var(--shadow-sm);
+  padding:28px;
+}
+
+.home-pricing-label{
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+
+.home-price-amount{
+  font-size:clamp(42px,6vw,64px);
+  line-height:1;
+  font-weight:800;
+  letter-spacing:-.04em;
+  margin-bottom:18px;
+}
+
+.home-price-amount span{
+  font-size:18px;
+  font-weight:700;
+  letter-spacing:0;
+  margin-left:5px;
+  color:var(--muted);
+}
+
+.home-pricing-card p{
+  margin:0 0 14px;
+  line-height:1.65;
+}
+
+.home-pricing-card small{
+  display:block;
+  color:var(--muted);
+  line-height:1.55;
+}
+
+.mobile-home-cta,
+.mobile-home-cta-spacer{
+  display:none;
+}
+
+@media (max-width:760px){
+  .home-pricing-grid{
+    grid-template-columns:1fr;
+    gap:22px;
+  }
+
+  .home-pricing-card{
+    padding:22px;
+  }
+
+  .mobile-home-cta-spacer{
+    display:block;
+    height:78px;
+  }
+
+  .mobile-home-cta{
+    display:block;
+    position:fixed;
+    left:12px;
+    right:12px;
+    bottom:12px;
+    z-index:80;
+    padding:7px;
+    background:rgba(255,255,255,.94);
+    border:1px solid var(--line);
+    border-radius:14px;
+    box-shadow:0 10px 34px rgba(15,23,42,.18);
+    backdrop-filter:blur(10px);
+  }
+
+  .mobile-home-cta .button{
+    width:100%;
+    justify-content:center;
+    text-align:center;
+  }
+}
+
+
+.tutoring-price-note{
+  margin-top:24px;
+  padding:20px 22px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+  box-shadow:var(--shadow-sm);
+}
+
+.tutoring-price-note>span{
+  display:block;
+  margin-bottom:7px;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.1em;
+}
+
+.tutoring-price-note>strong{
+  display:block;
+  margin-bottom:8px;
+  font-size:26px;
+  line-height:1.15;
+}
+
+.tutoring-price-note>p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.6;
+}

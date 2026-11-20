@@ -9,7 +9,7 @@ export default function Page() {
       <section className="page-hero compact-hero">
         <div className="shell narrow">
           <div className="eyebrow">CONTACT</div>
-          <h1>Talk to us about tutoring, academic support or the MAT platform.</h1>
+          <h1>Talk to us about tutoring, academic support or general enquiries.</h1>
           <p className="page-lead">For tutoring, the learning-requirements form gives us the academic context needed to respond properly. For general enquiries, contact the team directly.</p>
         </div>
       </section>

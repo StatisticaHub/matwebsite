@@ -27,6 +27,16 @@ export default function Page() {
             support.
           </p>
 
+          <div className="tutoring-price-note">
+            <span>ONE-TO-ONE TUTORING FROM</span>
+            <strong>£20 per hour</strong>
+            <p>
+              The final rate depends on the subject, course level, tutor
+              specialism and your requirements. Get in touch for a quotation;
+              your rate is confirmed before you book.
+            </p>
+          </div>
+
           <div className="trust-row">
             <span>No obligation</span>
             <span>School to postgraduate</span>

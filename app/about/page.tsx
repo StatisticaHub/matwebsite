@@ -33,10 +33,10 @@ export default function Page() {
       <section className="section section-soft">
         <div className="shell">
           <div className="eyebrow">THE MAT MODEL</div>
-          <h2>Learning resources, technology and human teaching working together.</h2>
+          <h2>Learning resources, guided practice and human teaching working together.</h2>
           <div className="learning-grid">
             <article><strong>Learn</strong><p>Free explanations and guides help students begin understanding a topic before committing to tutoring.</p></article>
-            <article><strong>Ask</strong><p>Digital learning tools can help students organise questions and review first steps without pretending to replace a teacher.</p></article>
+            <article><strong>Practise</strong><p>Exercises, examples and learning resources help students test their understanding and identify where more support is needed.</p></article>
             <article><strong>Work one-to-one</strong><p>Human tutoring provides deeper explanation, feedback, guided practice and continuity over time.</p></article>
             <article><strong>Progress independently</strong><p>The objective is always to strengthen the student’s own reasoning and ability to work alone.</p></article>
           </div>
