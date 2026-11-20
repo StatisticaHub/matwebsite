@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 
+
 import HomeworkSubmissionForm from "@/components/HomeworkSubmissionForm";
+import SessionRequestForm from "@/components/SessionRequestForm";
 import StudentSupportForm from "@/components/StudentSupportForm";
 
 import {
@@ -159,6 +161,33 @@ function supportStatusLabel(
   }
 
   return "Received";
+}
+
+
+function supportCategoryLabel(
+  category: string
+) {
+  if (category === "session_request") {
+    return "Session request";
+  }
+
+  if (category === "lesson") {
+    return "Lesson / topic";
+  }
+
+  if (category === "homework") {
+    return "Homework";
+  }
+
+  if (category === "resource") {
+    return "Learning resource";
+  }
+
+  if (category === "technical") {
+    return "Technical issue";
+  }
+
+  return "General support";
 }
 
 
@@ -410,6 +439,12 @@ export default async function StudentPortalPage({
             Sessions
           </a>
 
+          {engagement && (
+            <a href="#session-request">
+              Request session
+            </a>
+          )}
+
           <a href="#homework">
             Homework
           </a>
@@ -575,14 +610,23 @@ export default async function StudentPortalPage({
               ) : null}
 
 
-              <a
-                className="button button-secondary"
-                href="#support"
-              >
-                {nextSession
-                  ? "Request another session →"
-                  : "Request next session →"}
-              </a>
+              {engagement ? (
+                <a
+                  className="button button-secondary"
+                  href="#session-request"
+                >
+                  {nextSession
+                    ? "Request another session →"
+                    : "Request next session →"}
+                </a>
+              ) : (
+                <a
+                  className="button button-secondary"
+                  href="#support"
+                >
+                  Contact tutoring team →
+                </a>
+              )}
 
             </div>
 
@@ -645,24 +689,45 @@ export default async function StudentPortalPage({
                 </a>
 
               </>
+            ) : engagement ? (
+              <>
+
+                <h3>
+                  Ready for your next
+                  session?
+                </h3>
+
+                <p>
+                  Send your preferred
+                  date, time and topic
+                  so your tutoring team
+                  can arrange the next
+                  lesson.
+                </p>
+
+                <a href="#session-request">
+                  Request a session ↓
+                </a>
+
+              </>
             ) : (
               <>
 
                 <h3>
-                  Your tutoring team is
-                  preparing the next
-                  step
+                  Your tutoring plan is
+                  being set up
                 </h3>
 
                 <p>
-                  You can send a support
-                  request if you need
-                  anything in the
-                  meantime.
+                  Your tutoring team is
+                  preparing the next
+                  step. Send a message
+                  if you need anything
+                  in the meantime.
                 </p>
 
                 <a href="#support">
-                  Ask your tutoring
+                  Contact your tutoring
                   team ↓
                 </a>
 
@@ -1999,6 +2064,40 @@ export default async function StudentPortalPage({
 
 
                 {/* ==========================================================
+                    SESSION REQUEST
+                   ========================================================== */}
+
+                <section
+                  className="portal-panel portal-help-card"
+                  id="session-request"
+                >
+                  <span className="portal-kicker">
+                    Continue tutoring
+                  </span>
+
+                  <h2>
+                    Request your next
+                    session
+                  </h2>
+
+                  <p>
+                    Tell us when you
+                    would prefer to meet
+                    and what you want to
+                    work on. Your
+                    tutoring team will
+                    review the request
+                    before confirming
+                    the session.
+                  </p>
+
+                  <SessionRequestForm
+                    token={token}
+                  />
+                </section>
+
+
+                {/* ==========================================================
                     RESOURCES
                    ========================================================== */}
 
@@ -2117,9 +2216,9 @@ export default async function StudentPortalPage({
                     Use this for lesson
                     questions, homework,
                     a missing resource,
-                    requesting another
-                    session or anything
-                    that needs follow-up.
+                    technical help or
+                    anything else that
+                    needs follow-up.
                   </p>
 
 
@@ -2153,9 +2252,8 @@ export default async function StudentPortalPage({
                             <div>
 
                               <strong>
-                                {item.category.replace(
-                                  "_",
-                                  " "
+                                {supportCategoryLabel(
+                                  item.category
                                 )}
                               </strong>
 
@@ -2171,7 +2269,12 @@ export default async function StudentPortalPage({
                             </div>
 
 
-                            <p>
+                            <p
+                              style={{
+                                whiteSpace:
+                                  "pre-line",
+                              }}
+                            >
                               {
                                 item.message
                               }
