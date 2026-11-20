@@ -774,6 +774,252 @@ export async function updateTutoringSession(formData: FormData) {
 }
 
 
+
+export async function attachZoomMeetingToSession(
+  formData: FormData
+) {
+  const {
+    session,
+    supabase,
+  } = await adminContext();
+
+  const sessionId = text(
+    formData,
+    "sessionId",
+    100
+  );
+
+  if (!sessionId) {
+    return;
+  }
+
+  const {
+    data: current,
+    error: currentError,
+  } = await supabase
+    .from(
+      "tutoring_sessions"
+    )
+    .select(
+      "id,engagement_id,scheduled_for,status,topic,duration_minutes,meeting_url,zoom_meeting_id,tutoring_engagements(student_id)"
+    )
+    .eq(
+      "id",
+      sessionId
+    )
+    .single();
+
+  if (
+    currentError ||
+    !current
+  ) {
+    throw new Error(
+      currentError?.message ||
+        "Session not found."
+    );
+  }
+
+  if (
+    current.status !==
+    "planned"
+  ) {
+    throw new Error(
+      "Zoom can only be attached to a planned session."
+    );
+  }
+
+  if (
+    !current.scheduled_for
+  ) {
+    throw new Error(
+      "Set the session date and time before creating a Zoom meeting."
+    );
+  }
+
+  if (
+    current.zoom_meeting_id
+  ) {
+    throw new Error(
+      "This session already has a managed Zoom meeting."
+    );
+  }
+
+  const scheduledTime =
+    new Date(
+      current.scheduled_for
+    ).getTime();
+
+  if (
+    Number.isNaN(
+      scheduledTime
+    ) ||
+    scheduledTime <=
+      Date.now()
+  ) {
+    throw new Error(
+      "Zoom can only be attached to an upcoming planned session."
+    );
+  }
+
+  const relation =
+    current
+      .tutoring_engagements as unknown as {
+        student_id: string;
+      } | null;
+
+  if (
+    !relation?.student_id
+  ) {
+    throw new Error(
+      "Session student could not be resolved."
+    );
+  }
+
+  const durationMinutes =
+    Number(
+      current.duration_minutes ||
+        60
+    );
+
+  await assertZoomSlotAvailable({
+    supabase,
+
+    scheduledFor:
+      current.scheduled_for,
+
+    durationMinutes,
+
+    excludeSessionId:
+      sessionId,
+  });
+
+  const zoomMeeting =
+    await createZoomMeeting({
+      topic:
+        `My Academic Tutor — ${current.topic}`,
+
+      scheduledFor:
+        current.scheduled_for,
+
+      durationMinutes,
+    });
+
+  const now =
+    new Date()
+      .toISOString();
+
+  const {
+    data: updated,
+    error,
+  } = await supabase
+    .from(
+      "tutoring_sessions"
+    )
+    .update({
+      meeting_url:
+        zoomMeeting.joinUrl,
+
+      zoom_meeting_id:
+        zoomMeeting.id,
+
+      zoom_meeting_uuid:
+        zoomMeeting.uuid,
+
+      zoom_host_user_id:
+        zoomHostUserId(),
+
+      zoom_synced_at:
+        now,
+
+      updated_at:
+        now,
+    })
+    .eq(
+      "id",
+      sessionId
+    )
+    .select(
+      "id,engagement_id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary,meeting_url"
+    )
+    .single();
+
+  if (
+    error ||
+    !updated
+  ) {
+    try {
+      await deleteZoomMeeting(
+        zoomMeeting.id
+      );
+    } catch (
+      cleanupError
+    ) {
+      console.error(
+        "MAT could not save the attached Zoom meeting and Zoom cleanup also failed:",
+        cleanupError
+      );
+    }
+
+    throw new Error(
+      error?.message ||
+        "Could not attach Zoom meeting to session."
+    );
+  }
+
+  if (
+    formData.get(
+      "notifyStudent"
+    ) === "on"
+  ) {
+    try {
+      await notifySession({
+        supabase,
+
+        adminEmail:
+          session.user.email ||
+          null,
+
+        studentId:
+          relation.student_id,
+
+        engagementId:
+          updated.engagement_id,
+
+        sessionRow:
+          updated,
+      });
+    } catch (
+      notificationError
+    ) {
+      console.error(
+        "Zoom was attached successfully but the student notification failed:",
+        notificationError
+      );
+    }
+  }
+
+  revalidatePath(
+    "/admin"
+  );
+
+  revalidatePath(
+    "/admin/sessions"
+  );
+
+  revalidatePath(
+    `/admin/sessions/${sessionId}`
+  );
+
+  revalidatePath(
+    `/admin/students/${relation.student_id}`
+  );
+
+  revalidatePath(
+    "/admin/portals"
+  );
+}
+
+
 export async function completeTutoringSession(
   formData: FormData
 ) {

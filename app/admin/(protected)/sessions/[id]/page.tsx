@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sessionStatusLabels, sessionStatuses, type SessionStatus } from "@/lib/delivery-data";
-import { cancelTutoringSession, completeTutoringSession, markTutoringSessionNoShow, sendTutoringSessionReminder, updateTutoringSession } from "@/app/admin/session-management-actions";
+import { attachZoomMeetingToSession, cancelTutoringSession, completeTutoringSession, markTutoringSessionNoShow, sendTutoringSessionReminder, updateTutoringSession } from "@/app/admin/session-management-actions";
 
 export const dynamic = "force-dynamic";
 type Params = Promise<{ id: string }>;
@@ -83,6 +83,14 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
   const canRemind = session.status === "planned" && Boolean(session.scheduled_for);
   const canCancel = session.status === "planned";
   const canCloseOut = session.status === "planned";
+  const canAttachZoom =
+    session.status === "planned" &&
+    Boolean(session.scheduled_for) &&
+    !session.zoom_meeting_id;
+  const needsSessionTimeForZoom =
+    session.status === "planned" &&
+    !session.scheduled_for &&
+    !session.zoom_meeting_id;
 
   return (
     <div className="admin-page">
@@ -342,6 +350,70 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
             <p className="admin-help">{student?.name || "Student"}<br />{session.tutoring_engagements?.title || "Tutoring engagement"}</p>
             {studentId && <Link className="admin-contact-button" href={`/admin/students/${studentId}`}>Open student →</Link>}
           </section>
+
+
+          {!session.zoom_meeting_id &&
+            session.status === "planned" && (
+              <section className="admin-panel admin-action-card">
+                <h2>
+                  Zoom meeting
+                </h2>
+
+                {canAttachZoom ? (
+                  <>
+                    <p className="admin-help">
+                      Create a managed Zoom meeting for this
+                      existing session using the shared MAT Pro
+                      account. MAT will run the same overlap check
+                      used by the scheduler and save the participant
+                      join link to the student portal.
+                    </p>
+
+                    {session.meeting_url && (
+                      <p className="admin-muted">
+                        This session currently has a manual meeting
+                        link. Creating Zoom will replace that link.
+                      </p>
+                    )}
+
+                    <form
+                      action={attachZoomMeetingToSession}
+                      className="admin-compact-form"
+                    >
+                      <input
+                        type="hidden"
+                        name="sessionId"
+                        value={session.id}
+                      />
+
+                      <label className="admin-email-toggle admin-email-toggle-block">
+                        <input
+                          name="notifyStudent"
+                          type="checkbox"
+                          defaultChecked
+                        />
+
+                        Email the student with the Zoom join link
+                      </label>
+
+                      <button
+                        className="admin-primary-button"
+                        type="submit"
+                      >
+                        Create Zoom meeting
+                      </button>
+                    </form>
+                  </>
+                ) : needsSessionTimeForZoom ? (
+                  <p className="admin-help">
+                    Set a session date and time first, save the
+                    session, then return here to create its Zoom
+                    meeting.
+                  </p>
+                ) : null}
+              </section>
+            )}
+
 
           <section className="admin-panel admin-action-card">
             <h2>Session reminder</h2>
