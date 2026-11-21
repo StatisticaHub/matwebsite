@@ -3466,3 +3466,301 @@ summary::after {
   }
 
 }
+
+
+/* ============================================================
+   STUDENT PORTAL — HERO CONTRAST IMPROVEMENT
+   ============================================================ */
+
+/* Main welcome container */
+.student-portal-shell
+.portal-welcome {
+  background:
+    #f8fafc;
+
+  border-color:
+    #d7e0e9;
+}
+
+
+/* Small uppercase labels */
+.student-portal-shell
+.portal-welcome
+.portal-kicker,
+.student-portal-shell
+.portal-progress-card > span {
+  color:
+    #5f7188 !important;
+}
+
+
+/* Main welcome heading */
+.student-portal-shell
+.portal-welcome h1 {
+  color:
+    #0f2747;
+}
+
+
+/* Supporting welcome text */
+.student-portal-shell
+.portal-welcome p {
+  color:
+    #4f6075 !important;
+}
+
+
+/* Progress card */
+.student-portal-shell
+.portal-progress-card {
+  background:
+    #ffffff !important;
+
+  border:
+    1px solid
+    #d6e0ea !important;
+
+  box-shadow:
+    0 8px 24px
+    rgba(
+      34,
+      58,
+      82,
+      0.06
+    );
+}
+
+
+/* Progress percentage */
+.student-portal-shell
+.portal-progress-card strong {
+  color:
+    #163a63 !important;
+}
+
+
+/* Progress supporting text */
+.student-portal-shell
+.portal-progress-card small {
+  color:
+    #64758a !important;
+
+  font-weight:
+    600;
+}
+
+
+/* Progress track */
+.student-portal-shell
+.portal-progress-track {
+  background:
+    #dbe4ee !important;
+}
+
+
+/* Progress fill */
+.student-portal-shell
+.portal-progress-track i {
+  background:
+    #274c7d !important;
+}
+
+
+/* Slightly stronger overall panel separation */
+.student-portal-shell
+.portal-panel {
+  background:
+    #ffffff;
+
+  border-color:
+    #dce4ec;
+}
+
+
+/* Improve general muted text readability in portal */
+.student-portal-shell
+.portal-panel p,
+.student-portal-shell
+.portal-panel small {
+  color:
+    #5b6d81;
+}
+
+
+/* Preserve stronger status / interactive text */
+.student-portal-shell
+.portal-status,
+.student-portal-shell
+.portal-panel a {
+  color:
+    inherit;
+}
+
+
+
+/* ============================================================
+   STUDENT PORTAL — FINAL PROGRESS CARD READABILITY
+   Keep this at the END of globals.css so it wins older rules.
+   ============================================================ */
+
+.student-portal-shell .portal-progress-card {
+  background: #ffffff !important;
+  color: #173451 !important;
+
+  border: 1px solid #cfd9e4 !important;
+
+  border-radius: 16px;
+
+  padding: 24px 26px !important;
+
+  box-shadow:
+    0 8px 24px
+    rgba(23, 52, 81, 0.07) !important;
+}
+
+
+/* OVERALL PLAN PROGRESS */
+.student-portal-shell
+.portal-progress-card > span {
+  display: block !important;
+
+  color: #536b84 !important;
+
+  font-size: 11px !important;
+
+  font-weight: 800 !important;
+
+  letter-spacing: 0.1em;
+
+  text-transform: uppercase;
+
+  opacity: 1 !important;
+
+  visibility: visible !important;
+}
+
+
+/* The actual 0%, 25%, 80%, etc. */
+.student-portal-shell
+.portal-progress-card > strong {
+  display: block !important;
+
+  margin: 14px 0 18px !important;
+
+  color: #102f50 !important;
+
+  font-size: 38px !important;
+
+  line-height: 1 !important;
+
+  font-weight: 700 !important;
+
+  opacity: 1 !important;
+
+  visibility: visible !important;
+}
+
+
+/* Background of progress bar */
+.student-portal-shell
+.portal-progress-card
+.portal-progress-track {
+  display: block !important;
+
+  width: 100%;
+
+  height: 8px !important;
+
+  margin: 0 !important;
+
+  background: #d8e2ec !important;
+
+  border-radius: 999px;
+
+  overflow: hidden;
+}
+
+
+/* Filled portion */
+.student-portal-shell
+.portal-progress-card
+.portal-progress-track > i {
+  display: block !important;
+
+  height: 100% !important;
+
+  min-width: 0;
+
+  background: #24558a !important;
+
+  border-radius: 999px;
+}
+
+
+/* "0 of 1 plan topics mastered" */
+.student-portal-shell
+.portal-progress-card > small {
+  display: block !important;
+
+  margin-top: 12px !important;
+
+  color: #53697f !important;
+
+  font-size: 11px !important;
+
+  line-height: 1.45;
+
+  font-weight: 650 !important;
+
+  opacity: 1 !important;
+
+  visibility: visible !important;
+}
+
+
+/* Welcome supporting paragraph */
+.student-portal-shell
+.portal-welcome > div > p {
+  color: #506176 !important;
+}
+
+
+/* Welcome kicker */
+.student-portal-shell
+.portal-welcome
+.portal-kicker {
+  color: #285b9a !important;
+}
+
+
+/* Give hero/card slightly clearer separation */
+.student-portal-shell
+.portal-welcome {
+  background: #f8fafc !important;
+
+  border:
+    1px solid
+    #d5dee8 !important;
+}
+
+
+/* Mobile */
+@media (max-width: 700px) {
+
+  .student-portal-shell
+  .portal-progress-card {
+    width: 100%;
+
+    max-width: none;
+
+    padding: 20px !important;
+  }
+
+
+  .student-portal-shell
+  .portal-progress-card > strong {
+    font-size: 32px !important;
+  }
+
+}
+
