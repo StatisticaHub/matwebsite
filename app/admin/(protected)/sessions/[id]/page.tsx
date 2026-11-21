@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ViewerLocalDateTime from "@/components/ViewerLocalDateTime";
 import { notFound } from "next/navigation";
 import PostSessionHomeworkFields from "@/components/PostSessionHomeworkFields";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -100,7 +101,7 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
     <div className="admin-page">
       <div className="admin-breadcrumb"><Link href="/admin/sessions">← Sessions</Link><span>{session.topic}</span></div>
       <header className="admin-page-head admin-session-detail-head">
-        <div><span className="admin-eyebrow">{session.tutoring_engagements?.subject || "Tutoring session"}</span><h1>{session.topic}</h1><p>{student?.name || "Student"} · {formatDateTime(session.scheduled_for)}</p></div>
+        <div><span className="admin-eyebrow">{session.tutoring_engagements?.subject || "Tutoring session"}</span><h1>{session.topic}</h1><p>{student?.name || "Student"} · <ViewerLocalDateTime value={session.scheduled_for} /></p></div>
         <span className={`admin-status session-${session.status}`}>{sessionStatusLabels[session.status]}</span>
       </header>
 
@@ -145,7 +146,7 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
             <section className="admin-panel admin-action-card">
               <h2>Zoom meeting ended</h2>
               <p className="admin-help">
-                Zoom reported this meeting ended at {formatDateTime(session.zoom_ended_at)}.
+                Zoom reported this meeting ended at <ViewerLocalDateTime value={session.zoom_ended_at} />.
                 Review the lesson outcome below and complete the tutoring record, or mark a no-show if appropriate.
               </p>
             </section>
@@ -333,7 +334,7 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
               <div><dt>Student</dt><dd>{student?.name || "—"}</dd></div>
               <div><dt>Email</dt><dd>{student?.email || "—"}</dd></div>
               <div><dt>Tutor</dt><dd>{session.session_tutor?.name || session.tutoring_engagements?.tutors?.name || "Not assigned"}</dd></div>
-              <div><dt>Scheduled</dt><dd>{formatDateTime(session.scheduled_for)}</dd></div>
+              <div><dt>Scheduled</dt><dd><ViewerLocalDateTime value={session.scheduled_for} /></dd></div>
               <div><dt>Completed</dt><dd>{session.completed_at ? formatDateTime(session.completed_at) : "—"}</dd></div>
               <div><dt>Duration</dt><dd>{session.duration_minutes} minutes</dd></div>
               <div><dt>Meeting link</dt><dd>{session.meeting_url ? <a href={session.meeting_url} target="_blank" rel="noreferrer">Open link ↗</a> : "—"}</dd></div>

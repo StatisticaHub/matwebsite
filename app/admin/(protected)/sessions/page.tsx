@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ViewerLocalDateTime from "@/components/ViewerLocalDateTime";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isZoomConfigured } from "@/lib/zoom";
 import {
@@ -867,9 +868,9 @@ export default async function SessionsPage() {
 
                     <span>
                       Zoom ended{" "}
-                      {formatDateTime(
+                      <ViewerLocalDateTime value={
                         item.zoom_ended_at
-                      )}
+                      } />
                     </span>
                   </div>
 
@@ -1005,9 +1006,9 @@ export default async function SessionsPage() {
                       </strong>
 
                       <small>
-                        {formatDateTime(
+                        <ViewerLocalDateTime value={
                           request.created_at
-                        )}
+                        } />
                       </small>
                     </div>
 
@@ -1477,9 +1478,9 @@ export default async function SessionsPage() {
                       </strong>
 
                       <small>
-                        {formatDateTime(
+                        <ViewerLocalDateTime value={
                           request.created_at
-                        )}
+                        } />
                       </small>
                     </div>
 
@@ -2178,9 +2179,9 @@ export default async function SessionsPage() {
                 >
                   <div>
                     <strong>
-                      {formatDateTime(
+                      <ViewerLocalDateTime value={
                         item.scheduled_for
-                      )}
+                      } />
                     </strong>
 
                     <span>
@@ -2269,9 +2270,9 @@ export default async function SessionsPage() {
                   >
                     <div>
                       <strong>
-                        {formatDateTime(
+                        <ViewerLocalDateTime value={
                           item.scheduled_for
-                        )}
+                        } />
                       </strong>
 
                       <span>
@@ -2530,9 +2531,9 @@ export default async function SessionsPage() {
 
                     <td>
                       <span>
-                        {formatDateTime(
+                        <ViewerLocalDateTime value={
                           item.scheduled_for
-                        )}
+                        } />
                       </span>
                     </td>
 

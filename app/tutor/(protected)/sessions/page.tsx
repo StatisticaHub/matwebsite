@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ViewerLocalDateTime from "@/components/ViewerLocalDateTime";
 import { getTutorSession } from "@/lib/tutor-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sessionStatusLabels, type SessionStatus } from "@/lib/delivery-data";
@@ -14,7 +15,7 @@ export default async function TutorSessionsPage() {
   const rows = (data || []) as any[];
   return <div className="tutor-page"><header className="tutor-page-head"><div><span className="tutor-eyebrow">Teaching</span><h1>My sessions</h1><p>Open a session to record delivery notes, outcomes, homework and the next teaching focus.</p></div></header>
     <section className="tutor-panel"><div className="tutor-table-wrap"><table className="tutor-table"><thead><tr><th>Date</th><th>Student</th><th>Topic</th><th>Status</th><th>Duration</th><th></th></tr></thead><tbody>
-      {rows.map(row => <tr key={row.id}><td>{fmt(row.scheduled_for)}</td><td>{row.tutoring_engagements?.students?.name || "Student"}<small>{row.tutoring_engagements?.subject || ""}</small></td><td>{row.topic}</td><td><span className={`tutor-status ${row.status}`}>{sessionStatusLabels[row.status as SessionStatus] || row.status}</span></td><td>{row.duration_minutes} min</td><td><Link href={`/tutor/sessions/${row.id}`}>Open →</Link></td></tr>)}
+      {rows.map(row => <tr key={row.id}><td><ViewerLocalDateTime value={row.scheduled_for} /></td><td>{row.tutoring_engagements?.students?.name || "Student"}<small>{row.tutoring_engagements?.subject || ""}</small></td><td>{row.topic}</td><td><span className={`tutor-status ${row.status}`}>{sessionStatusLabels[row.status as SessionStatus] || row.status}</span></td><td>{row.duration_minutes} min</td><td><Link href={`/tutor/sessions/${row.id}`}>Open →</Link></td></tr>)}
       {!rows.length && <tr><td colSpan={6}><div className="tutor-empty">No sessions assigned yet.</div></td></tr>}
     </tbody></table></div></section></div>;
 }

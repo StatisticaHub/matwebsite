@@ -15,6 +15,12 @@ import HomeworkSubmissionForm from "@/components/HomeworkSubmissionForm";
 import SessionRequestForm from "@/components/SessionRequestForm";
 import SessionChangeRequestForm from "@/components/SessionChangeRequestForm";
 import StudentSupportForm from "@/components/StudentSupportForm";
+import PortalTimeZoneControl from "@/components/PortalTimeZoneControl";
+import {
+  DEFAULT_TIME_ZONE,
+  formatDateTimeInTimeZone,
+  isValidTimeZone,
+} from "@/lib/time-zone";
 
 import {
   getPortalCourseContext,
@@ -121,7 +127,7 @@ function progressScore(
     return 38;
   }
 
-  return 8;
+  return 0;
 }
 
 
@@ -298,6 +304,31 @@ export default async function StudentPortalPage({
     supportRequests,
     progressReports,
   } = context;
+
+  /*
+   * Every stored session remains UTC.
+   * Student-facing dates are rendered
+   * in the timezone the student selected.
+   */
+  const savedStudentTimeZone =
+    onboarding?.timezone ||
+    null;
+
+  const studentTimeZone =
+    isValidTimeZone(
+      savedStudentTimeZone
+    )
+      ? savedStudentTimeZone
+      : DEFAULT_TIME_ZONE;
+
+  const portalDateTime = (
+    value: string | null
+  ) =>
+    formatDateTimeInTimeZone(
+      value,
+      studentTimeZone
+    );
+
 
   /*
    * Secure uploaded learning files.
@@ -702,7 +733,7 @@ export default async function StudentPortalPage({
 
             <p>
               {engagement
-                ? `Everything for your ${engagement.subject} tutoring is collected here — sessions, tutor notes, homework, private files, resources and support.`
+                ? `Your ${engagement.subject} learning space keeps your lessons, weekly work, progress and files organised in one place.`
                 : "Your tutoring team is preparing your learning record."}
             </p>
 
@@ -761,7 +792,7 @@ export default async function StudentPortalPage({
 
               <h2>
                 {nextSession
-                  ? formatDateTime(
+                  ? portalDateTime(
                       nextSession.scheduled_for
                     )
                   : "No session booked yet"}
@@ -956,6 +987,7 @@ export default async function StudentPortalPage({
            ================================================================== */}
 
         {onboarding &&
+          sessions.length === 0 &&
           onboarding.status !==
             "complete" && (
 
@@ -1530,7 +1562,9 @@ export default async function StudentPortalPage({
                     WEEKLY LEARNING JOURNEY
                    ========================================================== */}
 
-                <StudentWeeklyJourney
+                <div id="this-week"></div>
+
+        <StudentWeeklyJourney
                   token={token}
                   engagementId={
                     engagement.id
@@ -1594,7 +1628,7 @@ export default async function StudentPortalPage({
                               <div className="portal-upgrade-session-time">
 
                                 <strong>
-                                  {formatDateTime(
+                                  {portalDateTime(
                                     item.scheduled_for
                                   )}
                                 </strong>
@@ -1705,6 +1739,9 @@ export default async function StudentPortalPage({
 
                     <SessionChangeRequestForm
                       token={token}
+                      initialTimeZone={
+                        savedStudentTimeZone
+                      }
                       engagementId={
                         engagement.id
                       }
@@ -1948,7 +1985,7 @@ export default async function StudentPortalPage({
                                 <small>
                                   Last
                                   submitted{" "}
-                                  {formatDateTime(
+                                  {portalDateTime(
                                     submission.submitted_at
                                   )}
                                 </small>
@@ -2053,7 +2090,7 @@ export default async function StudentPortalPage({
                             <div className="portal-session-date">
 
                               <strong>
-                                {formatDateTime(
+                                {portalDateTime(
                                   item.completed_at ||
                                     item.scheduled_for
                                 )}
@@ -2273,7 +2310,7 @@ export default async function StudentPortalPage({
                 <section className="portal-panel portal-focus-card">
 
                   <span className="portal-kicker">
-                    Current engagement
+                    Your course
                   </span>
 
                   <h2>
@@ -2371,8 +2408,14 @@ export default async function StudentPortalPage({
 
                   <SessionRequestForm
                     token={token}
+                    initialTimeZone={
+                      savedStudentTimeZone
+                    }
                     engagementId={
                       engagement.id
+                    }
+                  defaultDurationMinutes={
+                      engagement.session_duration_minutes
                     }
                   />
                 </section>
@@ -2685,7 +2728,7 @@ export default async function StudentPortalPage({
 
 
                             <small>
-                              {formatDateTime(
+                              {portalDateTime(
                                 item.created_at
                               )}
                             </small>

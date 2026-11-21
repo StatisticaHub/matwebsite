@@ -2,7 +2,7 @@
 
 import {
   FormEvent,
-  useMemo,
+  useEffect,
   useState,
 } from "react";
 
@@ -10,15 +10,27 @@ import {
   useRouter,
 } from "next/navigation";
 
+import TimeZonePicker from "@/components/TimeZonePicker";
+
+import {
+  DEFAULT_TIME_ZONE,
+  formatDateTimeInTimeZone,
+  isValidTimeZone,
+  zonedLocalDateTimeToUtc,
+} from "@/lib/time-zone";
+
+
 type ChangeType =
   | "reschedule"
   | "cancel";
+
 
 type Status =
   | "idle"
   | "sending"
   | "sent"
   | "error";
+
 
 type UpcomingSessionOption = {
   id: string;
@@ -27,117 +39,224 @@ type UpcomingSessionOption = {
   durationMinutes: number;
 };
 
+
 export default function SessionChangeRequestForm({
   token,
   engagementId,
   sessions,
   defaultSessionId,
+  initialTimeZone,
 }: {
   token: string;
-  engagementId: string;
-  sessions: UpcomingSessionOption[];
-  defaultSessionId?: string | null;
+
+  engagementId:
+    string;
+
+  sessions:
+    UpcomingSessionOption[];
+
+  defaultSessionId?:
+    string | null;
+
+  initialTimeZone?:
+    string | null;
 }) {
   const router =
     useRouter();
 
-  const timezone =
-    useMemo(
-      () =>
-        Intl.DateTimeFormat()
-          .resolvedOptions()
-          .timeZone ||
-        "Not provided",
-      []
-    );
 
   const initialSessionId =
     defaultSessionId &&
     sessions.some(
       (item) =>
         item.id ===
-        defaultSessionId
+        defaultSessionId,
     )
       ? defaultSessionId
-      : sessions[0]?.id ||
+      : sessions[0]
+          ?.id ||
         "";
+
 
   const [
     sessionId,
     setSessionId,
   ] =
     useState(
-      initialSessionId
+      initialSessionId,
     );
+
 
   const [
     changeType,
     setChangeType,
   ] =
     useState<ChangeType>(
-      "reschedule"
+      "reschedule",
     );
+
 
   const [
     requestedDate,
     setRequestedDate,
   ] =
-    useState("");
+    useState(
+      "",
+    );
+
 
   const [
     requestedTime,
     setRequestedTime,
   ] =
-    useState("");
+    useState(
+      "",
+    );
+
 
   const [
     reason,
     setReason,
   ] =
-    useState("");
+    useState(
+      "",
+    );
+
+
+  const [
+    timeZone,
+    setTimeZone,
+  ] =
+    useState(
+      isValidTimeZone(
+        initialTimeZone,
+      )
+        ? initialTimeZone
+        : DEFAULT_TIME_ZONE,
+    );
+
 
   const [
     status,
     setStatus,
   ] =
     useState<Status>(
-      "idle"
+      "idle",
     );
+
 
   const [
     errorMessage,
     setErrorMessage,
   ] =
-    useState("");
+    useState(
+      "",
+    );
+
+
+  useEffect(
+    () => {
+      const saved =
+        window.localStorage
+          .getItem(
+            "mat-portal-time-zone",
+          );
+
+
+      const detected =
+        Intl.DateTimeFormat()
+          .resolvedOptions()
+          .timeZone;
+
+
+      if (
+        isValidTimeZone(
+          saved,
+        )
+      ) {
+        setTimeZone(
+          saved,
+        );
+
+      } else if (
+        !isValidTimeZone(
+          initialTimeZone,
+        ) &&
+        isValidTimeZone(
+          detected,
+        )
+      ) {
+        setTimeZone(
+          detected,
+        );
+      }
+
+
+      function handleTimeZone(
+        event:
+          Event,
+      ) {
+        const value =
+          (
+            event as
+              CustomEvent<string>
+          ).detail;
+
+
+        if (
+          isValidTimeZone(
+            value,
+          )
+        ) {
+          setTimeZone(
+            value,
+          );
+        }
+      }
+
+
+      window.addEventListener(
+        "mat:portal-time-zone",
+        handleTimeZone,
+      );
+
+
+      return () =>
+        window.removeEventListener(
+          "mat:portal-time-zone",
+          handleTimeZone,
+        );
+    },
+    [
+      initialTimeZone,
+    ],
+  );
+
 
   const selectedSession =
     sessions.find(
       (item) =>
         item.id ===
-        sessionId
-    ) || sessions[0];
+        sessionId,
+    ) ||
+    sessions[0];
+
 
   const currentBooking =
     selectedSession
-      ? new Intl.DateTimeFormat(
-          "en-GB",
-          {
-            dateStyle:
-              "medium",
-            timeStyle:
-              "short",
-          }
-        ).format(
-          new Date(
-            selectedSession.scheduledFor
-          )
+      ? formatDateTimeInTimeZone(
+          selectedSession.scheduledFor,
+          timeZone,
         )
       : null;
 
+
   async function submit(
-    event: FormEvent<HTMLFormElement>
+    event:
+      FormEvent<HTMLFormElement>,
   ) {
     event.preventDefault();
+
 
     if (
       !selectedSession ||
@@ -148,93 +267,50 @@ export default function SessionChangeRequestForm({
       return;
     }
 
+
     if (
       changeType ===
-        "reschedule" &&
-      (!requestedDate ||
-        !requestedTime)
-    ) {
-      setStatus(
-        "error"
-      );
-
-      setErrorMessage(
-        "Please choose your preferred new date and time."
-      );
-
-      return;
-    }
-
-    setStatus(
-      "sending"
-    );
-
-    setErrorMessage(
-      ""
-    );
-
-    const lines = [
-      "SESSION CHANGE REQUEST",
-      "",
-      `Change type: ${
-        changeType ===
         "reschedule"
-          ? "Reschedule"
-          : "Cancellation"
-      }`,
-      `Session ID: ${selectedSession.id}`,
-      `Current scheduled UTC: ${selectedSession.scheduledFor}`,
-      `Session topic: ${selectedSession.topic}`,
-    ];
-
-    if (
-      changeType ===
-      "reschedule"
     ) {
-      const localDate =
-        new Date(
-          `${requestedDate}T${requestedTime}:00`
+      const converted =
+        zonedLocalDateTimeToUtc(
+          requestedDate,
+          requestedTime,
+          timeZone,
         );
 
+
       if (
-        Number.isNaN(
-          localDate.getTime()
-        )
+        !converted.ok
       ) {
         setStatus(
-          "error"
+          "error",
         );
 
         setErrorMessage(
-          "Please choose a valid new date and time."
+          converted.error,
         );
 
         return;
       }
-
-      lines.push(
-        `Requested local date: ${requestedDate}`,
-        `Requested local time: ${requestedTime}`,
-        `Student timezone: ${timezone}`,
-        `Requested UTC: ${localDate.toISOString()}`
-      );
-    } else {
-      lines.push(
-        `Student timezone: ${timezone}`
-      );
     }
 
-    lines.push(
-      "",
-      `Reason: ${reason.trim()}`
+
+    setStatus(
+      "sending",
     );
+
+    setErrorMessage(
+      "",
+    );
+
 
     try {
       const response =
         await fetch(
           `/api/portal/${encodeURIComponent(
-            token
-          )}/support`,
+            token,
+          )}/session-request`,
           {
             method:
               "POST",
@@ -246,67 +322,89 @@ export default function SessionChangeRequestForm({
 
             body:
               JSON.stringify({
+                type:
+                  "change",
+
                 engagementId,
 
-                category:
-                  "session_request",
+                sessionId:
+                  selectedSession.id,
 
-                message:
-                  lines.join(
-                    "\n"
-                  ),
+                changeType,
+
+                requestedDate,
+
+                requestedTime,
+
+                timeZone,
+
+                reason:
+                  reason.trim(),
               }),
-          }
+          },
         );
+
 
       const result =
         await response
           .json()
           .catch(
-            () => null
+            () =>
+              null,
           );
+
 
       if (
         !response.ok
       ) {
         throw new Error(
           result?.error ||
-            "Could not send your session change request."
+            "Could not send your request.",
         );
       }
 
+
+      window.localStorage.setItem(
+        "mat-portal-time-zone",
+        timeZone,
+      );
+
+
       setRequestedDate(
-        ""
+        "",
       );
 
       setRequestedTime(
-        ""
+        "",
       );
 
       setReason(
-        ""
+        "",
       );
 
       setStatus(
-        "sent"
+        "sent",
       );
 
+
       router.refresh();
+
     } catch (
       error
     ) {
       setStatus(
-        "error"
+        "error",
       );
 
       setErrorMessage(
         error instanceof
           Error
           ? error.message
-          : "Could not send your session change request."
+          : "Could not send your request.",
       );
     }
   }
+
 
   if (
     !sessions.length
@@ -314,237 +412,261 @@ export default function SessionChangeRequestForm({
     return null;
   }
 
+
   return (
-    <form
-      className="portal-form"
-      onSubmit={
-        submit
-      }
-    >
-      <label>
-        <span>
-          Which session?
-        </span>
+    <details className="portal-collapsible-form">
 
-        <select
-          value={
-            sessionId
-          }
-          onChange={(
-            event
-          ) => {
-            setSessionId(
-              event.target
-                .value
-            );
-
-            setStatus(
-              "idle"
-            );
-          }}
-        >
-          {sessions.map(
-            (item) => (
-              <option
-                key={
-                  item.id
-                }
-                value={
-                  item.id
-                }
-              >
-                {new Intl.DateTimeFormat(
-                  "en-GB",
-                  {
-                    dateStyle:
-                      "medium",
-                    timeStyle:
-                      "short",
-                  }
-                ).format(
-                  new Date(
-                    item.scheduledFor
-                  )
-                )}{" "}
-                —{" "}
-                {
-                  item.topic
-                }
-              </option>
-            )
-          )}
-        </select>
-
-        {currentBooking && (
-          <small>
-            Current booking in
-            your time zone:{" "}
-            {currentBooking}
-            {" · "}
-            {timezone}
-          </small>
-        )}
-      </label>
+      <summary>
+        Change or cancel an
+        existing session
+      </summary>
 
 
-      <label>
-        <span>
-          What would you like to do?
-        </span>
-
-        <select
-          value={
-            changeType
-          }
-          onChange={(
-            event
-          ) => {
-            setChangeType(
-              event.target
-                .value as ChangeType
-            );
-
-            setStatus(
-              "idle"
-            );
-          }}
-        >
-          <option value="reschedule">
-            Request a different time
-          </option>
-
-          <option value="cancel">
-            Request cancellation
-          </option>
-        </select>
-      </label>
-
-
-      {changeType ===
-        "reschedule" && (
-        <>
-          <label>
-            <span>
-              Preferred new date
-            </span>
-
-            <input
-              type="date"
-              value={
-                requestedDate
-              }
-              required
-              onChange={(
-                event
-              ) =>
-                setRequestedDate(
-                  event.target
-                    .value
-                )
-              }
-            />
-          </label>
-
-
-          <label>
-            <span>
-              Preferred new time
-            </span>
-
-            <input
-              type="time"
-              value={
-                requestedTime
-              }
-              required
-              onChange={(
-                event
-              ) =>
-                setRequestedTime(
-                  event.target
-                    .value
-                )
-              }
-            />
-
-            <small>
-              Your time zone:{" "}
-              {timezone}
-            </small>
-          </label>
-        </>
-      )}
-
-
-      <label>
-        <span>
-          Reason
-        </span>
-
-        <textarea
-          value={
-            reason
-          }
-          required
-          maxLength={
-            1000
-          }
-          onChange={(
-            event
-          ) =>
-            setReason(
-              event.target
-                .value
-            )
-          }
-          placeholder={
-            changeType ===
-            "reschedule"
-              ? "For example: class timetable changed, work shift, exam preparation..."
-              : "Tell us briefly why you need to cancel this session."
-          }
-        />
-      </label>
-
-
-      <button
-        className="button button-primary"
-        disabled={
-          status ===
-          "sending"
+      <form
+        className="portal-form"
+        onSubmit={
+          submit
         }
-        type="submit"
       >
+
+        <label>
+
+          <span>
+            Which session?
+          </span>
+
+          <select
+            value={
+              sessionId
+            }
+            onChange={(
+              event,
+            ) => {
+              setSessionId(
+                event.target
+                  .value,
+              );
+
+              setStatus(
+                "idle",
+              );
+            }}
+          >
+            {sessions.map(
+              (item) => (
+                <option
+                  key={
+                    item.id
+                  }
+                  value={
+                    item.id
+                  }
+                >
+                  {formatDateTimeInTimeZone(
+                    item.scheduledFor,
+                    timeZone,
+                  )}
+                  {" — "}
+                  {
+                    item.topic
+                  }
+                </option>
+              ),
+            )}
+          </select>
+
+
+          {currentBooking && (
+            <small>
+              Current booking:
+              {" "}
+              {
+                currentBooking
+              }
+              {" · "}
+              {
+                timeZone
+              }
+            </small>
+          )}
+
+        </label>
+
+
+        <label>
+
+          <span>
+            What would you like
+            to do?
+          </span>
+
+          <select
+            value={
+              changeType
+            }
+            onChange={(
+              event,
+            ) =>
+              setChangeType(
+                event.target
+                  .value as
+                  ChangeType,
+              )
+            }
+          >
+            <option value="reschedule">
+              Request a different
+              time
+            </option>
+
+            <option value="cancel">
+              Request cancellation
+            </option>
+          </select>
+
+        </label>
+
+
+        {changeType ===
+          "reschedule" && (
+          <>
+
+            <div className="portal-booking-grid">
+
+              <label>
+
+                <span>
+                  New date
+                </span>
+
+                <input
+                  type="date"
+                  value={
+                    requestedDate
+                  }
+                  required
+                  onChange={(
+                    event,
+                  ) =>
+                    setRequestedDate(
+                      event.target
+                        .value,
+                    )
+                  }
+                />
+
+              </label>
+
+
+              <label>
+
+                <span>
+                  New time
+                </span>
+
+                <input
+                  type="time"
+                  value={
+                    requestedTime
+                  }
+                  required
+                  onChange={(
+                    event,
+                  ) =>
+                    setRequestedTime(
+                      event.target
+                        .value,
+                    )
+                  }
+                />
+
+              </label>
+
+            </div>
+
+
+            <TimeZonePicker
+              value={
+                timeZone
+              }
+              onChange={
+                setTimeZone
+              }
+              label="Time zone for the new time"
+            />
+
+          </>
+        )}
+
+
+        <label>
+
+          <span>
+            Reason
+          </span>
+
+          <textarea
+            value={
+              reason
+            }
+            required
+            maxLength={
+              1200
+            }
+            onChange={(
+              event,
+            ) =>
+              setReason(
+                event.target
+                  .value,
+              )
+            }
+            placeholder="For example: class timetable changed, work shift or another commitment."
+          />
+
+        </label>
+
+
+        <button
+          className="button button-primary"
+          disabled={
+            status ===
+            "sending"
+          }
+          type="submit"
+        >
+          {status ===
+          "sending"
+            ? "Sending…"
+            : changeType ===
+                "cancel"
+              ? "Request cancellation"
+              : "Request new time"}
+        </button>
+
+
         {status ===
-        "sending"
-          ? "Sending…"
-          : changeType ===
-              "reschedule"
-            ? "Request reschedule"
-            : "Request cancellation"}
-      </button>
+          "sent" && (
+          <p className="portal-form-success">
+            Request sent. Your
+            current booking stays
+            unchanged until MAT
+            confirms the update.
+          </p>
+        )}
 
 
-      {status ===
-        "sent" && (
-        <p className="portal-form-success">
-          Your request has been
-          sent. The existing
-          booking will stay
-          unchanged until your
-          tutoring team reviews
-          it.
-        </p>
-      )}
+        {status ===
+          "error" && (
+          <p className="portal-form-error">
+            {
+              errorMessage
+            }
+          </p>
+        )}
 
+      </form>
 
-      {status ===
-        "error" && (
-        <p className="portal-form-error">
-          {errorMessage ||
-            "We could not send your request. Please try again."}
-        </p>
-      )}
-    </form>
+    </details>
   );
 }

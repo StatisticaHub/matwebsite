@@ -128,6 +128,8 @@ export type PortalOnboarding = {
     | "ready"
     | "complete";
 
+  timezone: string | null;
+
   target_outcome: string | null;
   target_date: string | null;
 

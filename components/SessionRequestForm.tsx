@@ -2,6 +2,7 @@
 
 import {
   FormEvent,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -10,88 +11,259 @@ import {
   useRouter,
 } from "next/navigation";
 
+import TimeZonePicker from "@/components/TimeZonePicker";
+
+import {
+  DEFAULT_TIME_ZONE,
+  formatDateTimeInTimeZone,
+  isValidTimeZone,
+  zonedLocalDateTimeToUtc,
+} from "@/lib/time-zone";
+
+
 type Status =
   | "idle"
   | "sending"
   | "sent"
   | "error";
 
+
 export default function SessionRequestForm({
   token,
   engagementId,
+  initialTimeZone,
+  defaultDurationMinutes = 60,
 }: {
   token: string;
-  engagementId: string;
+
+  engagementId:
+    string;
+
+  initialTimeZone?:
+    string | null;
+
+  defaultDurationMinutes?:
+    number;
 }) {
   const router =
     useRouter();
 
-  const timezone =
-    useMemo(
-      () =>
-        Intl.DateTimeFormat()
-          .resolvedOptions()
-          .timeZone ||
-        "Not provided",
-      []
-    );
-
-  const [
-    status,
-    setStatus,
-  ] =
-    useState<Status>(
-      "idle"
-    );
-
-  const [
-    errorMessage,
-    setErrorMessage,
-  ] =
-    useState("");
 
   const [
     preferredDate,
     setPreferredDate,
   ] =
-    useState("");
+    useState(
+      "",
+    );
+
 
   const [
     preferredTime,
     setPreferredTime,
   ] =
-    useState("");
+    useState(
+      "",
+    );
+
 
   const [
     duration,
     setDuration,
   ] =
-    useState("60");
+    useState(
+      String(
+        defaultDurationMinutes ||
+          60,
+      ),
+    );
+
 
   const [
     urgency,
     setUrgency,
   ] =
     useState(
-      "flexible"
+      "flexible",
     );
+
 
   const [
     topic,
     setTopic,
   ] =
-    useState("");
+    useState(
+      "",
+    );
+
 
   const [
     notes,
     setNotes,
   ] =
-    useState("");
+    useState(
+      "",
+    );
+
+
+  const [
+    timeZone,
+    setTimeZone,
+  ] =
+    useState(
+      isValidTimeZone(
+        initialTimeZone,
+      )
+        ? initialTimeZone
+        : DEFAULT_TIME_ZONE,
+    );
+
+
+  const [
+    status,
+    setStatus,
+  ] =
+    useState<Status>(
+      "idle",
+    );
+
+
+  const [
+    errorMessage,
+    setErrorMessage,
+  ] =
+    useState(
+      "",
+    );
+
+
+  useEffect(
+    () => {
+      const saved =
+        window.localStorage
+          .getItem(
+            "mat-portal-time-zone",
+          );
+
+
+      const detected =
+        Intl.DateTimeFormat()
+          .resolvedOptions()
+          .timeZone;
+
+
+      if (
+        isValidTimeZone(
+          saved,
+        )
+      ) {
+        setTimeZone(
+          saved,
+        );
+
+      } else if (
+        !isValidTimeZone(
+          initialTimeZone,
+        ) &&
+        isValidTimeZone(
+          detected,
+        )
+      ) {
+        setTimeZone(
+          detected,
+        );
+      }
+
+
+      function handleTimeZone(
+        event:
+          Event,
+      ) {
+        const value =
+          (
+            event as
+              CustomEvent<string>
+          ).detail;
+
+
+        if (
+          isValidTimeZone(
+            value,
+          )
+        ) {
+          setTimeZone(
+            value,
+          );
+        }
+      }
+
+
+      window.addEventListener(
+        "mat:portal-time-zone",
+        handleTimeZone,
+      );
+
+
+      return () =>
+        window.removeEventListener(
+          "mat:portal-time-zone",
+          handleTimeZone,
+        );
+    },
+    [
+      initialTimeZone,
+    ],
+  );
+
+
+  const preview =
+    useMemo(
+      () => {
+        if (
+          !preferredDate ||
+          !preferredTime ||
+          !isValidTimeZone(
+            timeZone,
+          )
+        ) {
+          return null;
+        }
+
+
+        const converted =
+          zonedLocalDateTimeToUtc(
+            preferredDate,
+            preferredTime,
+            timeZone,
+          );
+
+
+        if (
+          !converted.ok
+        ) {
+          return null;
+        }
+
+
+        return formatDateTimeInTimeZone(
+          converted.iso,
+          timeZone,
+        );
+      },
+      [
+        preferredDate,
+        preferredTime,
+        timeZone,
+      ],
+    );
+
 
   async function submit(
-    event: FormEvent<HTMLFormElement>
+    event:
+      FormEvent<HTMLFormElement>,
   ) {
     event.preventDefault();
+
 
     if (
       !preferredDate ||
@@ -103,76 +275,45 @@ export default function SessionRequestForm({
       return;
     }
 
-    setStatus(
-      "sending"
-    );
 
-    setErrorMessage(
-      ""
-    );
-
-    /*
-     * datetime-local values are interpreted by the browser in the
-     * student's current local timezone. Converting that Date to ISO
-     * gives us an exact UTC instant that can later be rendered in UK
-     * time or any other timezone without ambiguity.
-     */
-    const preferredLocalDate =
-      new Date(
-        `${preferredDate}T${preferredTime}:00`
+    const converted =
+      zonedLocalDateTimeToUtc(
+        preferredDate,
+        preferredTime,
+        timeZone,
       );
 
+
     if (
-      Number.isNaN(
-        preferredLocalDate.getTime()
-      )
+      !converted.ok
     ) {
       setStatus(
-        "error"
+        "error",
       );
 
       setErrorMessage(
-        "Please choose a valid date and time."
+        converted.error,
       );
 
       return;
     }
 
-    const preferredUtc =
-      preferredLocalDate.toISOString();
 
-    const urgencyLabel =
-      urgency ===
-      "urgent"
-        ? "As soon as possible"
-        : urgency ===
-            "this_week"
-          ? "This week"
-          : "Flexible";
+    setStatus(
+      "sending",
+    );
 
-    const message = [
-      "SESSION REQUEST",
+    setErrorMessage(
       "",
-      `Preferred local date: ${preferredDate}`,
-      `Preferred local time: ${preferredTime}`,
-      `Student timezone: ${timezone}`,
-      `Preferred UTC: ${preferredUtc}`,
-      `Session length: ${duration} minutes`,
-      `Urgency: ${urgencyLabel}`,
-      "",
-      `Topic / goal: ${topic.trim()}`,
-      "",
-      notes.trim()
-        ? `Additional notes: ${notes.trim()}`
-        : "Additional notes: None",
-    ].join("\n");
+    );
+
 
     try {
       const response =
         await fetch(
           `/api/portal/${encodeURIComponent(
-            token
-          )}/support`,
+            token,
+          )}/session-request`,
           {
             method:
               "POST",
@@ -184,290 +325,379 @@ export default function SessionRequestForm({
 
             body:
               JSON.stringify({
+                type:
+                  "new",
+
                 engagementId,
 
-                category:
-                  "session_request",
+                preferredDate,
 
-                message,
+                preferredTime,
+
+                timeZone,
+
+                durationMinutes:
+                  Number(
+                    duration,
+                  ),
+
+                urgency,
+
+                topic:
+                  topic.trim(),
+
+                notes:
+                  notes.trim(),
               }),
-          }
+          },
         );
+
 
       const result =
         await response
           .json()
           .catch(
-            () => null
+            () =>
+              null,
           );
+
 
       if (
         !response.ok
       ) {
         throw new Error(
           result?.error ||
-            "Could not send your session request."
+            "Could not send your session request.",
         );
       }
 
+
+      window.localStorage.setItem(
+        "mat-portal-time-zone",
+        timeZone,
+      );
+
+
       setPreferredDate(
-        ""
+        "",
       );
 
       setPreferredTime(
-        ""
-      );
-
-      setDuration(
-        "60"
-      );
-
-      setUrgency(
-        "flexible"
+        "",
       );
 
       setTopic(
-        ""
+        "",
       );
 
       setNotes(
-        ""
+        "",
       );
 
       setStatus(
-        "sent"
+        "sent",
       );
 
+
       router.refresh();
+
     } catch (
       error
     ) {
       setStatus(
-        "error"
+        "error",
       );
 
       setErrorMessage(
         error instanceof
           Error
           ? error.message
-          : "Could not send your session request."
+          : "Could not send your session request.",
       );
     }
   }
 
+
   return (
-    <form
-      className="portal-form"
-      onSubmit={
-        submit
-      }
-    >
-      <label>
-        <span>
-          Preferred date
-        </span>
+    <details className="portal-collapsible-form">
 
-        <input
-          type="date"
-          value={
-            preferredDate
-          }
-          required
-          onChange={(
-            event
-          ) =>
-            setPreferredDate(
-              event.target
-                .value
-            )
-          }
-        />
-      </label>
+      <summary>
+        Choose date, time &
+        lesson topic
+      </summary>
 
 
-      <label>
-        <span>
-          Preferred time
-        </span>
-
-        <input
-          type="time"
-          value={
-            preferredTime
-          }
-          required
-          onChange={(
-            event
-          ) =>
-            setPreferredTime(
-              event.target
-                .value
-            )
-          }
-        />
-
-        <small>
-          Your time zone:{" "}
-          {timezone}
-        </small>
-      </label>
-
-
-      <label>
-        <span>
-          Session length
-        </span>
-
-        <select
-          value={
-            duration
-          }
-          onChange={(
-            event
-          ) =>
-            setDuration(
-              event.target
-                .value
-            )
-          }
-        >
-          <option value="60">
-            60 minutes
-          </option>
-
-          <option value="75">
-            75 minutes
-          </option>
-
-          <option value="90">
-            90 minutes
-          </option>
-
-          <option value="120">
-            120 minutes
-          </option>
-        </select>
-      </label>
-
-
-      <label>
-        <span>
-          How soon do you need it?
-        </span>
-
-        <select
-          value={
-            urgency
-          }
-          onChange={(
-            event
-          ) =>
-            setUrgency(
-              event.target
-                .value
-            )
-          }
-        >
-          <option value="flexible">
-            Flexible
-          </option>
-
-          <option value="this_week">
-            This week
-          </option>
-
-          <option value="urgent">
-            As soon as possible
-          </option>
-        </select>
-      </label>
-
-
-      <label>
-        <span>
-          What would you like to cover?
-        </span>
-
-        <textarea
-          value={
-            topic
-          }
-          required
-          maxLength={
-            500
-          }
-          onChange={(
-            event
-          ) =>
-            setTopic(
-              event.target
-                .value
-            )
-          }
-          placeholder="For example: confidence intervals, regression diagnostics, exam preparation, R coding, dissertation analysis..."
-        />
-      </label>
-
-
-      <label>
-        <span>
-          Anything else we should know?
-        </span>
-
-        <textarea
-          value={
-            notes
-          }
-          maxLength={
-            1200
-          }
-          onChange={(
-            event
-          ) =>
-            setNotes(
-              event.target
-                .value
-            )
-          }
-          placeholder="Alternative availability, a deadline, particular questions or anything your tutor should know."
-        />
-      </label>
-
-
-      <button
-        className="button button-primary"
-        disabled={
-          status ===
-          "sending"
+      <form
+        className="portal-form"
+        onSubmit={
+          submit
         }
-        type="submit"
       >
+
+        <div className="portal-booking-grid">
+
+          <label>
+
+            <span>
+              Preferred date
+            </span>
+
+            <input
+              type="date"
+              value={
+                preferredDate
+              }
+              required
+              onChange={(
+                event,
+              ) =>
+                setPreferredDate(
+                  event.target
+                    .value,
+                )
+              }
+            />
+
+          </label>
+
+
+          <label>
+
+            <span>
+              Preferred time
+            </span>
+
+            <input
+              type="time"
+              value={
+                preferredTime
+              }
+              required
+              onChange={(
+                event,
+              ) =>
+                setPreferredTime(
+                  event.target
+                    .value,
+                )
+              }
+            />
+
+          </label>
+
+        </div>
+
+
+        <TimeZonePicker
+          value={
+            timeZone
+          }
+          onChange={
+            setTimeZone
+          }
+          label="Time zone for this request"
+        />
+
+
+        {preview && (
+          <div className="portal-time-preview">
+
+            <span>
+              We will interpret
+              your request as
+            </span>
+
+            <strong>
+              {preview}
+            </strong>
+
+            <small>
+              {timeZone}
+            </small>
+
+          </div>
+        )}
+
+
+        <div className="portal-booking-grid">
+
+          <label>
+
+            <span>
+              Session length
+            </span>
+
+            <select
+              value={
+                duration
+              }
+              onChange={(
+                event,
+              ) =>
+                setDuration(
+                  event.target
+                    .value,
+                )
+              }
+            >
+              <option value="30">
+                30 minutes
+              </option>
+
+              <option value="45">
+                45 minutes
+              </option>
+
+              <option value="60">
+                60 minutes
+              </option>
+
+              <option value="75">
+                75 minutes
+              </option>
+
+              <option value="90">
+                90 minutes
+              </option>
+
+              <option value="120">
+                120 minutes
+              </option>
+            </select>
+
+          </label>
+
+
+          <label>
+
+            <span>
+              How soon?
+            </span>
+
+            <select
+              value={
+                urgency
+              }
+              onChange={(
+                event,
+              ) =>
+                setUrgency(
+                  event.target
+                    .value,
+                )
+              }
+            >
+              <option value="flexible">
+                Flexible
+              </option>
+
+              <option value="this_week">
+                This week
+              </option>
+
+              <option value="urgent">
+                As soon as possible
+              </option>
+            </select>
+
+          </label>
+
+        </div>
+
+
+        <label>
+
+          <span>
+            What would you like
+            to work on?
+          </span>
+
+          <textarea
+            value={
+              topic
+            }
+            required
+            maxLength={
+              500
+            }
+            onChange={(
+              event,
+            ) =>
+              setTopic(
+                event.target
+                  .value,
+              )
+            }
+            placeholder="Topic, question, exam area, assignment or concept you want to cover."
+          />
+
+        </label>
+
+
+        <label>
+
+          <span>
+            Anything else?
+          </span>
+
+          <textarea
+            value={
+              notes
+            }
+            maxLength={
+              1200
+            }
+            onChange={(
+              event,
+            ) =>
+              setNotes(
+                event.target
+                  .value,
+              )
+            }
+            placeholder="Alternative availability, deadlines or anything useful for your tutor."
+          />
+
+        </label>
+
+
+        <button
+          className="button button-primary"
+          disabled={
+            status ===
+            "sending"
+          }
+          type="submit"
+        >
+          {status ===
+          "sending"
+            ? "Sending…"
+            : "Request session"}
+        </button>
+
+
         {status ===
-        "sending"
-          ? "Sending…"
-          : "Request session"}
-      </button>
+          "sent" && (
+          <p className="portal-form-success">
+            Request sent. Your
+            tutoring team will
+            confirm the final
+            session time.
+          </p>
+        )}
 
 
-      {status ===
-        "sent" && (
-        <p className="portal-form-success">
-          Session request sent.
-          Your tutoring team can
-          now review your
-          preferred time and
-          learning goal.
-        </p>
-      )}
+        {status ===
+          "error" && (
+          <p className="portal-form-error">
+            {
+              errorMessage
+            }
+          </p>
+        )}
 
+      </form>
 
-      {status ===
-        "error" && (
-        <p className="portal-form-error">
-          {errorMessage ||
-            "We could not send your session request. Please try again."}
-        </p>
-      )}
-    </form>
+    </details>
   );
 }
