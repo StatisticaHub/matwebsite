@@ -8,7 +8,7 @@ export default function Footer() {
           <div className="footer-brand">
             <strong>My Academic Tutor</strong>
             <p>One-to-one online tutoring for school, university and postgraduate students.</p>
-            <p className="footer-small">One-to-one online tutoring from secondary school to postgraduate and research-level study.</p>
+            <p className="footer-small">From core academic subjects to advanced technical, computing, data and research-focused study.</p>
           </div>
 
           <div className="footer-columns">
