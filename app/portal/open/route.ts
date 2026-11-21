@@ -44,10 +44,10 @@ export async function GET(
     now.toISOString();
 
   /*
-   * Remove any previous temporary portal
-   * link created by authenticated login.
-   * Existing admin-issued student links
-   * are left untouched.
+   * The portal-link table allows only one
+   * active link per student. Revoke any
+   * existing active link before creating
+   * the short-lived authenticated link.
    */
   await admin
     .from("student_portal_links")
@@ -58,10 +58,6 @@ export async function GET(
     .eq(
       "student_id",
       session.student.id,
-    )
-    .eq(
-      "label",
-      "Authenticated student login",
     )
     .is(
       "revoked_at",
