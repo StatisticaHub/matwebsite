@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import {
   convertTutorApplication,
   reviewTutorApplication,
+  sendTutorReferenceRequest,
   updateTutorDocumentStatus,
   updateTutorReferenceStatus,
 } from "@/app/admin/tutor-application-actions";
@@ -442,6 +443,111 @@ export default async function TutorApplicationsPage({
                     <p>Phone: {reference.phone}</p>
                   )}
 
+                  <p>
+                    <strong>Status:</strong>{" "}
+                    {reference.status === "responded"
+                      ? "Response received"
+                      : reference.status}
+                  </p>
+
+                  {reference.request_sent_at && (
+                    <p>
+                      Request sent: {fmt(reference.request_sent_at)}
+                    </p>
+                  )}
+
+                  {reference.responded_at && (
+                    <p>
+                      Response received: {fmt(reference.responded_at)}
+                    </p>
+                  )}
+
+                  {reference.responded_at && (
+                    <div className="admin-requirement">
+                      <p>
+                        <strong>Known applicant:</strong>{" "}
+                        {reference.how_long_known || "—"}
+                      </p>
+
+                      <p>
+                        <strong>Context:</strong>{" "}
+                        {reference.relationship_context || "—"}
+                      </p>
+
+                      <p>
+                        <strong>Reliability:</strong>{" "}
+                        {reference.reliability_rating || "—"}/5
+                      </p>
+
+                      <p>
+                        <strong>Communication:</strong>{" "}
+                        {reference.communication_rating || "—"}/5
+                      </p>
+
+                      <p>
+                        <strong>Subject competence:</strong>{" "}
+                        {reference.subject_competence_rating || "—"}/5
+                      </p>
+
+                      <p>
+                        <strong>Professionalism:</strong>{" "}
+                        {reference.professionalism_rating || "—"}/5
+                      </p>
+
+                      <p>
+                        <strong>Would recommend:</strong>{" "}
+                        {reference.would_recommend === true
+                          ? "Yes"
+                          : reference.would_recommend === false
+                            ? "No"
+                            : "—"}
+                      </p>
+
+                      {reference.concerns && (
+                        <p>
+                          <strong>Concerns:</strong>{" "}
+                          {reference.concerns}
+                        </p>
+                      )}
+
+                      {reference.referee_comments && (
+                        <p>
+                          <strong>Comments:</strong>{" "}
+                          {reference.referee_comments}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {reference.status !== "verified" &&
+                    reference.status !== "responded" && (
+                    <form
+                      action={sendTutorReferenceRequest}
+                      style={{ marginBottom: 12 }}
+                    >
+                      <input
+                        type="hidden"
+                        name="referenceId"
+                        value={reference.id}
+                      />
+
+                      <input
+                        type="hidden"
+                        name="applicationId"
+                        value={selected.id}
+                      />
+
+                      <button
+                        className="admin-secondary-button"
+                        type="submit"
+                      >
+                        {reference.request_sent_at
+                          ? "Resend reference request"
+                          : "Send reference request"}
+                      </button>
+                    </form>
+                  )}
+
                   <form
                     action={updateTutorReferenceStatus}
                     className="admin-onboarding-review-form"
@@ -467,6 +573,9 @@ export default async function TutorApplicationsPage({
                       </option>
                       <option value="contacted">
                         Contacted
+                      </option>
+                      <option value="responded">
+                        Response received
                       </option>
                       <option value="verified">
                         Verified

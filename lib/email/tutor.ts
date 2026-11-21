@@ -34,3 +34,129 @@ export async function sendTutorPortalAccessEmail(input: { name: string; email: s
     return { ok: false, error: error instanceof Error ? error.message : "Unknown email error" };
   }
 }
+
+
+export async function sendTutorReferenceRequestEmail(input: {
+  refereeName: string;
+  refereeEmail: string;
+  applicantName: string;
+  applicationReference: string;
+  responseUrl: string;
+}) {
+  if (!configured()) {
+    return {
+      ok: false,
+      skipped: true,
+      error: "Resend email configuration is incomplete.",
+    };
+  }
+
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const refereeName = firstName(input.refereeName);
+
+  const subject =
+    `Reference request for ${input.applicantName} — My Academic Tutor`;
+
+  const text =
+`Hi ${refereeName},
+
+${input.applicantName} has applied to work as a tutor with My Academic Tutor and has provided your details as an academic or professional referee.
+
+We would be grateful if you could complete a short confidential reference using the secure link below:
+
+${input.responseUrl}
+
+Application reference: ${input.applicationReference}
+
+The form asks about your relationship with the applicant, reliability, communication, professionalism, subject competence and whether you would recommend them for tutoring work.
+
+Your response will be used only for tutor recruitment and quality-assurance purposes.
+
+If you did not expect this request, please contact My Academic Tutor.
+
+Kind regards,
+My Academic Tutor`;
+
+  const html = `<!doctype html>
+<html>
+<body style="margin:0;background:#f4f7fb;font-family:Arial,Helvetica,sans-serif;color:#10233f">
+  <div style="max-width:680px;margin:0 auto;padding:32px 18px">
+    <div style="background:#fff;border:1px solid #dce4ee;border-radius:12px;overflow:hidden">
+      <div style="padding:24px 28px;background:#0b1f3a;color:#fff">
+        <strong>My Academic Tutor</strong>
+        <div style="margin-top:5px;font-size:13px;opacity:.78">
+          Tutor reference request
+        </div>
+      </div>
+
+      <div style="padding:28px">
+        <h1 style="font-size:25px;margin:0 0 14px">
+          Hi ${esc(refereeName)},
+        </h1>
+
+        <p style="line-height:1.65;color:#4d5c70">
+          ${esc(input.applicantName)} has applied to work as a tutor
+          with My Academic Tutor and has provided your details as an
+          academic or professional referee.
+        </p>
+
+        <p style="line-height:1.65;color:#4d5c70">
+          Please complete a short confidential reference about your
+          experience of the applicant.
+        </p>
+
+        <a
+          href="${esc(input.responseUrl)}"
+          style="display:inline-block;margin:8px 0 20px;padding:12px 18px;border-radius:8px;background:#1f5bd8;color:#fff;text-decoration:none;font-weight:700"
+        >
+          Complete reference
+        </a>
+
+        <p style="line-height:1.65;color:#4d5c70">
+          Application reference:
+          <strong>${esc(input.applicationReference)}</strong>
+        </p>
+
+        <p style="line-height:1.65;color:#4d5c70">
+          Your response will be used only for tutor recruitment and
+          quality-assurance purposes.
+        </p>
+
+        <p style="line-height:1.65;color:#4d5c70">
+          Kind regards,<br>
+          <strong>My Academic Tutor</strong>
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: process.env.MAT_EMAIL_FROM!,
+      to: [input.refereeEmail],
+      replyTo:
+        process.env.MAT_REPLY_TO_EMAIL?.trim() ||
+        process.env.MAT_LEADS_TO_EMAIL?.trim() ||
+        undefined,
+      subject,
+      html,
+      text,
+    });
+
+    if (error) {
+      return { ok: false, error: error.message };
+    }
+
+    return { ok: true, id: data?.id };
+  } catch (error) {
+    return {
+      ok: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Unknown email error",
+    };
+  }
+}

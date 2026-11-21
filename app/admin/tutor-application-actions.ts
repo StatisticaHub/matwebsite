@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/admin-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendTutorReferenceRequestEmail } from "@/lib/email/tutor";
 
 async function adminContext() {
   const session = await getAdminSession();
@@ -67,6 +68,108 @@ export async function reviewTutorApplication(
     )}&saved=1`,
   );
 }
+
+
+export async function sendTutorReferenceRequest(
+  formData: FormData,
+) {
+  const { supabase } = await adminContext();
+
+  const referenceId = value(formData, "referenceId", 100);
+  const applicationId = value(
+    formData,
+    "applicationId",
+    100,
+  );
+
+  if (!referenceId || !applicationId) return;
+
+  const { data: reference, error: referenceError } =
+    await supabase
+      .from("tutor_application_references")
+      .select(
+        "id,name,email,status,request_token,application_id",
+      )
+      .eq("id", referenceId)
+      .eq("application_id", applicationId)
+      .single();
+
+  if (referenceError || !reference) {
+    throw new Error(
+      referenceError?.message || "Reference not found.",
+    );
+  }
+
+  if (reference.status === "verified") {
+    redirect(
+      `/admin/tutor-applications?application=${applicationId}`,
+    );
+  }
+
+  const { data: application, error: applicationError } =
+    await supabase
+      .from("tutor_applications")
+      .select("id,name,reference")
+      .eq("id", applicationId)
+      .single();
+
+  if (applicationError || !application) {
+    throw new Error(
+      applicationError?.message || "Application not found.",
+    );
+  }
+
+  const siteUrl = (
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "https://www.myacademictutor.com"
+  ).replace(/\/$/, "");
+
+  const responseUrl =
+    `${siteUrl}/tutor-reference/${reference.request_token}`;
+
+  const result = await sendTutorReferenceRequestEmail({
+    refereeName: reference.name,
+    refereeEmail: reference.email,
+    applicantName: application.name,
+    applicationReference: application.reference,
+    responseUrl,
+  });
+
+  if (!result.ok) {
+    throw new Error(
+      result.error || "Reference request email could not be sent.",
+    );
+  }
+
+  const now = new Date().toISOString();
+
+  const { error: updateError } = await supabase
+    .from("tutor_application_references")
+    .update({
+      status:
+        reference.status === "responded"
+          ? "responded"
+          : "contacted",
+      request_sent_at: now,
+      contacted_at:
+        reference.status === "responded"
+          ? undefined
+          : now,
+      updated_at: now,
+    })
+    .eq("id", referenceId);
+
+  if (updateError) {
+    throw new Error(updateError.message);
+  }
+
+  revalidatePath("/admin/tutor-applications");
+
+  redirect(
+    `/admin/tutor-applications?application=${applicationId}&reference=sent`,
+  );
+}
+
 
 export async function updateTutorReferenceStatus(
   formData: FormData,
