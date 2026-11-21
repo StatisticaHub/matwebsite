@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdminCommandCentre from "@/components/AdminCommandCentre";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   leadStatusLabels,
@@ -316,17 +317,19 @@ export default async function AdminDashboard({
           </span>
 
           <h1>
-            Lead inbox
+            Operations overview
           </h1>
 
           <p>
-            Review new tutoring
-            enquiries, track matching
-            progress and move students
-            towards a first lesson.
+            See what needs attention across enquiries,
+            tutoring delivery, student requests and tutor
+            recruitment, then work through the lead pipeline
+            below.
           </p>
         </div>
       </header>
+
+      <AdminCommandCentre />
 
 
       {/* ================================================================
