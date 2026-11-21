@@ -134,7 +134,7 @@ export default async function TutorApplicationsPage({
     selected?.academic_integrity_confirmed === true;
 
   return (
-    <div className="admin-page">
+    <div className="admin-page admin-tutor-applications-page">
       <header className="admin-page-head">
         <div>
           <span className="admin-eyebrow">
