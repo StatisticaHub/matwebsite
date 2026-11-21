@@ -1035,3 +1035,800 @@
     width: 100%;
   }
 }
+
+
+
+/* ============================================================
+   MAT WEEKLY STUDENT WORKSPACE
+   ============================================================ */
+
+.shell :global(.tutor-week-stack) {
+  display: grid;
+  gap: 22px;
+
+  margin-top: 20px;
+}
+
+
+/* ------------------------------------------------------------
+   Student overview / page structure
+   ------------------------------------------------------------ */
+
+.shell :global(.tutor-page-head .tutor-head-actions) {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 8px;
+}
+
+.shell :global(.tutor-week-create) {
+  margin-top: 20px;
+}
+
+.shell :global(.tutor-week-create > summary) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 18px;
+
+  padding: 4px 0;
+
+  cursor: pointer;
+
+  list-style: none;
+}
+
+.shell :global(.tutor-week-create > summary::-webkit-details-marker) {
+  display: none;
+}
+
+.shell :global(.tutor-week-create > summary strong) {
+  color: #245a9a;
+
+  font-size: 12px;
+}
+
+.shell :global(.tutor-week-create > summary span) {
+  color: #8190a1;
+
+  font-size: 9.5px;
+}
+
+.shell :global(.tutor-week-create[open] > summary) {
+  margin-bottom: 18px;
+
+  padding-bottom: 15px;
+
+  border-bottom: 1px solid #e4eaf0;
+}
+
+
+/* ------------------------------------------------------------
+   Week card
+   ------------------------------------------------------------ */
+
+.shell :global(.tutor-week-card) {
+  padding: 0;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    #dce4ed;
+
+  border-radius: 17px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 9px 28px
+    rgba(30, 57, 88, .045);
+}
+
+.shell :global(.tutor-week-head) {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  padding: 23px 24px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f8fafd 0%,
+      #ffffff 100%
+    );
+
+  border-bottom:
+    1px solid
+    #e3e9f0;
+}
+
+.shell :global(.tutor-week-head h2) {
+  margin: 5px 0 5px;
+
+  color: #183754;
+
+  font-size: 22px;
+}
+
+.shell :global(.tutor-week-head p) {
+  max-width: 700px;
+
+  margin: 0;
+
+  color: #6d7e91;
+
+  font-size: 10.5px;
+  line-height: 1.55;
+}
+
+
+/* ------------------------------------------------------------
+   Week status
+   ------------------------------------------------------------ */
+
+.shell :global(.tutor-week-status) {
+  flex: 0 0 auto;
+
+  display: inline-flex;
+  align-items: center;
+
+  padding:
+    6px 10px;
+
+  border-radius: 999px;
+
+  font-size: 8px;
+  font-weight: 850;
+
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.shell :global(.tutor-week-status.is-draft) {
+  color: #7b6027;
+  background: #fff3d5;
+}
+
+.shell :global(.tutor-week-status.is-published) {
+  color: #255e9b;
+  background: #eaf3ff;
+}
+
+.shell :global(.tutor-week-status.is-completed) {
+  color: #2e6b49;
+  background: #eaf8ef;
+}
+
+
+/* ------------------------------------------------------------
+   Weekly objectives
+   ------------------------------------------------------------ */
+
+.shell :global(.tutor-week-objectives) {
+  padding:
+    21px 24px;
+
+  border-bottom:
+    1px solid
+    #e7ecf1;
+}
+
+.shell :global(.tutor-week-objectives ol) {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 8px;
+
+  margin:
+    12px 0 0;
+
+  padding: 0;
+
+  list-style: none;
+
+  counter-reset:
+    weekly-objective;
+}
+
+.shell :global(.tutor-week-objectives li) {
+  position: relative;
+
+  min-height: 36px;
+
+  box-sizing: border-box;
+
+  padding:
+    10px 12px
+    10px 41px;
+
+  color: #53677e;
+  background: #f6f8fb;
+
+  border-radius: 9px;
+
+  font-size: 10px;
+  line-height: 1.45;
+
+  counter-increment:
+    weekly-objective;
+}
+
+.shell :global(.tutor-week-objectives li::before) {
+  content:
+    counter(
+      weekly-objective
+    );
+
+  position: absolute;
+
+  left: 11px;
+  top: 9px;
+
+  display: grid;
+  place-items: center;
+
+  width: 20px;
+  height: 20px;
+
+  color: #3b6391;
+  background: #e4ecf6;
+
+  border-radius: 50%;
+
+  font-size: 7.5px;
+  font-weight: 850;
+}
+
+
+/* ------------------------------------------------------------
+   Student-visible week summary
+   ------------------------------------------------------------ */
+
+.shell :global(.tutor-week-summary) {
+  margin:
+    0 24px;
+
+  padding:
+    17px 0;
+
+  border-bottom:
+    1px solid
+    #e7ecf1;
+}
+
+.shell :global(.tutor-week-summary p) {
+  max-width: 850px;
+
+  margin:
+    7px 0 0;
+
+  color: #63768b;
+
+  font-size: 10.5px;
+  line-height: 1.6;
+}
+
+
+/* ------------------------------------------------------------
+   Week materials
+   ------------------------------------------------------------ */
+
+.shell :global(.tutor-week-materials) {
+  padding:
+    21px 24px;
+
+  background:
+    #fbfcfe;
+
+  border-bottom:
+    1px solid
+    #e4eaf0;
+}
+
+.shell :global(.tutor-week-materials details) {
+  margin-top: 11px;
+}
+
+.shell :global(.tutor-week-materials details > summary),
+.shell :global(.tutor-week-session-materials details > summary) {
+  width: max-content;
+
+  color: #275f9d;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+
+/* ------------------------------------------------------------
+   Sessions within week
+   ------------------------------------------------------------ */
+
+.shell :global(.tutor-week-sessions) {
+  padding:
+    22px 24px;
+}
+
+.shell :global(.tutor-week-session-stack) {
+  display: grid;
+
+  gap: 12px;
+}
+
+.shell :global(.tutor-week-session) {
+  display: grid;
+
+  grid-template-columns:
+    60px
+    minmax(0, 1fr);
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    #dde5ee;
+
+  border-radius: 12px;
+
+  background: #ffffff;
+}
+
+.shell :global(.tutor-week-session-number) {
+  display: grid;
+  align-content: start;
+  justify-items: center;
+
+  gap: 1px;
+
+  padding:
+    16px 8px;
+
+  background:
+    #f3f6fa;
+
+  border-right:
+    1px solid
+    #e1e7ee;
+}
+
+.shell :global(.tutor-week-session-number span) {
+  color: #8694a4;
+
+  font-size: 6.5px;
+  font-weight: 850;
+
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.shell :global(.tutor-week-session-number strong) {
+  color: #315e8e;
+
+  font-size: 20px;
+}
+
+.shell :global(.tutor-week-session-body) {
+  min-width: 0;
+
+  padding:
+    16px 17px;
+}
+
+.shell :global(.tutor-week-session-title) {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 16px;
+}
+
+.shell :global(.tutor-week-session-title > div > span) {
+  color: #8592a1;
+
+  font-size: 8.5px;
+}
+
+.shell :global(.tutor-week-session-title h4) {
+  margin:
+    3px 0 0;
+
+  color: #203f5e;
+
+  font-size: 14px;
+}
+
+.shell :global(.tutor-week-session-title > span) {
+  flex: 0 0 auto;
+
+  padding:
+    5px 8px;
+
+  color: #65798e;
+  background: #f1f4f7;
+
+  border-radius: 999px;
+
+  font-size: 7px;
+  font-weight: 800;
+
+  text-transform: uppercase;
+}
+
+
+/* ------------------------------------------------------------
+   Session teaching notes
+   ------------------------------------------------------------ */
+
+.shell :global(.tutor-week-session-note) {
+  margin-top: 11px;
+
+  padding:
+    10px 11px;
+
+  background: #f7f9fb;
+
+  border-radius: 8px;
+}
+
+.shell :global(.tutor-week-session-note strong) {
+  display: block;
+
+  color: #748397;
+
+  font-size: 7px;
+  font-weight: 850;
+
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.shell :global(.tutor-week-session-note p) {
+  margin:
+    5px 0 0;
+
+  color: #586b81;
+
+  font-size: 9.5px;
+  line-height: 1.5;
+}
+
+
+/* ------------------------------------------------------------
+   Materials attached to exact session
+   ------------------------------------------------------------ */
+
+.shell :global(.tutor-week-session-materials) {
+  margin-top: 13px;
+
+  padding-top: 13px;
+
+  border-top:
+    1px solid
+    #e5eaf0;
+}
+
+.shell :global(.tutor-week-session-materials > strong) {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #566b83;
+
+  font-size: 9px;
+}
+
+
+/* ------------------------------------------------------------
+   Session actions
+   ------------------------------------------------------------ */
+
+.shell :global(.tutor-week-session-actions) {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 12px;
+
+  margin-top: 13px;
+}
+
+.shell :global(.tutor-week-session-actions a) {
+  color: #245c9a;
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.shell :global(.tutor-week-session-actions form) {
+  margin: 0;
+}
+
+.shell :global(.tutor-week-session-actions button) {
+  padding: 0;
+
+  color: #8995a4;
+  background: transparent;
+
+  border: 0;
+
+  font-size: 8.5px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.shell :global(.tutor-week-session-actions button:hover) {
+  color: #9c4343;
+}
+
+
+/* ------------------------------------------------------------
+   Assign existing session
+   ------------------------------------------------------------ */
+
+.shell :global(.tutor-week-assign) {
+  display: flex;
+  align-items: flex-end;
+
+  gap: 10px;
+
+  margin-top: 13px;
+
+  padding: 12px;
+
+  background: #f6f8fa;
+
+  border-radius: 10px;
+}
+
+.shell :global(.tutor-week-assign label) {
+  display: grid;
+
+  flex: 1;
+
+  gap: 5px;
+}
+
+.shell :global(.tutor-week-assign label > span) {
+  color: #687b90;
+
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.shell :global(.tutor-week-assign select) {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding:
+    9px 10px;
+
+  color: #334f6f;
+  background: #fff;
+
+  border:
+    1px solid
+    #d3dde7;
+
+  border-radius: 8px;
+
+  font-size: 10px;
+}
+
+
+/* ------------------------------------------------------------
+   Edit / publish footer
+   ------------------------------------------------------------ */
+
+.shell :global(.tutor-week-footer) {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 18px;
+
+  padding:
+    16px 24px;
+
+  background: #fafbfd;
+
+  border-top:
+    1px solid
+    #e4eaf0;
+}
+
+.shell :global(.tutor-week-footer > details) {
+  flex: 1;
+}
+
+.shell :global(.tutor-week-footer > details > summary) {
+  width: max-content;
+
+  color: #566e87;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.shell :global(.tutor-week-footer > details[open] > summary) {
+  margin-bottom: 15px;
+}
+
+.shell :global(.tutor-week-status-actions) {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 7px;
+}
+
+.shell :global(.tutor-week-status-actions form) {
+  margin: 0;
+}
+
+.shell :global(.tutor-week-status-actions button:not(.tutor-primary-button)) {
+  padding:
+    8px 10px;
+
+  color: #65788d;
+  background: #ffffff;
+
+  border:
+    1px solid
+    #d8e0e8;
+
+  border-radius: 7px;
+
+  font-size: 8.5px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+
+/* ------------------------------------------------------------
+   Forms used by week create/edit
+   ------------------------------------------------------------ */
+
+.shell :global(.tutor-week-card .tutor-form),
+.shell :global(.tutor-week-create .tutor-form) {
+  display: grid;
+
+  gap: 13px;
+}
+
+.shell :global(.tutor-week-card .tutor-form label),
+.shell :global(.tutor-week-create .tutor-form label) {
+  display: grid;
+
+  gap: 6px;
+}
+
+.shell :global(.tutor-week-card .tutor-form label > span),
+.shell :global(.tutor-week-create .tutor-form label > span) {
+  color: #60748a;
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.shell :global(.tutor-week-card .tutor-form small),
+.shell :global(.tutor-week-create .tutor-form small) {
+  color: #8a96a4;
+
+  font-size: 8px;
+}
+
+.shell :global(.tutor-week-card .tutor-form input),
+.shell :global(.tutor-week-card .tutor-form textarea),
+.shell :global(.tutor-week-create .tutor-form input),
+.shell :global(.tutor-week-create .tutor-form textarea) {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding:
+    10px 11px;
+
+  color: #29445f;
+  background: #fff;
+
+  border:
+    1px solid
+    #d4dee8;
+
+  border-radius: 8px;
+
+  font: inherit;
+  font-size: 10px;
+}
+
+.shell :global(.tutor-week-card .tutor-form textarea),
+.shell :global(.tutor-week-create .tutor-form textarea) {
+  min-height: 82px;
+
+  resize: vertical;
+}
+
+
+/* ------------------------------------------------------------
+   Unsorted sessions
+   ------------------------------------------------------------ */
+
+.shell :global(.tutor-unsorted-sessions) {
+  margin-top: 22px;
+}
+
+
+/* ------------------------------------------------------------
+   Responsive
+   ------------------------------------------------------------ */
+
+@media (max-width: 900px) {
+
+  .shell :global(.tutor-week-objectives ol) {
+    grid-template-columns:
+      1fr;
+  }
+
+  .shell :global(.tutor-week-head) {
+    display: grid;
+  }
+
+  .shell :global(.tutor-week-status) {
+    width: max-content;
+  }
+}
+
+
+@media (max-width: 680px) {
+
+  .shell :global(.tutor-week-session) {
+    grid-template-columns:
+      1fr;
+  }
+
+  .shell :global(.tutor-week-session-number) {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+
+    gap: 5px;
+
+    padding:
+      8px 12px;
+
+    border-right: 0;
+    border-bottom:
+      1px solid
+      #e1e7ee;
+  }
+
+  .shell :global(.tutor-week-session-number strong) {
+    font-size: 13px;
+  }
+
+  .shell :global(.tutor-week-assign) {
+    display: grid;
+  }
+
+  .shell :global(.tutor-week-footer) {
+    display: grid;
+  }
+}

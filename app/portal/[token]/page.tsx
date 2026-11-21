@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 
 import LearningMaterialUploadForm from "@/components/LearningMaterialUploadForm";
 
+import StudentWeeklyJourney from "@/components/StudentWeeklyJourney";
+
 import LearningMaterialsList, {
   type LearningMaterialListItem,
 } from "@/components/LearningMaterialsList";
@@ -517,6 +519,10 @@ export default async function StudentPortalPage({
         >
           <a href="#overview">
             Overview
+          </a>
+
+          <a href="#weekly">
+            This week
           </a>
 
           <a href="#progress">
@@ -1417,6 +1423,18 @@ export default async function StudentPortalPage({
               <div className="portal-primary-column">
 
                 {/* ==========================================================
+                    WEEKLY LEARNING JOURNEY
+                   ========================================================== */}
+
+                <StudentWeeklyJourney
+                  token={token}
+                  engagementId={
+                    engagement.id
+                  }
+                />
+
+
+                {/* ==========================================================
                     UPCOMING SESSIONS
                    ========================================================== */}
 
@@ -2263,7 +2281,7 @@ export default async function StudentPortalPage({
 
                     <div>
                       <span className="portal-kicker">
-                        Your learning workspace
+                        File library
                       </span>
 
                       <h2>

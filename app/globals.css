@@ -1260,3 +1260,1008 @@ body:has(.student-portal-shell) main{min-height:100vh}
       1fr 1fr;
   }
 }
+
+
+/* ============================================================
+   MAT STUDENT PORTAL — CLEAN WORKSPACE LAYOUT
+   ============================================================ */
+
+/*
+ * The student portal is deliberately a single primary reading
+ * flow. Secondary cards sit below the main learning record rather
+ * than squeezing important learning tools into a narrow sidebar.
+ */
+
+.student-portal-shell .portal-page {
+  width: min(1180px, calc(100% - 48px));
+}
+
+.student-portal-shell .portal-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+}
+
+.student-portal-shell .portal-primary-column {
+  display: grid;
+  gap: 20px;
+}
+
+.student-portal-shell .portal-side-column {
+  position: static;
+  top: auto;
+
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 20px;
+}
+
+/*
+ * Materials are a primary learning feature, so always let this
+ * card use the full workspace width.
+ */
+.student-portal-shell
+.portal-side-column
+.portal-learning-materials-panel {
+  grid-column: 1 / -1;
+}
+
+
+/* ------------------------------------------------------------
+   Materials workspace
+   ------------------------------------------------------------ */
+
+.student-portal-shell
+.portal-learning-materials-panel {
+  padding: 26px;
+}
+
+.student-portal-shell
+.portal-materials-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  margin-bottom: 20px;
+}
+
+.student-portal-shell
+.portal-materials-heading h2 {
+  margin-top: 5px;
+
+  font-size: 29px;
+}
+
+.student-portal-shell
+.portal-materials-heading p {
+  max-width: 620px;
+
+  font-size: 11.5px;
+  line-height: 1.65;
+}
+
+.student-portal-shell
+.portal-material-counts {
+  flex: 0 0 auto;
+}
+
+.student-portal-shell
+.portal-material-workspace-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.5fr)
+    minmax(300px, .65fr);
+
+  gap: 22px;
+
+  align-items: start;
+}
+
+.student-portal-shell
+.portal-material-library {
+  min-width: 0;
+
+  padding: 0 18px;
+
+  background: #fbfcfe;
+
+  border: 1px solid #e1e8f0;
+  border-radius: 14px;
+}
+
+.student-portal-shell
+.portal-material-upload {
+  position: static;
+}
+
+
+/* ------------------------------------------------------------
+   Upload form — give it breathing room
+   ------------------------------------------------------------ */
+
+.student-portal-shell
+.portal-material-upload form {
+  width: 100%;
+
+  box-sizing: border-box;
+}
+
+
+/* ------------------------------------------------------------
+   Secondary cards
+   ------------------------------------------------------------ */
+
+.student-portal-shell
+.portal-side-column > .portal-panel {
+  min-width: 0;
+}
+
+.student-portal-shell
+#resources,
+.student-portal-shell
+#support {
+  scroll-margin-top: 90px;
+}
+
+
+/* ------------------------------------------------------------
+   Top navigation
+   ------------------------------------------------------------ */
+
+.student-portal-shell .portal-topbar {
+  padding-left:
+    max(
+      22px,
+      calc((100vw - 1180px) / 2)
+    );
+
+  padding-right:
+    max(
+      22px,
+      calc((100vw - 1180px) / 2)
+    );
+}
+
+.student-portal-shell
+.portal-upgrade-nav {
+  display: flex;
+  align-items: center;
+
+  gap: 2px;
+
+  padding: 4px;
+
+  background: #f5f7f9;
+
+  border: 1px solid #edf0f3;
+  border-radius: 10px;
+}
+
+.student-portal-shell
+.portal-upgrade-nav a {
+  padding: 7px 8px;
+
+  border-radius: 7px;
+
+  font-size: 9px;
+  font-weight: 750;
+
+  color: #687789;
+
+  opacity: 1;
+}
+
+.student-portal-shell
+.portal-upgrade-nav a:hover {
+  color: #153d70;
+
+  background: #ffffff;
+}
+
+
+/* ------------------------------------------------------------
+   General portal calmness / spacing
+   ------------------------------------------------------------ */
+
+.student-portal-shell
+.portal-panel {
+  padding: 23px;
+
+  border-radius: 15px;
+}
+
+.student-portal-shell
+.portal-panel-head {
+  margin-bottom: 16px;
+}
+
+.student-portal-shell
+.portal-session-timeline article {
+  padding: 18px 0;
+}
+
+.student-portal-shell
+.portal-homework-list > article {
+  padding: 18px 0;
+}
+
+
+/* ------------------------------------------------------------
+   Tablet
+   ------------------------------------------------------------ */
+
+@media (max-width: 960px) {
+
+  .student-portal-shell
+  .portal-side-column {
+    grid-template-columns: 1fr;
+  }
+
+  .student-portal-shell
+  .portal-material-workspace-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .student-portal-shell
+  .portal-material-counts {
+    width: 100%;
+  }
+
+  .student-portal-shell
+  .portal-materials-heading {
+    display: grid;
+  }
+}
+
+
+/* ------------------------------------------------------------
+   Mobile
+   ------------------------------------------------------------ */
+
+@media (max-width: 700px) {
+
+  .student-portal-shell .portal-page {
+    width: calc(100% - 28px);
+  }
+
+  .student-portal-shell
+  .portal-learning-materials-panel {
+    padding: 18px;
+  }
+
+  .student-portal-shell
+  .portal-material-library {
+    padding: 0 12px;
+  }
+
+  .student-portal-shell
+  .portal-material-counts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .student-portal-shell
+  .portal-upgrade-nav {
+    width: 100%;
+
+    overflow-x: auto;
+
+    justify-content: flex-start;
+
+    scrollbar-width: none;
+  }
+
+  .student-portal-shell
+  .portal-upgrade-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .student-portal-shell
+  .portal-upgrade-nav a {
+    flex: 0 0 auto;
+
+    white-space: nowrap;
+  }
+}
+
+
+/* ============================================================
+   STUDENT WEEKLY LEARNING JOURNEY
+   ============================================================ */
+
+.portal-weekly-journey {
+  display: grid;
+
+  gap: 18px;
+
+  margin-bottom: 22px;
+
+  scroll-margin-top: 90px;
+}
+
+
+.portal-weekly-intro {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  padding: 2px 2px 0;
+}
+
+
+.portal-weekly-intro h2 {
+  margin: 5px 0 5px;
+
+  color: #173754;
+
+  font-size: 29px;
+}
+
+
+.portal-weekly-intro p {
+  max-width: 650px;
+
+  margin: 0;
+
+  color: #718095;
+
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+
+.portal-weekly-intro > span {
+  color: #8b97a5;
+
+  font-size: 8px;
+  font-weight: 750;
+}
+
+
+/* ------------------------------------------------------------
+   WEEK CARD
+   ------------------------------------------------------------ */
+
+.portal-week-card {
+  overflow: hidden;
+
+  background: #fff;
+
+  border: 1px solid #dce4ed;
+  border-radius: 17px;
+
+  box-shadow:
+    0 9px 30px
+    rgba(26, 52, 82, .045);
+}
+
+
+.portal-week-card-current {
+  border-color: #cad9eb;
+
+  box-shadow:
+    0 12px 34px
+    rgba(28, 63, 104, .065);
+}
+
+
+.portal-week-head {
+  display: grid;
+
+  grid-template-columns:
+    58px
+    minmax(0, 1fr)
+    auto;
+
+  gap: 17px;
+  align-items: center;
+
+  padding: 22px 23px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f7faff 0%,
+      #ffffff 100%
+    );
+
+  border-bottom: 1px solid #e2e8ef;
+}
+
+
+.portal-week-number {
+  display: grid;
+  place-items: center;
+
+  height: 56px;
+
+  background: #eaf1fa;
+
+  border-radius: 11px;
+}
+
+
+.portal-week-number span {
+  color: #748aa5;
+
+  font-size: 6.5px;
+  font-weight: 850;
+
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+
+.portal-week-number strong {
+  margin-top: -6px;
+
+  color: #2c5d94;
+
+  font-size: 21px;
+}
+
+
+.portal-week-heading h2 {
+  margin: 4px 0;
+
+  color: #193a59;
+
+  font-size: 21px;
+}
+
+
+.portal-week-heading p {
+  margin: 0;
+
+  color: #6f8093;
+
+  font-size: 10.5px;
+  line-height: 1.5;
+}
+
+
+.portal-week-state {
+  padding: 6px 9px;
+
+  border-radius: 999px;
+
+  font-size: 7px;
+  font-weight: 850;
+
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+
+.portal-week-state.is-published {
+  color: #245d9b;
+  background: #e9f2ff;
+}
+
+
+.portal-week-state.is-completed {
+  color: #326a4c;
+  background: #eaf7ef;
+}
+
+
+/* ------------------------------------------------------------
+   SUMMARY
+   ------------------------------------------------------------ */
+
+.portal-week-summary {
+  margin: 0 23px;
+
+  padding: 16px 0;
+
+  border-bottom: 1px solid #e7ecf1;
+}
+
+
+.portal-week-summary span {
+  color: #8291a3;
+
+  font-size: 7px;
+  font-weight: 850;
+
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+
+.portal-week-summary p {
+  max-width: 800px;
+
+  margin: 5px 0 0;
+
+  color: #566a80;
+
+  font-size: 10.5px;
+  line-height: 1.6;
+}
+
+
+/* ------------------------------------------------------------
+   OBJECTIVES
+   ------------------------------------------------------------ */
+
+.portal-week-objectives {
+  padding: 20px 23px;
+
+  border-bottom: 1px solid #e7ecf1;
+}
+
+
+.portal-week-section-title h3 {
+  margin: 4px 0 0;
+
+  color: #28445f;
+
+  font-size: 14px;
+}
+
+
+.portal-week-objective-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 8px;
+
+  margin-top: 13px;
+}
+
+
+.portal-week-objective-grid > div {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 9px;
+
+  padding: 10px 11px;
+
+  background: #f6f8fb;
+
+  border-radius: 9px;
+}
+
+
+.portal-week-objective-grid i {
+  display: grid;
+  place-items: center;
+
+  width: 21px;
+  height: 21px;
+
+  flex: 0 0 auto;
+
+  color: #376394;
+  background: #e3ecf7;
+
+  border-radius: 50%;
+
+  font-size: 7.5px;
+  font-style: normal;
+  font-weight: 850;
+}
+
+
+.portal-week-objective-grid span {
+  padding-top: 3px;
+
+  color: #53677e;
+
+  font-size: 9.5px;
+  line-height: 1.45;
+}
+
+
+/* ------------------------------------------------------------
+   SESSIONS
+   ------------------------------------------------------------ */
+
+.portal-week-session-area {
+  padding: 21px 23px;
+
+  border-bottom: 1px solid #e5eaf0;
+}
+
+
+.portal-week-session-list {
+  display: grid;
+
+  gap: 11px;
+
+  margin-top: 14px;
+}
+
+
+.portal-week-session-card {
+  display: grid;
+
+  grid-template-columns:
+    56px
+    minmax(0, 1fr);
+
+  overflow: hidden;
+
+  border: 1px solid #dde5ee;
+  border-radius: 11px;
+}
+
+
+.portal-week-session-index {
+  display: grid;
+  align-content: start;
+  justify-items: center;
+
+  padding: 15px 7px;
+
+  background: #f3f6f9;
+
+  border-right: 1px solid #e1e7ee;
+}
+
+
+.portal-week-session-index span {
+  color: #8794a3;
+
+  font-size: 6px;
+  font-weight: 850;
+
+  text-transform: uppercase;
+}
+
+
+.portal-week-session-index strong {
+  margin-top: 3px;
+
+  color: #315e8e;
+
+  font-size: 18px;
+}
+
+
+.portal-week-session-body {
+  min-width: 0;
+
+  padding: 15px 16px;
+}
+
+
+.portal-week-session-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 18px;
+}
+
+
+.portal-week-session-top > div:first-child > span {
+  color: #8593a3;
+
+  font-size: 8px;
+}
+
+
+.portal-week-session-top h4 {
+  margin: 3px 0 0;
+
+  color: #203f5e;
+
+  font-size: 13px;
+}
+
+
+.portal-week-session-meta {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+}
+
+
+.portal-week-session-meta > span {
+  padding: 5px 8px;
+
+  color: #66798e;
+  background: #f0f3f6;
+
+  border-radius: 999px;
+
+  font-size: 6.5px;
+  font-weight: 800;
+
+  text-transform: uppercase;
+}
+
+
+.portal-week-session-meta .button {
+  padding: 7px 9px;
+
+  font-size: 8px;
+}
+
+
+/* ------------------------------------------------------------
+   SESSION NOTES
+   ------------------------------------------------------------ */
+
+.portal-week-note {
+  margin-top: 10px;
+
+  padding: 9px 10px;
+
+  background: #f7f9fb;
+
+  border-radius: 8px;
+}
+
+
+.portal-week-note strong {
+  color: #78879a;
+
+  font-size: 7px;
+  font-weight: 850;
+
+  text-transform: uppercase;
+}
+
+
+.portal-week-note p {
+  margin: 4px 0 0;
+
+  color: #566a80;
+
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+
+.portal-week-next-focus {
+  margin-top: 9px;
+
+  color: #7c8999;
+
+  font-size: 8.5px;
+}
+
+
+/* ------------------------------------------------------------
+   SESSION FILES
+   ------------------------------------------------------------ */
+
+.portal-week-session-files {
+  margin-top: 12px;
+
+  padding-top: 12px;
+
+  border-top: 1px solid #e6ebf0;
+}
+
+
+.portal-week-session-files >
+div:first-child {
+  display: flex;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-bottom: 6px;
+}
+
+
+.portal-week-session-files >
+div:first-child strong {
+  color: #536a82;
+
+  font-size: 8.5px;
+}
+
+
+.portal-week-session-files >
+div:first-child span {
+  color: #8a96a5;
+
+  font-size: 7.5px;
+}
+
+
+/* ------------------------------------------------------------
+   WEEK FILES
+   ------------------------------------------------------------ */
+
+.portal-week-files {
+  padding: 20px 23px;
+
+  background: #fbfcfe;
+
+  border-bottom: 1px solid #e5eaf0;
+}
+
+
+/* ------------------------------------------------------------
+   STUDENT UPLOAD
+   ------------------------------------------------------------ */
+
+.portal-week-submit {
+  display: grid;
+
+  grid-template-columns:
+    minmax(220px, .6fr)
+    minmax(0, 1fr);
+
+  gap: 22px;
+  align-items: start;
+
+  padding: 21px 23px;
+}
+
+
+.portal-week-submit h3 {
+  margin: 4px 0;
+
+  color: #29445f;
+
+  font-size: 14px;
+}
+
+
+.portal-week-submit p {
+  margin: 0;
+
+  color: #758496;
+
+  font-size: 9.5px;
+  line-height: 1.55;
+}
+
+
+/* ------------------------------------------------------------
+   HISTORY
+   ------------------------------------------------------------ */
+
+.portal-week-history {
+  display: grid;
+
+  gap: 12px;
+
+  margin-top: 7px;
+}
+
+
+.portal-week-history-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 18px;
+
+  padding: 4px 2px;
+}
+
+
+.portal-week-history-head h2 {
+  margin: 4px 0 0;
+
+  color: #29455f;
+
+  font-size: 20px;
+}
+
+
+.portal-week-history-head > span {
+  display: grid;
+  place-items: center;
+
+  width: 28px;
+  height: 28px;
+
+  color: #718197;
+  background: #edf1f5;
+
+  border-radius: 50%;
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+
+.portal-week-history-list {
+  display: grid;
+
+  gap: 13px;
+}
+
+
+.portal-week-card-history {
+  box-shadow: none;
+}
+
+
+.portal-week-card-history
+.portal-week-submit {
+  display: none;
+}
+
+
+/* ------------------------------------------------------------
+   RESPONSIVE
+   ------------------------------------------------------------ */
+
+@media (max-width: 800px) {
+
+  .portal-week-objective-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .portal-week-submit {
+    grid-template-columns:
+      1fr;
+  }
+
+  .portal-week-head {
+    grid-template-columns:
+      50px
+      minmax(0, 1fr);
+  }
+
+  .portal-week-state {
+    grid-column: 2;
+
+    width: max-content;
+  }
+}
+
+
+@media (max-width: 600px) {
+
+  .portal-weekly-intro {
+    display: grid;
+  }
+
+  .portal-week-session-card {
+    grid-template-columns:
+      1fr;
+  }
+
+  .portal-week-session-index {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+
+    gap: 5px;
+
+    padding: 8px 11px;
+
+    border-right: 0;
+    border-bottom: 1px solid #e1e7ee;
+  }
+
+  .portal-week-session-index strong {
+    margin: 0;
+
+    font-size: 12px;
+  }
+
+  .portal-week-session-top {
+    display: grid;
+  }
+
+  .portal-week-session-meta {
+    justify-content: flex-start;
+  }
+}

@@ -25,6 +25,8 @@ type Props = {
 
   studentId?: string | null;
 
+  weekId?: string | null;
+
   sessionId?: string | null;
 
   defaultCategory?: string;
@@ -80,6 +82,7 @@ export default function LearningMaterialUploadForm({
   endpoint,
   engagementId,
   studentId,
+  weekId = null,
   sessionId = null,
   defaultCategory,
   compact = false,
@@ -193,6 +196,12 @@ export default function LearningMaterialUploadForm({
 
     const metadata = {
       engagementId,
+
+      ...(weekId
+        ? {
+            weekId,
+          }
+        : {}),
 
       ...(studentId
         ? {

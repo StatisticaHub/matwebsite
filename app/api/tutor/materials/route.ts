@@ -30,6 +30,7 @@ export const runtime = "nodejs";
 type UploadBody = {
   studentId?: string;
   engagementId?: string;
+  weekId?: string | null;
   sessionId?: string | null;
 
   filename?: string;
@@ -47,6 +48,7 @@ async function validateTutorAccess(input: {
   tutorId: string;
   studentId: string;
   engagementId: string;
+  weekId?: string | null;
   sessionId?: string | null;
 }) {
   const supabase =
@@ -67,13 +69,29 @@ async function validateTutorAccess(input: {
     return false;
   }
 
+  if (input.weekId) {
+    const {
+      data: week,
+      error: weekError,
+    } = await supabase
+      .from("tutoring_weeks")
+      .select("id")
+      .eq("id", input.weekId)
+      .eq("engagement_id", input.engagementId)
+      .maybeSingle();
+
+    if (weekError || !week) {
+      return false;
+    }
+  }
+
   if (input.sessionId) {
     const {
       data: session,
       error: sessionError,
     } = await supabase
       .from("tutoring_sessions")
-      .select("id")
+      .select("id,week_id")
       .eq("id", input.sessionId)
       .eq(
         "engagement_id",
@@ -88,6 +106,13 @@ async function validateTutorAccess(input: {
     if (
       sessionError ||
       !session
+    ) {
+      return false;
+    }
+
+    if (
+      input.weekId &&
+      session.week_id !== input.weekId
     ) {
       return false;
     }
@@ -146,6 +171,10 @@ export async function POST(
   const engagementId =
     cleanText(body.engagementId, 100);
 
+  const weekId =
+    cleanText(body.weekId, 100) ||
+    null;
+
   const sessionId =
     cleanText(body.sessionId, 100) ||
     null;
@@ -153,6 +182,10 @@ export async function POST(
   if (
     !uuidPattern.test(studentId) ||
     !uuidPattern.test(engagementId) ||
+    (
+      weekId &&
+      !uuidPattern.test(weekId)
+    ) ||
     (
       sessionId &&
       !uuidPattern.test(sessionId)
@@ -172,6 +205,7 @@ export async function POST(
       tutorId: session.tutor.id,
       studentId,
       engagementId,
+      weekId,
       sessionId,
     });
 
@@ -300,6 +334,10 @@ export async function PUT(
   const engagementId =
     cleanText(body.engagementId, 100);
 
+  const weekId =
+    cleanText(body.weekId, 100) ||
+    null;
+
   const sessionId =
     cleanText(body.sessionId, 100) ||
     null;
@@ -313,6 +351,10 @@ export async function PUT(
   if (
     !uuidPattern.test(studentId) ||
     !uuidPattern.test(engagementId) ||
+    (
+      weekId &&
+      !uuidPattern.test(weekId)
+    ) ||
     (
       sessionId &&
       !uuidPattern.test(sessionId)
@@ -330,6 +372,7 @@ export async function PUT(
       tutorId: session.tutor.id,
       studentId,
       engagementId,
+      weekId,
       sessionId,
     });
 
@@ -456,6 +499,9 @@ export async function PUT(
 
       engagement_id:
         engagementId,
+
+      week_id:
+        weekId,
 
       session_id:
         sessionId,

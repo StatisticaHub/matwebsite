@@ -194,7 +194,7 @@ export default async function TutorStudentsPage() {
                     row.id,
                   )}`}
                 >
-                  Learning workspace →
+                  Weekly workspace →
                 </Link>
 
                 <Link
