@@ -2229,3 +2229,384 @@
       1fr;
   }
 }
+
+
+/* ============================================================
+   WEEKLY HOMEWORK WORKSPACE
+   ============================================================ */
+
+.shell :global(.tutor-week-homework) {
+  margin-bottom: 15px;
+
+  padding: 15px;
+
+  background: #fbfcfe;
+
+  border:
+    1px solid
+    #dfe7ef;
+
+  border-radius: 12px;
+}
+
+
+.shell :global(.tutor-week-homework-head) {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 18px;
+
+  margin-bottom: 12px;
+}
+
+
+.shell :global(.tutor-week-homework-head h3) {
+  margin:
+    3px 0;
+
+  color: #294761;
+
+  font-size: 14px;
+}
+
+
+.shell :global(.tutor-week-homework-head p) {
+  margin: 0;
+
+  color: #758699;
+
+  font-size: 8.5px;
+  line-height: 1.45;
+}
+
+
+.shell :global(.tutor-week-homework-head > strong) {
+  color: #63778c;
+
+  font-size: 8px;
+}
+
+
+.shell :global(.tutor-week-homework-create) {
+  margin-bottom: 12px;
+
+  padding: 10px 11px;
+
+  background: #f3f7fb;
+
+  border:
+    1px dashed
+    #cad8e7;
+
+  border-radius: 9px;
+}
+
+
+.shell :global(.tutor-week-homework-create > summary) {
+  color: #2a659e;
+
+  font-size: 8.5px;
+  font-weight: 850;
+
+  cursor: pointer;
+}
+
+
+.shell :global(.tutor-week-homework-create[open] > summary) {
+  margin-bottom: 12px;
+}
+
+
+.shell :global(.tutor-week-homework-list) {
+  display: grid;
+
+  gap: 9px;
+}
+
+
+.shell :global(.tutor-week-homework-card) {
+  padding: 12px;
+
+  background: #fff;
+
+  border:
+    1px solid
+    #e0e7ee;
+
+  border-radius: 9px;
+}
+
+
+.shell :global(.tutor-week-homework-card-head) {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 12px;
+}
+
+
+.shell :global(.tutor-week-homework-card h4) {
+  margin:
+    4px 0 2px;
+
+  color: #29445f;
+
+  font-size: 11px;
+}
+
+
+.shell :global(.tutor-week-homework-card > small) {
+  color: #8693a2;
+
+  font-size: 7.5px;
+}
+
+
+.shell :global(.tutor-week-homework-card > p) {
+  margin:
+    8px 0 0;
+
+  color: #607287;
+
+  font-size: 8.5px;
+  line-height: 1.5;
+}
+
+
+.shell :global(.tutor-week-homework-context) {
+  display: inline-block;
+
+  padding:
+    4px 6px;
+
+  color: #30679e;
+  background: #e9f1fa;
+
+  border-radius: 999px;
+
+  font-size: 6.5px;
+  font-weight: 850;
+
+  text-transform: uppercase;
+}
+
+
+.shell :global(.tutor-week-homework-session) {
+  display: block;
+
+  margin:
+    5px 0;
+
+  color: #5f7690;
+}
+
+
+.shell :global(.tutor-week-submission) {
+  margin-top: 10px;
+
+  padding: 10px;
+
+  background: #f3f8f5;
+
+  border:
+    1px solid
+    #dbeae0;
+
+  border-radius: 8px;
+}
+
+
+.shell :global(.tutor-week-submission strong) {
+  display: block;
+
+  color: #3c694e;
+
+  font-size: 7.5px;
+}
+
+
+.shell :global(.tutor-week-submission span) {
+  display: block;
+
+  margin-top: 2px;
+
+  color: #849187;
+
+  font-size: 7px;
+}
+
+
+.shell :global(.tutor-week-submission p) {
+  margin:
+    7px 0;
+
+  color: #586c61;
+
+  font-size: 8.5px;
+  line-height: 1.5;
+}
+
+
+.shell :global(.tutor-week-submission a) {
+  color: #2b659b;
+
+  font-size: 8px;
+  font-weight: 750;
+}
+
+
+.shell :global(.tutor-week-feedback-preview) {
+  margin-top: 9px;
+
+  padding: 9px 10px;
+
+  background: #f7f8fa;
+
+  border-radius: 8px;
+}
+
+
+.shell :global(.tutor-week-feedback-preview strong) {
+  color: #738395;
+
+  font-size: 7px;
+}
+
+
+.shell :global(.tutor-week-feedback-preview p) {
+  margin:
+    4px 0 0;
+
+  color: #596d83;
+
+  font-size: 8.5px;
+}
+
+
+.shell :global(.tutor-week-homework-review) {
+  margin-top: 10px;
+
+  padding-top: 9px;
+
+  border-top:
+    1px solid
+    #e5eaf0;
+}
+
+
+.shell :global(.tutor-week-homework-review > summary) {
+  color: #607b96;
+
+  font-size: 7.5px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+
+.shell :global(.tutor-week-homework-review[open] > summary) {
+  margin-bottom: 10px;
+}
+
+
+/* ============================================================
+   MANAGED ZOOM
+   ============================================================ */
+
+.shell :global(.tutor-week-zoom-toggle) {
+  display: flex !important;
+  align-items: flex-start;
+
+  grid-template-columns:
+    auto 1fr !important;
+
+  gap: 9px !important;
+
+  padding: 11px;
+
+  background: #edf5ff;
+
+  border:
+    1px solid
+    #cadef3;
+
+  border-radius: 9px;
+}
+
+
+.shell :global(.tutor-week-zoom-toggle input) {
+  width: auto !important;
+
+  margin-top: 2px;
+}
+
+
+.shell :global(.tutor-week-zoom-toggle strong) {
+  display: block;
+
+  color: #295e94;
+
+  font-size: 9px;
+}
+
+
+.shell :global(.tutor-week-zoom-toggle small) {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #678099;
+
+  font-size: 7.5px;
+  line-height: 1.4;
+}
+
+
+.shell :global(.tutor-week-manual-meeting) {
+  padding: 9px 10px;
+
+  background: #f7f8fa;
+
+  border:
+    1px solid
+    #e1e6eb;
+
+  border-radius: 8px;
+}
+
+
+.shell :global(.tutor-week-manual-meeting > summary) {
+  color: #718195;
+
+  font-size: 7.5px;
+  font-weight: 750;
+
+  cursor: pointer;
+}
+
+
+.shell :global(.tutor-week-manual-meeting[open] > summary) {
+  margin-bottom: 9px;
+}
+
+
+.shell :global(.tutor-week-manual-meeting > small) {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #8a96a3;
+
+  font-size: 7px;
+}
+
+
+@media (max-width: 600px) {
+
+  .shell :global(.tutor-week-homework-head),
+  .shell :global(.tutor-week-homework-card-head) {
+    display: grid;
+  }
+}

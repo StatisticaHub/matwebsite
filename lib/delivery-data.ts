@@ -127,6 +127,7 @@ export type Homework = {
   created_at: string;
   updated_at: string;
   engagement_id: string;
+  week_id: string | null;
   session_id: string | null;
   title: string;
   description: string | null;

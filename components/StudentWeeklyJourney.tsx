@@ -1,5 +1,7 @@
 import LearningMaterialUploadForm from "@/components/LearningMaterialUploadForm";
 
+import StudentWeeklyHomework from "@/components/StudentWeeklyHomework";
+
 import LearningMaterialsList, {
   type LearningMaterialListItem,
 } from "@/components/LearningMaterialsList";
@@ -717,6 +719,34 @@ export default async function StudentWeeklyJourney({
           </div>
 
         </section>
+
+
+        <StudentWeeklyHomework
+          token={
+            token
+          }
+          engagementId={
+            engagementId
+          }
+          weekId={
+            week.id
+          }
+          sessions={weekSessions.map(
+            (session) => ({
+              id:
+                session.id,
+
+              topic:
+                session.topic,
+
+              week_position:
+                session.week_position,
+
+              scheduled_for:
+                session.scheduled_for,
+            }),
+          )}
+        />
 
 
         {weeklyMaterials.length >

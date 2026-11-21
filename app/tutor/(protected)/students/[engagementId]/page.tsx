@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import LearningMaterialUploadForm from "@/components/LearningMaterialUploadForm";
+import TutorWeeklyHomework from "@/components/TutorWeeklyHomework";
 import LearningMaterialsList, {
   type LearningMaterialListItem,
 } from "@/components/LearningMaterialsList";
@@ -9,7 +10,7 @@ import LearningMaterialsList, {
 import {
   assignTutorSessionToWeek,
   changeTutorWeekStatus,
-  createTutorSessionInWeek,
+  createTutorSessionInWeekManaged,
   createTutorWeek,
   removeTutorSessionFromWeek,
   updateTutorWeek,
@@ -947,6 +948,37 @@ export default async function TutorStudentWeeklyWorkspace({
                   </div>
 
 
+                  <TutorWeeklyHomework
+                    engagementId={
+                      engagement.id
+                    }
+                    weekId={
+                      week.id
+                    }
+                    sessions={sessions
+                      .filter(
+                        (item) =>
+                          item.week_id ===
+                          week.id,
+                      )
+                      .map(
+                        (item) => ({
+                          id:
+                            item.id,
+
+                          topic:
+                            item.topic,
+
+                          scheduled_for:
+                            item.scheduled_for,
+
+                          week_position:
+                            item.week_position,
+                        }),
+                      )}
+                  />
+
+
                   <details className="tutor-week-create-session">
 
                     <summary>
@@ -956,7 +988,7 @@ export default async function TutorStudentWeeklyWorkspace({
 
                     <form
                       action={
-                        createTutorSessionInWeek
+                        createTutorSessionInWeekManaged
                       }
                       className="tutor-form"
                     >
@@ -1029,20 +1061,54 @@ export default async function TutorStudentWeeklyWorkspace({
                       </label>
 
 
-                      <label>
-
-                        <span>
-                          Meeting link
-                          optional
-                        </span>
+                      <label className="tutor-week-zoom-toggle">
 
                         <input
-                          name="meetingUrl"
-                          type="url"
-                          placeholder="https://..."
+                          name="createZoomMeeting"
+                          type="checkbox"
+                          defaultChecked
                         />
 
+                        <span>
+
+                          <strong>
+                            Create managed MAT Zoom meeting
+                          </strong>
+
+                          <small>
+                            Recommended. MAT creates the student join link automatically and prevents clashes on the shared Zoom host.
+                          </small>
+
+                        </span>
+
                       </label>
+
+
+                      <details className="tutor-week-manual-meeting">
+
+                        <summary>
+                          Use a manual meeting link instead
+                        </summary>
+
+                        <label>
+
+                          <span>
+                            Manual meeting link
+                          </span>
+
+                          <input
+                            name="meetingUrl"
+                            type="url"
+                            placeholder="https://..."
+                          />
+
+                        </label>
+
+                        <small>
+                          Untick managed MAT Zoom above when using your own meeting link.
+                        </small>
+
+                      </details>
 
 
                       <label>
