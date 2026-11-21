@@ -289,6 +289,148 @@ export async function updateTutorDocumentStatus(
   );
 }
 
+
+export async function updateTutorDemoReview(
+  formData: FormData,
+) {
+  const { session, supabase } = await adminContext();
+
+  const applicationId = value(
+    formData,
+    "applicationId",
+    100,
+  );
+
+  const reviewStatus = value(
+    formData,
+    "demoReviewStatus",
+    30,
+  );
+
+  if (
+    !applicationId ||
+    ![
+      "needs_review",
+      "satisfactory",
+      "rejected",
+    ].includes(reviewStatus)
+  ) {
+    return;
+  }
+
+  function score(key: string) {
+    const number = Number(value(formData, key, 10));
+
+    return Number.isInteger(number) &&
+      number >= 1 &&
+      number <= 5
+      ? number
+      : null;
+  }
+
+  const subjectAccuracy = score("demoSubjectAccuracy");
+  const explanationClarity = score(
+    "demoExplanationClarity",
+  );
+  const teachingStructure = score(
+    "demoTeachingStructure",
+  );
+  const communication = score("demoCommunication");
+  const professionalism = score(
+    "demoProfessionalism",
+  );
+
+  const scores = [
+    subjectAccuracy,
+    explanationClarity,
+    teachingStructure,
+    communication,
+    professionalism,
+  ];
+
+  if (scores.some((item) => item === null)) {
+    redirect(
+      `/admin/tutor-applications?application=${encodeURIComponent(
+        applicationId,
+      )}&error=demo_scores`,
+    );
+  }
+
+  const {
+    data: application,
+    error: applicationError,
+  } = await supabase
+    .from("tutor_applications")
+    .select(
+      "id,status,demo_subject,demo_level,demo_topic,demo_video_url",
+    )
+    .eq("id", applicationId)
+    .single();
+
+  if (applicationError || !application) {
+    throw new Error(
+      applicationError?.message ||
+        "Tutor application not found.",
+    );
+  }
+
+  if (application.status === "converted") {
+    redirect(
+      `/admin/tutor-applications?application=${encodeURIComponent(
+        applicationId,
+      )}`,
+    );
+  }
+
+  const demoComplete =
+    Boolean(application.demo_subject) &&
+    Boolean(application.demo_level) &&
+    Boolean(application.demo_topic) &&
+    Boolean(application.demo_video_url);
+
+  if (!demoComplete) {
+    redirect(
+      `/admin/tutor-applications?application=${encodeURIComponent(
+        applicationId,
+      )}&error=demo_incomplete`,
+    );
+  }
+
+  const now = new Date().toISOString();
+
+  const { error } = await supabase
+    .from("tutor_applications")
+    .update({
+      demo_review_status: reviewStatus,
+      demo_subject_accuracy: subjectAccuracy,
+      demo_explanation_clarity: explanationClarity,
+      demo_teaching_structure: teachingStructure,
+      demo_communication: communication,
+      demo_professionalism: professionalism,
+      demo_review_notes:
+        value(formData, "demoReviewNotes", 5000) || null,
+      demo_reviewed_at: now,
+      demo_reviewed_by: session.user.id,
+      reviewed_at: now,
+      reviewed_by: session.user.id,
+      updated_at: now,
+    })
+    .eq("id", applicationId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/admin/tutor-applications");
+
+  redirect(
+    `/admin/tutor-applications?application=${encodeURIComponent(
+      applicationId,
+    )}&demo_saved=1`,
+  );
+}
+
+
 export async function convertTutorApplication(
   formData: FormData,
 ) {
@@ -376,10 +518,30 @@ export async function convertTutorApplication(
     Boolean(application.demo_topic) &&
     Boolean(application.demo_video_url);
 
+  const demoScores = [
+    application.demo_subject_accuracy,
+    application.demo_explanation_clarity,
+    application.demo_teaching_structure,
+    application.demo_communication,
+    application.demo_professionalism,
+  ];
+
+  const demoScoresComplete = demoScores.every(
+    (score) =>
+      Number.isInteger(score) &&
+      Number(score) >= 1 &&
+      Number(score) <= 5,
+  );
+
+  const demoSatisfactory =
+    application.demo_review_status === "satisfactory" &&
+    demoScoresComplete;
+
   const ready =
     verifiedReferences.length >= 2 &&
     verifiedCertificate &&
     demoComplete &&
+    demoSatisfactory &&
     application.academic_integrity_confirmed === true;
 
   if (!ready) {

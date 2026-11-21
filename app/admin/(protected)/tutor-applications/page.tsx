@@ -6,6 +6,7 @@ import {
   sendTutorReferenceRequest,
   updateTutorDocumentStatus,
   updateTutorReferenceStatus,
+  updateTutorDemoReview,
 } from "@/app/admin/tutor-application-actions";
 
 export const metadata = {
@@ -126,11 +127,33 @@ export default async function TutorApplicationsPage({
       selected?.demo_video_url,
   );
 
+  const demoScores = [
+    Number(selected.demo_subject_accuracy || 0),
+    Number(selected.demo_explanation_clarity || 0),
+    Number(selected.demo_teaching_structure || 0),
+    Number(selected.demo_communication || 0),
+    Number(selected.demo_professionalism || 0),
+  ];
+
+  const demoScoresComplete = demoScores.every(
+    (score) => score >= 1 && score <= 5,
+  );
+
+  const demoAverage = demoScoresComplete
+    ? demoScores.reduce((total, score) => total + score, 0) /
+      demoScores.length
+    : null;
+
+  const demoSatisfactory =
+    demoComplete &&
+    demoScoresComplete &&
+    selected.demo_review_status === "satisfactory";
+
   const ready =
     Boolean(selected) &&
     verifiedReferences >= 2 &&
     verifiedCertificate &&
-    demoComplete &&
+    demoSatisfactory &&
     selected?.academic_integrity_confirmed === true;
 
   return (
@@ -606,9 +629,23 @@ export default async function TutorApplicationsPage({
 
             <section className="admin-panel admin-action-card">
               <div className="admin-card-head">
-                <h2>Teaching demonstration</h2>
+                <div>
+                  <span className="admin-eyebrow">
+                    Quality assessment
+                  </span>
+                  <h2>Teaching demonstration</h2>
+                </div>
+
                 <span>
-                  {demoComplete ? "Submitted" : "Incomplete"}
+                  {!demoComplete
+                    ? "Incomplete"
+                    : demoSatisfactory
+                      ? `Satisfactory · ${demoAverage?.toFixed(1)}/5`
+                      : selected.demo_review_status === "rejected"
+                        ? "Rejected"
+                        : selected.demo_review_status === "needs_review"
+                          ? "Needs review"
+                          : "Awaiting review"}
                 </span>
               </div>
 
@@ -642,8 +679,183 @@ export default async function TutorApplicationsPage({
               )}
 
               {selected.demo_notes && (
-                <p>{selected.demo_notes}</p>
+                <div className="admin-requirement">
+                  <strong>Applicant notes</strong>
+                  <p>{selected.demo_notes}</p>
+                </div>
               )}
+
+              {demoAverage !== null && (
+                <div
+                  className={
+                    demoSatisfactory
+                      ? "admin-inline-message success"
+                      : "admin-inline-message"
+                  }
+                >
+                  Demo assessment average:{" "}
+                  <strong>{demoAverage.toFixed(1)}/5</strong>
+                </div>
+              )}
+
+              <form
+                action={updateTutorDemoReview}
+                className="admin-compact-form"
+              >
+                <input
+                  type="hidden"
+                  name="applicationId"
+                  value={selected.id}
+                />
+
+                <div className="admin-form-grid-2">
+                  <label>
+                    <span>Subject accuracy *</span>
+                    <select
+                      name="demoSubjectAccuracy"
+                      required
+                      defaultValue={
+                        selected.demo_subject_accuracy ?? ""
+                      }
+                    >
+                      <option value="" disabled>
+                        Select score
+                      </option>
+                      <option value="1">1 — Poor</option>
+                      <option value="2">2 — Weak</option>
+                      <option value="3">3 — Satisfactory</option>
+                      <option value="4">4 — Good</option>
+                      <option value="5">5 — Excellent</option>
+                    </select>
+                  </label>
+
+                  <label>
+                    <span>Explanation clarity *</span>
+                    <select
+                      name="demoExplanationClarity"
+                      required
+                      defaultValue={
+                        selected.demo_explanation_clarity ?? ""
+                      }
+                    >
+                      <option value="" disabled>
+                        Select score
+                      </option>
+                      <option value="1">1 — Poor</option>
+                      <option value="2">2 — Weak</option>
+                      <option value="3">3 — Satisfactory</option>
+                      <option value="4">4 — Good</option>
+                      <option value="5">5 — Excellent</option>
+                    </select>
+                  </label>
+
+                  <label>
+                    <span>Teaching structure *</span>
+                    <select
+                      name="demoTeachingStructure"
+                      required
+                      defaultValue={
+                        selected.demo_teaching_structure ?? ""
+                      }
+                    >
+                      <option value="" disabled>
+                        Select score
+                      </option>
+                      <option value="1">1 — Poor</option>
+                      <option value="2">2 — Weak</option>
+                      <option value="3">3 — Satisfactory</option>
+                      <option value="4">4 — Good</option>
+                      <option value="5">5 — Excellent</option>
+                    </select>
+                  </label>
+
+                  <label>
+                    <span>Communication *</span>
+                    <select
+                      name="demoCommunication"
+                      required
+                      defaultValue={
+                        selected.demo_communication ?? ""
+                      }
+                    >
+                      <option value="" disabled>
+                        Select score
+                      </option>
+                      <option value="1">1 — Poor</option>
+                      <option value="2">2 — Weak</option>
+                      <option value="3">3 — Satisfactory</option>
+                      <option value="4">4 — Good</option>
+                      <option value="5">5 — Excellent</option>
+                    </select>
+                  </label>
+
+                  <label>
+                    <span>Professionalism *</span>
+                    <select
+                      name="demoProfessionalism"
+                      required
+                      defaultValue={
+                        selected.demo_professionalism ?? ""
+                      }
+                    >
+                      <option value="" disabled>
+                        Select score
+                      </option>
+                      <option value="1">1 — Poor</option>
+                      <option value="2">2 — Weak</option>
+                      <option value="3">3 — Satisfactory</option>
+                      <option value="4">4 — Good</option>
+                      <option value="5">5 — Excellent</option>
+                    </select>
+                  </label>
+
+                  <label>
+                    <span>Overall decision *</span>
+                    <select
+                      name="demoReviewStatus"
+                      required
+                      defaultValue={
+                        selected.demo_review_status &&
+                        selected.demo_review_status !== "not_reviewed"
+                          ? selected.demo_review_status
+                          : ""
+                      }
+                    >
+                      <option value="" disabled>
+                        Select decision
+                      </option>
+                      <option value="needs_review">
+                        Needs further review
+                      </option>
+                      <option value="satisfactory">
+                        Satisfactory
+                      </option>
+                      <option value="rejected">
+                        Unsatisfactory
+                      </option>
+                    </select>
+                  </label>
+                </div>
+
+                <label>
+                  <span>Demo review notes</span>
+                  <textarea
+                    name="demoReviewNotes"
+                    defaultValue={
+                      selected.demo_review_notes || ""
+                    }
+                    placeholder="Strengths, weaknesses, teaching observations or reasons for the decision..."
+                  />
+                </label>
+
+                <button
+                  className="admin-secondary-button"
+                  type="submit"
+                  disabled={!demoComplete}
+                >
+                  Save teaching demo review
+                </button>
+              </form>
             </section>
 
             <section className="admin-panel admin-action-card">
@@ -658,7 +870,7 @@ export default async function TutorApplicationsPage({
               >
                 {ready
                   ? "All mandatory quality checks are complete. This applicant can be converted into a pending tutor."
-                  : "Approval is blocked until one degree certificate and both references are verified and the teaching demo is submitted."}
+                  : "Approval is blocked until one degree certificate and both references are verified and the teaching demo has been reviewed as satisfactory."}
               </div>
 
               {selected.status === "converted" &&
