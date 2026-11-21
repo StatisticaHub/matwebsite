@@ -180,6 +180,10 @@ export default async function ProtectedAdminLayout({
             Tutors
           </Link>
 
+          <Link href="/admin/tutor-applications">
+            Tutor applications
+          </Link>
+
           <Link href="/admin/notifications">
             Notifications
           </Link>
