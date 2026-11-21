@@ -1,57 +1,86 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import TutorSignOutButton from "@/components/TutorSignOutButton";
+
+import TutorSidebarNav from "@/components/TutorSidebarNav";
 import { getTutorAccountSession } from "@/lib/tutor-auth";
 
+import styles from "./tutor-workspace.module.css";
+
 export const metadata = {
-  robots: { index: false, follow: false },
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
-export const dynamic = "force-dynamic";
+export const dynamic =
+  "force-dynamic";
 
 export default async function TutorProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getTutorAccountSession();
+  const session =
+    await getTutorAccountSession();
 
   if (!session) {
-    redirect("/tutor/login?unauthorized=1");
+    redirect(
+      "/tutor/login?unauthorized=1",
+    );
   }
 
-  // Pending tutors may authenticate, but they cannot enter the
-  // teaching workspace until MAT has reviewed and activated them.
-  if (session.tutor.status !== "active") {
-    redirect("/tutor/onboarding");
+  /*
+   * Pending tutors may authenticate, but they do not
+   * enter the teaching workspace until MAT activates them.
+   */
+  if (
+    session.tutor.status !==
+    "active"
+  ) {
+    redirect(
+      "/tutor/onboarding",
+    );
   }
 
   return (
-    <div className="tutor-app">
+    <div
+      className={`${styles.shell} tutor-app`}
+    >
       <aside className="tutor-sidebar">
-        <Link href="/tutor" className="tutor-brand">
-          MAT <span>Tutor</span>
-        </Link>
+        <div className="tutor-sidebar-brand">
+          <Link
+            href="/tutor"
+            className="tutor-brand"
+          >
+            <strong>
+              MAT
+            </strong>
 
-        <nav>
-          <Link href="/tutor">Overview</Link>
-          <Link href="/tutor/sessions">Sessions</Link>
-          <Link href="/tutor/students">Students</Link>
-          <Link href="/tutor/progress">Progress</Link>
-          <Link href="/tutor/retention">Retention</Link>
-          <Link href="/tutor/trials">Trials</Link>
-          <Link href="/tutor/availability">Availability</Link>
-          <Link href="/" target="_blank">View website ↗</Link>
-        </nav>
+            <span>
+              Tutor
+            </span>
+          </Link>
 
-        <div className="tutor-sidebar-footer">
-          <span>{session.tutor.name}</span>
-          <small>{session.user.email}</small>
-          <TutorSignOutButton />
+          <small>
+            Teaching workspace
+          </small>
         </div>
+
+        <TutorSidebarNav
+          tutorName={
+            session.tutor.name
+          }
+          email={
+            session.user.email ||
+            ""
+          }
+        />
       </aside>
 
-      <div className="tutor-main">{children}</div>
+      <main className="tutor-main">
+        {children}
+      </main>
     </div>
   );
 }

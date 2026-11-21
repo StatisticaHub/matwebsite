@@ -1,0 +1,1037 @@
+.shell {
+  --tutor-nav: #0b1d33;
+  --tutor-nav-soft: #102842;
+  --tutor-blue: #245bb9;
+  --tutor-text: #18304d;
+  --tutor-muted: #718096;
+  --tutor-border: #dfe6ef;
+  --tutor-bg: #f5f7fa;
+
+  min-height: 100vh;
+}
+
+
+/* ============================================================
+   SHELL
+   ============================================================ */
+
+.shell:global(.tutor-app) {
+  display: grid;
+
+  grid-template-columns:
+    252px
+    minmax(0, 1fr);
+
+  min-height: 100vh;
+
+  background:
+    var(--tutor-bg);
+}
+
+.shell :global(.tutor-sidebar) {
+  position: sticky;
+
+  top: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  width: auto;
+  height: 100vh;
+
+  box-sizing: border-box;
+
+  padding: 22px 16px 16px;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  color: #fff;
+  background:
+    linear-gradient(
+      180deg,
+      #091a2d 0%,
+      #0c2038 100%
+    );
+}
+
+.shell :global(.tutor-sidebar-brand) {
+  padding:
+    2px 8px
+    21px;
+
+  border-bottom:
+    1px solid
+    rgba(255,255,255,.08);
+}
+
+.shell :global(.tutor-brand) {
+  display: flex;
+  align-items: baseline;
+
+  gap: 7px;
+
+  margin: 0;
+
+  color: #fff;
+
+  text-decoration: none;
+}
+
+.shell :global(.tutor-brand strong) {
+  font-size: 20px;
+  font-weight: 900;
+
+  letter-spacing: -.035em;
+}
+
+.shell :global(.tutor-brand span) {
+  color: #9fb0c5;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.shell :global(.tutor-sidebar-brand small) {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #7088a3;
+
+  font-size: 9px;
+  font-weight: 700;
+
+  letter-spacing: .075em;
+  text-transform: uppercase;
+}
+
+
+/* ============================================================
+   NAV
+   ============================================================ */
+
+.shell :global(.tutor-sidebar-content) {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+
+  min-height: 0;
+}
+
+.shell :global(.tutor-workspace-nav) {
+  display: grid;
+
+  gap: 20px;
+
+  padding:
+    20px 2px;
+}
+
+.shell :global(.tutor-nav-group) {
+  display: grid;
+
+  gap: 6px;
+}
+
+.shell :global(.tutor-nav-group-label) {
+  padding:
+    0 10px;
+
+  color: #617b98;
+
+  font-size: 8px;
+  font-weight: 850;
+
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.shell :global(.tutor-nav-links) {
+  display: grid;
+
+  gap: 3px;
+}
+
+.shell :global(.tutor-nav-links a) {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  min-height: 38px;
+
+  padding:
+    8px 10px;
+
+  color: #bdcbdb;
+  background: transparent;
+
+  border-radius: 8px;
+
+  text-decoration: none;
+
+  font-size: 11px;
+  font-weight: 680;
+
+  transition:
+    background .15s ease,
+    color .15s ease;
+}
+
+.shell :global(.tutor-nav-links a:hover) {
+  color: #fff;
+
+  background:
+    rgba(255,255,255,.065);
+}
+
+.shell :global(.tutor-nav-links a.is-active) {
+  color: #fff;
+
+  background:
+    rgba(91,139,212,.17);
+}
+
+.shell :global(.tutor-nav-links a.is-active i) {
+  width: 5px;
+  height: 5px;
+
+  background: #7da8ef;
+
+  border-radius: 50%;
+}
+
+
+/* ============================================================
+   ACCOUNT FOOTER
+   ============================================================ */
+
+.shell :global(.tutor-sidebar-footer) {
+  position: static;
+
+  display: grid;
+
+  gap: 9px;
+
+  width: 100%;
+
+  box-sizing: border-box;
+
+  margin-top: auto;
+
+  padding:
+    15px 6px 1px;
+
+  border-top:
+    1px solid
+    rgba(255,255,255,.09);
+}
+
+.shell :global(.tutor-account-copy) {
+  min-width: 0;
+}
+
+.shell :global(.tutor-account-copy span) {
+  display: block;
+
+  color: #e6edf6;
+
+  font-size: 11px;
+  font-weight: 780;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shell :global(.tutor-account-copy small) {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #8196ad;
+
+  font-size: 9px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shell :global(.tutor-signout) {
+  position: static;
+
+  width: 100%;
+
+  box-sizing: border-box;
+
+  margin: 0;
+
+  padding:
+    9px 10px;
+
+  color: #dbe6f3;
+  background:
+    rgba(255,255,255,.05);
+
+  border:
+    1px solid
+    rgba(255,255,255,.09);
+
+  border-radius: 8px;
+
+  font-size: 10px;
+  font-weight: 720;
+
+  cursor: pointer;
+}
+
+.shell :global(.tutor-signout:hover) {
+  color: #fff;
+
+  background:
+    rgba(255,255,255,.09);
+}
+
+
+/* ============================================================
+   MAIN CONTENT
+   ============================================================ */
+
+.shell :global(.tutor-main) {
+  min-width: 0;
+}
+
+.shell :global(.tutor-page) {
+  width:
+    min(
+      1420px,
+      calc(100% - 54px)
+    );
+
+  box-sizing: border-box;
+
+  margin:
+    0 auto;
+
+  padding:
+    34px 0
+    72px;
+}
+
+.shell :global(.tutor-page-head) {
+  margin-bottom:
+    24px;
+}
+
+.shell :global(.tutor-page-head h1) {
+  margin:
+    5px 0 8px;
+
+  color:
+    var(--tutor-text);
+
+  font-size:
+    clamp(
+      30px,
+      3vw,
+      39px
+    );
+
+  line-height: 1.05;
+
+  letter-spacing: -.035em;
+}
+
+.shell :global(.tutor-page-head p) {
+  max-width:
+    700px;
+
+  color:
+    var(--tutor-muted);
+
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.shell :global(.tutor-eyebrow),
+.shell :global(.tutor-panel-kicker) {
+  color:
+    var(--tutor-blue);
+
+  font-size: 8.5px;
+  font-weight: 850;
+
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+
+/* ============================================================
+   CARDS & METRICS
+   ============================================================ */
+
+.shell :global(.tutor-panel),
+.shell :global(.tutor-student-card),
+.shell :global(.tutor-metrics > div) {
+  background: #fff;
+
+  border:
+    1px solid
+    var(--tutor-border);
+
+  border-radius: 14px;
+
+  box-shadow:
+    0 7px 22px
+    rgba(22,48,77,.035);
+}
+
+.shell :global(.tutor-panel) {
+  padding: 21px;
+}
+
+.shell :global(.tutor-metrics) {
+  gap: 13px;
+
+  margin-bottom:
+    17px;
+}
+
+.shell :global(.tutor-metrics > div) {
+  padding:
+    18px 19px;
+
+  min-height: 104px;
+
+  box-sizing: border-box;
+}
+
+.shell :global(.tutor-metrics span) {
+  font-size: 8.5px;
+}
+
+.shell :global(.tutor-metrics strong) {
+  margin-top: 4px;
+
+  color:
+    var(--tutor-text);
+
+  font-size: 27px;
+}
+
+.shell :global(.tutor-panel-head) {
+  align-items: flex-start;
+
+  margin-bottom:
+    14px;
+}
+
+.shell :global(.tutor-panel-head h2) {
+  margin:
+    3px 0 0;
+
+  color:
+    var(--tutor-text);
+
+  font-size: 18px;
+}
+
+
+/* ============================================================
+   COMMAND CENTRE
+   ============================================================ */
+
+.shell :global(.tutor-command-grid) {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0,1fr)
+    );
+
+  gap: 12px;
+
+  margin-bottom:
+    18px;
+}
+
+.shell :global(.tutor-command-grid > a) {
+  display: grid;
+
+  min-height: 165px;
+
+  box-sizing: border-box;
+
+  padding: 18px;
+
+  color:
+    inherit;
+  background:
+    #fff;
+
+  border:
+    1px solid
+    var(--tutor-border);
+
+  border-radius:
+    14px;
+
+  text-decoration:
+    none;
+
+  box-shadow:
+    0 7px 22px
+    rgba(22,48,77,.03);
+
+  transition:
+    transform .15s ease,
+    border-color .15s ease,
+    box-shadow .15s ease;
+}
+
+.shell :global(.tutor-command-grid > a:hover) {
+  transform:
+    translateY(-2px);
+
+  border-color:
+    #bfd0e8;
+
+  box-shadow:
+    0 10px 30px
+    rgba(22,48,77,.075);
+}
+
+.shell :global(.tutor-command-grid > a > span) {
+  color:
+    #7189a6;
+
+  font-size: 8px;
+  font-weight: 850;
+
+  letter-spacing: .09em;
+}
+
+.shell :global(.tutor-command-grid > a > strong) {
+  margin-top:
+    7px;
+
+  color:
+    #233c59;
+
+  font-size: 14px;
+}
+
+.shell :global(.tutor-command-grid > a > p) {
+  margin:
+    7px 0 14px;
+
+  color:
+    #738095;
+
+  font-size: 10.5px;
+  line-height: 1.55;
+}
+
+.shell :global(.tutor-command-grid > a > small) {
+  align-self: end;
+
+  color:
+    var(--tutor-blue);
+
+  font-size: 9.5px;
+  font-weight: 800;
+}
+
+
+/* ============================================================
+   STUDENTS
+   ============================================================ */
+
+.shell :global(.tutor-card-grid) {
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0,1fr)
+    );
+
+  gap: 17px;
+}
+
+.shell :global(.tutor-student-card) {
+  padding:
+    21px;
+}
+
+.shell :global(.tutor-student-focus) {
+  margin:
+    15px 0;
+
+  padding:
+    13px 14px;
+
+  background:
+    #f6f8fb;
+
+  border-radius:
+    10px;
+}
+
+.shell :global(.tutor-student-focus > span) {
+  color:
+    #8492a4;
+
+  font-size: 7.5px;
+  font-weight: 850;
+
+  letter-spacing: .09em;
+}
+
+.shell :global(.tutor-student-focus > strong) {
+  display: block;
+
+  margin-top:
+    4px;
+
+  color:
+    #304861;
+
+  font-size: 12px;
+}
+
+.shell :global(.tutor-student-focus p) {
+  margin:
+    6px 0 0;
+
+  color:
+    #718095;
+
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.shell :global(.tutor-student-actions) {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin-top: 15px;
+}
+
+.shell :global(.tutor-secondary-link) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 37px;
+
+  box-sizing: border-box;
+
+  padding:
+    9px 12px;
+
+  color:
+    #375674;
+  background:
+    #f1f4f7;
+
+  border:
+    1px solid
+    #e1e7ee;
+
+  border-radius: 8px;
+
+  text-decoration: none;
+
+  font-size: 10px;
+  font-weight: 780;
+}
+
+.shell :global(.tutor-head-count) {
+  display: inline-flex;
+
+  padding:
+    7px 10px;
+
+  color:
+    #365e8d;
+  background:
+    #edf4fc;
+
+  border-radius:
+    999px;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+
+/* ============================================================
+   MATERIALS
+   ============================================================ */
+
+.shell :global(.tutor-material-selector) {
+  display: grid;
+
+  grid-template-columns:
+    220px
+    minmax(0,1fr);
+
+  gap: 20px;
+
+  margin-bottom:
+    18px;
+}
+
+.shell :global(.tutor-material-selector-copy h2) {
+  margin:
+    4px 0 5px;
+
+  color:
+    var(--tutor-text);
+}
+
+.shell :global(.tutor-material-selector-copy p) {
+  margin: 0;
+
+  color:
+    #7a8798;
+
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.shell :global(.tutor-material-student-tabs) {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+
+  gap: 8px;
+}
+
+.shell :global(.tutor-material-student-tabs a) {
+  display: grid;
+
+  gap: 3px;
+
+  min-width: 145px;
+
+  padding:
+    10px 12px;
+
+  color:
+    #455c76;
+  background:
+    #f5f7fa;
+
+  border:
+    1px solid
+    #e3e8ee;
+
+  border-radius:
+    9px;
+
+  text-decoration:
+    none;
+}
+
+.shell :global(.tutor-material-student-tabs a strong) {
+  font-size: 10.5px;
+}
+
+.shell :global(.tutor-material-student-tabs a span) {
+  color:
+    #8390a1;
+
+  font-size: 8.5px;
+}
+
+.shell :global(.tutor-material-student-tabs a.is-active) {
+  color:
+    #1f4f91;
+  background:
+    #edf4ff;
+
+  border-color:
+    #cbdcf4;
+}
+
+.shell :global(.tutor-material-workspace-head) {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin:
+    25px 0
+    16px;
+}
+
+.shell :global(.tutor-material-workspace-head h2) {
+  margin:
+    4px 0 3px;
+
+  color:
+    var(--tutor-text);
+
+  font-size: 25px;
+}
+
+.shell :global(.tutor-material-workspace-head p) {
+  margin: 0;
+
+  color:
+    #758398;
+
+  font-size: 11px;
+}
+
+.shell :global(.tutor-material-summary) {
+  display: flex;
+
+  gap: 8px;
+}
+
+.shell :global(.tutor-material-summary > div) {
+  min-width:
+    105px;
+
+  padding:
+    10px 12px;
+
+  background:
+    #fff;
+
+  border:
+    1px solid
+    var(--tutor-border);
+
+  border-radius:
+    10px;
+}
+
+.shell :global(.tutor-material-summary span) {
+  display: block;
+
+  color:
+    #8390a1;
+
+  font-size: 7.5px;
+  font-weight: 800;
+
+  text-transform: uppercase;
+}
+
+.shell :global(.tutor-material-summary strong) {
+  display: block;
+
+  margin-top: 3px;
+
+  color:
+    var(--tutor-text);
+
+  font-size: 18px;
+}
+
+.shell :global(.tutor-material-main-grid) {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0,1.5fr)
+    minmax(310px,.65fr);
+
+  gap: 17px;
+
+  align-items: start;
+}
+
+.shell :global(.tutor-material-primary),
+.shell :global(.tutor-material-side) {
+  display: grid;
+
+  gap: 17px;
+}
+
+.shell :global(.tutor-material-side) {
+  position: sticky;
+
+  top: 22px;
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+.shell :global(.tutor-mobile-menu-button) {
+  display: none;
+}
+
+@media (max-width: 1150px) {
+  .shell :global(.tutor-command-grid) {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0,1fr)
+      );
+  }
+
+  .shell :global(.tutor-material-main-grid) {
+    grid-template-columns:
+      minmax(0,1.25fr)
+      minmax(280px,.75fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .shell:global(.tutor-app) {
+    display: block;
+  }
+
+  .shell :global(.tutor-sidebar) {
+    position: sticky;
+
+    z-index: 50;
+
+    top: 0;
+
+    width: 100%;
+    height: auto;
+
+    padding:
+      12px 18px;
+  }
+
+  .shell :global(.tutor-sidebar-brand) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding:
+      0;
+
+    border: 0;
+  }
+
+  .shell :global(.tutor-sidebar-brand small) {
+    display: none;
+  }
+
+  .shell :global(.tutor-mobile-menu-button) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+
+    margin-top:
+      10px;
+
+    padding:
+      8px 10px;
+
+    color:
+      #dce7f4;
+    background:
+      rgba(255,255,255,.06);
+
+    border:
+      1px solid
+      rgba(255,255,255,.08);
+
+    border-radius:
+      8px;
+
+    font-size: 10px;
+  }
+
+  .shell :global(.tutor-sidebar-content) {
+    display: none;
+  }
+
+  .shell :global(.tutor-sidebar-content.is-open) {
+    display: flex;
+
+    max-height:
+      calc(100vh - 105px);
+
+    overflow-y:
+      auto;
+  }
+
+  .shell :global(.tutor-sidebar-footer) {
+    margin-top:
+      8px;
+  }
+
+  .shell :global(.tutor-page) {
+    width:
+      min(
+        100% - 34px,
+        1420px
+      );
+
+    padding:
+      25px 0
+      60px;
+  }
+
+  .shell :global(.tutor-material-main-grid) {
+    grid-template-columns:
+      1fr;
+  }
+
+  .shell :global(.tutor-material-side) {
+    position: static;
+  }
+}
+
+@media (max-width: 700px) {
+  .shell :global(.tutor-metrics),
+  .shell :global(.tutor-card-grid),
+  .shell :global(.tutor-grid-2),
+  .shell :global(.tutor-command-grid) {
+    grid-template-columns:
+      1fr;
+  }
+
+  .shell :global(.tutor-page-head),
+  .shell :global(.tutor-material-workspace-head) {
+    display: grid;
+
+    align-items: start;
+  }
+
+  .shell :global(.tutor-material-selector) {
+    grid-template-columns:
+      1fr;
+  }
+
+  .shell :global(.tutor-material-student-tabs) {
+    display: grid;
+
+    grid-template-columns:
+      1fr;
+  }
+
+  .shell :global(.tutor-material-summary) {
+    width: 100%;
+  }
+
+  .shell :global(.tutor-material-summary > div) {
+    flex: 1;
+  }
+
+  .shell :global(.tutor-student-actions) {
+    display: grid;
+  }
+
+  .shell :global(.tutor-student-actions a) {
+    width: 100%;
+  }
+}

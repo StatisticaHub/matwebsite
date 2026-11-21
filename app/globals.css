@@ -848,3 +848,415 @@ body:has(.student-portal-shell) main{min-height:100vh}
   color:var(--muted);
   line-height:1.6;
 }
+
+
+/* ============================================================
+   STUDENT LEARNING WORKSPACE 2026
+   ============================================================ */
+
+.student-portal-shell {
+  --portal-navy: #0b2039;
+  --portal-blue: #245bb9;
+  --portal-soft-blue: #edf4ff;
+  --portal-copy: #203852;
+  --portal-muted: #6d7c8f;
+  --portal-border: #dde5ee;
+}
+
+
+/* Top workspace navigation */
+
+.student-portal-shell .portal-topbar {
+  min-height: 68px;
+
+  background:
+    rgba(255, 255, 255, .97);
+
+  border-bottom:
+    1px solid #dce4ed;
+
+  box-shadow:
+    0 4px 18px
+    rgba(20, 42, 68, .035);
+}
+
+.student-portal-shell .portal-upgrade-nav {
+  gap: 4px;
+
+  padding: 4px;
+
+  background: #f4f6f8;
+
+  border-radius: 10px;
+}
+
+.student-portal-shell .portal-upgrade-nav a {
+  padding:
+    7px 9px;
+
+  border-radius: 7px;
+
+  color: #667689;
+
+  font-size: 9.5px;
+  font-weight: 750;
+
+  transition:
+    color .15s ease,
+    background .15s ease;
+}
+
+.student-portal-shell .portal-upgrade-nav a:hover {
+  color: #254c7c;
+  background: #fff;
+}
+
+
+/* Main learner workspace */
+
+.student-portal-shell .portal-page {
+  width:
+    min(
+      1260px,
+      calc(100% - 48px)
+    );
+
+  padding-top: 34px;
+}
+
+.student-portal-shell .portal-welcome {
+  align-items: center;
+
+  margin-bottom: 18px;
+
+  padding:
+    28px 30px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #f7faff 100%
+    );
+
+  border:
+    1px solid
+    var(--portal-border);
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 10px 30px
+    rgba(20, 48, 80, .04);
+}
+
+.student-portal-shell .portal-welcome h1 {
+  font-size:
+    clamp(
+      36px,
+      4vw,
+      51px
+    );
+}
+
+.student-portal-shell .portal-welcome p {
+  color:
+    var(--portal-muted);
+}
+
+.student-portal-shell .portal-progress-card {
+  border:
+    1px solid
+    rgba(255, 255, 255, .08);
+
+  box-shadow:
+    0 16px 34px
+    rgba(11, 31, 58, .16);
+}
+
+
+/* Cards */
+
+.student-portal-shell .portal-panel,
+.student-portal-shell .portal-summary-grid,
+.student-portal-shell .portal-upgrade-next-session,
+.student-portal-shell .portal-upgrade-next-action {
+  border-color:
+    var(--portal-border);
+
+  box-shadow:
+    0 7px 24px
+    rgba(20, 48, 80, .035);
+}
+
+.student-portal-shell .portal-panel {
+  border-radius: 16px;
+}
+
+.student-portal-shell .portal-panel-head h2 {
+  color:
+    var(--portal-navy);
+}
+
+
+/* ============================================================
+   MATERIALS WORKSPACE
+   ============================================================ */
+
+.portal-learning-materials-panel {
+  scroll-margin-top: 95px;
+}
+
+.portal-materials-heading {
+  align-items: flex-start;
+}
+
+.portal-materials-heading > div:first-child {
+  max-width: 650px;
+}
+
+.portal-materials-heading p {
+  margin:
+    7px 0 0;
+
+  color: #718095;
+
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.portal-material-counts {
+  display: flex;
+
+  gap: 8px;
+}
+
+.portal-material-counts > div {
+  min-width: 88px;
+
+  box-sizing: border-box;
+
+  padding:
+    9px 11px;
+
+  background: #f5f8fc;
+
+  border:
+    1px solid #e3e9f0;
+
+  border-radius: 10px;
+}
+
+.portal-material-counts span {
+  display: block;
+
+  color: #8693a3;
+
+  font-size: 7.5px;
+  font-weight: 800;
+
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.portal-material-counts strong {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #203a58;
+
+  font-size: 17px;
+}
+
+.portal-material-workspace-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.4fr)
+    minmax(290px, .65fr);
+
+  gap: 18px;
+
+  align-items: start;
+
+  margin-top: 18px;
+}
+
+.portal-material-library {
+  min-width: 0;
+
+  padding:
+    0 16px;
+
+  border:
+    1px solid #e3e9f0;
+
+  border-radius: 13px;
+}
+
+.portal-material-library-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  padding:
+    15px 0 12px;
+
+  border-bottom:
+    1px solid #e8edf3;
+}
+
+.portal-material-library-head > div {
+  display: grid;
+
+  gap: 2px;
+}
+
+.portal-material-library-head strong {
+  color: #29415d;
+
+  font-size: 11px;
+}
+
+.portal-material-library-head span {
+  color: #8793a3;
+
+  font-size: 9px;
+}
+
+.portal-material-upload {
+  position: sticky;
+
+  top: 92px;
+}
+
+
+/* Existing Resources become secondary to actual files */
+
+.student-portal-shell #resources {
+  scroll-margin-top: 95px;
+}
+
+.student-portal-shell #resources .portal-resource-list {
+  margin-top: 4px;
+}
+
+
+/* More workspace-like action cards */
+
+.student-portal-shell .portal-upgrade-action-grid {
+  margin-bottom: 18px;
+}
+
+.student-portal-shell .portal-upgrade-next-session,
+.student-portal-shell .portal-upgrade-next-action {
+  border-radius: 15px;
+}
+
+.student-portal-shell .portal-upgrade-next-session h2 {
+  color:
+    var(--portal-navy);
+}
+
+
+/* ============================================================
+   RESPONSIVE STUDENT WORKSPACE
+   ============================================================ */
+
+@media (max-width: 1000px) {
+  .portal-material-workspace-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .portal-material-upload {
+    position: static;
+  }
+
+  .student-portal-shell .portal-upgrade-nav {
+    overflow-x: auto;
+
+    max-width: 55vw;
+
+    justify-content: flex-start;
+
+    scrollbar-width: none;
+  }
+
+  .student-portal-shell .portal-upgrade-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .student-portal-shell .portal-upgrade-nav a {
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 760px) {
+  .student-portal-shell .portal-page {
+    width:
+      calc(100% - 28px);
+
+    padding-top: 20px;
+  }
+
+  .student-portal-shell .portal-welcome {
+    padding:
+      21px 19px;
+  }
+
+  .student-portal-shell .portal-topbar {
+    position: static;
+
+    flex-wrap: wrap;
+
+    padding:
+      12px 14px;
+  }
+
+  .student-portal-shell .portal-upgrade-nav {
+    order: 3;
+
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .student-portal-shell .portal-topbar-meta {
+    margin-left: auto;
+  }
+
+  .portal-materials-heading {
+    display: grid;
+
+    gap: 12px;
+  }
+
+  .portal-material-counts {
+    width: 100%;
+  }
+
+  .portal-material-counts > div {
+    flex: 1;
+  }
+
+  .portal-material-library {
+    padding:
+      0 12px;
+  }
+}
+
+@media (max-width: 520px) {
+  .student-portal-shell .portal-topbar-meta span {
+    display: none;
+  }
+
+  .portal-material-counts {
+    display: grid;
+
+    grid-template-columns:
+      1fr 1fr;
+  }
+}

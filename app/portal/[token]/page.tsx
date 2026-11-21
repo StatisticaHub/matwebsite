@@ -1,5 +1,13 @@
 import type { Metadata } from "next";
 
+import LearningMaterialUploadForm from "@/components/LearningMaterialUploadForm";
+
+import LearningMaterialsList, {
+  type LearningMaterialListItem,
+} from "@/components/LearningMaterialsList";
+
+import { createAdminClient } from "@/lib/supabase/admin";
+
 
 import HomeworkSubmissionForm from "@/components/HomeworkSubmissionForm";
 import SessionRequestForm from "@/components/SessionRequestForm";
@@ -278,6 +286,85 @@ export default async function StudentPortalPage({
     progressReports,
   } = context;
 
+  /*
+   * Secure uploaded learning files.
+   *
+   * getPortalContext() has already validated the student's
+   * private portal token before this query is reached.
+   */
+  let learningMaterials:
+    LearningMaterialListItem[] =
+      [];
+
+  if (engagement) {
+    const materialClient =
+      createAdminClient();
+
+    const {
+      data:
+        learningMaterialData,
+      error:
+        learningMaterialError,
+    } =
+      await materialClient
+        .from(
+          "learning_materials",
+        )
+        .select(
+          "id,created_at,title,description,category,uploaded_by_role,original_filename,mime_type,size_bytes,session_id",
+        )
+        .eq(
+          "student_id",
+          student.id,
+        )
+        .eq(
+          "engagement_id",
+          engagement.id,
+        )
+        .eq(
+          "visible_to_student",
+          true,
+        )
+        .eq(
+          "status",
+          "active",
+        )
+        .order(
+          "created_at",
+          {
+            ascending: false,
+          },
+        );
+
+    if (learningMaterialError) {
+      console.error(
+        "Could not load portal learning materials:",
+        learningMaterialError.message,
+      );
+    } else {
+      learningMaterials =
+        (
+          learningMaterialData ||
+          []
+        ) as LearningMaterialListItem[];
+    }
+  }
+
+  const tutorSharedMaterials =
+    learningMaterials.filter(
+      (item) =>
+        item.uploaded_by_role !==
+        "student",
+    );
+
+  const studentSharedMaterials =
+    learningMaterials.filter(
+      (item) =>
+        item.uploaded_by_role ===
+        "student",
+    );
+
+
 
   const now =
     Date.now();
@@ -450,6 +537,10 @@ export default async function StudentPortalPage({
             Homework
           </a>
 
+          <a href="#materials">
+            Materials
+          </a>
+
           <a href="#resources">
             Resources
           </a>
@@ -501,7 +592,7 @@ export default async function StudentPortalPage({
 
             <p>
               {engagement
-                ? `Everything for your ${engagement.subject} tutoring is collected here — sessions, tutor notes, homework, resources and support.`
+                ? `Everything for your ${engagement.subject} tutoring is collected here — sessions, tutor notes, homework, private files, resources and support.`
                 : "Your tutoring team is preparing your learning record."}
             </p>
 
@@ -2164,6 +2255,125 @@ export default async function StudentPortalPage({
                    ========================================================== */}
 
                 <section
+                  className="portal-panel portal-learning-materials-panel"
+                  id="materials"
+                >
+
+                  <div className="portal-panel-head portal-materials-heading">
+
+                    <div>
+                      <span className="portal-kicker">
+                        Your learning workspace
+                      </span>
+
+                      <h2>
+                        Materials & files
+                      </h2>
+
+                      <p>
+                        Keep worksheets,
+                        tutor notes,
+                        datasets, slides
+                        and your own work
+                        together with your
+                        tutoring record.
+                      </p>
+                    </div>
+
+
+                    <div className="portal-material-counts">
+
+                      <div>
+                        <span>
+                          From tutor
+                        </span>
+
+                        <strong>
+                          {
+                            tutorSharedMaterials.length
+                          }
+                        </strong>
+                      </div>
+
+                      <div>
+                        <span>
+                          Your uploads
+                        </span>
+
+                        <strong>
+                          {
+                            studentSharedMaterials.length
+                          }
+                        </strong>
+                      </div>
+
+                    </div>
+
+                  </div>
+
+
+                  <div className="portal-material-workspace-grid">
+
+                    <div className="portal-material-library">
+
+                      <div className="portal-material-library-head">
+
+                        <div>
+                          <strong>
+                            Shared files
+                          </strong>
+
+                          <span>
+                            Tutor materials
+                            and your uploads
+                          </span>
+                        </div>
+
+                        <span>
+                          {
+                            learningMaterials.length
+                          }{" "}
+                          total
+                        </span>
+
+                      </div>
+
+
+                      <LearningMaterialsList
+                        materials={
+                          learningMaterials
+                        }
+                        viewerRole="student"
+                        downloadBaseUrl={`/api/portal/${encodeURIComponent(
+                          token
+                        )}/materials`}
+                        emptyText="Your tutor can share worksheets, notes, slides, datasets and other learning material here."
+                      />
+
+                    </div>
+
+
+                    <aside className="portal-material-upload">
+
+                      <LearningMaterialUploadForm
+                        role="student"
+                        endpoint={`/api/portal/${encodeURIComponent(
+                          token
+                        )}/materials`}
+                        engagementId={
+                          engagement.id
+                        }
+                        defaultCategory="submission"
+                      />
+
+                    </aside>
+
+                  </div>
+
+                </section>
+
+
+                <section
                   className="portal-panel"
                   id="resources"
                 >
@@ -2176,7 +2386,7 @@ export default async function StudentPortalPage({
                       </span>
 
                       <h2>
-                        Resources
+                        Links & references
                       </h2>
                     </div>
 
@@ -2246,8 +2456,7 @@ export default async function StudentPortalPage({
 
                     {!resources.length && (
                       <div className="portal-empty">
-                        Shared materials
-                        will appear here.
+                        Useful links and references shared by your tutoring team will appear here.
                       </div>
                     )}
 

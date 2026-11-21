@@ -1,0 +1,452 @@
+.uploadForm {
+  display: grid;
+  gap: 14px;
+
+  padding: 18px;
+
+  background: #ffffff;
+
+  border: 1px solid #dfe6ef;
+  border-radius: 14px;
+}
+
+.compact {
+  padding: 15px;
+}
+
+.uploadIntro {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 14px;
+}
+
+.uploadIntro h3 {
+  margin: 3px 0 0;
+
+  color: #162b45;
+
+  font-size: 17px;
+  line-height: 1.25;
+}
+
+.eyebrow {
+  color: #386ac4;
+
+  font-size: 9px;
+  font-weight: 850;
+
+  letter-spacing: .09em;
+}
+
+.privateBadge {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 5px 8px;
+
+  color: #55708d;
+  background: #f0f4f8;
+
+  border-radius: 999px;
+
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.uploadHelp {
+  margin: -3px 0 0;
+
+  color: #6d7c8f;
+
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.fileDrop {
+  display: grid;
+  gap: 6px;
+
+  padding: 17px;
+
+  background: #f8fafd;
+
+  border: 1px dashed #b9c9db;
+  border-radius: 11px;
+
+  cursor: pointer;
+}
+
+.fileDrop > span {
+  color: #28425f;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.fileDrop input {
+  width: 100%;
+
+  color: #53657a;
+
+  font-size: 10px;
+}
+
+.fileDrop small {
+  color: #8793a3;
+
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.25fr)
+    minmax(160px, .75fr);
+
+  gap: 11px;
+}
+
+.uploadForm label:not(.fileDrop) {
+  display: grid;
+  gap: 6px;
+}
+
+.uploadForm label:not(.fileDrop) > span {
+  color: #536278;
+
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.uploadForm label small {
+  color: #8c97a6;
+
+  font-size: 9px;
+  font-weight: 500;
+}
+
+.uploadForm input:not([type="file"]),
+.uploadForm select,
+.uploadForm textarea {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 10px 11px;
+
+  color: #21364f;
+  background: #fff;
+
+  border: 1px solid #d2dce8;
+  border-radius: 9px;
+
+  outline: none;
+
+  font: inherit;
+  font-size: 11px;
+}
+
+.uploadForm input:focus,
+.uploadForm select:focus,
+.uploadForm textarea:focus {
+  border-color: #7399d4;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(69, 116, 190, .1);
+}
+
+.uploadForm textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.uploadButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 40px;
+
+  padding: 10px 15px;
+
+  color: white;
+  background: #174ba8;
+
+  border: 0;
+  border-radius: 9px;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.uploadButton:hover:not(:disabled) {
+  background: #123f91;
+}
+
+.uploadButton:disabled {
+  opacity: .65;
+  cursor: wait;
+}
+
+.message {
+  padding: 10px 11px;
+
+  border-radius: 8px;
+
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.success {
+  color: #226640;
+  background: #edf8f1;
+
+  border: 1px solid #c7e6d1;
+}
+
+.error {
+  color: #933a35;
+  background: #fff0ef;
+
+  border: 1px solid #efc8c4;
+}
+
+.progress {
+  color: #375a87;
+  background: #eff5ff;
+
+  border: 1px solid #ccdcf3;
+}
+
+
+/* ==========================================================
+   MATERIAL LIST
+   ========================================================== */
+
+.materialList {
+  display: grid;
+}
+
+.materialRow {
+  display: grid;
+  grid-template-columns:
+    42px
+    minmax(0, 1fr)
+    auto;
+
+  gap: 13px;
+  align-items: center;
+
+  padding: 14px 0;
+
+  border-top: 1px solid #e9eef4;
+}
+
+.materialRow:first-child {
+  border-top: 0;
+}
+
+.fileIcon {
+  display: grid;
+  place-items: center;
+
+  width: 42px;
+  height: 42px;
+
+  color: #45617f;
+  background: #eef3f8;
+
+  border-radius: 9px;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  overflow: hidden;
+}
+
+.materialCopy {
+  min-width: 0;
+}
+
+.materialTop {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 8px;
+}
+
+.materialTop > strong {
+  min-width: 0;
+
+  color: #283e58;
+
+  font-size: 12px;
+  line-height: 1.35;
+
+  overflow-wrap: anywhere;
+}
+
+.studentBadge,
+.tutorBadge {
+  display: inline-flex;
+
+  padding: 4px 7px;
+
+  border-radius: 999px;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  white-space: nowrap;
+}
+
+.studentBadge {
+  color: #72551f;
+  background: #fff4da;
+}
+
+.tutorBadge {
+  color: #285a98;
+  background: #edf4ff;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 4px 9px;
+
+  margin-top: 5px;
+}
+
+.meta span {
+  position: relative;
+
+  color: #8995a5;
+
+  font-size: 8.5px;
+  line-height: 1.35;
+}
+
+.meta span:not(:last-child)::after {
+  content: "·";
+
+  position: absolute;
+  right: -6px;
+}
+
+.description {
+  margin: 7px 0 0;
+
+  color: #68778a;
+
+  font-size: 10.5px;
+  line-height: 1.55;
+
+  white-space: pre-wrap;
+}
+
+.downloadButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 33px;
+
+  padding: 7px 10px;
+
+  color: #174ba8;
+  background: #edf3ff;
+
+  border-radius: 8px;
+
+  text-decoration: none;
+
+  font-size: 9.5px;
+  font-weight: 800;
+
+  white-space: nowrap;
+}
+
+.downloadButton:hover {
+  background: #e1ebfc;
+}
+
+.empty {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 18px 0;
+
+  color: #758397;
+}
+
+.emptyIcon {
+  display: grid;
+  place-items: center;
+
+  width: 38px;
+  height: 38px;
+
+  flex: 0 0 auto;
+
+  background: #f0f3f7;
+
+  border-radius: 9px;
+
+  color: #8793a3;
+
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.empty strong {
+  display: block;
+
+  color: #526279;
+
+  font-size: 11px;
+}
+
+.empty p {
+  margin: 3px 0 0;
+
+  color: #8490a0;
+
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+
+@media (max-width: 700px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .materialRow {
+    grid-template-columns:
+      38px
+      minmax(0, 1fr);
+
+    align-items: start;
+  }
+
+  .fileIcon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .downloadButton {
+    grid-column: 2;
+
+    width: max-content;
+  }
+}
