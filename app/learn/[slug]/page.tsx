@@ -292,7 +292,7 @@ function ResourcePage({ slug }: { slug: string }) {
 
           <div className="learning-tutoring-links">
             <div>
-              <div className="eyebrow">CONTINUE WITH PERSONALISED SUPPORT</div>
+              <div className="eyebrow">CONTINUE WITH A TUTOR</div>
               <h2>Work through this topic in the context of your own course.</h2>
               <p>One-to-one tutoring can adapt the same idea to your notation, dataset, software, exam style or research question.</p>
             </div>

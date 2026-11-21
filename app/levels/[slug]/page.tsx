@@ -23,120 +23,120 @@ type LevelContent = {
 const levelContent: Record<string, LevelContent> = {
   "school-secondary": {
     title:
-      "Online Secondary School Tutoring | Personalised 1:1 Support",
+      "Online Secondary School Tutoring | One-to-One Subject Help",
     description:
-      "Personalised online tutoring for secondary-school students. Build stronger foundations, confidence and study habits through clear one-to-one teaching.",
+      "One-to-one online tutoring for secondary-school students who need clearer explanations, more practice and stronger subject foundations.",
     hero:
-      "Personalised online tutoring for secondary-school students.",
+      "One-to-one tutoring for secondary-school students who need a clearer explanation.",
     intro:
-      "Build strong foundations before small gaps become bigger problems. Sessions focus on understanding, confidence and steady academic progress.",
+      "If a topic has stopped making sense, we slow it down, rebuild the missing foundations and practise until the student feels more confident using the method.",
     benefits: [
-      "Patient explanations at the right pace",
-      "Support with difficult school topics",
-      "Guided practice rather than supplied answers",
-      "Stronger confidence and study habits",
+      "Patient explanations without rushing",
+      "Help with difficult school topics and homework concepts",
+      "Practice that checks real understanding",
+      "Stronger foundations for later study",
     ],
   },
 
   "gcse-igcse": {
     title:
-      "Online GCSE & IGCSE Tutoring | Personalised 1:1 Support",
+      "Online GCSE & IGCSE Tutoring | One-to-One Exam & Subject Help",
     description:
-      "Online GCSE and IGCSE tutoring with personalised one-to-one support for difficult topics, exam preparation, revision and past-paper practice.",
+      "One-to-one online GCSE and IGCSE tutoring for difficult topics, revision, exam technique and past-paper practice.",
     hero:
-      "Online GCSE and IGCSE tutoring built around understanding and exam confidence.",
+      "GCSE and IGCSE tutoring for difficult topics, revision and exam practice.",
     intro:
-      "Strengthen difficult topics, improve problem-solving and prepare for assessments with tutoring that combines clear teaching and purposeful exam practice.",
+      "Bring the topics you find hardest, then use the session to understand the method, practise exam-style questions and improve how you show your working.",
     benefits: [
-      "Identify and close topic gaps",
-      "Practise exam-style questions",
-      "Improve method and working",
-      "Build a focused revision strategy",
+      "Find the topics that are costing you marks",
+      "Work through exam-style and past-paper questions",
+      "Improve method, working and exam technique",
+      "Use revision time more effectively",
     ],
   },
 
   "a-level-ib": {
     title:
-      "Online A-Level & IB Tutoring | Personalised 1:1 Support",
+      "Online A-Level & IB Tutoring | One-to-One Subject Tutoring",
     description:
-      "Personalised online A-Level and IB tutoring for advanced concepts, problem-solving, coursework understanding and exam preparation.",
+      "One-to-one online A-Level and IB tutoring for advanced concepts, problem-solving, coursework understanding and exam preparation.",
     hero:
-      "One-to-one A-Level and IB tutoring for demanding academic study.",
+      "A-Level and IB tutoring for subjects that need more than a quick explanation.",
     intro:
-      "Develop deeper subject understanding and the confidence to apply advanced methods independently in lessons, coursework and examinations.",
+      "At this level, topics connect quickly and small gaps can make later work much harder. Sessions focus on understanding the reasoning, applying the method and handling unfamiliar questions.",
     benefits: [
-      "Advanced concept explanation",
-      "Structured problem-solving",
-      "Exam and assessment preparation",
-      "Independent academic reasoning",
+      "Clear explanations of advanced topics",
+      "Multi-step and unfamiliar problem-solving",
+      "Exams, coursework concepts and assessment preparation",
+      "Explaining and justifying your reasoning",
     ],
   },
 
   "ap-us-high-school": {
     title:
-      "Online AP & US High School Tutoring | 1:1 Academic Support",
+      "Online AP & US High School Tutoring | One-to-One Help",
     description:
-      "Personalised online tutoring for AP and US high-school students across quantitative, technical and science subjects.",
+      "One-to-one online tutoring for AP and US high-school students across mathematics, science, statistics, computing and technical subjects.",
     hero:
-      "Online AP and US high-school tutoring tailored to your course.",
+      "AP and US high-school tutoring that follows the course you are actually taking.",
     intro:
-      "Work through demanding concepts, practise course-style questions and strengthen the foundations needed for tests and future study.",
+      "Bring the unit, assignment topic or test material you are working on. Sessions can revisit the concept, work through course-style questions and build the foundations needed for the next topic.",
     benefits: [
-      "Course-specific concept support",
-      "AP-style practice questions",
-      "Test and assessment preparation",
-      "Stronger academic confidence",
+      "Help with the concepts in your current course",
+      "AP-style and course-style practice",
+      "Quiz, test and exam preparation",
+      "Stronger foundations for the next unit",
     ],
   },
 
   undergraduate: {
     title:
-      "Online University Tutoring | Undergraduate 1:1 Academic Support",
+      "Online University Tutoring | Undergraduate One-to-One Help",
     description:
-      "Online undergraduate tutoring for university modules, mathematics, statistics, coding, data science, science and technical subjects.",
+      "One-to-one undergraduate tutoring for university modules in mathematics, statistics, coding, data science, science and technical subjects.",
     hero:
-      "Personalised university tutoring for difficult undergraduate modules.",
+      "One-to-one university tutoring for difficult modules, methods and problem sheets.",
     intro:
-      "Use one-to-one tutoring to understand lectures, work through difficult methods and build the skills needed for assignments, problem sheets and examinations.",
+      "Bring your lecture notes, module topics or problem sheets. Your tutor can unpack difficult notation, explain the method at university level and help you practise similar problems before assessments.",
     benefits: [
-      "Difficult university modules",
-      "Problem sheets and technical exercises",
-      "Statistics, mathematics and coding",
-      "Exam and assessment preparation",
+      "Modules that are moving faster than your understanding",
+      "Problem sheets, calculations and technical exercises",
+      "Mathematics, statistics, coding and data analysis",
+      "Exams, coursework concepts and assessment preparation",
     ],
   },
 
   masters: {
     title:
-      "Master's Tutoring Online | Statistics, Data Science & Research Support",
+      "Master's Tutoring Online | Statistics, Data Science & Research Methods",
     description:
-      "Personalised online Master's tutoring for advanced statistics, research methods, data science, programming, quantitative modules and dissertation preparation.",
+      "One-to-one Master's tutoring for advanced statistics, research methods, data science, programming, quantitative modules and dissertation preparation.",
     hero:
-      "Specialist one-to-one tutoring for Master's students.",
+      "Master's tutoring for advanced methods, coding and research-heavy modules.",
     intro:
-      "Postgraduate courses can move quickly from foundations to advanced methods. Get focused support with statistics, quantitative methods, coding, research design and complex technical modules.",
+      "Master's courses often move quickly and assume knowledge from several earlier topics at once. Sessions can slow down an advanced method, connect it back to the foundations and help you apply it correctly in software or analysis.",
     benefits: [
-      "Advanced statistics and quantitative methods",
-      "Research methods and study design",
-      "R, Python and data-analysis support",
-      "Dissertation and research preparation",
+      "Advanced statistical and quantitative methods",
+      "Research design, methodology and interpretation",
+      "R, Python and analytical workflows",
+      "Dissertation methods and analysis preparation",
     ],
   },
 
   "phd-research": {
     title:
-      "PhD & Research Methods Tutoring | Statistical and Analytical Support",
+      "PhD & Research Methods Tutoring | Statistics & Methodology",
     description:
-      "Specialist one-to-one tutoring for PhD students and researchers covering statistical methods, analysis strategy, reproducibility and interpretation.",
+      "One-to-one methodological tutoring for PhD students and researchers covering statistical methods, analysis strategy, reproducibility and interpretation.",
     hero:
-      "Specialist methodological tutoring for PhD students and researchers.",
+      "Methodological tutoring for PhD students and researchers.",
     intro:
-      "Discuss advanced methods with someone who can help you understand assumptions, analysis strategy, interpretation and reproducible workflows without taking ownership of your research.",
+      "Use sessions to think through a method, test your understanding of its assumptions, discuss analysis choices and make sense of results. The research decisions and written work remain yours.",
     benefits: [
-      "Advanced statistical methods",
-      "Analysis strategy and methodology",
-      "Reproducible analytical workflows",
-      "Interpretation and methodological reasoning",
+      "Advanced statistical and analytical methods",
+      "Method choice and analysis strategy",
+      "Reproducible R, Python or statistical workflows",
+      "Interpretation, assumptions and methodological reasoning",
     ],
   },
 
@@ -144,16 +144,16 @@ const levelContent: Record<string, LevelContent> = {
     title:
       "Online Professional Tutoring | Technical & Analytical Skills",
     description:
-      "Flexible one-to-one tutoring for professionals learning statistics, mathematics, programming, data analysis and other technical skills.",
+      "One-to-one tutoring for professionals learning statistics, mathematics, programming, data analysis and other technical skills.",
     hero:
-      "Flexible technical tutoring for professional development.",
+      "One-to-one technical tutoring built around the skill you need to use at work.",
     intro:
-      "Develop practical analytical and technical skills through personalised teaching built around your work, goals and existing experience.",
+      "Bring the analysis, software or technical skill you need to understand. Sessions start from your existing experience and focus on practical use rather than covering material you already know.",
     benefits: [
       "Statistics and data analysis",
       "Programming and software skills",
       "Applied quantitative methods",
-      "Professional upskilling",
+      "Practical skills you can use at work",
     ],
   },
 };
@@ -385,11 +385,11 @@ export default async function Page({
 
           <aside className="card detail-card">
             <div className="eyebrow">
-              COMMON SUPPORT
+              WHAT WE CAN WORK ON
             </div>
 
             <h3>
-              Tutoring shaped around the work you are doing now.
+              Bring the work you are doing now.
             </h3>
 
             <ul className="check-list">
@@ -409,19 +409,18 @@ export default async function Page({
         <div className="shell two-col">
           <div>
             <div className="eyebrow">
-              HOW WE TEACH
+              HOW SESSIONS WORK
             </div>
 
             <h2>
-              The depth of tutoring changes with the academic level.
+              The explanation should match the level of your course.
             </h2>
 
             <p>
-              A student at this stage needs more than
-              generic explanation. Sessions adapt to
-              the terminology, methods, assessment
-              style and level of independence expected
-              in your course.
+              We use the terminology, methods and
+              assessment style you are actually working
+              with, then adapt the pace and explanation
+              to what you need.
             </p>
 
             <div className="mini-timeline">
@@ -429,8 +428,8 @@ export default async function Page({
                 <span>1</span>
 
                 <p>
-                  Identify the exact concept,
-                  method or skill causing difficulty.
+                  Start with the exact concept,
+                  method or skill causing trouble.
                 </p>
               </div>
 
@@ -438,8 +437,8 @@ export default async function Page({
                 <span>2</span>
 
                 <p>
-                  Explain it at the appropriate
-                  academic depth.
+                  Explain it at the level your
+                  course actually expects.
                 </p>
               </div>
 
@@ -447,7 +446,7 @@ export default async function Page({
                 <span>3</span>
 
                 <p>
-                  Apply it through examples,
+                  Work through examples,
                   questions or technical practice.
                 </p>
               </div>
@@ -456,8 +455,8 @@ export default async function Page({
                 <span>4</span>
 
                 <p>
-                  Build enough understanding to
-                  use the method independently.
+                  Practise until you can use
+                  the idea with less help.
                 </p>
               </div>
             </div>
@@ -549,7 +548,7 @@ export default async function Page({
         <div className="shell two-col">
           <div>
             <div className="eyebrow">
-              RESPONSIBLE ACADEMIC SUPPORT
+              ACADEMIC INTEGRITY
             </div>
 
             <h2>
@@ -607,7 +606,7 @@ export default async function Page({
               Share your subject and a short
               description of what you need help
               understanding. We will review the
-              academic context and recommend
+              request and recommend
               suitable one-to-one support.
             </p>
 
@@ -617,7 +616,7 @@ export default async function Page({
               </li>
 
               <li>
-                Support at the correct academic depth
+                Tutoring matched to your course level
               </li>
 
               <li>

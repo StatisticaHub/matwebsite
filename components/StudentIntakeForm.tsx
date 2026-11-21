@@ -56,7 +56,7 @@ export default function StudentIntakeForm({
       <input className="intake-honeypot" name="company" tabIndex={-1} autoComplete="off" aria-hidden="true" />
 
       <section className="intake-form-section">
-        <div><span>01</span><h2>Your course</h2><p>Help us understand the academic context around your tutoring.</p></div>
+        <div><span>01</span><h2>Your course</h2><p>Tell us about your course so your tutor can prepare for the right level and topics.</p></div>
         <div className="intake-fields">
           <label><span>Academic level</span><input name="academicLevel" defaultValue={student.academic_level || ""} placeholder="e.g. MSc / Year 12 / AP" /></label>
           <label><span>Institution or school</span><input name="institution" defaultValue={student.institution || ""} placeholder="University, college or school" /></label>

@@ -4,7 +4,7 @@ export type ConversionFaqItem = {
 };
 
 export default function ConversionFaq({
-  title = "Questions students often ask before starting",
+  title = "Questions students often ask before booking",
   intro,
   items,
 }: {
@@ -16,7 +16,7 @@ export default function ConversionFaq({
     <section className="section conversion-faq-section">
       <div className="shell conversion-faq-shell">
         <div className="conversion-faq-intro">
-          <div className="eyebrow">BEFORE YOU START</div>
+          <div className="eyebrow">COMMON QUESTIONS</div>
           <h2>{title}</h2>
           {intro ? <p className="section-intro">{intro}</p> : null}
         </div>

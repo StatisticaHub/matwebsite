@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "Tutor Standards" };
 export default function Page() {
   return (
     <>
-      <section className="page-hero compact-hero"><div className="shell narrow"><div className="eyebrow">TUTOR STANDARDS</div><h1>The tutor matters because the teaching matters.</h1><p className="page-lead">MAT is designed around subject-appropriate teaching, clear communication, responsible academic support and a practical fit with the student’s level and goals.</p></div></section>
+      <section className="page-hero compact-hero"><div className="shell narrow"><div className="eyebrow">TUTOR STANDARDS</div><h1>A strong tutor knows the subject and knows how to teach it.</h1><p className="page-lead">We look for tutors who can teach the subject at the right level, explain difficult ideas clearly, communicate reliably and adapt when a student needs a different approach.</p></div></section>
       <section className="section"><div className="shell standard-grid">
         <article><h2>Subject depth</h2><p>Tutors should be comfortable with the specific topic and academic level they are supporting, not only a broad subject label.</p></article>
         <article><h2>Teaching ability</h2><p>Knowing a subject is not enough. Tutors should be able to explain, question, demonstrate, listen and adapt when an explanation is not working.</p></article>

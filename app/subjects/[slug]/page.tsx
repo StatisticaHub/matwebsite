@@ -43,13 +43,13 @@ export async function generateMetadata({
     subject.audiences.slice(0, 4).join(", ");
 
   const description =
-    `Online ${subject.name} tutoring with personalised one-to-one support for ${audienceText}. Get help with ${subject.topics
+    `Online ${subject.name} tutoring for ${audienceText}. Get one-to-one help with ${subject.topics
       .slice(0, 4)
       .join(", ")} and more.`;
 
   return {
     title:
-      `Online ${subject.name} Tutor | Personalised 1:1 Tutoring`,
+      `Online ${subject.name} Tutor | One-to-One Tutoring`,
 
     description,
 
@@ -169,7 +169,7 @@ export default async function Page({
             </div>
 
             <h1>
-              Online {subject.name} tutoring built around your level and goals.
+              Online {subject.name} tutoring for the course and level you are studying.
             </h1>
 
             <p className="page-lead">
@@ -177,11 +177,10 @@ export default async function Page({
             </p>
 
             <p>
-              One-to-one support is available for{" "}
+              We can arrange one-to-one tutoring for{" "}
               {subject.audiences.join(", ")} learners.
-              Sessions can focus on individual topics,
-              regular course support, assessment preparation
-              or advanced technical understanding.
+              Bring a single difficult topic, ongoing course work,
+              exam preparation or an advanced technical question.
             </p>
 
             <div className="button-row">
@@ -204,11 +203,11 @@ export default async function Page({
 
           <div className="card detail-card">
             <div className="eyebrow">
-              TOPICS WE CAN SUPPORT
+              TOPICS WE CAN COVER
             </div>
 
             <h3>
-              Start with the exact area you are studying.
+              Start with the topic that is giving you trouble.
             </h3>
 
             <div className="tag-row tags-large">
@@ -235,7 +234,7 @@ export default async function Page({
             </div>
 
             <h2>
-              Move from explanation to independent problem-solving.
+              Understand the method, then practise using it.
             </h2>
 
             <div className="mini-timeline">
@@ -243,8 +242,8 @@ export default async function Page({
                 <span>1</span>
 
                 <p>
-                  Clarify the underlying concept,
-                  notation or method.
+                  Pinpoint the concept, notation
+                  or method that is causing trouble.
                 </p>
               </div>
 
@@ -252,8 +251,8 @@ export default async function Page({
                 <span>2</span>
 
                 <p>
-                  Work through a representative
-                  example step by step.
+                  Work through a useful example
+                  together, step by step.
                 </p>
               </div>
 
@@ -261,9 +260,9 @@ export default async function Page({
                 <span>3</span>
 
                 <p>
-                  Practise a fresh problem with
-                  prompts rather than a supplied
-                  answer.
+                  Try a fresh problem yourself
+                  with prompts and feedback
+                  when you need them.
                 </p>
               </div>
 
@@ -271,9 +270,9 @@ export default async function Page({
                 <span>4</span>
 
                 <p>
-                  Review mistakes, assumptions
-                  and the reasoning you need to
-                  reuse later.
+                  Review mistakes and assumptions,
+                  then finish with a clear idea of
+                  what to practise next.
                 </p>
               </div>
             </div>
@@ -285,7 +284,7 @@ export default async function Page({
             </div>
 
             <h2>
-              Teaching that reflects your academic level.
+              Tutoring that changes with your level.
             </h2>
 
             <div className="audience-list">
@@ -315,8 +314,8 @@ export default async function Page({
         <div className="shell">
           <div className="conversion-section-head">
             <div className="eyebrow">RELATED TUTORING OPTIONS</div>
-            <h2>Choose support around the way you are studying {subject.name.toLowerCase()}.</h2>
-            <p>Start with a specialist route or send the topic directly if you are not sure which type of tutoring fits.</p>
+            <h2>Choose tutoring that fits how you are studying {subject.name.toLowerCase()}.</h2>
+            <p>Choose a focused option below, or simply send us the topic if you are not sure which route fits.</p>
           </div>
           <SubjectRelatedSupport subjectSlug={subject.slug} />
         </div>
@@ -331,14 +330,12 @@ export default async function Page({
               </div>
 
               <h2>
-                Explore a concept before your next session.
+                Review a topic in your own time.
               </h2>
 
               <p className="section-intro">
-                Use our learning resources alongside
-                tutoring to review important ideas and
-                strengthen your understanding between
-                sessions.
+                Use the free guides to revisit important
+                ideas before or after a tutoring session.
               </p>
             </div>
 
@@ -382,7 +379,7 @@ export default async function Page({
 
             <ConversionFaq
         title={`Common questions about ${subject.name.toLowerCase()} tutoring`}
-        intro="A few practical answers before you decide whether one-to-one support is useful for your course."
+        intro="A few practical answers about how one-to-one tutoring can work for this subject."
         items={subjectConversionFaqs(subject)}
       />
 
@@ -390,20 +387,19 @@ export default async function Page({
         <div className="shell lead-section-grid">
           <div>
             <div className="eyebrow">
-              PERSONALISED{" "}
-              {subject.name.toUpperCase()} SUPPORT
+              REQUEST{" "}
+              {subject.name.toUpperCase()} TUTORING
             </div>
 
             <h2>
-              Tell us what you are studying and where you need help.
+              Tell us what you’re studying and where you’re stuck.
             </h2>
 
             <p>
-              Share your academic level and the
-              specific topic or problem you are
-              working on. We will review your
-              requirements and arrange suitable
-              one-to-one support.
+              Send us your level and the specific
+              topic or problem you are working on.
+              We’ll read the request and match you
+              with a suitable tutor.
             </p>
 
             <ul className="check-list">
@@ -412,7 +408,7 @@ export default async function Page({
               </li>
 
               <li>
-                Support matched to your academic level
+                Tutoring matched to your course level
               </li>
 
               <li>

@@ -18,15 +18,15 @@ export default async function HomePage() {
         <div className="shell hero-grid">
           <div className="hero-copy">
             <div className="eyebrow">
-              PERSONALISED, HUMAN-LED ONLINE TUTORING
+              LIVE ONE-TO-ONE ONLINE TUTORING
             </div>
 
             <h1>
-              Specialist one-to-one tutoring for difficult quantitative, technical and research subjects.
+              One-to-one tutoring that starts with what you actually need help with.
             </h1>
 
             <p className="hero-lead">
-              Get personalised help with mathematics, statistics, sciences, computer science, data science, bioinformatics and research methods. Learn the method, practise with guidance and build the confidence to work independently.
+              Tell us your subject, level and the topic that is giving you trouble. We’ll match you with a tutor who can explain it clearly, work through examples with you and help you practise until it makes sense.
             </p>
 
             <div className="button-row">
@@ -50,7 +50,7 @@ export default async function HomePage() {
 
             <div className="trust-row" aria-label="Service highlights">
               <span>Since 2020</span>
-              <span>Human-led specialist matching</span>
+              <span>Tutor matching by subject</span>
               <span>School to PhD & research</span>
               <span>Online worldwide</span>
             </div>
@@ -61,11 +61,11 @@ export default async function HomePage() {
             aria-label="How tutoring works"
           >
             <div className="hero-panel-label">
-              A LESSON BUILT AROUND YOUR UNDERSTANDING
+              A SESSION BUILT AROUND WHAT YOU NEED
             </div>
 
             <h2>
-              From “I don’t understand this” to a method you can use yourself.
+              Start with the part that is not making sense.
             </h2>
 
             <div className="lesson-sequence">
@@ -73,7 +73,7 @@ export default async function HomePage() {
                 <span>01</span>
                 <strong>Clarify</strong>
                 <p>
-                  Identify the exact concept, method or step causing difficulty.
+                  Pinpoint the idea, method or step that is causing trouble.
                 </p>
               </div>
 
@@ -81,7 +81,7 @@ export default async function HomePage() {
                 <span>02</span>
                 <strong>Explain</strong>
                 <p>
-                  Rebuild the idea with an explanation appropriate to your level.
+                  Explain it in a way that fits your course and current level.
                 </p>
               </div>
 
@@ -89,7 +89,7 @@ export default async function HomePage() {
                 <span>03</span>
                 <strong>Practise</strong>
                 <p>
-                  Work through examples and apply the method with guidance.
+                  Work through an example together, then try it with guidance.
                 </p>
               </div>
 
@@ -97,7 +97,7 @@ export default async function HomePage() {
                 <span>04</span>
                 <strong>Progress</strong>
                 <p>
-                  Strengthen understanding and decide what to work on next.
+                  Finish with a clear idea of what you understand and what to practise next.
                 </p>
               </div>
             </div>
@@ -122,14 +122,14 @@ export default async function HomePage() {
         <div className="shell">
           <div className="conversion-section-head">
             <div className="eyebrow">HOW TUTORING WORKS</div>
-            <h2>Tell us the problem. We organise the right support.</h2>
-            <p>We review your academic context and match you with suitable human tutoring, so you can focus on learning rather than browsing tutor profiles.</p>
+            <h2>Tell us what you’re studying. We’ll take it from there.</h2>
+            <p>We look at what you’re studying, where you’re stuck and what you want to achieve, then match you with a tutor who fits.</p>
             <Link href="/tutors" className="text-link">See our tutor standards</Link>
           </div>
           <div className="conversion-journey">
-            <article><span>1</span><h3>Tell us what you need</h3><p>Share your subject, academic level and the exact topic or difficulty.</p></article>
-            <article><span>2</span><h3>We review and match</h3><p>We review your level, topic and goals, then identify a suitable available tutor.</p></article>
-            <article><span>3</span><h3>Start learning one-to-one</h3><p>Work through explanation, examples and guided practice around your priorities.</p></article>
+            <article><span>1</span><h3>Tell us where you’re stuck</h3><p>Tell us your subject, level and the exact topic or problem you want help with.</p></article>
+            <article><span>2</span><h3>We read it and match carefully</h3><p>We look at the topic, level and your goals, then find a suitable available tutor.</p></article>
+            <article><span>3</span><h3>Meet your tutor online</h3><p>Ask questions, work through examples and practise the parts you find difficult.</p></article>
           </div>
         </div>
       </section>
@@ -137,7 +137,7 @@ export default async function HomePage() {
         <section className="section section-soft testimonial-home-section">
           <div className="shell">
             <div className="section-head">
-              <div><div className="eyebrow">STUDENT EXPERIENCES</div><h2>Learning support students can describe in their own words.</h2><p className="section-intro">Approved feedback from students who have used My Academic Tutor. Testimonials are published only with the student’s permission.</p></div>
+              <div><div className="eyebrow">STUDENT EXPERIENCES</div><h2>What students say after working with us.</h2><p className="section-intro">Feedback from students who have used My Academic Tutor, published with their permission.</p></div>
               <Link href="/testimonials" className="text-link">Read all testimonials</Link>
             </div>
             <div className="testimonial-grid testimonial-grid-home">{testimonials.map((item) => <TestimonialCard key={item.id} testimonial={item} />)}</div>
@@ -153,12 +153,12 @@ export default async function HomePage() {
               <div className="eyebrow">SUBJECTS</div>
 
               <h2>
-                Specialist support across quantitative and technical subjects.
+                Find tutoring for the subject you’re studying.
               </h2>
 
               <p className="section-intro">
-                Explore the subject you are studying and the kinds of tutoring
-                available at your level.
+                Choose a subject to see the topics, levels and types of tutoring
+                we can cover.
               </p>
             </div>
 
@@ -195,8 +195,8 @@ export default async function HomePage() {
         <div className="shell">
           <div className="conversion-section-head">
             <div className="eyebrow">POPULAR SPECIALIST SUPPORT</div>
-            <h2>Start with the exact subject, method or software problem.</h2>
-            <p>These focused tutoring pages connect common student needs to the wider subject support available across My Academic Tutor.</p>
+            <h2>Need help with a specific topic, method or software problem?</h2>
+            <p>Start with the problem you have now, then see the related subject tutoring we can arrange.</p>
           </div>
           <HighIntentLinkGrid />
         </div>
@@ -207,12 +207,12 @@ export default async function HomePage() {
           <div className="section-copy-block">
             <div className="eyebrow">CLEAR PRICING</div>
 
-            <h2>One-to-one tutoring from £20 per hour.</h2>
+            <h2>Tutoring starts from £20 an hour.</h2>
 
             <p className="section-intro">
-              The final quotation depends on your subject, course level, tutor
-              specialism and what you need help with. Tell us your requirements
-              and we will confirm the rate before you book.
+              The exact rate depends on the subject, course level and any specialist
+              requirements. Tell us what you need help with and we’ll confirm the
+              price before you book.
             </p>
 
             <TrackedLink
@@ -220,7 +220,7 @@ export default async function HomePage() {
               href="/find-a-tutor"
               trackingId="home_pricing_request_tutoring"
             >
-              Get a tutoring quotation
+              Get a quote
             </TrackedLink>
           </div>
 
@@ -233,13 +233,13 @@ export default async function HomePage() {
             </div>
 
             <p>
-              Get in touch for a quotation based on your course level,
+              Get in touch for a quote based on your course level,
               subject and requirements.
             </p>
 
             <small>
-              No obligation from submitting an enquiry. Your rate is confirmed
-              before tutoring is arranged.
+              Sending an enquiry does not book a lesson. You’ll know the rate
+              before deciding whether to go ahead.
             </small>
           </aside>
         </div>
@@ -250,11 +250,11 @@ export default async function HomePage() {
         <div className="shell lead-section-grid">
           <div className="section-copy-block">
             <div className="eyebrow">
-              PERSONALISED SUPPORT
+              REQUEST TUTORING
             </div>
 
             <h2>
-              Tell us what you need help understanding.
+              Tell us where you’re stuck help understanding.
             </h2>
 
             <p className="section-intro">
@@ -264,10 +264,10 @@ export default async function HomePage() {
             </p>
 
             <ul className="check-list">
-              <li>Choose your subject and academic level</li>
-              <li>Tell us what you need help with</li>
-              <li>We review the academic context</li>
-              <li>You receive suitable tutoring options</li>
+              <li>Choose your subject and level</li>
+              <li>Tell us where you’re stuck help with</li>
+              <li>We read your request</li>
+              <li>We confirm the tutor, price and next step</li>
             </ul>
           </div>
 
@@ -286,12 +286,12 @@ export default async function HomePage() {
               </div>
 
               <h2>
-                Learn something useful before you book a lesson.
+                Start with a free guide before you book a lesson.
               </h2>
 
               <p className="section-intro">
-                Explore free explanations and study resources across statistics,
-                mathematics, data science and research methods.
+                Use our free explanations and study guides when you want to work
+                through a topic on your own first.
               </p>
             </div>
 
@@ -328,11 +328,11 @@ export default async function HomePage() {
             </div>
 
             <h2>
-              Get tutoring built around your learning needs.
+              Tell us what you need help with.
             </h2>
 
             <p>
-              Tell us your subject, level and what you need help with. Tutoring starts from £20/hour, with the final rate confirmed before you book.
+              Tutoring starts from £20 an hour. Tell us your subject, level and what you’re working on, and we’ll confirm the price before you book.
             </p>
           </div>
 
@@ -354,7 +354,7 @@ export default async function HomePage() {
           href="/find-a-tutor"
           trackingId="home_mobile_sticky_request"
         >
-          Request tutoring · from £20/hour
+          Request tutoring · from £20 an hour
         </TrackedLink>
       </div>
 

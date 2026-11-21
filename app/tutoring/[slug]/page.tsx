@@ -132,8 +132,8 @@ function SpecialistPage({
           </div>
 
           <aside className="card detail-card">
-            <div className="eyebrow">GOOD FIT FOR</div>
-            <h3>Focused support around the problem you are working on now.</h3>
+            <div className="eyebrow">THIS MAY SUIT YOU IF</div>
+            <h3>Bring the topic, method or problem you're working on.</h3>
             <ul className="check-list">
               {page.bestFor.map((item) => <li key={item}>{item}</li>)}
             </ul>
@@ -147,16 +147,16 @@ function SpecialistPage({
       <section className="section">
         <div className="shell two-col">
           <div>
-            <div className="eyebrow">TOPICS WE CAN WORK ON</div>
-            <h2>Start from the exact concept, method or software skill.</h2>
+            <div className="eyebrow">WHAT WE CAN COVER</div>
+            <h2>Start with the exact concept, method or software skill that is giving you trouble.</h2>
             <div className="tag-row tags-large">
               {page.topics.map((topic) => <span className="tag" key={topic}>{topic}</span>)}
             </div>
           </div>
 
           <div>
-            <div className="eyebrow">A TYPICAL SESSION</div>
-            <h2>Explanation, application and independent practice.</h2>
+            <div className="eyebrow">WHAT A SESSION CAN LOOK LIKE</div>
+            <h2>Understand it, work through it, then try it yourself.</h2>
             <div className="mini-timeline">
               {page.sessionFlow.map((item, index) => (
                 <div key={item}><span>{index + 1}</span><p>{item}</p></div>
@@ -168,8 +168,8 @@ function SpecialistPage({
 
       <section className="section section-soft">
         <div className="shell">
-          <div className="eyebrow">WHAT PROGRESS CAN LOOK LIKE</div>
-          <h2>The goal is to make you more independent.</h2>
+          <div className="eyebrow">WHAT YOU SHOULD GET FROM IT</div>
+          <h2>The aim is to help you handle the next problem with less help.</h2>
           <div className="outcome-grid">
             {page.outcomes.map((item) => <article key={item}><strong>{item}</strong></article>)}
           </div>
@@ -182,9 +182,9 @@ function SpecialistPage({
           <div className="shell">
             <div className="section-head">
               <div>
-                <div className="eyebrow">LEARN THE METHOD FIRST</div>
+                <div className="eyebrow">FREE GUIDES</div>
                 <h2>Free guides related to {page.title.toLowerCase()}.</h2>
-                <p>Build the underlying concept, then use tutoring for course-specific explanation and practice.</p>
+                <p>Use a free guide to review the idea, then bring the difficult part to a tutor if you still need help.</p>
               </div>
               <Link href="/learn" className="text-link">Browse Learning Hub</Link>
             </div>
@@ -198,13 +198,13 @@ function SpecialistPage({
 <section className="section">
         <div className="shell two-col">
           <div>
-            <div className="eyebrow">RELATED SUPPORT</div>
-            <h2>Continue from the problem to the wider subject.</h2>
+            <div className="eyebrow">RELATED TUTORING</div>
+            <h2>Explore the wider subject if the problem goes beyond one topic.</h2>
             <div className="service-grid" style={{ gridTemplateColumns: "1fr" }}>
               {page.relatedLinks.map((item) => (
                 <Link className="service-card" href={item.href} key={item.href}>
                   <h3>{item.label}</h3>
-                  <span className="text-link">Explore this support</span>
+                  <span className="text-link">Explore this tutoring</span>
                 </Link>
               ))}
             </div>
@@ -212,9 +212,9 @@ function SpecialistPage({
 
           <div className="quote-card">
             <div className="eyebrow">ACADEMIC INTEGRITY</div>
-            <strong>We teach the method; the academic work stays yours.</strong>
+            <strong>We can teach the method. Your assessed work stays yours.</strong>
             <p>
-              Sessions can explain concepts, review methods, practise analysis and help you interpret results. We do not complete assessed work, dissertations or research on a student’s behalf.
+              A tutor can explain concepts, discuss methods, practise analysis and help you interpret results. We will not write or complete assessed work, dissertations or research for you.
             </p>
             <Link className="text-link" href="/academic-integrity">Read our academic integrity approach</Link>
           </div>
@@ -230,7 +230,7 @@ function SpecialistPage({
 <section className="section section-soft">
         <div className="shell lead-section-grid">
           <div className="section-copy-block">
-            <div className="eyebrow">PERSONALISED SUPPORT</div>
+            <div className="eyebrow">REQUEST TUTORING</div>
             <h2>Tell us what you are studying and where you are stuck.</h2>
             <p>
               Share your academic level and a short description of the topic, analysis or software problem. We’ll review the context and arrange suitable one-to-one support.
@@ -282,7 +282,7 @@ export default async function Page({
             </div>
           </div>
           <div className="hero-panel">
-            <div className="hero-panel-label">THIS CAN BE A GOOD FIT FOR</div>
+            <div className="hero-panel-label">THIS CAN BE A THIS MAY SUIT YOU IF</div>
             <ul className="check-list">{service.bestFor.map((item) => <li key={item}>{item}</li>)}</ul>
           </div>
         </div>
@@ -295,12 +295,12 @@ export default async function Page({
         <div className="shell two-col">
           <div>
             <div className="eyebrow">WHAT WE CAN WORK ON</div>
-            <h2>Support built around the actual academic task.</h2>
+            <h2>Start with the work you actually need to understand.</h2>
             <ul className="check-list">{service.includes.map((item) => <li key={item}>{item}</li>)}</ul>
           </div>
           <div>
-            <div className="eyebrow">A TYPICAL SESSION</div>
-            <h2>Explanation, practice and feedback in one learning loop.</h2>
+            <div className="eyebrow">WHAT A SESSION CAN LOOK LIKE</div>
+            <h2>We explain the difficult part, practise it together and then let you try it yourself.</h2>
             <div className="mini-timeline">
               {service.sessionFlow.map((item, index) => <div key={item}><span>{index + 1}</span><p>{item}</p></div>)}
             </div>
@@ -310,8 +310,8 @@ export default async function Page({
 
       <section className="section section-soft">
         <div className="shell">
-          <div className="eyebrow">WHAT PROGRESS CAN LOOK LIKE</div>
-          <h2>The goal is stronger independent work.</h2>
+          <div className="eyebrow">WHAT YOU SHOULD GET FROM IT</div>
+          <h2>The aim is to help you tackle the next problem with less help.</h2>
           <div className="outcome-grid">
             {service.outcomes.map((item) => <article key={item}><strong>{item}</strong></article>)}
           </div>
@@ -327,10 +327,10 @@ export default async function Page({
 <section className="section">
         <div className="shell lead-section-grid">
           <div className="section-copy-block">
-            <div className="eyebrow">DISCUSS YOUR LEARNING NEEDS</div>
+            <div className="eyebrow">REQUEST TUTORING</div>
             <h2>Tell us what you are studying and what you want to improve.</h2>
-            <p>Share the course, topic, deadline or assessment context. We will review it and arrange suitable one-to-one academic support.</p>
-            <p className="service-integrity-note">We teach, explain, review and guide. We do not complete assessed work on a student’s behalf.</p>
+            <p>Send us the course, topic and any useful deadline or assessment context. We'll match you with a suitable tutor. Tutoring starts from £20 an hour, with the exact rate confirmed before you book.</p>
+            <p className="service-integrity-note">We can explain the method, discuss your reasoning and help you practise. We will not complete assessed work for you.</p>
           </div>
           <div className="card form-card">
             <TutoringLeadForm compact defaultSupportType={service.defaultSupportType} submitLabel="Request tutoring" />

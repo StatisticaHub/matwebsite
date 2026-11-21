@@ -9,38 +9,38 @@ type TutoringSupportOptionsProps = {
 const supportOptions = [
   {
     number: "01",
-    label: "Focused session",
-    title: "Get help with one specific learning blocker.",
+    label: "One focused session",
+    title: "Work through one specific problem.",
     description:
-      "Best when you already know what you are stuck on and want a tutor to explain it clearly in a focused session.",
+      "A good option when you already know what is confusing you and want focused time with a tutor to work through it properly.",
     examples: [
-      "A difficult concept or method",
-      "A coding or software problem",
-      "Interpreting an analysis or result",
+      "One difficult concept or method",
+      "A coding or software error",
+      "A statistical result you do not understand",
     ],
   },
   {
     number: "02",
-    label: "Short-term support",
-    title: "Work towards a clear academic goal.",
+    label: "A few sessions",
+    title: "Work towards a clear deadline or goal.",
     description:
-      "Useful when you need several sessions around an exam, module, project, dissertation stage or another defined learning goal.",
+      "Useful when the problem is bigger than one lesson, such as preparing for an exam, catching up on a module or working through a dissertation method.",
     examples: [
       "Exam or assessment preparation",
-      "A challenging university module",
-      "Project or dissertation support",
+      "Catching up on a difficult module",
+      "Dissertation or project methodology",
     ],
   },
   {
     number: "03",
-    label: "Ongoing tutoring",
-    title: "Build understanding over time.",
+    label: "Regular tutoring",
+    title: "Keep up with the course over time.",
     description:
-      "Designed for students who want regular personalised teaching, continuity with one tutor and steady progress across a subject.",
+      "Regular sessions give you continuity with one tutor and a place to deal with difficult topics before several weeks of material build up.",
     examples: [
       "Weekly or recurring sessions",
-      "Long-term subject support",
-      "Structured skill development",
+      "Ongoing subject tutoring",
+      "Building skills over a term or semester",
     ],
   },
 ];
@@ -55,10 +55,10 @@ export default function TutoringSupportOptions({
     >
       <div className={`shell ${styles.shell}`}>
         <div className={styles.heading}>
-          <span className="eyebrow">Flexible tutoring support</span>
+          <span className="eyebrow">Flexible one-to-one tutoring</span>
 
           <h2 id="tutoring-support-options-title">
-            Choose the kind of support that fits your goal.
+            Choose the amount of tutoring that fits what you need.
           </h2>
 
           <p>

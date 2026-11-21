@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "How Tutoring Works" };
 export default function Page() {
   const steps = [
     ["Tell us what you are learning", "Share your subject, academic level, module or topic, current difficulty and goal."],
-    ["We review the academic context", "We identify the subject depth, teaching needs and practical availability required for effective support."],
+    ["We read your request", "We look at the subject, course level, topic and availability so we can match you with a tutor who fits."],
     ["We arrange suitable 1:1 teaching", "You receive a clear next step for starting tutoring with someone able to support the work at your level."],
     ["Begin from the problem in front of you", "The first session uses the context you shared so time can be spent on understanding rather than repeating background."],
     ["Learn through explanation and practice", "Your tutor explains, questions, demonstrates, gives guided practice and checks whether the method is becoming independent."],

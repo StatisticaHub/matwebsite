@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     title:
       "Online Tutoring by Academic Level",
     description:
-      "Personalised one-to-one tutoring from secondary school through university, Master's and PhD-level study.",
+      "One-to-one tutoring from secondary school through university, Master's and PhD-level study.",
   },
 };
 
@@ -44,16 +44,14 @@ export default function Page() {
           </div>
 
           <h1>
-            Tutoring that adapts to the level you are studying.
+            Tutoring that matches the level and course you are actually studying.
           </h1>
 
           <p className="page-lead">
-            A school student, undergraduate,
-            Master's learner and researcher need
-            different explanations, expectations
-            and types of practice. Choose your
-            academic level to see how tutoring can
-            support you.
+            A GCSE student, university student and
+            researcher do not need the same kind of
+            explanation. Choose your level to see how
+            tutoring can fit the work you are doing.
           </p>
 
           <div className="button-row">
