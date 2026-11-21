@@ -40,6 +40,7 @@ export default function AdminSidebarNav({
       items: [
         { href: "/admin/students", label: "Students" },
         { href: "/admin/onboarding", label: "Student onboarding" },
+        { href: "/admin/student-access", label: "Student access" },
         {
           href: "/admin/sessions",
           label: "Sessions",

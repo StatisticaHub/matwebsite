@@ -32,6 +32,8 @@ export default function Footer() {
               <Link href="/tutors">Tutor standards</Link>
               <Link href="/become-a-tutor">Become a tutor</Link>
               <Link href="/contact">Contact</Link>
+              <Link href="/portal/login">Student Portal</Link>
+              <Link href="/tutor/login">Tutor Portal</Link>
             </div>
             <div>
               <b>Policies</b>
