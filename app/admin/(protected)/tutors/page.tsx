@@ -42,6 +42,11 @@ export default async function TutorsAdminPage({ searchParams }: { searchParams: 
                   </div>
                   <span>{tutor.headline || tutor.email}</span>
                   <small>{tutor.subjects.join(" · ") || "Subjects not set"}</small>
+                  {(tutor.specialisms || []).length > 0 && (
+                    <small>
+                      Specialist: {tutor.specialisms.slice(0, 4).join(" · ")}
+                    </small>
+                  )}
                 </div>
 
                 <div className="admin-tutor-meta">
@@ -74,6 +79,41 @@ export default async function TutorsAdminPage({ searchParams }: { searchParams: 
             <label><span>Professional headline</span><input name="headline" placeholder="Medical Statistician · MSc Statistics" /></label>
             <label><span>Subjects</span><input name="subjects" placeholder="Statistics, Data Science" /><small>Comma-separated</small></label>
             <label><span>Levels</span><input name="levels" placeholder="Undergraduate, Master's" /><small>Comma-separated</small></label>
+
+            <label>
+              <span>Specialist topics / methods</span>
+              <input
+                name="specialisms"
+                placeholder="Regression, Econometrics, R, Survival Analysis"
+              />
+              <small>Comma-separated — used by smart matching</small>
+            </label>
+
+            <label>
+              <span>Qualifications</span>
+              <textarea
+                name="qualifications"
+                placeholder="MSc Statistics, PhD candidate, professional qualifications…"
+              />
+            </label>
+
+            <label>
+              <span>Teaching / tutoring experience</span>
+              <textarea
+                name="teachingExperience"
+                placeholder="University tutoring, classroom teaching, research supervision, industry experience…"
+              />
+            </label>
+
+            <label>
+              <span>Teaching languages</span>
+              <input
+                name="languages"
+                placeholder="English, Hindi"
+              />
+              <small>Comma-separated</small>
+            </label>
+
             <label><span>Timezone</span><input name="timezone" placeholder="Europe/London" /></label>
             <label><span>Availability notes</span><textarea name="availability" placeholder="Tue/Thu evenings; weekends" /></label>
             <fieldset className="admin-match-fieldset"><legend>Available days</legend><div className="admin-check-grid">{["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map((day) => <label className="admin-check" key={day}><input type="checkbox" name="availabilityDays" value={day.toLowerCase()} /><span>{day}</span></label>)}</div></fieldset>
@@ -81,7 +121,10 @@ export default async function TutorsAdminPage({ searchParams }: { searchParams: 
             <div className="admin-form-grid-2"><label><span>Weekly capacity (hours)</span><input name="weeklyCapacityHours" type="number" min="0" max="80" step="0.5" placeholder="10" /></label><label><span>Max active students</span><input name="maxActiveStudents" type="number" min="0" max="100" placeholder="8" /></label></div>
             <label className="admin-check"><input type="checkbox" name="acceptsTrials" value="yes" defaultChecked /><span>Accepting trial sessions</span></label>
             <label><span>Internal hourly rate</span><div className="admin-rate-row"><select name="currency" defaultValue="GBP"><option>GBP</option><option>USD</option><option>EUR</option><option>INR</option></select><input name="hourlyRate" type="number" min="0" step="0.01" /></div></label>
-            <label className="admin-check"><input type="checkbox" name="verified" value="yes" /><span>Qualifications / identity verified</span></label>
+            <p className="admin-help">
+              New tutor records start as <strong>Pending</strong>. Review the tutor profile,
+              record verification and activate them from their tutor record.
+            </p>
             <button className="admin-primary-button" type="submit">Add tutor</button>
           </form>
         </aside>

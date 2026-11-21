@@ -74,6 +74,11 @@ export type Tutor = {
   headline: string | null;
   subjects: string[];
   levels: string[];
+  specialisms: string[];
+  qualifications: string | null;
+  teaching_experience: string | null;
+  languages: string[];
+  verification_notes: string | null;
   timezone: string | null;
   hourly_rate: number | null;
   currency: string;

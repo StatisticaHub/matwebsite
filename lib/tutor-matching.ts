@@ -50,6 +50,33 @@ function detectFromText(text: string | null, map: Record<string, string[]>) {
     .map(([key]) => key);
 }
 
+function matchingSpecialisms(tutor: Tutor, lead: TutoringLead) {
+  const leadText = ` ${normalise(
+    [
+      lead.subject,
+      lead.topic,
+      lead.requirements,
+      lead.support_type,
+      lead.curriculum,
+    ]
+      .filter(Boolean)
+      .join(" "),
+  )} `;
+
+  return (tutor.specialisms || []).filter((specialism) => {
+    const phrase = normalise(specialism);
+    if (!phrase) return false;
+
+    if (leadText.includes(` ${phrase} `)) return true;
+
+    const tokens = phrase.split(" ").filter(Boolean);
+    return (
+      tokens.length > 1 &&
+      tokens.every((token) => leadText.includes(` ${token} `))
+    );
+  });
+}
+
 function timezoneAffinity(country: string, timezone: string | null) {
   const c = normalise(country);
   const tz = normalise(timezone);
@@ -76,7 +103,7 @@ export function rankTutorsForLead(
       const workload = workloads[tutor.id] || { activeStudents: 0, upcomingSessionHours: 0 };
 
       if (listMatches(tutor.subjects, lead.subject)) {
-        score += 40;
+        score += 35;
         reasons.push(`Subject match: ${lead.subject}`);
       } else if (tutor.subjects.length) {
         warnings.push("Subject is not listed on the tutor profile");
@@ -85,12 +112,26 @@ export function rankTutorsForLead(
       }
 
       if (listMatches(tutor.levels, lead.level)) {
-        score += 20;
+        score += 18;
         reasons.push(`Level match: ${lead.level}`);
       } else if (!tutor.levels.length) {
         warnings.push("Tutor levels are not configured");
       } else {
         warnings.push("Academic level is not an exact profile match");
+      }
+
+      const specialistMatches = matchingSpecialisms(tutor, lead);
+
+      if (specialistMatches.length >= 2) {
+        score += 12;
+        reasons.push(
+          `Specialist fit: ${specialistMatches.slice(0, 3).join(", ")}`,
+        );
+      } else if (specialistMatches.length === 1) {
+        score += 8;
+        reasons.push(`Specialist fit: ${specialistMatches[0]}`);
+      } else if ((tutor.specialisms || []).length) {
+        warnings.push("No specialist-topic match detected");
       }
 
       const requestedDays = detectFromText(lead.availability, dayTokens);
@@ -102,10 +143,10 @@ export function rankTutorsForLead(
         const dayOk = !requestedDays.length || requestedDays.some((day) => tutorDays.includes(day));
         const periodOk = !requestedPeriods.length || requestedPeriods.some((period) => tutorPeriods.includes(period));
         if (dayOk && periodOk && (tutorDays.length || tutorPeriods.length)) {
-          score += 12;
+          score += 10;
           reasons.push("Availability matches the student's stated preference");
         } else if (dayOk || periodOk) {
-          score += 6;
+          score += 5;
           reasons.push("Partial availability match");
         } else {
           warnings.push("Availability may need checking manually");
@@ -119,13 +160,13 @@ export function rankTutorsForLead(
       if (weeklyCapacity && weeklyCapacity > 0) {
         const ratio = workload.upcomingSessionHours / weeklyCapacity;
         if (ratio < 0.5) {
-          score += 10;
+          score += 8;
           reasons.push("Good weekly capacity available");
         } else if (ratio < 0.8) {
-          score += 7;
+          score += 6;
           reasons.push("Moderate weekly capacity available");
         } else if (ratio < 1) {
-          score += 3;
+          score += 2;
           warnings.push("Tutor is close to weekly capacity");
         } else {
           warnings.push("Tutor is at or above stated weekly capacity");
@@ -139,7 +180,7 @@ export function rankTutorsForLead(
       if (maxStudents !== null && maxStudents > 0) {
         const ratio = workload.activeStudents / maxStudents;
         if (ratio < 0.6) {
-          score += 5;
+          score += 4;
           reasons.push("Student load is comfortably below the tutor limit");
         } else if (ratio < 1) {
           score += 2;
@@ -152,7 +193,7 @@ export function rankTutorsForLead(
       }
 
       if (tutor.verified) {
-        score += 8;
+        score += 6;
         reasons.push("Tutor is verified");
       }
 

@@ -108,6 +108,17 @@ export async function createTutor(formData: FormData) {
     .split(",")
     .map((value) => value.trim())
     .filter(Boolean);
+
+  const specialisms = String(formData.get("specialisms") || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  const languages = String(formData.get("languages") || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+
   const rateRaw = String(formData.get("hourlyRate") || "").trim();
   const hourlyRate = rateRaw ? Number(rateRaw) : null;
   const weeklyCapacityRaw = String(formData.get("weeklyCapacityHours") || "").trim();
@@ -124,6 +135,14 @@ export async function createTutor(formData: FormData) {
     headline: String(formData.get("headline") || "").trim() || null,
     subjects,
     levels,
+    specialisms,
+    qualifications:
+      String(formData.get("qualifications") || "").trim().slice(0, 5000) || null,
+    teaching_experience:
+      String(formData.get("teachingExperience") || "").trim().slice(0, 5000) || null,
+    languages,
+    verification_notes:
+      String(formData.get("verificationNotes") || "").trim().slice(0, 5000) || null,
     timezone: String(formData.get("timezone") || "").trim() || null,
     hourly_rate: hourlyRate,
     currency: String(formData.get("currency") || "GBP").slice(0, 3).toUpperCase(),
@@ -133,8 +152,8 @@ export async function createTutor(formData: FormData) {
     weekly_capacity_hours: weeklyCapacityHours,
     max_active_students: maxActiveStudents,
     accepts_trials: acceptsTrials,
-    status: "active",
-    verified: formData.get("verified") === "yes",
+    status: "pending",
+    verified: false,
   });
   if (error) throw new Error(error.message);
 
@@ -183,7 +202,18 @@ export async function updateTutor(formData: FormData) {
     .split(",")
     .map((value) => value.trim())
     .filter(Boolean);
+
   const levels = String(formData.get("levels") || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  const specialisms = String(formData.get("specialisms") || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  const languages = String(formData.get("languages") || "")
     .split(",")
     .map((value) => value.trim())
     .filter(Boolean);
@@ -196,6 +226,14 @@ export async function updateTutor(formData: FormData) {
       headline: String(formData.get("headline") || "").trim() || null,
       subjects,
       levels,
+      specialisms,
+      qualifications:
+        String(formData.get("qualifications") || "").trim().slice(0, 5000) || null,
+      teaching_experience:
+        String(formData.get("teachingExperience") || "").trim().slice(0, 5000) || null,
+      languages,
+      verification_notes:
+        String(formData.get("verificationNotes") || "").trim().slice(0, 5000) || null,
       timezone: String(formData.get("timezone") || "").trim() || null,
       hourly_rate: hourlyRate,
       currency: String(formData.get("currency") || "GBP").slice(0, 3).toUpperCase(),

@@ -85,6 +85,45 @@ export default async function TutorDetailPage({
             <label><span>Professional headline</span><input name="headline" defaultValue={tutor.headline || ""} placeholder="Medical Statistician · MSc Statistics" /></label>
             <label><span>Subjects</span><input name="subjects" defaultValue={tutor.subjects.join(", ")} placeholder="Statistics, Data Science" /><small>Comma-separated</small></label>
             <label><span>Levels</span><input name="levels" defaultValue={tutor.levels.join(", ")} placeholder="Undergraduate, Master's" /><small>Comma-separated</small></label>
+
+            <label>
+              <span>Specialist topics / methods</span>
+              <input
+                name="specialisms"
+                defaultValue={(tutor.specialisms || []).join(", ")}
+                placeholder="Regression, Econometrics, R, Survival Analysis"
+              />
+              <small>Comma-separated — used by smart matching</small>
+            </label>
+
+            <label>
+              <span>Qualifications</span>
+              <textarea
+                name="qualifications"
+                defaultValue={tutor.qualifications || ""}
+                placeholder="Degrees, qualifications and relevant professional training"
+              />
+            </label>
+
+            <label>
+              <span>Teaching / tutoring experience</span>
+              <textarea
+                name="teachingExperience"
+                defaultValue={tutor.teaching_experience || ""}
+                placeholder="Teaching, tutoring, research or relevant professional experience"
+              />
+            </label>
+
+            <label>
+              <span>Teaching languages</span>
+              <input
+                name="languages"
+                defaultValue={(tutor.languages || []).join(", ")}
+                placeholder="English, Hindi"
+              />
+              <small>Comma-separated</small>
+            </label>
+
             <label><span>Timezone</span><input name="timezone" defaultValue={tutor.timezone || ""} placeholder="Europe/London" /></label>
             <label><span>Availability notes</span><textarea name="availability" defaultValue={tutor.availability_notes || ""} placeholder="Tue/Thu evenings; weekends" /></label>
 
@@ -98,8 +137,29 @@ export default async function TutorDetailPage({
               <label><span>Internal hourly rate</span><div className="admin-rate-row"><select name="currency" defaultValue={tutor.currency || "GBP"}><option>GBP</option><option>USD</option><option>EUR</option><option>INR</option></select><input name="hourlyRate" type="number" min="0" step="0.01" defaultValue={tutor.hourly_rate ?? ""} /></div></label>
             </div>
 
-            <label className="admin-check"><input type="checkbox" name="verified" value="yes" defaultChecked={tutor.verified} /><span>Qualifications / identity verified</span></label>
-            <button className="admin-primary-button" type="submit">Save tutor changes</button>
+            <label>
+              <span>Verification notes (internal)</span>
+              <textarea
+                name="verificationNotes"
+                defaultValue={tutor.verification_notes || ""}
+                placeholder="Qualification checked, identity reviewed, reference notes…"
+              />
+              <small>Private admin information. Tutors and students do not see this.</small>
+            </label>
+
+            <label className="admin-check">
+              <input
+                type="checkbox"
+                name="verified"
+                value="yes"
+                defaultChecked={tutor.verified}
+              />
+              <span>Qualifications / identity verified</span>
+            </label>
+
+            <button className="admin-primary-button" type="submit">
+              Save tutor changes
+            </button>
           </form>
         </section>
 
