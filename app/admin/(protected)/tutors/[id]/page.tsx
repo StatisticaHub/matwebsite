@@ -176,6 +176,51 @@ export default async function TutorDetailPage({
           </section>
 
           <section className="admin-panel admin-action-card">
+            <h2>Onboarding review</h2>
+
+            <dl className="admin-tutor-record-summary">
+              <div>
+                <dt>Status</dt>
+                <dd>{tutor.onboarding_status.replaceAll("_", " ")}</dd>
+              </div>
+
+              <div>
+                <dt>Submitted</dt>
+                <dd>
+                  {tutor.onboarding_submitted_at
+                    ? formatDate(tutor.onboarding_submitted_at)
+                    : "Not submitted"}
+                </dd>
+              </div>
+
+              <div>
+                <dt>Last onboarding update</dt>
+                <dd>
+                  {tutor.onboarding_updated_at
+                    ? formatDate(tutor.onboarding_updated_at)
+                    : "Not recorded"}
+                </dd>
+              </div>
+            </dl>
+
+            {tutor.onboarding_status === "submitted" && (
+              <div className="admin-inline-message success">
+                Tutor profile is ready for review.
+              </div>
+            )}
+
+            {tutor.status === "pending" && (
+              <p className="admin-help">
+                Review qualifications, experience, subjects,
+                specialisms and availability above. When satisfied,
+                verify the tutor and change their status to
+                <strong> Active</strong>. This also marks onboarding
+                as approved.
+              </p>
+            )}
+          </section>
+
+          <section className="admin-panel admin-action-card">
             <h2>Tutor portal</h2>
             <p className="admin-help">Give this tutor secure access to only their assigned students, trials, sessions and availability.</p>
             <dl className="admin-tutor-record-summary">

@@ -30,7 +30,7 @@ export default async function TutorWelcomePage({
         </Link>
         <span className="tutor-kicker">Tutor portal setup</span>
         <h1>Choose your portal password</h1>
-        <p>Set a secure password to finish activating your tutor portal.</p>
+        <p>Set a secure password to continue to your tutor profile and onboarding.</p>
         <TutorPasswordSetupForm tokenHash={tokenHash} type={type} />
       </div>
     </main>

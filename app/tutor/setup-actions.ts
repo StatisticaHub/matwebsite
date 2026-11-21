@@ -56,7 +56,7 @@ export async function completeTutorPortalSetup(formData: FormData) {
     tutorError ||
     !tutor ||
     tutor.portal_enabled !== true ||
-    tutor.status !== "active"
+    !["active", "pending"].includes(tutor.status)
   ) {
     await supabase.auth.signOut();
     return {

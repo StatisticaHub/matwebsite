@@ -92,6 +92,14 @@ export type Tutor = {
   portal_enabled: boolean;
   portal_invited_at: string | null;
   verified: boolean;
+  onboarding_status:
+    | "not_started"
+    | "draft"
+    | "submitted"
+    | "changes_requested"
+    | "approved";
+  onboarding_submitted_at: string | null;
+  onboarding_updated_at: string | null;
 };
 
 export type LeadActivity = {

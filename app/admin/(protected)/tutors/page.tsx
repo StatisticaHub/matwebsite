@@ -53,17 +53,28 @@ export default async function TutorsAdminPage({ searchParams }: { searchParams: 
                   <span>{tutor.hourly_rate ? `${tutor.currency} ${tutor.hourly_rate}/hr` : "Rate not set"}</span>
                   <span>{tutor.timezone || "Timezone not set"}</span>
                   <span className={`admin-status tutor-${tutor.status}`}>{tutor.status}</span>
+                  {tutor.status === "pending" && (
+                    <span>
+                      Onboarding: {tutor.onboarding_status.replaceAll("_", " ")}
+                    </span>
+                  )}
                 </div>
 
                 <div className="admin-tutor-actions">
                   <Link className="admin-secondary-button" href={`/admin/tutors/${tutor.id}`}>Edit</Link>
-                  <form action={toggleTutorStatus}>
-                    <input type="hidden" name="tutorId" value={tutor.id} />
-                    <input type="hidden" name="nextStatus" value={tutor.status === "active" ? "inactive" : "active"} />
-                    <button type="submit" className="admin-link-button">
-                      {tutor.status === "active" ? "Pause" : "Activate"}
-                    </button>
-                  </form>
+                  {tutor.status !== "pending" && (
+                    <form action={toggleTutorStatus}>
+                      <input type="hidden" name="tutorId" value={tutor.id} />
+                      <input
+                        type="hidden"
+                        name="nextStatus"
+                        value={tutor.status === "active" ? "inactive" : "active"}
+                      />
+                      <button type="submit" className="admin-link-button">
+                        {tutor.status === "active" ? "Pause" : "Activate"}
+                      </button>
+                    </form>
+                  )}
                 </div>
               </article>
             ))}

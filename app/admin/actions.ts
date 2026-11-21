@@ -162,17 +162,48 @@ export async function createTutor(formData: FormData) {
 
 export async function toggleTutorStatus(formData: FormData) {
   const { supabase } = await adminContext();
+
   const tutorId = String(formData.get("tutorId") || "");
   const nextStatus = String(formData.get("nextStatus") || "inactive");
-  if (!tutorId || !["active", "inactive", "pending"].includes(nextStatus)) return;
+
+  if (
+    !tutorId ||
+    !["active", "inactive", "pending"].includes(nextStatus)
+  ) {
+    return;
+  }
+
+  const { data: tutor, error: tutorError } = await supabase
+    .from("tutors")
+    .select("id,onboarding_status")
+    .eq("id", tutorId)
+    .maybeSingle();
+
+  if (tutorError) throw new Error(tutorError.message);
+  if (!tutor) return;
+
+  // Pending onboarding records must be reviewed from the tutor
+  // detail page before they can become active.
+  if (
+    nextStatus === "active" &&
+    tutor.onboarding_status !== "approved"
+  ) {
+    revalidatePath("/admin/tutors");
+    return;
+  }
 
   const { error } = await supabase
     .from("tutors")
-    .update({ status: nextStatus, updated_at: new Date().toISOString() })
+    .update({
+      status: nextStatus,
+      updated_at: new Date().toISOString(),
+    })
     .eq("id", tutorId);
+
   if (error) throw new Error(error.message);
 
   revalidatePath("/admin/tutors");
+  revalidatePath(`/admin/tutors/${tutorId}`);
 }
 
 // MAT tutor management upgrade
@@ -244,6 +275,12 @@ export async function updateTutor(formData: FormData) {
     max_active_students: maxActiveStudents,
     accepts_trials: acceptsTrials,
       status,
+      ...(status === "active"
+        ? {
+            onboarding_status: "approved",
+            onboarding_updated_at: new Date().toISOString(),
+          }
+        : {}),
       verified: formData.get("verified") === "yes",
       updated_at: new Date().toISOString(),
     })
