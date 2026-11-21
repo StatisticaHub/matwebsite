@@ -19,6 +19,7 @@ import {
   type TutoringSession,
 } from "@/lib/delivery-data";
 import {
+  addCourseToExistingStudent,
   addHomework,
   addLearningPlanItem,
   addLearningResource,
@@ -32,6 +33,7 @@ import type { StudentCommunication } from "@/lib/student-communications";
 
 export const dynamic = "force-dynamic";
 type Params = Promise<{ id: string }>;
+type SearchParams = Promise<{ engagement?: string }>;
 
 function formatDate(value: string | null) {
   if (!value) return "Not set";
@@ -51,8 +53,15 @@ function money(value: number | null, currency: string) {
   return value === null ? "—" : `${currency} ${Number(value).toFixed(2)}`;
 }
 
-export default async function StudentDetailPage({ params }: { params: Params }) {
+export default async function StudentDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Params;
+  searchParams: SearchParams;
+}) {
   const { id } = await params;
+  const query = await searchParams;
   const supabase = createAdminClient();
 
   const [{ data: studentData, error }, { data: engagementData }, { data: tutorData }, { data: communicationData }] = await Promise.all([
@@ -65,7 +74,25 @@ export default async function StudentDetailPage({ params }: { params: Params }) 
 
   const student = studentData as Student;
   const engagements = (engagementData || []) as TutoringEngagement[];
-  const engagement = engagements.find((item) => item.status === "active") || engagements[0];
+
+  const requestedEngagement =
+    query.engagement
+      ? engagements.find(
+          (item) =>
+            item.id ===
+            query.engagement,
+        )
+      : null;
+
+  const engagement =
+    requestedEngagement ||
+    engagements.find(
+      (item) =>
+        item.status ===
+        "active",
+    ) ||
+    engagements[0];
+
   const tutors = (tutorData || []) as Tutor[];
   const communications = (communicationData || []) as StudentCommunication[];
   const tutor = engagement?.tutor_id ? tutors.find((item) => item.id === engagement.tutor_id) : null;
@@ -112,8 +139,347 @@ export default async function StudentDetailPage({ params }: { params: Params }) 
         </div>
       </header>
 
+      <section className="admin-panel admin-detail-card admin-course-workspaces">
+
+        <div className="admin-card-head">
+
+          <div>
+
+            <span className="admin-eyebrow">
+              Course workspaces
+            </span>
+
+            <h2>
+              {engagements.length === 1
+                ? "1 course"
+                : `${engagements.length} courses`}
+            </h2>
+
+          </div>
+
+          <span>
+            Each course keeps its own tutor,
+            sessions, materials and progress
+          </span>
+
+        </div>
+
+
+        {engagements.length > 0 && (
+          <div className="admin-course-switcher">
+
+            {engagements.map(
+              (item) => {
+
+                const itemTutor =
+                  item.tutor_id
+                    ? tutors.find(
+                        (candidate) =>
+                          candidate.id ===
+                          item.tutor_id,
+                      )
+                    : null;
+
+                const active =
+                  engagement?.id ===
+                  item.id;
+
+                return (
+                  <Link
+                    key={item.id}
+                    href={`/admin/students/${student.id}?engagement=${item.id}`}
+                    className={
+                      active
+                        ? "is-active"
+                        : ""
+                    }
+                  >
+
+                    <div>
+
+                      <strong>
+                        {item.subject}
+                      </strong>
+
+                      <span>
+                        {item.module ||
+                          item.title}
+                      </span>
+
+                    </div>
+
+
+                    <small>
+                      {itemTutor?.name ||
+                        "Tutor not assigned"}
+                    </small>
+
+                  </Link>
+                );
+              },
+            )}
+
+          </div>
+        )}
+
+
+        <details className="admin-disclosure admin-add-course">
+
+          <summary>
+            + Add another course
+          </summary>
+
+
+          <form
+            action={
+              addCourseToExistingStudent
+            }
+            className="admin-compact-form"
+          >
+
+            <input
+              type="hidden"
+              name="studentId"
+              value={student.id}
+            />
+
+
+            <div className="admin-form-grid-2">
+
+              <label>
+
+                <span>
+                  Subject / course
+                </span>
+
+                <input
+                  name="subject"
+                  placeholder="e.g. Econometrics"
+                  required
+                />
+
+              </label>
+
+
+              <label>
+
+                <span>
+                  Workspace title
+                </span>
+
+                <input
+                  name="engagementTitle"
+                  placeholder="e.g. MSc Econometrics support"
+                />
+
+              </label>
+
+            </div>
+
+
+            <div className="admin-form-grid-2">
+
+              <label>
+
+                <span>
+                  Module
+                </span>
+
+                <input
+                  name="module"
+                  placeholder="Optional module / paper"
+                />
+
+              </label>
+
+
+              <label>
+
+                <span>
+                  Tutor
+                </span>
+
+                <select
+                  name="tutorId"
+                  defaultValue=""
+                >
+
+                  <option value="">
+                    Assign later
+                  </option>
+
+                  {tutors
+                    .filter(
+                      (item) =>
+                        item.status ===
+                        "active",
+                    )
+                    .map(
+                      (item) => (
+                        <option
+                          key={item.id}
+                          value={item.id}
+                        >
+                          {item.name}
+                        </option>
+                      ),
+                    )}
+
+                </select>
+
+              </label>
+
+            </div>
+
+
+            <label>
+
+              <span>
+                Learning goal
+              </span>
+
+              <textarea
+                name="goal"
+                placeholder="What does the student want to achieve in this course?"
+              />
+
+            </label>
+
+
+            <label>
+
+              <span>
+                Current focus
+              </span>
+
+              <input
+                name="currentFocus"
+                placeholder="Current topic or stage"
+              />
+
+            </label>
+
+
+            <div className="admin-form-grid-3">
+
+              <label>
+
+                <span>
+                  Start date
+                </span>
+
+                <input
+                  name="startDate"
+                  type="date"
+                />
+
+              </label>
+
+
+              <label>
+
+                <span>
+                  Frequency
+                </span>
+
+                <input
+                  name="frequency"
+                  placeholder="e.g. Weekly"
+                />
+
+              </label>
+
+
+              <label>
+
+                <span>
+                  Session minutes
+                </span>
+
+                <input
+                  name="sessionDuration"
+                  type="number"
+                  min="15"
+                  max="480"
+                  defaultValue="60"
+                />
+
+              </label>
+
+            </div>
+
+
+            <div className="admin-form-grid-3">
+
+              <label>
+
+                <span>
+                  Currency
+                </span>
+
+                <select
+                  name="currency"
+                  defaultValue="GBP"
+                >
+                  <option>GBP</option>
+                  <option>USD</option>
+                  <option>EUR</option>
+                  <option>INR</option>
+                </select>
+
+              </label>
+
+
+              <label>
+
+                <span>
+                  Student rate
+                </span>
+
+                <input
+                  name="studentRate"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                />
+
+              </label>
+
+
+              <label>
+
+                <span>
+                  Tutor rate
+                </span>
+
+                <input
+                  name="tutorRate"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                />
+
+              </label>
+
+            </div>
+
+
+            <button
+              className="admin-primary-button"
+              type="submit"
+            >
+              Create course workspace
+            </button>
+
+          </form>
+
+        </details>
+
+      </section>
+
+
       <section className="admin-metrics admin-metrics-4">
-        <div><span>Engagement</span><strong className="admin-metric-text">{engagement?.subject || "None"}</strong></div>
+        <div><span>Current course</span><strong className="admin-metric-text">{engagement?.subject || "None"}</strong></div>
         <div><span>Completed sessions</span><strong>{completedSessions.length}</strong><small>{Math.round(totalMinutes / 60 * 10) / 10} hours</small></div>
         <div><span>Plan mastered</span><strong>{plan.length ? `${mastered}/${plan.length}` : "—"}</strong></div>
         <div><span>Next session</span><strong className="admin-metric-text">{nextSession ? formatDateTime(nextSession.scheduled_for) : "Not booked"}</strong></div>

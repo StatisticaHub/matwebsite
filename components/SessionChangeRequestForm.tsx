@@ -29,10 +29,12 @@ type UpcomingSessionOption = {
 
 export default function SessionChangeRequestForm({
   token,
+  engagementId,
   sessions,
   defaultSessionId,
 }: {
   token: string;
+  engagementId: string;
   sessions: UpcomingSessionOption[];
   defaultSessionId?: string | null;
 }) {
@@ -244,6 +246,8 @@ export default function SessionChangeRequestForm({
 
             body:
               JSON.stringify({
+                engagementId,
+
                 category:
                   "session_request",
 

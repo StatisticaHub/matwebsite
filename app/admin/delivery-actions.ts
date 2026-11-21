@@ -442,3 +442,280 @@ export async function addLearningResource(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath(`/admin/students/${studentId}`);
 }
+
+
+/* ============================================================
+   ADD ANOTHER COURSE TO AN EXISTING STUDENT
+   ============================================================ */
+
+export async function addCourseToExistingStudent(
+  formData: FormData,
+) {
+  const {
+    supabase,
+  } =
+    await adminContext();
+
+
+  const studentId =
+    text(
+      formData,
+      "studentId",
+      100,
+    );
+
+
+  const subject =
+    text(
+      formData,
+      "subject",
+      300,
+    );
+
+
+  if (
+    !studentId ||
+    !subject
+  ) {
+    return;
+  }
+
+
+  const {
+    data: student,
+    error:
+      studentError,
+  } =
+    await supabase
+      .from(
+        "students",
+      )
+      .select(
+        "id",
+      )
+      .eq(
+        "id",
+        studentId,
+      )
+      .maybeSingle();
+
+
+  if (
+    studentError ||
+    !student
+  ) {
+    throw new Error(
+      "Student not found.",
+    );
+  }
+
+
+  const tutorId =
+    nullableText(
+      formData,
+      "tutorId",
+      100,
+    );
+
+
+  /*
+   * Tutor is optional initially, but if supplied
+   * it must be a real active tutor.
+   */
+  if (tutorId) {
+    const {
+      data: tutor,
+      error:
+        tutorError,
+    } =
+      await supabase
+        .from(
+          "tutors",
+        )
+        .select(
+          "id",
+        )
+        .eq(
+          "id",
+          tutorId,
+        )
+        .eq(
+          "status",
+          "active",
+        )
+        .maybeSingle();
+
+
+    if (
+      tutorError ||
+      !tutor
+    ) {
+      throw new Error(
+        "Selected tutor is not available.",
+      );
+    }
+  }
+
+
+  const duration =
+    nullableNumber(
+      formData,
+      "sessionDuration",
+    );
+
+
+  const {
+    data: engagement,
+    error,
+  } =
+    await supabase
+      .from(
+        "tutoring_engagements",
+      )
+      .insert({
+        student_id:
+          studentId,
+
+        tutor_id:
+          tutorId,
+
+        subject,
+
+        title:
+          nullableText(
+            formData,
+            "engagementTitle",
+            500,
+          ) ||
+          `${subject} tutoring`,
+
+        module:
+          nullableText(
+            formData,
+            "module",
+            500,
+          ),
+
+        goal:
+          nullableText(
+            formData,
+            "goal",
+            3000,
+          ),
+
+        target:
+          nullableText(
+            formData,
+            "target",
+            1000,
+          ),
+
+        start_date:
+          dateOrNull(
+            formData,
+            "startDate",
+          ) ||
+          new Date()
+            .toISOString()
+            .slice(
+              0,
+              10,
+            ),
+
+        status:
+          "active",
+
+        frequency:
+          nullableText(
+            formData,
+            "frequency",
+            300,
+          ),
+
+        session_duration_minutes:
+          duration &&
+          duration >= 15 &&
+          duration <= 480
+            ? Math.round(
+                duration,
+              )
+            : 60,
+
+        student_rate:
+          nullableNumber(
+            formData,
+            "studentRate",
+          ),
+
+        tutor_rate:
+          nullableNumber(
+            formData,
+            "tutorRate",
+          ),
+
+        currency:
+          text(
+            formData,
+            "currency",
+            3,
+          )
+            .toUpperCase() ||
+          "GBP",
+
+        current_focus:
+          nullableText(
+            formData,
+            "currentFocus",
+            1000,
+          ),
+
+        preferred_learning_style:
+          nullableText(
+            formData,
+            "learningStyle",
+            1000,
+          ),
+
+        weak_topics:
+          csvList(
+            formData,
+            "weakTopics",
+          ),
+
+        notes:
+          nullableText(
+            formData,
+            "notes",
+            5000,
+          ),
+      })
+      .select(
+        "id",
+      )
+      .single();
+
+
+  if (
+    error ||
+    !engagement
+  ) {
+    throw new Error(
+      error?.message ||
+        "Could not create course.",
+    );
+  }
+
+
+  revalidatePath(
+    "/admin/students",
+  );
+
+  revalidatePath(
+    `/admin/students/${studentId}`,
+  );
+
+
+  redirect(
+    `/admin/students/${studentId}?engagement=${engagement.id}`,
+  );
+}

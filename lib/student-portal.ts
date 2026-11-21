@@ -967,3 +967,514 @@ export async function getPortalContext(
     progressReports,
   };
 }
+
+/* ==========================================================================
+   MULTI-COURSE STUDENT PORTAL CONTEXT
+   ========================================================================== */
+
+export type PortalCourseOption = {
+  id: string;
+
+  subject: string;
+  title: string;
+
+  module: string | null;
+  current_focus: string | null;
+
+  tutor_id: string | null;
+  tutorName: string | null;
+};
+
+
+export type PortalCourseContext =
+  PortalContext & {
+    courses:
+      PortalCourseOption[];
+  };
+
+
+export async function getPortalCourseContext(
+  tokenInput: string,
+  requestedEngagementId?:
+    | string
+    | null,
+): Promise<
+  PortalCourseContext | null
+> {
+  /*
+   * Start with the existing secure
+   * student-level portal validation.
+   */
+  const base =
+    await getPortalContext(
+      tokenInput,
+    );
+
+
+  if (!base) {
+    return null;
+  }
+
+
+  const supabase =
+    createAdminClient();
+
+
+  /*
+   * One student may have multiple
+   * active course engagements.
+   */
+  const {
+    data:
+      engagementData,
+    error:
+      engagementError,
+  } =
+    await supabase
+      .from(
+        "tutoring_engagements",
+      )
+      .select("*")
+      .eq(
+        "student_id",
+        base.student.id,
+      )
+      .eq(
+        "status",
+        "active",
+      )
+      .order(
+        "created_at",
+        {
+          ascending: false,
+        },
+      );
+
+
+  if (engagementError) {
+    throw new Error(
+      engagementError.message,
+    );
+  }
+
+
+  const engagements =
+    (
+      engagementData ||
+      []
+    ) as TutoringEngagement[];
+
+
+  const requested =
+    requestedEngagementId
+      ? engagements.find(
+          (item) =>
+            item.id ===
+            requestedEngagementId,
+        )
+      : null;
+
+
+  const selected =
+    requested ||
+    engagements.find(
+      (item) =>
+        item.id ===
+        base.engagement?.id,
+    ) ||
+    engagements[0] ||
+    base.engagement ||
+    null;
+
+
+  /*
+   * Tutor names for the course switcher.
+   */
+  const tutorIds =
+    [
+      ...new Set(
+        engagements
+          .map(
+            (item) =>
+              item.tutor_id,
+          )
+          .filter(
+            Boolean,
+          ) as string[],
+      ),
+    ];
+
+
+  const {
+    data:
+      courseTutorData,
+    error:
+      courseTutorError,
+  } =
+    tutorIds.length
+      ? await supabase
+          .from(
+            "tutors",
+          )
+          .select(
+            "id,name",
+          )
+          .in(
+            "id",
+            tutorIds,
+          )
+      : {
+          data:
+            [] as Array<{
+              id: string;
+              name: string;
+            }>,
+
+          error: null,
+        };
+
+
+  if (courseTutorError) {
+    throw new Error(
+      courseTutorError.message,
+    );
+  }
+
+
+  const tutorNameById =
+    new Map(
+      (
+        courseTutorData ||
+        []
+      ).map(
+        (item) => [
+          item.id,
+          item.name,
+        ],
+      ),
+    );
+
+
+  const courses:
+    PortalCourseOption[] =
+    engagements.map(
+      (item) => ({
+        id:
+          item.id,
+
+        subject:
+          item.subject,
+
+        title:
+          item.title,
+
+        module:
+          item.module,
+
+        current_focus:
+          item.current_focus,
+
+        tutor_id:
+          item.tutor_id,
+
+        tutorName:
+          item.tutor_id
+            ? tutorNameById.get(
+                item.tutor_id,
+              ) ||
+              null
+            : null,
+      }),
+    );
+
+
+  if (!selected) {
+    return {
+      ...base,
+      courses,
+    };
+  }
+
+
+  /*
+   * Every item below is loaded only
+   * for the selected engagement/course.
+   */
+  const [
+    planResult,
+    sessionResult,
+    homeworkResult,
+    resourceResult,
+    progressResult,
+    tutorResult,
+    supportResult,
+  ] =
+    await Promise.all([
+      supabase
+        .from(
+          "learning_plan_items",
+        )
+        .select("*")
+        .eq(
+          "engagement_id",
+          selected.id,
+        )
+        .order(
+          "sort_order",
+        )
+        .order(
+          "created_at",
+        ),
+
+      supabase
+        .from(
+          "tutoring_sessions",
+        )
+        .select("*")
+        .eq(
+          "engagement_id",
+          selected.id,
+        )
+        .order(
+          "scheduled_for",
+          {
+            ascending:
+              false,
+
+            nullsFirst:
+              false,
+          },
+        ),
+
+      supabase
+        .from(
+          "homework",
+        )
+        .select("*")
+        .eq(
+          "engagement_id",
+          selected.id,
+        )
+        .order(
+          "created_at",
+          {
+            ascending:
+              false,
+          },
+        ),
+
+      supabase
+        .from(
+          "learning_resources",
+        )
+        .select("*")
+        .eq(
+          "engagement_id",
+          selected.id,
+        )
+        .order(
+          "created_at",
+          {
+            ascending:
+              false,
+          },
+        ),
+
+      supabase
+        .from(
+          "progress_reports",
+        )
+        .select("*")
+        .eq(
+          "engagement_id",
+          selected.id,
+        )
+        .eq(
+          "student_visible",
+          true,
+        )
+        .order(
+          "period_end",
+          {
+            ascending:
+              false,
+          },
+        ),
+
+      selected.tutor_id
+        ? supabase
+            .from(
+              "tutors",
+            )
+            .select(
+              "name,headline,timezone,verified",
+            )
+            .eq(
+              "id",
+              selected.tutor_id,
+            )
+            .maybeSingle()
+        : Promise.resolve({
+            data: null,
+            error: null,
+          }),
+
+      supabase
+        .from(
+          "student_support_requests",
+        )
+        .select(
+          `
+            id,
+            created_at,
+            category,
+            message,
+            status,
+            resolved_at
+          `,
+        )
+        .eq(
+          "student_id",
+          base.student.id,
+        )
+        .eq(
+          "engagement_id",
+          selected.id,
+        )
+        .order(
+          "created_at",
+          {
+            ascending:
+              false,
+          },
+        )
+        .limit(20),
+    ]);
+
+
+  const queryError =
+    [
+      planResult.error,
+      sessionResult.error,
+      homeworkResult.error,
+      resourceResult.error,
+      progressResult.error,
+      tutorResult.error,
+      supportResult.error,
+    ].find(Boolean);
+
+
+  if (queryError) {
+    throw new Error(
+      queryError.message,
+    );
+  }
+
+
+  const homeworkRows =
+    (
+      homeworkResult.data ||
+      []
+    ) as Homework[];
+
+
+  const homeworkIds =
+    homeworkRows.map(
+      (item) =>
+        item.id,
+    );
+
+
+  const submissionResult =
+    homeworkIds.length
+      ? await supabase
+          .from(
+            "homework_submissions",
+          )
+          .select("*")
+          .eq(
+            "student_id",
+            base.student.id,
+          )
+          .in(
+            "homework_id",
+            homeworkIds,
+          )
+      : {
+          data:
+            [] as HomeworkSubmission[],
+
+          error: null,
+        };
+
+
+  if (
+    submissionResult.error
+  ) {
+    throw new Error(
+      submissionResult.error.message,
+    );
+  }
+
+
+  const selectedTutor =
+    tutorResult.data as
+      | PortalTutor
+      | null;
+
+
+  return {
+    ...base,
+
+    courses,
+
+    engagement:
+      selected,
+
+    plan:
+      (
+        planResult.data ||
+        []
+      ) as LearningPlanItem[],
+
+    sessions:
+      (
+        sessionResult.data ||
+        []
+      ) as PortalSession[],
+
+    homework:
+      homeworkRows,
+
+    resources:
+      (
+        resourceResult.data ||
+        []
+      ) as LearningResource[],
+
+    submissions:
+      (
+        submissionResult.data ||
+        []
+      ) as HomeworkSubmission[],
+
+    tutorName:
+      selectedTutor?.name ||
+      null,
+
+    tutor:
+      selectedTutor,
+
+    supportRequests:
+      (
+        supportResult.data ||
+        []
+      ) as PortalSupportRequest[],
+
+    progressReports:
+      (
+        progressResult.data ||
+        []
+      ) as ProgressReport[],
+  };
+}

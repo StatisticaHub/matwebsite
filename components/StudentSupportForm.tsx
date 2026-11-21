@@ -1,61 +1,245 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import {
+  FormEvent,
+  useState,
+} from "react";
 
-export default function StudentSupportForm({ token }: { token: string }) {
-  const router = useRouter();
-  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
-  const [message, setMessage] = useState("");
-  const [category, setCategory] = useState("general");
+import {
+  useRouter,
+} from "next/navigation";
 
-  async function submit(event: FormEvent<HTMLFormElement>) {
+
+export default function StudentSupportForm({
+  token,
+  engagementId,
+}: {
+  token: string;
+
+  engagementId?:
+    | string
+    | null;
+}) {
+  const router =
+    useRouter();
+
+
+  const [
+    status,
+    setStatus,
+  ] =
+    useState<
+      | "idle"
+      | "sending"
+      | "sent"
+      | "error"
+    >(
+      "idle",
+    );
+
+
+  const [
+    message,
+    setMessage,
+  ] =
+    useState("");
+
+
+  const [
+    category,
+    setCategory,
+  ] =
+    useState(
+      "general",
+    );
+
+
+  async function submit(
+    event:
+      FormEvent<HTMLFormElement>,
+  ) {
     event.preventDefault();
-    if (!message.trim() || status === "sending") return;
-    setStatus("sending");
+
+    if (
+      !message.trim() ||
+      status ===
+        "sending"
+    ) {
+      return;
+    }
+
+
+    setStatus(
+      "sending",
+    );
+
 
     try {
-      const response = await fetch(`/api/portal/${encodeURIComponent(token)}/support`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ category, message }),
-      });
-      if (!response.ok) throw new Error("Request failed");
+      const response =
+        await fetch(
+          `/api/portal/${encodeURIComponent(
+            token,
+          )}/support`,
+          {
+            method:
+              "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                engagementId:
+                  engagementId ||
+                  null,
+
+                category,
+
+                message,
+              }),
+          },
+        );
+
+
+      if (!response.ok) {
+        throw new Error(
+          "Request failed",
+        );
+      }
+
+
       setMessage("");
-      setStatus("sent");
+
+      setStatus(
+        "sent",
+      );
+
       router.refresh();
+
     } catch {
-      setStatus("error");
+      setStatus(
+        "error",
+      );
     }
   }
 
+
   return (
-    <form className="portal-form" onSubmit={submit}>
+    <form
+      className="portal-form"
+      onSubmit={
+        submit
+      }
+    >
+
       <label>
-        <span>What do you need help with?</span>
-        <select value={category} onChange={(event) => setCategory(event.target.value)}>
-          <option value="general">General support</option>
-          <option value="lesson">Lesson / topic</option>
-          <option value="homework">Homework</option>
-          <option value="resource">Learning resource</option>
-          <option value="technical">Technical issue</option>
+
+        <span>
+          What do you need help
+          with?
+        </span>
+
+        <select
+          value={
+            category
+          }
+          onChange={(
+            event,
+          ) =>
+            setCategory(
+              event.target.value,
+            )
+          }
+        >
+
+          <option value="general">
+            General support
+          </option>
+
+          <option value="lesson">
+            Lesson / topic
+          </option>
+
+          <option value="homework">
+            Homework
+          </option>
+
+          <option value="resource">
+            Learning resource
+          </option>
+
+          <option value="technical">
+            Technical issue
+          </option>
+
         </select>
+
       </label>
+
+
       <label>
-        <span>Message</span>
+
+        <span>
+          Message
+        </span>
+
         <textarea
-          value={message}
-          maxLength={3000}
+          value={
+            message
+          }
+          maxLength={
+            3000
+          }
           required
-          onChange={(event) => setMessage(event.target.value)}
+          onChange={(
+            event,
+          ) =>
+            setMessage(
+              event.target.value,
+            )
+          }
           placeholder="Tell us what you need and we’ll pick it up from your learning record."
         />
+
       </label>
-      <button className="button button-primary" disabled={status === "sending"} type="submit">
-        {status === "sending" ? "Sending…" : "Send request"}
+
+
+      <button
+        className="button button-primary"
+        disabled={
+          status ===
+          "sending"
+        }
+        type="submit"
+      >
+        {status ===
+        "sending"
+          ? "Sending…"
+          : "Send request"}
       </button>
-      {status === "sent" && <p className="portal-form-success">Request sent. Your tutoring team can now see it.</p>}
-      {status === "error" && <p className="portal-form-error">We could not send that request. Please try again.</p>}
+
+
+      {status ===
+        "sent" && (
+        <p className="portal-form-success">
+          Request sent. Your
+          tutoring team can now
+          see it.
+        </p>
+      )}
+
+
+      {status ===
+        "error" && (
+        <p className="portal-form-error">
+          We could not send that
+          request. Please try
+          again.
+        </p>
+      )}
+
     </form>
   );
 }

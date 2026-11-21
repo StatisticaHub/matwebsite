@@ -1832,3 +1832,400 @@
     display: grid;
   }
 }
+
+
+/* ============================================================
+   CREATE SESSION INSIDE WEEK
+   ============================================================ */
+
+.shell :global(.tutor-week-create-session) {
+  margin:
+    0 0 14px;
+
+  padding:
+    12px 13px;
+
+  background: #f7f9fc;
+
+  border:
+    1px solid
+    #e0e7ef;
+
+  border-radius: 10px;
+}
+
+
+.shell :global(.tutor-week-create-session > summary) {
+  color: #255d9c;
+
+  font-size: 9px;
+  font-weight: 850;
+
+  cursor: pointer;
+
+  list-style: none;
+}
+
+
+.shell :global(.tutor-week-create-session > summary::-webkit-details-marker) {
+  display: none;
+}
+
+
+.shell :global(.tutor-week-create-session[open] > summary) {
+  margin-bottom: 14px;
+
+  padding-bottom: 11px;
+
+  border-bottom:
+    1px solid
+    #e1e7ee;
+}
+
+
+.shell :global(.tutor-week-notify-toggle) {
+  display: flex !important;
+  align-items: center;
+
+  grid-template-columns:
+    auto 1fr !important;
+
+  gap: 8px !important;
+}
+
+
+.shell :global(.tutor-week-notify-toggle input) {
+  width: auto !important;
+  margin: 0;
+}
+
+
+.shell :global(.tutor-week-notify-toggle span) {
+  color: #65798f !important;
+
+  font-size: 9px !important;
+}
+
+
+/* ============================================================
+   MULTI-COURSE TUTOR STUDENT DIRECTORY
+   ============================================================ */
+
+.shell :global(.tutor-student-summary-metrics) {
+  margin-bottom: 20px;
+}
+
+
+.shell :global(.tutor-student-group-list) {
+  display: grid;
+
+  gap: 18px;
+}
+
+
+.shell :global(.tutor-student-group-card) {
+  overflow: hidden;
+
+  padding: 0;
+}
+
+
+.shell :global(.tutor-student-group-head) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  padding: 20px 22px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f8fafd 0%,
+      #ffffff 100%
+    );
+
+  border-bottom:
+    1px solid
+    #e2e8ef;
+}
+
+
+.shell :global(.tutor-student-identity) {
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+}
+
+
+.shell :global(.tutor-student-avatar) {
+  display: grid;
+  place-items: center;
+
+  width: 43px;
+  height: 43px;
+
+  flex: 0 0 auto;
+
+  color: #285f98;
+  background: #e6eef8;
+
+  border-radius: 12px;
+
+  font-size: 17px;
+  font-weight: 850;
+}
+
+
+.shell :global(.tutor-student-identity h2) {
+  margin:
+    3px 0 2px;
+
+  color: #1e3d5b;
+
+  font-size: 18px;
+}
+
+
+.shell :global(.tutor-student-identity p) {
+  margin: 0;
+
+  color: #778698;
+
+  font-size: 9px;
+}
+
+
+.shell :global(.tutor-student-group-meta) {
+  text-align: right;
+}
+
+
+.shell :global(.tutor-student-group-meta strong) {
+  display: block;
+
+  color: #5a6f86;
+
+  font-size: 9px;
+}
+
+
+.shell :global(.tutor-student-group-meta a) {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #2d649d;
+
+  font-size: 8.5px;
+}
+
+
+/* ------------------------------------------------------------
+   Course workspaces
+   ------------------------------------------------------------ */
+
+.shell :global(.tutor-student-course-list) {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 12px;
+
+  padding: 16px;
+}
+
+
+.shell :global(.tutor-student-course-card) {
+  min-width: 0;
+
+  padding: 15px;
+
+  background: #fbfcfe;
+
+  border:
+    1px solid
+    #e0e7ef;
+
+  border-radius: 12px;
+}
+
+
+.shell :global(.tutor-student-course-top) {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 14px;
+}
+
+
+.shell :global(.tutor-student-course-top h3) {
+  margin:
+    3px 0 2px;
+
+  color: #23425f;
+
+  font-size: 14px;
+}
+
+
+.shell :global(.tutor-student-course-top p) {
+  margin: 0;
+
+  color: #7c8998;
+
+  font-size: 8.5px;
+}
+
+
+/* ------------------------------------------------------------
+   Course facts
+   ------------------------------------------------------------ */
+
+.shell :global(.tutor-course-facts) {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap:
+    9px 14px;
+
+  margin:
+    14px 0 0;
+}
+
+
+.shell :global(.tutor-course-facts div) {
+  min-width: 0;
+}
+
+
+.shell :global(.tutor-course-facts dt) {
+  color: #8996a5;
+
+  font-size: 6.5px;
+  font-weight: 850;
+
+  letter-spacing: .045em;
+  text-transform: uppercase;
+}
+
+
+.shell :global(.tutor-course-facts dd) {
+  overflow-wrap: anywhere;
+
+  margin:
+    3px 0 0;
+
+  color: #53687e;
+
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+
+.shell :global(.tutor-course-goal) {
+  margin-top: 13px;
+
+  padding: 9px 10px;
+
+  background: #f2f5f8;
+
+  border-radius: 8px;
+}
+
+
+.shell :global(.tutor-course-goal span) {
+  color: #8391a1;
+
+  font-size: 6.5px;
+  font-weight: 850;
+
+  text-transform: uppercase;
+}
+
+
+.shell :global(.tutor-course-goal p) {
+  margin:
+    4px 0 0;
+
+  color: #586d83;
+
+  font-size: 8.5px;
+  line-height: 1.45;
+}
+
+
+/* ------------------------------------------------------------
+   Course actions
+   ------------------------------------------------------------ */
+
+.shell :global(.tutor-course-actions) {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 7px;
+
+  margin-top: 14px;
+}
+
+
+.shell :global(.tutor-course-actions .tutor-primary-button),
+.shell :global(.tutor-course-actions .tutor-secondary-button) {
+  font-size: 8px;
+}
+
+
+.shell :global(.tutor-course-text-link) {
+  padding:
+    6px 4px;
+
+  color: #607a94;
+
+  font-size: 8px;
+  font-weight: 750;
+}
+
+
+/* ------------------------------------------------------------
+   Responsive
+   ------------------------------------------------------------ */
+
+@media (max-width: 850px) {
+
+  .shell :global(.tutor-student-course-list) {
+    grid-template-columns:
+      1fr;
+  }
+}
+
+
+@media (max-width: 620px) {
+
+  .shell :global(.tutor-student-group-head) {
+    display: grid;
+  }
+
+
+  .shell :global(.tutor-student-group-meta) {
+    text-align: left;
+  }
+
+
+  .shell :global(.tutor-course-facts) {
+    grid-template-columns:
+      1fr;
+  }
+}

@@ -17,7 +17,7 @@ import SessionChangeRequestForm from "@/components/SessionChangeRequestForm";
 import StudentSupportForm from "@/components/StudentSupportForm";
 
 import {
-  getPortalContext,
+  getPortalCourseContext,
   safeExternalUrl,
 } from "@/lib/student-portal";
 
@@ -53,6 +53,10 @@ export const metadata: Metadata = {
 
 type Params = Promise<{
   token: string;
+}>;
+
+type SearchParams = Promise<{
+  course?: string;
 }>;
 
 
@@ -208,17 +212,23 @@ function supportCategoryLabel(
 
 export default async function StudentPortalPage({
   params,
+  searchParams,
 }: {
   params: Params;
+  searchParams: SearchParams;
 }) {
   const {
     token,
   } = await params;
 
+  const query =
+    await searchParams;
+
 
   const context =
-    await getPortalContext(
-      token
+    await getPortalCourseContext(
+      token,
+      query.course || null,
     );
 
 
@@ -277,6 +287,7 @@ export default async function StudentPortalPage({
   const {
     student,
     engagement,
+    courses,
     plan,
     sessions,
     homework,
@@ -574,6 +585,99 @@ export default async function StudentPortalPage({
         className="portal-page"
         id="overview"
       >
+
+        {courses.length > 1 && (
+          <section className="portal-course-switcher">
+
+            <div className="portal-course-switcher-head">
+
+              <div>
+
+                <span className="portal-kicker">
+                  Your courses
+                </span>
+
+                <h2>
+                  Choose a learning workspace
+                </h2>
+
+              </div>
+
+              <span>
+                {courses.length} active courses
+              </span>
+
+            </div>
+
+
+            <div className="portal-course-switcher-grid">
+
+              {courses.map(
+                (course) => {
+
+                  const selected =
+                    engagement?.id ===
+                    course.id;
+
+                  return (
+                    <a
+                      className={
+                        selected
+                          ? "is-active"
+                          : ""
+                      }
+                      href={`/portal/${encodeURIComponent(
+                        token,
+                      )}?course=${encodeURIComponent(
+                        course.id,
+                      )}`}
+                      key={
+                        course.id
+                      }
+                    >
+
+                      <div>
+
+                        <strong>
+                          {
+                            course.subject
+                          }
+                        </strong>
+
+                        <span>
+                          {course.module ||
+                            course.title}
+                        </span>
+
+                      </div>
+
+
+                      <div className="portal-course-switcher-meta">
+
+                        <small>
+                          {course.tutorName
+                            ? `Tutor: ${course.tutorName}`
+                            : "Tutor being arranged"}
+                        </small>
+
+                        {selected && (
+                          <b>
+                            Current
+                          </b>
+                        )}
+
+                      </div>
+
+                    </a>
+                  );
+                },
+              )}
+
+            </div>
+
+          </section>
+        )}
+
 
         {/* ==================================================================
             WELCOME
@@ -1601,6 +1705,9 @@ export default async function StudentPortalPage({
 
                     <SessionChangeRequestForm
                       token={token}
+                      engagementId={
+                        engagement.id
+                      }
                       defaultSessionId={
                         nextSession?.id
                       }
@@ -2264,6 +2371,9 @@ export default async function StudentPortalPage({
 
                   <SessionRequestForm
                     token={token}
+                    engagementId={
+                      engagement.id
+                    }
                   />
                 </section>
 
@@ -2513,6 +2623,10 @@ export default async function StudentPortalPage({
 
                   <StudentSupportForm
                     token={token}
+                    engagementId={
+                      engagement?.id ||
+                      null
+                    }
                   />
 
 

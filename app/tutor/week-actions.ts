@@ -4,6 +4,9 @@ import { revalidatePath } from "next/cache";
 
 import { getTutorSession } from "@/lib/tutor-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+
+import { sendSessionNotification } from "@/lib/email/student";
+import { recordStudentCommunication } from "@/lib/student-communications";
 import { uuidPattern } from "@/lib/learning-materials";
 
 
@@ -859,5 +862,703 @@ export async function removeTutorSessionFromWeek(
 
   refreshWorkspace(
     week.engagement_id,
+  );
+}
+
+
+
+/* ============================================================
+   DIRECT SESSION CREATION INSIDE A WEEK
+   ============================================================ */
+
+function tutorSessionSafeUrl(
+  value: string | null,
+) {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    const url =
+      new URL(value);
+
+    if (
+      url.protocol !== "https:" &&
+      url.protocol !== "http:"
+    ) {
+      return null;
+    }
+
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
+
+function timezoneOffsetMs(
+  date: Date,
+  timeZone: string,
+) {
+  const parts =
+    new Intl.DateTimeFormat(
+      "en-GB",
+      {
+        timeZone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hourCycle: "h23",
+      },
+    ).formatToParts(
+      date,
+    );
+
+  const map =
+    Object.fromEntries(
+      parts
+        .filter(
+          (part) =>
+            part.type !==
+            "literal",
+        )
+        .map(
+          (part) => [
+            part.type,
+            part.value,
+          ],
+        ),
+    );
+
+  const asUtc =
+    Date.UTC(
+      Number(map.year),
+      Number(map.month) - 1,
+      Number(map.day),
+      Number(map.hour),
+      Number(map.minute),
+      Number(map.second),
+    );
+
+  return (
+    asUtc -
+    date.getTime()
+  );
+}
+
+
+function tutorUkLocalToIso(
+  value: string,
+) {
+  const match =
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(
+      value,
+    );
+
+  if (!match) {
+    return null;
+  }
+
+  const [
+    ,
+    year,
+    month,
+    day,
+    hour,
+    minute,
+  ] = match;
+
+  const provisional =
+    new Date(
+      Date.UTC(
+        Number(year),
+        Number(month) - 1,
+        Number(day),
+        Number(hour),
+        Number(minute),
+        0,
+      ),
+    );
+
+  const firstOffset =
+    timezoneOffsetMs(
+      provisional,
+      "Europe/London",
+    );
+
+  let resolved =
+    new Date(
+      provisional.getTime() -
+        firstOffset,
+    );
+
+  const secondOffset =
+    timezoneOffsetMs(
+      resolved,
+      "Europe/London",
+    );
+
+  if (
+    secondOffset !==
+    firstOffset
+  ) {
+    resolved =
+      new Date(
+        provisional.getTime() -
+          secondOffset,
+      );
+  }
+
+  return Number.isNaN(
+    resolved.getTime(),
+  )
+    ? null
+    : resolved.toISOString();
+}
+
+
+export async function createTutorSessionInWeek(
+  formData: FormData,
+) {
+  const {
+    auth,
+    supabase,
+  } =
+    await getContext();
+
+
+  const weekId =
+    clean(
+      formData.get(
+        "weekId",
+      ),
+      100,
+    );
+
+
+  if (
+    !uuidPattern.test(
+      weekId,
+    )
+  ) {
+    throw new Error(
+      "Invalid learning week.",
+    );
+  }
+
+
+  /*
+   * requireWeek also proves that the
+   * engagement belongs to this tutor.
+   */
+  const ownedWeek =
+    await requireWeek(
+      weekId,
+      auth.tutor.id,
+    );
+
+
+  const {
+    data: week,
+    error: weekError,
+  } =
+    await supabase
+      .from(
+        "tutoring_weeks",
+      )
+      .select(
+        "id,engagement_id,week_start,week_end",
+      )
+      .eq(
+        "id",
+        weekId,
+      )
+      .eq(
+        "engagement_id",
+        ownedWeek.engagement_id,
+      )
+      .maybeSingle();
+
+
+  if (
+    weekError ||
+    !week
+  ) {
+    throw new Error(
+      "Learning week not found.",
+    );
+  }
+
+
+  const {
+    data: engagement,
+    error:
+      engagementError,
+  } =
+    await supabase
+      .from(
+        "tutoring_engagements",
+      )
+      .select(
+        "id,student_id,tutor_id,subject,session_duration_minutes,student_rate,tutor_rate,currency",
+      )
+      .eq(
+        "id",
+        week.engagement_id,
+      )
+      .eq(
+        "tutor_id",
+        auth.tutor.id,
+      )
+      .maybeSingle();
+
+
+  if (
+    engagementError ||
+    !engagement
+  ) {
+    throw new Error(
+      "You do not have access to this course workspace.",
+    );
+  }
+
+
+  const topic =
+    clean(
+      formData.get(
+        "topic",
+      ),
+      500,
+    );
+
+
+  const rawScheduledFor =
+    clean(
+      formData.get(
+        "scheduledFor",
+      ),
+      40,
+    );
+
+
+  const rawDuration =
+    Number(
+      clean(
+        formData.get(
+          "durationMinutes",
+        ),
+        20,
+      ),
+    );
+
+
+  const duration =
+    Number.isFinite(
+      rawDuration,
+    ) &&
+    rawDuration >= 15 &&
+    rawDuration <= 480
+      ? Math.round(
+          rawDuration,
+        )
+      : Number(
+          engagement.session_duration_minutes ||
+            60,
+        );
+
+
+  if (
+    !topic ||
+    !rawScheduledFor
+  ) {
+    throw new Error(
+      "Session topic and date/time are required.",
+    );
+  }
+
+
+  /*
+   * The session belongs to this exact week,
+   * so keep its calendar date inside the
+   * week boundaries.
+   */
+  const localDate =
+    rawScheduledFor.slice(
+      0,
+      10,
+    );
+
+
+  if (
+    localDate <
+      week.week_start ||
+    localDate >
+      week.week_end
+  ) {
+    throw new Error(
+      `Choose a session date between ${week.week_start} and ${week.week_end}.`,
+    );
+  }
+
+
+  const scheduledFor =
+    tutorUkLocalToIso(
+      rawScheduledFor,
+    );
+
+
+  if (!scheduledFor) {
+    throw new Error(
+      "Please choose a valid UK date and time.",
+    );
+  }
+
+
+  /*
+   * Check this tutor across ALL of their
+   * courses and students.
+   *
+   * This is particularly important now that
+   * one tutor may teach the same student on
+   * more than one course.
+   */
+  const {
+    data:
+      existingSessions,
+    error:
+      sessionCheckError,
+  } =
+    await supabase
+      .from(
+        "tutoring_sessions",
+      )
+      .select(
+        "id,topic,scheduled_for,duration_minutes,engagement_id",
+      )
+      .eq(
+        "tutor_id",
+        auth.tutor.id,
+      )
+      .eq(
+        "status",
+        "planned",
+      )
+      .not(
+        "scheduled_for",
+        "is",
+        null,
+      );
+
+
+  if (sessionCheckError) {
+    throw new Error(
+      sessionCheckError.message,
+    );
+  }
+
+
+  const newStart =
+    new Date(
+      scheduledFor,
+    ).getTime();
+
+
+  const newEnd =
+    newStart +
+    duration *
+      60 *
+      1000;
+
+
+  const conflict =
+    (
+      existingSessions ||
+      []
+    ).find(
+      (session) => {
+        if (
+          !session.scheduled_for
+        ) {
+          return false;
+        }
+
+        const existingStart =
+          new Date(
+            session.scheduled_for,
+          ).getTime();
+
+        const existingEnd =
+          existingStart +
+          Number(
+            session.duration_minutes ||
+              60,
+          ) *
+            60 *
+            1000;
+
+        return (
+          newStart <
+            existingEnd &&
+          existingStart <
+            newEnd
+        );
+      },
+    );
+
+
+  if (conflict) {
+    const when =
+      new Intl.DateTimeFormat(
+        "en-GB",
+        {
+          dateStyle:
+            "medium",
+
+          timeStyle:
+            "short",
+
+          timeZone:
+            "Europe/London",
+        },
+      ).format(
+        new Date(
+          conflict.scheduled_for,
+        ),
+      );
+
+    throw new Error(
+      `You already have "${conflict.topic}" scheduled at ${when}. Choose another time.`,
+    );
+  }
+
+
+  const {
+    data:
+      lastPosition,
+  } =
+    await supabase
+      .from(
+        "tutoring_sessions",
+      )
+      .select(
+        "week_position",
+      )
+      .eq(
+        "week_id",
+        weekId,
+      )
+      .order(
+        "week_position",
+        {
+          ascending: false,
+          nullsFirst: false,
+        },
+      )
+      .limit(1);
+
+
+  const weekPosition =
+    Number(
+      lastPosition?.[0]
+        ?.week_position ||
+        0,
+    ) + 1;
+
+
+  const meetingUrl =
+    tutorSessionSafeUrl(
+      clean(
+        formData.get(
+          "meetingUrl",
+        ),
+        1000,
+      ) ||
+        null,
+    );
+
+
+  const lessonNotes =
+    clean(
+      formData.get(
+        "lessonNotes",
+      ),
+      8000,
+    ) ||
+    null;
+
+
+  const {
+    data: created,
+    error:
+      createError,
+  } =
+    await supabase
+      .from(
+        "tutoring_sessions",
+      )
+      .insert({
+        engagement_id:
+          engagement.id,
+
+        week_id:
+          weekId,
+
+        week_position:
+          weekPosition,
+
+        tutor_id:
+          auth.tutor.id,
+
+        scheduled_for:
+          scheduledFor,
+
+        completed_at:
+          null,
+
+        duration_minutes:
+          duration,
+
+        status:
+          "planned",
+
+        topic,
+
+        lesson_notes:
+          lessonNotes,
+
+        understanding_rating:
+          null,
+
+        next_topic:
+          null,
+
+        homework_summary:
+          null,
+
+        meeting_url:
+          meetingUrl,
+
+        student_rate:
+          engagement.student_rate,
+
+        tutor_rate:
+          engagement.tutor_rate,
+
+        currency:
+          engagement.currency ||
+          "GBP",
+      })
+      .select(
+        "id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary,meeting_url",
+      )
+      .single();
+
+
+  if (
+    createError ||
+    !created
+  ) {
+    throw new Error(
+      createError?.message ||
+        "Could not create the session.",
+    );
+  }
+
+
+  /*
+   * Optional student notification.
+   * Uses the same email workflow as the
+   * existing admin session scheduler.
+   */
+  if (
+    formData.get(
+      "notifyStudent",
+    ) === "on"
+  ) {
+    const {
+      data: student,
+    } =
+      await supabase
+        .from(
+          "students",
+        )
+        .select(
+          "name,email",
+        )
+        .eq(
+          "id",
+          engagement.student_id,
+        )
+        .maybeSingle();
+
+
+    if (
+      student?.email
+    ) {
+      const result =
+        await sendSessionNotification({
+          sessionId:
+            created.id,
+
+          name:
+            student.name,
+
+          email:
+            student.email,
+
+          topic:
+            created.topic,
+
+          status:
+            created.status,
+
+          scheduledFor:
+            created.scheduled_for,
+
+          durationMinutes:
+            created.duration_minutes,
+
+          nextTopic:
+            created.next_topic,
+
+          homeworkSummary:
+            created.homework_summary,
+
+          meetingUrl:
+            created.meeting_url,
+        });
+
+
+      await recordStudentCommunication({
+        studentId:
+          engagement.student_id,
+
+        engagementId:
+          engagement.id,
+
+        type:
+          "session_update",
+
+        recipient:
+          student.email,
+
+        subject:
+          `Tutoring session scheduled: ${created.topic}`,
+
+        result,
+
+        createdByEmail:
+          auth.user.email ||
+          null,
+      });
+    }
+  }
+
+
+  refreshWorkspace(
+    engagement.id,
   );
 }

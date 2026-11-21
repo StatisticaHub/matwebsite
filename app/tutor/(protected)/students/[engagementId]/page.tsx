@@ -9,6 +9,7 @@ import LearningMaterialsList, {
 import {
   assignTutorSessionToWeek,
   changeTutorWeekStatus,
+  createTutorSessionInWeek,
   createTutorWeek,
   removeTutorSessionFromWeek,
   updateTutorWeek,
@@ -944,6 +945,148 @@ export default async function TutorStudentWeeklyWorkspace({
                     </span>
 
                   </div>
+
+
+                  <details className="tutor-week-create-session">
+
+                    <summary>
+                      + Schedule a new session in this week
+                    </summary>
+
+
+                    <form
+                      action={
+                        createTutorSessionInWeek
+                      }
+                      className="tutor-form"
+                    >
+
+                      <input
+                        type="hidden"
+                        name="weekId"
+                        value={
+                          week.id
+                        }
+                      />
+
+
+                      <div className="tutor-form-grid">
+
+                        <label>
+
+                          <span>
+                            Date & time
+                            (UK)
+                          </span>
+
+                          <input
+                            name="scheduledFor"
+                            type="datetime-local"
+                            min={`${week.week_start}T00:00`}
+                            max={`${week.week_end}T23:59`}
+                            required
+                          />
+
+                        </label>
+
+
+                        <label>
+
+                          <span>
+                            Duration
+                          </span>
+
+                          <input
+                            name="durationMinutes"
+                            type="number"
+                            min="15"
+                            max="480"
+                            defaultValue={
+                              engagement.session_duration_minutes ||
+                              60
+                            }
+                            required
+                          />
+
+                        </label>
+
+                      </div>
+
+
+                      <label>
+
+                        <span>
+                          Session topic
+                        </span>
+
+                        <input
+                          name="topic"
+                          maxLength={500}
+                          placeholder="e.g. Confidence intervals and hypothesis testing"
+                          required
+                        />
+
+                      </label>
+
+
+                      <label>
+
+                        <span>
+                          Meeting link
+                          optional
+                        </span>
+
+                        <input
+                          name="meetingUrl"
+                          type="url"
+                          placeholder="https://..."
+                        />
+
+                      </label>
+
+
+                      <label>
+
+                        <span>
+                          Preparation /
+                          tutor note
+                        </span>
+
+                        <textarea
+                          name="lessonNotes"
+                          placeholder="What should be prepared or covered in this lesson?"
+                        />
+
+                      </label>
+
+
+                      <label className="tutor-week-notify-toggle">
+
+                        <input
+                          name="notifyStudent"
+                          type="checkbox"
+                          defaultChecked
+                        />
+
+                        <span>
+                          Email the student
+                          when this session
+                          is scheduled
+                        </span>
+
+                      </label>
+
+
+                      <button
+                        className="tutor-primary-button"
+                        type="submit"
+                      >
+                        Schedule session
+                      </button>
+
+                    </form>
+
+                  </details>
 
 
                   <div className="tutor-week-session-stack">

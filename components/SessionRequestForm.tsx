@@ -18,8 +18,10 @@ type Status =
 
 export default function SessionRequestForm({
   token,
+  engagementId,
 }: {
   token: string;
+  engagementId: string;
 }) {
   const router =
     useRouter();
@@ -182,8 +184,11 @@ export default function SessionRequestForm({
 
             body:
               JSON.stringify({
+                engagementId,
+
                 category:
                   "session_request",
+
                 message,
               }),
           }

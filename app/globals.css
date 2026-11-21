@@ -2265,3 +2265,272 @@ div:first-child span {
     justify-content: flex-start;
   }
 }
+
+
+/* ============================================================
+   ADMIN MULTI-COURSE STUDENT WORKSPACES
+   ============================================================ */
+
+.admin-course-workspaces {
+  margin-bottom: 18px;
+}
+
+
+.admin-course-switcher {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(190px, 1fr)
+    );
+
+  gap: 9px;
+
+  margin-top: 15px;
+}
+
+
+.admin-course-switcher > a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  padding: 12px 13px;
+
+  color: inherit;
+  background: #f7f9fb;
+
+  border:
+    1px solid
+    #dfe6ee;
+
+  border-radius: 10px;
+
+  text-decoration: none;
+}
+
+
+.admin-course-switcher > a:hover {
+  border-color: #b9cce2;
+}
+
+
+.admin-course-switcher > a.is-active {
+  background: #edf4fd;
+
+  border-color: #9fbcdd;
+
+  box-shadow:
+    inset 3px 0 0
+    #32699f;
+}
+
+
+.admin-course-switcher strong {
+  display: block;
+
+  color: #294762;
+
+  font-size: 11px;
+}
+
+
+.admin-course-switcher span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #7b8999;
+
+  font-size: 8.5px;
+}
+
+
+.admin-course-switcher small {
+  flex: 0 0 auto;
+
+  color: #61758b;
+
+  font-size: 8px;
+  font-weight: 700;
+}
+
+
+.admin-add-course {
+  margin-top: 15px;
+}
+
+
+/* ============================================================
+   STUDENT PORTAL COURSE SWITCHER
+   ============================================================ */
+
+.portal-course-switcher {
+  margin-bottom: 18px;
+
+  padding: 18px;
+
+  background: #ffffff;
+
+  border:
+    1px solid
+    #dce4ec;
+
+  border-radius: 15px;
+
+  box-shadow:
+    0 7px 24px
+    rgba(25, 52, 82, .04);
+}
+
+
+.portal-course-switcher-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  margin-bottom: 12px;
+}
+
+
+.portal-course-switcher-head h2 {
+  margin: 4px 0 0;
+
+  color: #24415d;
+
+  font-size: 17px;
+}
+
+
+.portal-course-switcher-head > span {
+  color: #8995a4;
+
+  font-size: 8px;
+}
+
+
+.portal-course-switcher-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(190px, 1fr)
+    );
+
+  gap: 8px;
+}
+
+
+.portal-course-switcher-grid > a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  padding: 12px;
+
+  color: inherit;
+  background: #f7f9fb;
+
+  border:
+    1px solid
+    #e0e6ed;
+
+  border-radius: 10px;
+
+  text-decoration: none;
+}
+
+
+.portal-course-switcher-grid > a:hover {
+  border-color:
+    #b5c9df;
+}
+
+
+.portal-course-switcher-grid > a.is-active {
+  background:
+    #edf4fc;
+
+  border-color:
+    #9ebcdc;
+
+  box-shadow:
+    inset 3px 0 0
+    #326aa2;
+}
+
+
+.portal-course-switcher-grid strong {
+  display: block;
+
+  color: #294763;
+
+  font-size: 10.5px;
+}
+
+
+.portal-course-switcher-grid span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #7a8999;
+
+  font-size: 8px;
+}
+
+
+.portal-course-switcher-meta {
+  flex: 0 0 auto;
+
+  text-align: right;
+}
+
+
+.portal-course-switcher-meta small {
+  display: block;
+
+  color: #65788d;
+
+  font-size: 7.5px;
+}
+
+
+.portal-course-switcher-meta b {
+  display: inline-block;
+
+  margin-top: 5px;
+
+  padding:
+    4px 7px;
+
+  color: #276098;
+  background: #dceafb;
+
+  border-radius: 999px;
+
+  font-size: 6.5px;
+
+  text-transform: uppercase;
+}
+
+
+@media (max-width: 650px) {
+
+  .portal-course-switcher-head {
+    display: grid;
+  }
+
+  .portal-course-switcher-grid {
+    grid-template-columns:
+      1fr;
+  }
+}
