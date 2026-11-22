@@ -8,7 +8,6 @@ type RecordingRow = {
   file_size_bytes: number | null;
   recording_start: string | null;
   recording_end: string | null;
-  play_passcode: string | null;
 };
 
 function fileLabel(fileType: string | null) {
@@ -46,7 +45,7 @@ export default async function PortalSessionRecordings({
   const { data, error } = await supabase
     .from("session_recordings")
     .select(
-      "id,file_type,file_extension,recording_type,file_size_bytes,recording_start,recording_end,play_passcode"
+      "id,file_type,file_extension,recording_type,file_size_bytes,recording_start,recording_end"
     )
     .eq("session_id", sessionId)
     .eq("student_visible", true)
@@ -79,9 +78,7 @@ export default async function PortalSessionRecordings({
                     .filter(Boolean)
                     .join(" · ")}
                 </small>
-                {recording.play_passcode && (
-                  <small>Zoom passcode: {recording.play_passcode}</small>
-                )}
+
               </div>
 
               <a

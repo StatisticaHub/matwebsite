@@ -40,7 +40,7 @@ export async function GET(
 
   const { data: recording, error: recordingError } = await supabase
     .from("session_recordings")
-    .select("id,session_id,file_type,status,student_visible,play_url,download_url")
+    .select("id,session_id,file_type,status,student_visible,play_url,download_url,play_passcode")
     .eq("id", recordingId)
     .eq("student_visible", true)
     .eq("status", "completed")
@@ -73,8 +73,21 @@ export async function GET(
     return NextResponse.json({ error: "Recording not found." }, { status: 404 });
   }
 
+  const playTarget =
+    safeRecordingUrl(recording.play_url);
+
+  if (
+    playTarget &&
+    recording.play_passcode
+  ) {
+    playTarget.searchParams.set(
+      "pwd",
+      recording.play_passcode
+    );
+  }
+
   const target =
-    safeRecordingUrl(recording.play_url) ||
+    playTarget ||
     safeRecordingUrl(recording.download_url);
 
   if (!target) {
