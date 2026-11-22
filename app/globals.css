@@ -6615,3 +6615,78 @@ a.is-active {
     white-space: normal;
   }
 }
+
+
+/* MAT global timezone + simplified onboarding foundation */
+.intake-form-intro {
+  margin-bottom: 20px;
+}
+
+.intake-form-intro h2 {
+  margin: 6px 0 7px;
+}
+
+.intake-form-intro p {
+  margin: 0;
+  color: #66768d;
+  line-height: 1.55;
+}
+
+.intake-simple-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.intake-simple-grid label {
+  display: grid;
+  gap: 7px;
+}
+
+.intake-simple-grid label > span {
+  font-weight: 750;
+}
+
+.intake-field-wide {
+  grid-column: 1 / -1;
+}
+
+.intake-simple-grid textarea {
+  min-height: 92px;
+  resize: vertical;
+}
+
+.intake-consent {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  margin: 18px 0;
+}
+
+.intake-consent input {
+  margin-top: 3px;
+}
+
+.intake-honeypot {
+  position: absolute !important;
+  left: -10000px !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.intake-form-error {
+  color: #a12a2a;
+  font-weight: 650;
+}
+
+@media (max-width: 700px) {
+  .intake-simple-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .intake-field-wide {
+    grid-column: auto;
+  }
+}

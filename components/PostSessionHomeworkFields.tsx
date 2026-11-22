@@ -40,7 +40,7 @@ export default function PostSessionHomeworkFields({
               name="homeworkTitle"
               required
               defaultValue={defaultTitle}
-              placeholder="For example: Regression practice — Questions 1–10"
+              placeholder="For example: Topic practice — Questions 1–10"
             />
           </label>
 

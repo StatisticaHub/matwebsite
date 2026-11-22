@@ -1,105 +1,554 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-import type { StudentOnboarding } from "@/lib/student-onboarding";
+import {
+  FormEvent,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
-export default function StudentIntakeForm({
-  token,
-  onboarding,
-  student,
-}: {
+import TimeZoneSelect from "@/components/TimeZoneSelect";
+
+import {
+  DEFAULT_TIME_ZONE,
+  isValidTimeZone,
+} from "@/lib/time-zone";
+
+type LooseObject =
+  Record<string, any>;
+
+type Props = {
   token: string;
-  onboarding: StudentOnboarding;
-  student: { academic_level: string | null; institution: string | null; programme: string | null };
-}) {
-  const [busy, setBusy] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  [key: string]: any;
+};
 
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setBusy(true);
-    setError(null);
-    setSuccess(false);
-    const form = new FormData(event.currentTarget);
-    const payload = Object.fromEntries(form.entries());
+const academicLevels = [
+  "School / Secondary",
+  "GCSE / IGCSE",
+  "A-level / IB",
+  "Undergraduate",
+  "Postgraduate",
+  "Research / Professional",
+  "Other",
+];
 
-    try {
-      const response = await fetch(`/api/intake/${token}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const result = (await response.json()) as { ok?: boolean; error?: string };
-      if (!response.ok || !result.ok) throw new Error(result.error || "Could not save your intake form.");
-      setSuccess(true);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not save your intake form.");
-    } finally {
-      setBusy(false);
+function firstValue(
+  ...values: unknown[]
+) {
+  for (
+    const value of values
+  ) {
+    const text =
+      String(
+        value ?? "",
+      ).trim();
+
+    if (text) {
+      return text;
     }
   }
 
-  if (success) {
+  return "";
+}
+
+export default function StudentIntakeForm(
+  props: Props,
+) {
+  const student =
+    (
+      props.student as
+        | LooseObject
+        | undefined
+    ) ||
+    (
+      props.context
+        ?.student as
+        | LooseObject
+        | undefined
+    ) ||
+    {};
+
+  const onboarding =
+    (
+      props.onboarding as
+        | LooseObject
+        | undefined
+    ) ||
+    (
+      props.context
+        ?.onboarding as
+        | LooseObject
+        | undefined
+    ) ||
+    {};
+
+  const engagement =
+    (
+      props.engagement as
+        | LooseObject
+        | undefined
+    ) ||
+    (
+      props.context
+        ?.engagement as
+        | LooseObject
+        | undefined
+    ) ||
+    {};
+
+  const initialLevel =
+    firstValue(
+      props.initialAcademicLevel,
+      props.academicLevel,
+      student.academic_level,
+    );
+
+  const initialGoal =
+    firstValue(
+      props.initialTargetOutcome,
+      props.targetOutcome,
+      onboarding.target_outcome,
+      engagement.current_focus,
+      engagement.goal,
+    );
+
+  const initialAvailability =
+    firstValue(
+      props.initialAvailability,
+      props.availability,
+      onboarding.availability,
+    );
+
+  const initialNote =
+    firstValue(
+      props.initialAnythingElse,
+      props.anythingElse,
+      onboarding.anything_else,
+    );
+
+  const suppliedTimeZone =
+    firstValue(
+      props.initialTimeZone,
+      props.timezone,
+      onboarding.timezone,
+    );
+
+  const [
+    timeZone,
+    setTimeZone,
+  ] =
+    useState(
+      isValidTimeZone(
+        suppliedTimeZone,
+      )
+        ? suppliedTimeZone
+        : DEFAULT_TIME_ZONE,
+    );
+
+  const [
+    status,
+    setStatus,
+  ] =
+    useState<
+      | "idle"
+      | "saving"
+      | "saved"
+      | "error"
+    >("idle");
+
+  const [
+    message,
+    setMessage,
+  ] =
+    useState("");
+
+  const detectedTimeZone =
+    useMemo(
+      () => {
+        try {
+          return (
+            Intl.DateTimeFormat()
+              .resolvedOptions()
+              .timeZone ||
+            ""
+          );
+        } catch {
+          return "";
+        }
+      },
+      [],
+    );
+
+  useEffect(
+    () => {
+      if (
+        !suppliedTimeZone &&
+        detectedTimeZone &&
+        isValidTimeZone(
+          detectedTimeZone,
+        )
+      ) {
+        setTimeZone(
+          detectedTimeZone,
+        );
+      }
+    },
+    [
+      detectedTimeZone,
+      suppliedTimeZone,
+    ],
+  );
+
+  async function submit(
+    event:
+      FormEvent<HTMLFormElement>,
+  ) {
+    event.preventDefault();
+
+    if (
+      status ===
+      "saving"
+    ) {
+      return;
+    }
+
+    const form =
+      new FormData(
+        event.currentTarget,
+      );
+
+    const academicLevel =
+      String(
+        form.get(
+          "academicLevel",
+        ) || "",
+      ).trim();
+
+    const targetOutcome =
+      String(
+        form.get(
+          "targetOutcome",
+        ) || "",
+      ).trim();
+
+    const availability =
+      String(
+        form.get(
+          "availability",
+        ) || "",
+      ).trim();
+
+    const anythingElse =
+      String(
+        form.get(
+          "anythingElse",
+        ) || "",
+      ).trim();
+
+    const consent =
+      form.get(
+        "consent",
+      ) ===
+      "yes";
+
+    if (
+      !academicLevel ||
+      !targetOutcome ||
+      !availability
+    ) {
+      setStatus(
+        "error",
+      );
+
+      setMessage(
+        "Please complete your level, what you want help with, and your usual availability.",
+      );
+
+      return;
+    }
+
+    if (!consent) {
+      setStatus(
+        "error",
+      );
+
+      setMessage(
+        "Please confirm the tutoring setup checkbox.",
+      );
+
+      return;
+    }
+
+    setStatus(
+      "saving",
+    );
+
+    setMessage("");
+
+    try {
+      const response =
+        await fetch(
+          `/api/intake/${encodeURIComponent(
+            props.token,
+          )}`,
+          {
+            method:
+              "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                company:
+                  "",
+
+                consent:
+                  "yes",
+
+                academicLevel,
+
+                targetOutcome,
+
+                timezone:
+                  timeZone,
+
+                availability,
+
+                anythingElse,
+              }),
+          },
+        );
+
+      const result =
+        await response
+          .json()
+          .catch(
+            () => null,
+          );
+
+      if (
+        !response.ok
+      ) {
+        throw new Error(
+          result?.error ||
+            "Could not save your learning details.",
+        );
+      }
+
+      setStatus(
+        "saved",
+      );
+    } catch (
+      error
+    ) {
+      setStatus(
+        "error",
+      );
+
+      setMessage(
+        error instanceof
+          Error
+          ? error.message
+          : "Could not save your learning details.",
+      );
+    }
+  }
+
+  if (
+    status ===
+    "saved"
+  ) {
     return (
-      <div className="intake-success-card">
-        <span>Submitted</span>
-        <h2>Thank you — your tutoring team has your learning details.</h2>
-        <p>We will use this information to refine your learning plan, tutor preparation and first sessions. You can safely close this page.</p>
-      </div>
+      <section className="intake-card intake-success">
+        <span className="intake-kicker">
+          All set
+        </span>
+
+        <h2>
+          Your learning details
+          are saved.
+        </h2>
+
+        <p>
+          Your tutor now has the
+          essentials needed to
+          prepare for your tutoring.
+        </p>
+      </section>
     );
   }
 
   return (
-    <form className="intake-form" onSubmit={submit}>
-      <input className="intake-honeypot" name="company" tabIndex={-1} autoComplete="off" aria-hidden="true" />
+    <form
+      className="intake-form"
+      onSubmit={submit}
+    >
+      <div className="intake-form-intro">
+        <span className="intake-kicker">
+          Quick learning setup
+        </span>
 
-      <section className="intake-form-section">
-        <div><span>01</span><h2>Your course</h2><p>Tell us about your course so your tutor can prepare for the right level and topics.</p></div>
-        <div className="intake-fields">
-          <label><span>Academic level</span><input name="academicLevel" defaultValue={student.academic_level || ""} placeholder="e.g. MSc / Year 12 / AP" /></label>
-          <label><span>Institution or school</span><input name="institution" defaultValue={student.institution || ""} placeholder="University, college or school" /></label>
-          <label className="wide"><span>Programme / course</span><input name="programme" defaultValue={student.programme || ""} placeholder="e.g. MSc Finance, A-Level Mathematics" /></label>
-          <label className="wide"><span>Course or module context</span><textarea name="courseContext" defaultValue={onboarding.course_context || ""} placeholder="Module name, syllabus, current teaching block, software used, or anything else that helps us prepare." /></label>
-        </div>
-      </section>
+        <h2>
+          Just the essentials.
+        </h2>
 
-      <section className="intake-form-section">
-        <div><span>02</span><h2>Your goals</h2><p>Tell us what a successful tutoring outcome looks like.</p></div>
-        <div className="intake-fields">
-          <label className="wide"><span>Target outcome</span><textarea name="targetOutcome" defaultValue={onboarding.target_outcome || ""} required placeholder="What would you like to be able to do, understand or achieve?" /></label>
-          <label><span>Important date</span><input name="targetDate" type="date" defaultValue={onboarding.target_date || ""} /></label>
-          <label><span>Current confidence</span><select name="currentConfidence" defaultValue={onboarding.current_confidence?.toString() || ""}><option value="">Select</option><option value="1">1 — very low</option><option value="2">2</option><option value="3">3 — mixed</option><option value="4">4</option><option value="5">5 — strong</option></select></label>
-          <label className="wide"><span>Upcoming assessment context</span><textarea name="assessmentContext" defaultValue={onboarding.assessment_context || ""} placeholder="Exam, assignment, dissertation milestone, coursework, interview, resit, etc." /></label>
-        </div>
-      </section>
+        <p>
+          This should take about a
+          minute. Your tutor can
+          learn the finer details
+          with you during your first
+          lesson.
+        </p>
+      </div>
 
-      <section className="intake-form-section">
-        <div><span>03</span><h2>How you learn</h2><p>This helps us shape explanations, practice and lesson pacing around you.</p></div>
-        <div className="intake-fields">
-          <label className="wide"><span>Topics you already feel comfortable with</span><textarea name="strongTopics" defaultValue={onboarding.strong_topics || ""} placeholder="List topics, methods or skills you already understand reasonably well." /></label>
-          <label className="wide"><span>Topics you find difficult</span><textarea name="weakTopics" defaultValue={onboarding.weak_topics || ""} placeholder="Be as specific as you can — concepts, question types, software, mathematical steps, etc." /></label>
-          <label className="wide"><span>Learning preferences</span><textarea name="learningPreferences" defaultValue={onboarding.learning_preferences || ""} placeholder="Worked examples, derivations, visual explanations, exam practice, slower theory, coding demonstrations…" /></label>
-        </div>
-      </section>
+      <div className="intake-simple-grid">
+        <label>
+          <span>
+            1. Your level
+          </span>
 
-      <section className="intake-form-section">
-        <div><span>04</span><h2>Scheduling & support</h2><p>Give us the practical details that help tutoring run smoothly.</p></div>
-        <div className="intake-fields">
-          <label><span>Timezone</span><input name="timezone" defaultValue={onboarding.timezone || ""} placeholder="e.g. Europe/London" /></label>
-          <label><span>Typical availability</span><input name="availability" defaultValue={onboarding.availability || ""} placeholder="e.g. Mon/Tue evenings, Sat morning" /></label>
-          <label className="wide"><span>Accessibility or teaching adjustments</span><textarea name="accessibilityRequirements" defaultValue={onboarding.accessibility_requirements || ""} placeholder="Optional. Share anything you would like us to consider when preparing or teaching." /></label>
-          <label className="wide"><span>Anything else we should know?</span><textarea name="anythingElse" defaultValue={onboarding.anything_else || ""} placeholder="Optional additional context for your tutoring team." /></label>
-        </div>
-      </section>
+          <select
+            name="academicLevel"
+            required
+            defaultValue={
+              initialLevel
+            }
+          >
+            <option
+              value=""
+              disabled
+            >
+              Choose your level
+            </option>
 
-      <section className="intake-submit-panel">
-        <label className="intake-consent"><input type="checkbox" name="consent" value="yes" required defaultChecked={onboarding.consent_confirmed} /><span>I confirm that the information above can be used by My Academic Tutor to organise and deliver my tutoring support.</span></label>
-        {error && <p className="intake-error">{error}</p>}
-        <button className="button button-primary" type="submit" disabled={busy}>{busy ? "Saving…" : onboarding.intake_completed_at ? "Update learning intake" : "Submit learning intake"}</button>
-        <small>You can use this same secure link again until it expires or is replaced.</small>
-      </section>
+            {academicLevels.map(
+              (level) => (
+                <option
+                  key={level}
+                  value={level}
+                >
+                  {level}
+                </option>
+              ),
+            )}
+          </select>
+        </label>
+
+        <label className="intake-field-wide">
+          <span>
+            2. What would you like
+            help with?
+          </span>
+
+          <textarea
+            name="targetOutcome"
+            required
+            defaultValue={
+              initialGoal
+            }
+            placeholder="For example: prepare for an exam, understand a difficult topic, improve coursework skills, or work through a specific chapter."
+          />
+        </label>
+
+        <label>
+          <span>
+            3. Your timezone
+          </span>
+
+          <TimeZoneSelect
+            value={timeZone}
+            required
+            onChange={
+              setTimeZone
+            }
+          />
+
+          <small>
+            We detect this
+            automatically. Change it
+            only if needed. Session
+            times will use this
+            timezone.
+          </small>
+        </label>
+
+        <label>
+          <span>
+            4. When are you usually
+            available?
+          </span>
+
+          <textarea
+            name="availability"
+            required
+            defaultValue={
+              initialAvailability
+            }
+            placeholder="For example: weekday evenings, Saturday mornings, or flexible."
+          />
+        </label>
+
+        <label className="intake-field-wide">
+          <span>
+            5. Anything your tutor
+            should know? (optional)
+          </span>
+
+          <textarea
+            name="anythingElse"
+            defaultValue={
+              initialNote
+            }
+            placeholder="An upcoming deadline, learning needs, materials you use, or anything else that would help."
+          />
+        </label>
+      </div>
+
+      <label className="intake-consent">
+        <input
+          name="consent"
+          type="checkbox"
+          value="yes"
+          required
+        />
+
+        <span>
+          I confirm these details can
+          be used to arrange and
+          deliver my tutoring.
+        </span>
+      </label>
+
+      <input
+        name="company"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="intake-honeypot"
+      />
+
+      <button
+        className="button button-primary"
+        type="submit"
+        disabled={
+          status ===
+          "saving"
+        }
+      >
+        {status ===
+        "saving"
+          ? "Saving…"
+          : "Save and continue"}
+      </button>
+
+      {message && (
+        <p className="intake-form-error">
+          {message}
+        </p>
+      )}
     </form>
   );
 }

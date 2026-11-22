@@ -116,7 +116,7 @@ export function intakeInvitationDraft(input: Omit<IntakeInvitation, "linkId">) {
   const name = firstName(input.name);
   const expiry = prettyDate(input.expiresAt);
   const subject = "Welcome to My Academic Tutor — complete your learning intake";
-  const text = `Hi ${name},\n\nWelcome to My Academic Tutor. Before we begin tutoring, please complete your short learning intake using the secure link below:\n\n${input.intakeUrl}\n\nThis helps us prepare around your course, goals, current confidence, learning preferences and availability.${expiry ? `\n\nThe secure link is available until ${expiry}.` : ""}\n\nIf you have any questions, simply reply to this email.\n\nKind regards,\nMy Academic Tutor`;
+  const text = `Hi ${name},\n\nWelcome to My Academic Tutor. Before we begin tutoring, please complete your short learning intake using the secure link below:\n\n${input.intakeUrl}\n\nThis gives us the essentials: your level, what you want help with, your timezone and your usual availability.${expiry ? `\n\nThe secure link is available until ${expiry}.` : ""}\n\nIf you have any questions, simply reply to this email.\n\nKind regards,\nMy Academic Tutor`;
   return { subject, text };
 }
 
@@ -124,7 +124,7 @@ export async function sendStudentIntakeInvitation(input: IntakeInvitation): Prom
   const draft = intakeInvitationDraft(input);
   const name = firstName(input.name);
   const expiry = prettyDate(input.expiresAt);
-  const html = `<!doctype html><html><head><meta charset="utf-8"><style>${styles()}</style></head><body><div class="wrap"><div class="card"><div class="top"><strong>My Academic Tutor</strong><div style="margin-top:5px;font-size:13px;opacity:.78">Your learning intake</div></div><div class="body"><h1>Welcome, ${escapeHtml(name)}.</h1><p>Before tutoring begins, please complete your short learning intake. It helps us prepare around your course, goals, current confidence, learning preferences and availability.</p><a class="button" href="${escapeHtml(input.intakeUrl)}">Complete my learning intake</a>${expiry ? `<div class="box">This secure link is available until <strong>${escapeHtml(expiry)}</strong>.</div>` : ""}<p>If you have any questions, simply reply to this email.</p><p>Kind regards,<br><strong>My Academic Tutor</strong></p></div><div class="footer">One-to-one online tutoring from school to postgraduate and research-level study.</div></div></div></body></html>`;
+  const html = `<!doctype html><html><head><meta charset="utf-8"><style>${styles()}</style></head><body><div class="wrap"><div class="card"><div class="top"><strong>My Academic Tutor</strong><div style="margin-top:5px;font-size:13px;opacity:.78">Your learning intake</div></div><div class="body"><h1>Welcome, ${escapeHtml(name)}.</h1><p>Before tutoring begins, please complete your short learning intake. It gives us the essentials: your level, what you want help with, your timezone and your usual availability.</p><a class="button" href="${escapeHtml(input.intakeUrl)}">Complete my learning intake</a>${expiry ? `<div class="box">This secure link is available until <strong>${escapeHtml(expiry)}</strong>.</div>` : ""}<p>If you have any questions, simply reply to this email.</p><p>Kind regards,<br><strong>My Academic Tutor</strong></p></div><div class="footer">One-to-one online tutoring from school to postgraduate and research-level study.</div></div></div></body></html>`;
   return deliver({ to: input.email, subject: draft.subject, html, text: draft.text, idempotencyKey: `mat-intake/${input.linkId}` });
 }
 
