@@ -18,6 +18,11 @@ import {
 
 import { getTutorSession } from "@/lib/tutor-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  DEFAULT_TIME_ZONE,
+  formatDateTimeInTimeZone,
+  normalizeTimeZone,
+} from "@/lib/time-zone";
 
 
 export const dynamic = "force-dynamic";
@@ -185,6 +190,20 @@ export default async function TutorStudentWeeklyWorkspace({
   if (!auth) {
     return null;
   }
+
+  const tutorTimeZone =
+    normalizeTimeZone(
+      auth.tutor.timezone,
+      DEFAULT_TIME_ZONE,
+    );
+
+  const formatDateTime = (
+    value: string | null,
+  ) =>
+    formatDateTimeInTimeZone(
+      value,
+      tutorTimeZone,
+    );
 
   const {
     engagementId,
