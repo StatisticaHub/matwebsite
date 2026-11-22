@@ -486,6 +486,7 @@ export async function getPortalContext(
         .select(
           `
             status,
+            timezone,
             target_outcome,
             target_date,
             intake_completed_at,
