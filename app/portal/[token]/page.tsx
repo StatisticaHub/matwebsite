@@ -559,43 +559,11 @@ export default async function StudentPortalPage({
           className="portal-upgrade-nav"
           aria-label="Portal sections"
         >
-          <a href="#overview">
-            Overview
-          </a>
-
-          <a href="#weekly">
-            This week
-          </a>
-
-          <a href="#progress">
-            Progress
-          </a>
-
-          <a href="#sessions">
-            Sessions
-          </a>
-
-          {engagement && (
-            <a href="#session-request">
-              Request session
-            </a>
-          )}
-
-          <a href="#homework">
-            Homework
-          </a>
-
-          <a href="#materials">
-            Materials
-          </a>
-
-          <a href="#resources">
-            Resources
-          </a>
-
-          <a href="#support">
-            Support
-          </a>
+          <a href="#overview">Overview</a>
+          <a href="#progress">Progress</a>
+          <a href="#sessions">Sessions</a>
+          <a href="#materials">Files</a>
+          <a href="#support">Support</a>
         </nav>
 
 
@@ -987,105 +955,6 @@ export default async function StudentPortalPage({
           </article>
 
         </section>
-
-
-        {/* ==================================================================
-            ONBOARDING
-           ================================================================== */}
-
-        {onboarding &&
-          sessions.length === 0 &&
-          onboarding.status !==
-            "complete" && (
-
-            <section className="portal-panel portal-upgrade-onboarding">
-
-              <div className="portal-panel-head">
-
-                <div>
-                  <span className="portal-kicker">
-                    Getting started
-                  </span>
-
-                  <h2>
-                    Onboarding progress
-                  </h2>
-                </div>
-
-                <span>
-                  {
-                    onboardingSteps[
-                      currentOnboardingIndex
-                    ].label
-                  }
-                </span>
-
-              </div>
-
-
-              <div className="portal-upgrade-onboarding-steps">
-
-                {onboardingSteps.map(
-                  (
-                    step,
-                    index
-                  ) => (
-
-                    <div
-                      className={
-                        index <=
-                        currentOnboardingIndex
-                          ? "is-complete"
-                          : ""
-                      }
-                      key={
-                        step.key
-                      }
-                    >
-
-                      <i>
-                        {index <
-                        currentOnboardingIndex
-                          ? "✓"
-                          : index +
-                            1}
-                      </i>
-
-                      <span>
-                        {
-                          step.label
-                        }
-                      </span>
-
-                    </div>
-
-                  )
-                )}
-
-              </div>
-
-
-              {(onboarding.target_outcome ||
-                onboarding.target_date) && (
-
-                <p className="portal-upgrade-onboarding-note">
-
-                  {onboarding.target_outcome ||
-                    "Your target outcome is being reviewed."}
-
-                  {onboarding.target_date
-                    ? ` · Target ${formatDate(
-                        onboarding.target_date
-                      )}`
-                    : ""}
-
-                </p>
-
-              )}
-
-            </section>
-
-          )}
 
 
         {/* ==================================================================
@@ -1583,136 +1452,6 @@ export default async function StudentPortalPage({
                     UPCOMING SESSIONS
                    ========================================================== */}
 
-                <section
-                  className="portal-panel"
-                  id="sessions"
-                >
-
-                  <div className="portal-panel-head">
-
-                    <div>
-                      <span className="portal-kicker">
-                        Calendar
-                      </span>
-
-                      <h2>
-                        Upcoming sessions
-                      </h2>
-                    </div>
-
-                    <span>
-                      {
-                        upcomingSessions.length
-                      }{" "}
-                      booked
-                    </span>
-
-                  </div>
-
-
-                  <div className="portal-upgrade-upcoming-list">
-
-                    {upcomingSessions
-                      .slice(
-                        0,
-                        8
-                      )
-                      .map(
-                        (item) => {
-
-                          const href =
-                            safeExternalUrl(
-                              item.meeting_url
-                            );
-
-                          return (
-                            <article
-                              key={
-                                item.id
-                              }
-                            >
-
-                              <div className="portal-upgrade-session-time">
-
-                                <strong>
-                                  {portalDateTime(
-                                    item.scheduled_for
-                                  )}
-                                </strong>
-
-                                <span>
-                                  {
-                                    item.duration_minutes
-                                  }{" "}
-                                  min
-                                </span>
-
-                              </div>
-
-
-                              <div className="portal-upgrade-session-topic">
-
-                                <strong>
-                                  {
-                                    item.topic
-                                  }
-                                </strong>
-
-
-                                {item.next_topic && (
-                                  <small>
-                                    Planned
-                                    next
-                                    focus:{" "}
-                                    {
-                                      item.next_topic
-                                    }
-                                  </small>
-                                )}
-
-                              </div>
-
-
-                              <div>
-
-                                {href ? (
-                                  <a
-                                    className="button button-secondary"
-                                    href={
-                                      href
-                                    }
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                  >
-                                    Join ↗
-                                  </a>
-                                ) : (
-                                  <span className="portal-upgrade-link-pending">
-                                    Link
-                                    pending
-                                  </span>
-                                )}
-
-                              </div>
-
-                            </article>
-                          );
-                        }
-                      )}
-
-
-                    {!upcomingSessions.length && (
-                      <div className="portal-empty">
-                        No upcoming
-                        sessions are
-                        booked yet.
-                      </div>
-                    )}
-
-                  </div>
-
-                </section>
-
 
                 {/* ==========================================================
                     SESSION CHANGE REQUEST
@@ -2083,7 +1822,7 @@ export default async function StudentPortalPage({
                     {completedSessions
                       .slice(
                         0,
-                        12
+                        5
                       )
                       .map(
                         (item) => (
@@ -2222,167 +1961,10 @@ export default async function StudentPortalPage({
                     TUTOR
                    ========================================================== */}
 
-                <section className="portal-panel portal-upgrade-tutor-card">
-
-                  <span className="portal-kicker">
-                    Your tutor
-                  </span>
-
-                  <div className="portal-upgrade-tutor-avatar">
-                    {tutor?.name
-                      ?.slice(
-                        0,
-                        1
-                      )
-                      .toUpperCase() ||
-                      "T"}
-                  </div>
-
-                  <h2>
-                    {tutor?.name ||
-                      "Tutor being confirmed"}
-                  </h2>
-
-
-                  {tutor?.headline && (
-                    <p>
-                      {
-                        tutor.headline
-                      }
-                    </p>
-                  )}
-
-
-                  <dl>
-
-                    <div>
-                      <dt>
-                        Status
-                      </dt>
-
-                      <dd>
-                        {tutor?.verified
-                          ? "Verified tutor"
-                          : "MAT tutor"}
-                      </dd>
-                    </div>
-
-
-                    <div>
-                      <dt>
-                        Timezone
-                      </dt>
-
-                      <dd>
-                        {tutor?.timezone ||
-                          "Coordinated by MAT"}
-                      </dd>
-                    </div>
-
-
-                    <div>
-                      <dt>
-                        Frequency
-                      </dt>
-
-                      <dd>
-                        {engagement.frequency ||
-                          "Flexible"}
-                      </dd>
-                    </div>
-
-
-                    <div>
-                      <dt>
-                        Session length
-                      </dt>
-
-                      <dd>
-                        {
-                          engagement.session_duration_minutes
-                        }{" "}
-                        minutes
-                      </dd>
-                    </div>
-
-                  </dl>
-
-                </section>
-
 
                 {/* ==========================================================
                     CURRENT ENGAGEMENT
                    ========================================================== */}
-
-                <section className="portal-panel portal-focus-card">
-
-                  <span className="portal-kicker">
-                    Your course
-                  </span>
-
-                  <h2>
-                    {
-                      engagement.title
-                    }
-                  </h2>
-
-
-                  <dl>
-
-                    <div>
-                      <dt>
-                        Learning
-                        preference
-                      </dt>
-
-                      <dd>
-                        {engagement.preferred_learning_style ||
-                          "Being assessed"}
-                      </dd>
-                    </div>
-
-
-                    <div>
-                      <dt>
-                        Target
-                      </dt>
-
-                      <dd>
-                        {engagement.target ||
-                          engagement.goal ||
-                          "In progress"}
-                      </dd>
-                    </div>
-
-                  </dl>
-
-
-                  {engagement.weak_topics
-                    ?.length > 0 && (
-
-                    <div className="portal-topic-tags">
-
-                      {engagement.weak_topics.map(
-                        (
-                          topic
-                        ) => (
-                          <span
-                            key={
-                              topic
-                            }
-                          >
-                            {
-                              topic
-                            }
-                          </span>
-                        )
-                      )}
-
-                    </div>
-
-                  )}
-
-                </section>
 
 
                 {/* ==========================================================
@@ -2550,6 +2132,8 @@ export default async function StudentPortalPage({
 
                 </section>
 
+                {resources.length > 0 && (
+
 
                 <section
                   className="portal-panel"
@@ -2641,6 +2225,7 @@ export default async function StudentPortalPage({
                   </div>
 
                 </section>
+                )}
 
 
                 {/* ==========================================================

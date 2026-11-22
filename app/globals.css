@@ -3782,3 +3782,71 @@ summary::after {
   opacity: 1;
   text-decoration: underline;
 }
+
+
+/* ==========================================================
+   SIMPLE STUDENT PORTAL
+   ========================================================== */
+
+.student-portal-shell .portal-main-grid {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+}
+
+.student-portal-shell .portal-primary-column,
+.student-portal-shell .portal-side-column {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+}
+
+.student-portal-shell .portal-panel {
+  padding: 24px;
+  border-radius: 16px;
+}
+
+.student-portal-shell .portal-panel-head {
+  margin-bottom: 20px;
+}
+
+.student-portal-shell .portal-panel-head h2,
+.student-portal-shell .portal-panel-headcompact h2 {
+  margin-bottom: 0;
+}
+
+.student-portal-shell .portal-material-counts {
+  display: none;
+}
+
+/* Keep the portal navigation short and easy to scan */
+.student-portal-shell .portal-upgrade-nav {
+  gap: 8px;
+}
+
+/* Session history should not dominate the dashboard */
+.student-portal-shell .portal-session-timeline article {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+/* Reduce excessive vertical whitespace between dashboard areas */
+.student-portal-shell .portal-page {
+  gap: 24px;
+}
+
+/* Files remain functional but visually lighter */
+.student-portal-shell .portal-learning-materials-panel {
+  padding: 24px;
+}
+
+@media (max-width: 760px) {
+  .student-portal-shell .portal-panel,
+  .student-portal-shell .portal-learning-materials-panel {
+    padding: 18px;
+  }
+
+  .student-portal-shell .portal-upgrade-nav {
+    overflow-x: auto;
+    justify-content: flex-start;
+  }
+}
