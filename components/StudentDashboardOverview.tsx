@@ -1,3 +1,7 @@
+"use client";
+
+import { useSearchParams } from "next/navigation";
+
 type SessionItem = {
   id: string;
   scheduled_for: string | null;
@@ -69,6 +73,22 @@ export default function StudentDashboardOverview({
   mastered,
   planCount,
 }: Props) {
+
+  const searchParams =
+    useSearchParams();
+
+  const activeView =
+    searchParams.get("view") ||
+    "dashboard";
+
+  if (
+    activeView !==
+    "dashboard"
+  ) {
+    return null;
+  }
+
+
   const base = `/portal/${encodeURIComponent(token)}`;
   const course = encodeURIComponent(courseId);
 
