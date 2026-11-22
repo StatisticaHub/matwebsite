@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { resolvePortalLink } from "@/lib/student-portal";
+import { getAuthenticatedPortalStudent } from "@/lib/student-portal-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,94 +11,169 @@ type Params = Promise<{
   recordingId: string;
 }>;
 
-const allowedFileTypes = new Set(["MP4", "M4A", "VTT", "TRANSCRIPT"]);
+const uuidPattern =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-function safeRecordingUrl(value: string | null) {
-  if (!value) return null;
+const allowedTypes = new Set([
+  "MP4",
+  "M4A",
+  "VTT",
+  "TRANSCRIPT",
+]);
 
-  try {
-    const url = new URL(value);
-    if (url.protocol !== "https:") return null;
-    return url;
-  } catch {
-    return null;
-  }
+function privateHeaders() {
+  return {
+    "Cache-Control": "private, no-store, max-age=0",
+    "Referrer-Policy": "no-referrer",
+  };
 }
 
 export async function GET(
   _request: Request,
-  { params }: { params: Params }
+  {
+    params,
+  }: {
+    params: Params;
+  }
 ) {
-  const { token, recordingId } = await params;
-  const link = await resolvePortalLink(token);
+  const {
+    token,
+    recordingId,
+  } = await params;
 
-  if (!link) {
-    return NextResponse.json({ error: "Recording not found." }, { status: 404 });
+  if (!uuidPattern.test(recordingId)) {
+    return NextResponse.json(
+      { error: "Recording not found." },
+      {
+        status: 404,
+        headers: privateHeaders(),
+      }
+    );
   }
 
-  const supabase = createAdminClient();
+  const portalAuth =
+    await getAuthenticatedPortalStudent(token);
 
-  const { data: recording, error: recordingError } = await supabase
+  if (!portalAuth) {
+    return NextResponse.json(
+      {
+        error: "Please sign in to access this recording.",
+      },
+      {
+        status: 401,
+        headers: privateHeaders(),
+      }
+    );
+  }
+
+  const admin =
+    createAdminClient();
+
+  const {
+    data: recording,
+    error: recordingError,
+  } = await admin
     .from("session_recordings")
-    .select("id,session_id,file_type,status,student_visible,play_url,download_url,play_passcode")
+    .select(
+      "id,session_id,file_type,play_url,play_passcode,status,student_visible"
+    )
     .eq("id", recordingId)
     .eq("student_visible", true)
     .eq("status", "completed")
     .maybeSingle();
 
-  if (recordingError || !recording) {
-    return NextResponse.json({ error: "Recording not found." }, { status: 404 });
+  if (
+    recordingError ||
+    !recording ||
+    !allowedTypes.has(
+      String(recording.file_type || "").toUpperCase()
+    ) ||
+    !recording.play_url
+  ) {
+    return NextResponse.json(
+      { error: "Recording not found." },
+      {
+        status: 404,
+        headers: privateHeaders(),
+      }
+    );
   }
 
-  const fileType = String(recording.file_type || "").toUpperCase();
-  if (!allowedFileTypes.has(fileType)) {
-    return NextResponse.json({ error: "Recording not available." }, { status: 404 });
-  }
-
-  const { data: sessionRow, error: sessionError } = await supabase
+  const {
+    data: session,
+    error: sessionError,
+  } = await admin
     .from("tutoring_sessions")
-    .select("id,tutoring_engagements(student_id)")
+    .select("id,engagement_id")
     .eq("id", recording.session_id)
     .maybeSingle();
 
-  if (sessionError || !sessionRow) {
-    return NextResponse.json({ error: "Recording not found." }, { status: 404 });
+  if (
+    sessionError ||
+    !session
+  ) {
+    return NextResponse.json(
+      { error: "Recording not found." },
+      {
+        status: 404,
+        headers: privateHeaders(),
+      }
+    );
   }
 
-  const relation = sessionRow.tutoring_engagements as unknown as
-    | { student_id: string }
-    | null;
-
-  if (!relation || relation.student_id !== link.student_id) {
-    return NextResponse.json({ error: "Recording not found." }, { status: 404 });
-  }
-
-  const playTarget =
-    safeRecordingUrl(recording.play_url);
+  const {
+    data: engagement,
+    error: engagementError,
+  } = await admin
+    .from("tutoring_engagements")
+    .select("id")
+    .eq("id", session.engagement_id)
+    .eq("student_id", portalAuth.student.id)
+    .maybeSingle();
 
   if (
-    playTarget &&
-    recording.play_passcode
+    engagementError ||
+    !engagement
   ) {
-    playTarget.searchParams.set(
+    return NextResponse.json(
+      { error: "Recording not found." },
+      {
+        status: 404,
+        headers: privateHeaders(),
+      }
+    );
+  }
+
+  let playUrl: URL;
+
+  try {
+    playUrl =
+      new URL(recording.play_url);
+  } catch {
+    return NextResponse.json(
+      { error: "Recording link is unavailable." },
+      {
+        status: 404,
+        headers: privateHeaders(),
+      }
+    );
+  }
+
+  if (
+    recording.play_passcode &&
+    !playUrl.searchParams.has("pwd")
+  ) {
+    playUrl.searchParams.set(
       "pwd",
       recording.play_passcode
     );
   }
 
-  const target =
-    playTarget ||
-    safeRecordingUrl(recording.download_url);
-
-  if (!target) {
-    return NextResponse.json(
-      { error: "Recording link is unavailable." },
-      { status: 404 }
-    );
-  }
-
-  const response = NextResponse.redirect(target, 302);
-  response.headers.set("Cache-Control", "private, no-store, max-age=0");
-  response.headers.set("Referrer-Policy", "no-referrer");
-  return response;
+  return NextResponse.redirect(
+    playUrl,
+    {
+      status: 302,
+      headers: privateHeaders(),
+    }
+  );
 }

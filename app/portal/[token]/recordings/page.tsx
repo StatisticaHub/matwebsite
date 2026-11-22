@@ -2,8 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { resolvePortalLink } from "@/lib/student-portal";
-
+import { getAuthenticatedPortalStudent } from "@/lib/student-portal-auth";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -110,12 +109,14 @@ export default async function StudentRecordingsPage({
   const { token } = await params;
   const query = await searchParams;
 
-  const link = await resolvePortalLink(token);
+  const portalAuth =
+    await getAuthenticatedPortalStudent(token);
 
-  if (!link) {
+  if (!portalAuth) {
     notFound();
   }
 
+  const link = portalAuth.link;
   const supabase = createAdminClient();
 
   const { data: student, error: studentError } = await supabase

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import LearningMaterialUploadForm from "@/components/LearningMaterialUploadForm";
 
-import StudentWeeklyJourney from "@/components/StudentWeeklyJourney";
+import StudentWeeklyLearningHub from "@/components/StudentWeeklyLearningHub";
 
 import LearningMaterialsList, {
   type LearningMaterialListItem,
@@ -1605,11 +1605,14 @@ export default async function StudentPortalPage({
 
                 <div id="this-week"></div>
 
-        <StudentWeeklyJourney
+        <StudentWeeklyLearningHub
                   token={token}
-                  engagementId={
-                    engagement.id
-                  }
+                  sessions={sessions as any[]}
+                  homework={homework as any[]}
+                  submissions={submissions as any[]}
+                  resources={resources as any[]}
+                  learningMaterials={learningMaterials as any[]}
+                  recordingsBySession={recordingBySession}
                 />
 
 

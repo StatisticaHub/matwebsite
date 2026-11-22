@@ -5887,3 +5887,273 @@ a.is-active {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* MAT weekly learning hub */
+.portal-weekly-hub {
+  display: grid;
+  gap: 18px;
+}
+
+.portal-weekly-hub-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 22px 24px;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  border-radius: 16px;
+}
+
+.portal-weekly-hub-head h2 {
+  margin: 4px 0 6px;
+}
+
+.portal-weekly-hub-head p {
+  max-width: 720px;
+  margin: 0;
+  color: #607089;
+}
+
+.portal-week-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.portal-week-card {
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  border-radius: 18px;
+}
+
+.portal-week-card.is-current {
+  border-color: rgba(33, 101, 182, 0.35);
+  box-shadow: inset 4px 0 0 #2f73b8;
+}
+
+.portal-week-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px 20px;
+  background: #f8fafc;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.portal-week-card-head h3 {
+  margin: 3px 0 0;
+  font-size: 1.02rem;
+}
+
+.portal-week-card-head > div > span {
+  color: #1b5aa5;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.portal-week-counts {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.portal-week-counts span {
+  padding: 6px 9px;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 999px;
+  color: #617188;
+  font-size: 0.76rem;
+}
+
+.portal-week-session-list {
+  display: grid;
+}
+
+.portal-week-session {
+  display: grid;
+  gap: 15px;
+  padding: 20px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.07);
+}
+
+.portal-week-session:last-child {
+  border-bottom: 0;
+}
+
+.portal-week-session-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.portal-week-session-head > div {
+  display: grid;
+  gap: 3px;
+}
+
+.portal-week-session-head > div > span,
+.portal-week-session-head small {
+  color: #708097;
+  font-size: 0.78rem;
+}
+
+.portal-week-session-head h4 {
+  margin: 0;
+  color: #132b4c;
+  font-size: 1.05rem;
+}
+
+.portal-week-note,
+.portal-week-next {
+  padding: 13px 14px;
+  background: #f7f9fc;
+  border-radius: 11px;
+}
+
+.portal-week-note > span,
+.portal-week-next > span,
+.portal-week-section-title span {
+  display: block;
+  margin-bottom: 4px;
+  color: #667891;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.portal-week-note p {
+  margin: 0;
+  color: #40526b;
+}
+
+.portal-week-next {
+  display: grid;
+  gap: 2px;
+}
+
+.portal-week-section {
+  display: grid;
+  gap: 9px;
+}
+
+.portal-week-link-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 8px;
+}
+
+.portal-week-file-link {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 11px 12px;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  border-radius: 10px;
+  color: #183b68;
+  text-decoration: none;
+}
+
+.portal-week-file-link:hover {
+  border-color: rgba(33, 101, 182, 0.35);
+  background: #f8fbff;
+}
+
+.portal-week-file-link.is-static {
+  color: #263d5d;
+}
+
+.portal-week-file-link strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.portal-week-file-link span {
+  color: #718198;
+  font-size: 0.75rem;
+}
+
+.portal-week-homework-list {
+  display: grid;
+  gap: 8px;
+}
+
+.portal-week-homework {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(200px, 0.7fr);
+  gap: 14px;
+  padding: 12px 13px;
+  background: #fbfcfe;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  border-radius: 10px;
+}
+
+.portal-week-homework > div:first-child {
+  display: grid;
+  gap: 3px;
+}
+
+.portal-week-homework span {
+  color: #728198;
+  font-size: 0.76rem;
+}
+
+.portal-week-homework p,
+.portal-week-submission p {
+  margin: 3px 0 0;
+  color: #4b5d75;
+}
+
+.portal-week-submission {
+  padding-left: 14px;
+  border-left: 2px solid rgba(45, 112, 184, 0.25);
+}
+
+.portal-week-submission a {
+  display: inline-block;
+  margin-top: 5px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.portal-week-loose-section {
+  display: grid;
+  gap: 9px;
+  padding: 16px 20px;
+  background: #fbfcfe;
+  border-top: 1px solid rgba(15, 23, 42, 0.07);
+}
+
+.portal-week-empty {
+  padding: 20px;
+  color: #708097;
+}
+
+@media (max-width: 760px) {
+  .portal-weekly-hub-head,
+  .portal-week-card-head,
+  .portal-week-session-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .portal-week-homework {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-week-submission {
+    padding-left: 0;
+    padding-top: 10px;
+    border-left: 0;
+    border-top: 2px solid rgba(45, 112, 184, 0.2);
+  }
+}
