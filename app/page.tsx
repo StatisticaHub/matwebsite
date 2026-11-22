@@ -207,7 +207,7 @@ export default async function HomePage() {
           <div className="section-copy-block">
             <div className="eyebrow">CLEAR PRICING</div>
 
-            <h2>Tutoring starts from £20 an hour.</h2>
+            <h2>Clear pricing before you start.</h2>
 
             <p className="section-intro">
               The exact rate depends on the subject, course level and any specialist
@@ -328,11 +328,11 @@ export default async function HomePage() {
             </div>
 
             <h2>
-              Tell us what you need help with.
+              Ready for more focused support?
             </h2>
 
             <p>
-              Tutoring starts from £20 an hour. Tell us your subject, level and what you’re working on, and we’ll confirm the price before you book.
+              Start with what you want to understand better. We’ll review the academic context and arrange suitable one-to-one support.
             </p>
           </div>
 
@@ -354,7 +354,7 @@ export default async function HomePage() {
           href="/find-a-tutor"
           trackingId="home_mobile_sticky_request"
         >
-          Request tutoring · from £20 an hour
+          Request tutoring
         </TrackedLink>
       </div>
 
