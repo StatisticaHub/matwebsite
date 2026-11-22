@@ -4,6 +4,10 @@ import { revalidatePath } from "next/cache";
 
 import { getTutorSession } from "@/lib/tutor-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  DEFAULT_TIME_ZONE,
+  normalizeTimeZone,
+} from "@/lib/time-zone";
 
 import {
   sendHomeworkNotification,
@@ -963,8 +967,9 @@ function timezoneOffsetMs(
 }
 
 
-function tutorUkLocalToIso(
+function tutorLocalToIso(
   value: string,
+  timeZone: string,
 ) {
   const match =
     /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(
@@ -999,7 +1004,7 @@ function tutorUkLocalToIso(
   const firstOffset =
     timezoneOffsetMs(
       provisional,
-      "Europe/London",
+      timeZone,
     );
 
   let resolved =
@@ -1011,7 +1016,7 @@ function tutorUkLocalToIso(
   const secondOffset =
     timezoneOffsetMs(
       resolved,
-      "Europe/London",
+      timeZone,
     );
 
   if (
@@ -1041,6 +1046,13 @@ export async function createTutorSessionInWeek(
     supabase,
   } =
     await getContext();
+
+  const tutorTimeZone =
+    normalizeTimeZone(
+      auth.tutor.timezone,
+      DEFAULT_TIME_ZONE,
+    );
+
 
 
   const weekId =
@@ -1218,14 +1230,15 @@ export async function createTutorSessionInWeek(
 
 
   const scheduledFor =
-    tutorUkLocalToIso(
+    tutorLocalToIso(
       rawScheduledFor,
+      tutorTimeZone,
     );
 
 
   if (!scheduledFor) {
     throw new Error(
-      "Please choose a valid UK date and time.",
+      "Please choose a valid date and time in your tutor timezone.",
     );
   }
 
@@ -1334,7 +1347,7 @@ export async function createTutorSessionInWeek(
             "short",
 
           timeZone:
-            "Europe/London",
+            tutorTimeZone,
         },
       ).format(
         new Date(
@@ -1593,6 +1606,13 @@ export async function createTutorSessionInWeekManaged(
   } =
     await getContext();
 
+  const tutorTimeZone =
+    normalizeTimeZone(
+      auth.tutor.timezone,
+      DEFAULT_TIME_ZONE,
+    );
+
+
 
   const weekId =
     clean(
@@ -1760,14 +1780,15 @@ export async function createTutorSessionInWeekManaged(
 
 
   const scheduledFor =
-    tutorUkLocalToIso(
+    tutorLocalToIso(
       rawScheduledFor,
+      tutorTimeZone,
     );
 
 
   if (!scheduledFor) {
     throw new Error(
-      "Please choose a valid UK date and time.",
+      "Please choose a valid date and time in your tutor timezone.",
     );
   }
 
@@ -1877,7 +1898,7 @@ export async function createTutorSessionInWeekManaged(
             "short",
 
           timeZone:
-            "Europe/London",
+            tutorTimeZone,
         },
       ).format(
         new Date(
