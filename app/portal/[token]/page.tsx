@@ -607,6 +607,13 @@ export default async function StudentPortalPage({
           <strong>
             {student.name}
           </strong>
+
+          <a
+            href="/portal/logout"
+            className="portal-signout"
+          >
+            Sign out
+          </a>
         </div>
 
       </header>

@@ -3764,3 +3764,21 @@ summary::after {
 
 }
 
+
+/* Student Portal sign out */
+.portal-signout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  color: inherit;
+  opacity: .75;
+}
+
+.portal-signout:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
