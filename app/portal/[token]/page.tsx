@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 
 import LearningMaterialUploadForm from "@/components/LearningMaterialUploadForm";
 
-import StudentWeeklyLearningHub from "@/components/StudentWeeklyLearningHub";
-import StudentThisWeekCommandCentre from "@/components/StudentThisWeekCommandCentre";
+import StudentDashboardOverview from "@/components/StudentDashboardOverview";
 
 import LearningMaterialsList, {
   type LearningMaterialListItem,
@@ -914,56 +913,21 @@ export default async function StudentPortalPage({
 
         {engagement && (
           <>
-            <StudentThisWeekCommandCentre
+            <StudentDashboardOverview
               token={token}
               courseId={engagement.id}
+              subject={engagement.subject}
+              currentFocus={engagement.current_focus || null}
+              nextDeadline={engagement.upcoming_deadline || null}
+              confidence={engagement.confidence || null}
               nextSession={nextSession as any}
               nextMeetingUrl={nextMeetingUrl}
-              openHomework={openHomework as any[]}
-              sessions={sessions as any[]}
-              learningMaterials={learningMaterials as any[]}
-              submissions={submissions as any[]}
-              recordingsBySession={recordingBySession}
-              tutorName={tutor?.name || null}
+              nextHomework={(openHomework[0] || null) as any}
+              recentSession={(completedSessions[0] || null) as any}
+              averageProgress={averageProgress}
+              mastered={mastered}
+              planCount={plan.length}
             />
-
-            <StudentWeeklyLearningHub
-                  token={token}
-                  sessions={sessions as any[]}
-                  homework={homework as any[]}
-                  submissions={submissions as any[]}
-                  resources={resources as any[]}
-                  learningMaterials={learningMaterials as any[]}
-                  recordingsBySession={recordingBySession}
-                />
-
-            <section className="portal-learning-context-strip">
-              <article>
-                <span>Subject</span>
-                <strong>{engagement.subject}</strong>
-                <small>{engagement.module || engagement.title}</small>
-              </article>
-
-              <article>
-                <span>Current focus</span>
-                <strong>
-                  {engagement.current_focus || "Building your learning plan"}
-                </strong>
-                <small>
-                  {engagement.goal || "Your current learning priority"}
-                </small>
-              </article>
-
-              <article>
-                <span>Next deadline</span>
-                <strong>{formatDate(engagement.upcoming_deadline)}</strong>
-                <small>
-                  {engagement.confidence
-                    ? `Confidence ${engagement.confidence}/5`
-                    : "Confidence not yet assessed"}
-                </small>
-              </article>
-            </section>
           </>
         )}
 

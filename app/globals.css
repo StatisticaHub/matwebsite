@@ -6385,3 +6385,173 @@ a.is-active {
     border-bottom: 0;
   }
 }
+
+
+/* MAT simplified student dashboard */
+.portal-dashboard-simple {
+  display: grid;
+  gap: 16px;
+  margin: 18px 0 22px;
+}
+
+.portal-dashboard-simple-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.portal-dashboard-simple-card {
+  display: flex;
+  min-height: 175px;
+  flex-direction: column;
+  padding: 19px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 14px;
+  background: #fff;
+}
+
+.portal-dashboard-simple-card h2 {
+  margin: 7px 0 6px;
+  color: #163354;
+  font-size: 1.12rem;
+}
+
+.portal-dashboard-simple-card p {
+  margin: 0;
+  color: #66768d;
+  line-height: 1.5;
+}
+
+.portal-dashboard-simple-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: auto;
+  padding-top: 15px;
+}
+
+.portal-dashboard-simple-lower {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(250px, 0.7fr);
+  gap: 12px;
+}
+
+.portal-dashboard-recent,
+.portal-dashboard-progress-mini {
+  padding: 19px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 14px;
+  background: #fff;
+}
+
+.portal-dashboard-recent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+}
+
+.portal-dashboard-recent h2 {
+  margin: 7px 0 4px;
+  color: #173456;
+  font-size: 1.08rem;
+}
+
+.portal-dashboard-recent p {
+  margin: 0;
+  color: #66768d;
+}
+
+.portal-dashboard-recent small {
+  display: block;
+  max-width: 700px;
+  margin-top: 7px;
+  color: #74839a;
+  line-height: 1.45;
+}
+
+.portal-dashboard-progress-mini {
+  display: grid;
+  align-content: center;
+  gap: 8px;
+}
+
+.portal-dashboard-progress-number {
+  color: #14375f;
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.portal-dashboard-progress-mini p {
+  margin: 0;
+  color: #6d7b90;
+  font-size: 0.8rem;
+}
+
+.portal-dashboard-progress-mini a {
+  margin-top: 2px;
+  color: #1d5fa8;
+  font-size: 0.8rem;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.portal-dashboard-destinations {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 13px;
+  background: #fff;
+}
+
+.portal-dashboard-destinations a {
+  display: grid;
+  gap: 3px;
+  padding: 14px 17px;
+  border-right: 1px solid rgba(15, 23, 42, 0.07);
+  color: #254568;
+  font-size: 0.84rem;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.portal-dashboard-destinations a:last-child {
+  border-right: 0;
+}
+
+.portal-dashboard-destinations span {
+  color: #78869a;
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+@media (max-width: 900px) {
+  .portal-dashboard-simple-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-dashboard-simple-lower {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .portal-dashboard-recent {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .portal-dashboard-destinations {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-dashboard-destinations a {
+    border-right: 0;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.07);
+  }
+
+  .portal-dashboard-destinations a:last-child {
+    border-bottom: 0;
+  }
+}
