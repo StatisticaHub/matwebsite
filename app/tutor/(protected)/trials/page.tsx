@@ -1,13 +1,34 @@
 import { getTutorSession } from "@/lib/tutor-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { updateTutorTrialRecord } from "@/app/tutor/actions";
+import {
+  DEFAULT_TIME_ZONE,
+  dateKeyInTimeZone,
+  formatDateTimeInTimeZone,
+  normalizeTimeZone,
+} from "@/lib/time-zone";
 export const metadata = { title: "My trials" };
 export const dynamic = "force-dynamic";
 type SearchParams = Promise<{ saved?: string }>;
 function fmt(v: string | null) { return v ? new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/London" }).format(new Date(v)) : "Not scheduled"; }
 function safeUrl(value: string | null) { if (!value) return null; try { const u = new URL(value); return ["https:", "http:"].includes(u.protocol) ? u.toString() : null; } catch { return null; } }
 export default async function TutorTrialsPage({ searchParams }: { searchParams: SearchParams }) {
-  const auth = await getTutorSession(); if (!auth) return null; const query = await searchParams;
+  const auth = await getTutorSession(); if (!auth) return null;
+
+  const tutorTimeZone =
+    normalizeTimeZone(
+      auth.tutor.timezone,
+      DEFAULT_TIME_ZONE,
+    );
+
+  const fmt = (
+    value: string | null,
+  ) =>
+    formatDateTimeInTimeZone(
+      value,
+      tutorTimeZone,
+    );
+ const query = await searchParams;
   const { data, error } = await createAdminClient().from("tutoring_leads")
     .select("id,reference,name,email,country,level,subject,support_type,topic,requirements,trial_status,trial_scheduled_for,trial_duration_minutes,trial_meeting_url,trial_tutor_feedback")
     .eq("assigned_tutor_id", auth.tutor.id).neq("trial_status", "not_scheduled").order("trial_scheduled_for", { ascending: false, nullsFirst: false }).limit(100);

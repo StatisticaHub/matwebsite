@@ -6,6 +6,7 @@ import { getTutorSession } from "@/lib/tutor-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sessionStatuses, type SessionStatus } from "@/lib/delivery-data";
 
+import { DEFAULT_TIME_ZONE, normalizeTimeZone } from "@/lib/time-zone";
 function text(formData: FormData, key: string, max = 5000) {
   return String(formData.get(key) || "").trim().slice(0, max);
 }
@@ -38,7 +39,15 @@ export async function updateTutorAvailabilityFromPortal(formData: FormData) {
   const availabilityPeriods = formData.getAll("availabilityPeriods").map(String).filter(Boolean);
   const capacity = nullableNumber(formData, "weeklyCapacityHours");
   const maxStudents = nullableNumber(formData, "maxActiveStudents");
-  const timezone = text(formData, "timezone", 120) || null;
+  const timezone =
+    normalizeTimeZone(
+      text(
+        formData,
+        "timezone",
+        120,
+      ),
+      DEFAULT_TIME_ZONE,
+    );
 
   const { error } = await supabase.from("tutors").update({
     timezone,

@@ -31,6 +31,8 @@ import {
 } from "@/app/admin/delivery-actions";
 import type { StudentCommunication } from "@/lib/student-communications";
 
+import { getAdminTimeZone } from "@/lib/admin-time-zone";
+import { formatDateTimeInTimeZone, friendlyTimeZoneLabel } from "@/lib/time-zone";
 export const dynamic = "force-dynamic";
 type Params = Promise<{ id: string }>;
 type SearchParams = Promise<{ engagement?: string }>;
@@ -61,6 +63,18 @@ export default async function StudentDetailPage({
   searchParams: SearchParams;
 }) {
   const { id } = await params;
+
+  const adminTimeZone =
+    await getAdminTimeZone();
+
+  const formatDateTime = (
+    value: string | null,
+  ) =>
+    formatDateTimeInTimeZone(
+      value,
+      adminTimeZone,
+    );
+
   const query = await searchParams;
   const supabase = createAdminClient();
 
@@ -568,7 +582,8 @@ export default async function StudentDetailPage({
             </div>
             <details className="admin-disclosure"><summary>Add / record session</summary><form action={addTutoringSession} className="admin-compact-form admin-session-form">
               <input type="hidden" name="engagementId" value={engagement.id} /><input type="hidden" name="studentId" value={student.id} />
-              <div className="admin-form-grid-3"><label><span>Date & time</span><input name="scheduledFor" type="datetime-local" /></label><label><span>Status</span><select name="status" defaultValue="planned">{sessionStatuses.map((status) => <option key={status} value={status}>{sessionStatusLabels[status]}</option>)}</select></label><label><span>Duration</span><input name="durationMinutes" type="number" min="15" max="480" defaultValue={engagement.session_duration_minutes} /></label></div>
+              <div className="admin-form-grid-3"><label><span>Date & time</span>
+                <small>Admin timezone: {friendlyTimeZoneLabel(adminTimeZone)}</small><input name="scheduledFor" type="datetime-local" /></label><label><span>Status</span><select name="status" defaultValue="planned">{sessionStatuses.map((status) => <option key={status} value={status}>{sessionStatusLabels[status]}</option>)}</select></label><label><span>Duration</span><input name="durationMinutes" type="number" min="15" max="480" defaultValue={engagement.session_duration_minutes} /></label></div>
               <label><span>Topic / lesson title</span><input name="topic" required placeholder="Inference for regression coefficients" /></label>
               <label><span>Lesson notes</span><textarea name="lessonNotes" placeholder="Concepts covered, examples worked, misconceptions addressed…" /></label>
               <div className="admin-form-grid-2"><label><span>Understanding (1–5)</span><input name="understandingRating" type="number" min="1" max="5" /></label><label><span>Next topic</span><input name="nextTopic" /></label></div>

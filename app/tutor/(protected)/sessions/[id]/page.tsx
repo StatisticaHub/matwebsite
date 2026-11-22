@@ -7,6 +7,12 @@ import { sessionStatuses, sessionStatusLabels, type SessionStatus } from "@/lib/
 import { assignTutorHomework, updateTutorSessionRecord } from "@/app/tutor/actions";
 
 import TutorLessonContinuityRecord from "@/components/TutorLessonContinuityRecord";
+import {
+  DEFAULT_TIME_ZONE,
+  dateKeyInTimeZone,
+  formatDateTimeInTimeZone,
+  normalizeTimeZone,
+} from "@/lib/time-zone";
 export const dynamic = "force-dynamic";
 type Params = Promise<{ id: string }>;
 type SearchParams = Promise<{ saved?: string }>;
@@ -15,6 +21,21 @@ function safeUrl(value: string | null) { if (!value) return null; try { const u 
 
 export default async function TutorSessionDetailPage({ params, searchParams }: { params: Params; searchParams: SearchParams }) {
   const auth = await getTutorSession(); if (!auth) return null;
+
+  const tutorTimeZone =
+    normalizeTimeZone(
+      auth.tutor.timezone,
+      DEFAULT_TIME_ZONE,
+    );
+
+  const fmt = (
+    value: string | null,
+  ) =>
+    formatDateTimeInTimeZone(
+      value,
+      tutorTimeZone,
+    );
+
   const { id } = await params; const query = await searchParams;
   const { data, error } = await createAdminClient().from("tutoring_sessions")
     .select("engagement_id,id,scheduled_for,completed_at,duration_minutes,status,topic,lesson_notes,understanding_rating,next_topic,homework_summary,meeting_url,tutor_id,tutoring_engagements(id,tutor_id,subject,title,students(name,email,academic_level))")

@@ -16,6 +16,12 @@ import {
   updateSupportRequest,
 } from "@/app/admin/portal-actions";
 
+import { getAdminTimeZone } from "@/lib/admin-time-zone";
+import {
+  dateKeyInTimeZone,
+  formatDateTimeInTimeZone,
+  friendlyTimeZoneLabel,
+} from "@/lib/time-zone";
 export const metadata = {
   title: "Sessions",
 };
@@ -430,6 +436,25 @@ function requestStatusLabel(
 }
 
 export default async function SessionsPage() {
+  const adminTimeZone =
+    await getAdminTimeZone();
+
+  const formatDateTime = (
+    value: string | null,
+  ) =>
+    formatDateTimeInTimeZone(
+      value,
+      adminTimeZone,
+    );
+
+  const ukDateKey = (
+    value: Date,
+  ) =>
+    dateKeyInTimeZone(
+      value,
+      adminTimeZone,
+    );
+
   const supabase =
     createAdminClient();
 
@@ -1991,7 +2016,7 @@ export default async function SessionsPage() {
 
             <label>
               <span>
-                Date & time (UK)
+                Date & time
               </span>
 
               <input

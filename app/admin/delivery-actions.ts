@@ -17,6 +17,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sendHomeworkNotification, sendSessionNotification } from "@/lib/email/student";
 import { recordStudentCommunication } from "@/lib/student-communications";
 
+import { getAdminTimeZone } from "@/lib/admin-time-zone";
+import { zonedLocalDateTimeToUtc } from "@/lib/time-zone";
 async function adminContext() {
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
@@ -274,8 +276,70 @@ export async function addTutoringSession(formData: FormData) {
 
   const duration = nullableNumber(formData, "durationMinutes");
   const rating = nullableNumber(formData, "understandingRating");
-  const scheduledFor = timestampOrNull(formData, "scheduledFor");
-  const completedAt = status === "completed" ? (timestampOrNull(formData, "completedAt") || new Date().toISOString()) : null;
+  const adminTimeZone =
+    await getAdminTimeZone();
+
+  const rawScheduledFor =
+    text(
+      formData,
+      "scheduledFor",
+      40,
+    );
+
+  const scheduledConversion =
+    rawScheduledFor
+      ? zonedLocalDateTimeToUtc(
+          rawScheduledFor,
+          adminTimeZone,
+        )
+      : null;
+
+  if (
+    scheduledConversion &&
+    !scheduledConversion.ok
+  ) {
+    throw new Error(
+      scheduledConversion.error,
+    );
+  }
+
+  const scheduledFor =
+    scheduledConversion?.ok
+      ? scheduledConversion.iso
+      : null;
+
+  const rawCompletedAt =
+    text(
+      formData,
+      "completedAt",
+      40,
+    );
+
+  const completedConversion =
+    rawCompletedAt
+      ? zonedLocalDateTimeToUtc(
+          rawCompletedAt,
+          adminTimeZone,
+        )
+      : null;
+
+  if (
+    completedConversion &&
+    !completedConversion.ok
+  ) {
+    throw new Error(
+      completedConversion.error,
+    );
+  }
+
+  const completedAt =
+    status === "completed"
+      ? (
+          completedConversion?.ok
+            ? completedConversion.iso
+            : new Date().toISOString()
+        )
+      : null;
 
   const { data: created, error } = await supabase.from("tutoring_sessions").insert({
     engagement_id: engagementId,

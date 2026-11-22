@@ -6,6 +6,8 @@ import { getAdminSession } from "@/lib/admin-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import styles from "./admin-dashboard.module.css";
 
+import AdminTimeZoneControl from "@/components/AdminTimeZoneControl";
+import { getAdminTimeZone } from "@/lib/admin-time-zone";
 export const metadata = {
   robots: {
     index: false,
@@ -23,6 +25,9 @@ export default async function ProtectedAdminLayout({
   if (!session) {
     redirect("/admin/login");
   }
+
+  const adminTimeZone =
+    await getAdminTimeZone();
 
   const supabase = createAdminClient();
 
@@ -85,6 +90,10 @@ export default async function ProtectedAdminLayout({
           <span title={session.user.email || ""}>
             {session.user.email}
           </span>
+
+          <AdminTimeZoneControl
+            initialTimeZone={adminTimeZone}
+          />
 
           <AdminSignOutButton />
         </div>

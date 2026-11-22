@@ -6,6 +6,12 @@ import {
   sessionStatusLabels,
   type SessionStatus,
 } from "@/lib/delivery-data";
+import {
+  DEFAULT_TIME_ZONE,
+  dateKeyInTimeZone,
+  formatDateTimeInTimeZone,
+  normalizeTimeZone,
+} from "@/lib/time-zone";
 
 export const metadata = {
   title: "Tutor dashboard",
@@ -49,6 +55,30 @@ export default async function TutorDashboardPage() {
   const auth = await getTutorSession();
 
   if (!auth) return null;
+
+  const tutorTimeZone =
+    normalizeTimeZone(
+      auth.tutor.timezone,
+      DEFAULT_TIME_ZONE,
+    );
+
+  const fmt = (
+    value: string | null,
+  ) =>
+    formatDateTimeInTimeZone(
+      value,
+      tutorTimeZone,
+    );
+
+
+  const dayKey = (
+    value: Date,
+  ) =>
+    dateKeyInTimeZone(
+      value,
+      tutorTimeZone,
+    );
+
 
   const supabase = createAdminClient();
 

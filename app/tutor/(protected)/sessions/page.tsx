@@ -2,6 +2,12 @@ import Link from "next/link";
 
 import { getTutorSession } from "@/lib/tutor-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  DEFAULT_TIME_ZONE,
+  dateKeyInTimeZone,
+  formatDateTimeInTimeZone,
+  normalizeTimeZone,
+} from "@/lib/time-zone";
 
 export const metadata = {
   title: "My sessions",
@@ -54,6 +60,21 @@ export default async function TutorSessionsPage() {
   const auth = await getTutorSession();
 
   if (!auth) return null;
+
+  const tutorTimeZone =
+    normalizeTimeZone(
+      auth.tutor.timezone,
+      DEFAULT_TIME_ZONE,
+    );
+
+  const fmt = (
+    value: string | null,
+  ) =>
+    formatDateTimeInTimeZone(
+      value,
+      tutorTimeZone,
+    );
+
 
   const { data, error } = await createAdminClient()
     .from("tutoring_sessions")

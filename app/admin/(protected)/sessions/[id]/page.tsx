@@ -6,6 +6,12 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sessionStatusLabels, sessionStatuses, type SessionStatus } from "@/lib/delivery-data";
 import { attachZoomMeetingToSession, cancelTutoringSession, completeTutoringSession, markTutoringSessionNoShow, sendTutoringSessionReminder, updateTutoringSession } from "@/app/admin/session-management-actions";
 
+import { getAdminTimeZone } from "@/lib/admin-time-zone";
+import {
+  formatDateTimeInTimeZone,
+  formatDateTimeLocalInput,
+  friendlyTimeZoneLabel,
+} from "@/lib/time-zone";
 export const dynamic = "force-dynamic";
 type Params = Promise<{ id: string }>;
 
@@ -69,6 +75,25 @@ function money(value: number | null, currency: string) {
 }
 
 export default async function SessionDetailPage({ params }: { params: Params }) {
+  const adminTimeZone =
+    await getAdminTimeZone();
+
+  const formatDateTime = (
+    value: string | null,
+  ) =>
+    formatDateTimeInTimeZone(
+      value,
+      adminTimeZone,
+    );
+
+  const toDateTimeLocalUk = (
+    value: string | null,
+  ) =>
+    formatDateTimeLocalInput(
+      value,
+      adminTimeZone,
+    );
+
   const { id } = await params;
   const supabase = createAdminClient();
   const [{ data, error }, { data: tutorData }] = await Promise.all([
@@ -101,17 +126,19 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
     <div className="admin-page">
       <div className="admin-breadcrumb"><Link href="/admin/sessions">← Sessions</Link><span>{session.topic}</span></div>
       <header className="admin-page-head admin-session-detail-head">
-        <div><span className="admin-eyebrow">{session.tutoring_engagements?.subject || "Tutoring session"}</span><h1>{session.topic}</h1><p>{student?.name || "Student"} · <ViewerLocalDateTime value={session.scheduled_for} /></p></div>
+        <div><span className="admin-eyebrow">{session.tutoring_engagements?.subject || "Tutoring session"}</span><h1>{session.topic}</h1><p>{student?.name || "Student"} · {formatDateTime(session.scheduled_for)}</p></div>
         <span className={`admin-status session-${session.status}`}>{sessionStatusLabels[session.status]}</span>
       </header>
 
       <div className="admin-detail-grid">
         <div className="admin-detail-main">
           <section className="admin-panel admin-detail-card">
-            <div className="admin-card-head"><div><span className="admin-eyebrow">Session record</span><h2>Edit session</h2></div><span>{session.duration_minutes} minutes</span></div>
+            <div className="admin-card-head"><div><span className="admin-eyebrow">Session record</span><h2>Edit session</h2><small className="admin-timezone-note">
+              Session timezone: {friendlyTimeZoneLabel(adminTimeZone)}
+            </small></div><span>{session.duration_minutes} minutes</span></div>
             <form action={updateTutoringSession} className="admin-compact-form admin-session-edit-form">
               <input type="hidden" name="sessionId" value={session.id} />
-              <div className="admin-form-grid-3"><label><span>Date & time (UK)</span><input name="scheduledFor" type="datetime-local" defaultValue={toDateTimeLocalUk(session.scheduled_for)} /></label><label><span>Status</span><select name="status" defaultValue={session.status}>{sessionStatuses.map((status) => <option key={status} value={status}>{sessionStatusLabels[status]}</option>)}</select></label><label><span>Duration</span><input name="durationMinutes" type="number" min="15" max="480" defaultValue={session.duration_minutes} /></label></div>
+              <div className="admin-form-grid-3"><label><span>Date & time</span><input name="scheduledFor" type="datetime-local" defaultValue={toDateTimeLocalUk(session.scheduled_for)} /></label><label><span>Status</span><select name="status" defaultValue={session.status}>{sessionStatuses.map((status) => <option key={status} value={status}>{sessionStatusLabels[status]}</option>)}</select></label><label><span>Duration</span><input name="durationMinutes" type="number" min="15" max="480" defaultValue={session.duration_minutes} /></label></div>
               <label><span>Topic / lesson title</span><input name="topic" required defaultValue={session.topic} /></label>
               <label><span>Tutor</span><select name="tutorId" defaultValue={session.tutor_id || ""}><option value="">Not assigned</option>{tutors.map((tutor) => <option key={tutor.id} value={tutor.id}>{tutor.name}{tutor.status !== "active" ? ` (${tutor.status})` : ""}</option>)}</select></label>
               <label>
@@ -334,7 +361,7 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
               <div><dt>Student</dt><dd>{student?.name || "—"}</dd></div>
               <div><dt>Email</dt><dd>{student?.email || "—"}</dd></div>
               <div><dt>Tutor</dt><dd>{session.session_tutor?.name || session.tutoring_engagements?.tutors?.name || "Not assigned"}</dd></div>
-              <div><dt>Scheduled</dt><dd><ViewerLocalDateTime value={session.scheduled_for} /></dd></div>
+              <div><dt>Scheduled</dt><dd>{formatDateTime(session.scheduled_for)}</dd></div>
               <div><dt>Completed</dt><dd>{session.completed_at ? formatDateTime(session.completed_at) : "—"}</dd></div>
               <div><dt>Duration</dt><dd>{session.duration_minutes} minutes</dd></div>
               <div><dt>Meeting link</dt><dd>{session.meeting_url ? <a href={session.meeting_url} target="_blank" rel="noreferrer">Open link ↗</a> : "—"}</dd></div>

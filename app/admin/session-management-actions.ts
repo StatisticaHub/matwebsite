@@ -14,6 +14,8 @@ import {
   zoomHostUserId,
 } from "@/lib/zoom";
 
+import { getAdminTimeZone } from "@/lib/admin-time-zone";
+import { zonedLocalDateTimeToUtc } from "@/lib/time-zone";
 async function adminContext() {
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
@@ -401,9 +403,30 @@ export async function createTutoringSessionFromAdmin(formData: FormData) {
     (text(formData, "status", 30) || "planned") as SessionStatus;
 
   const rawScheduledFor = text(formData, "scheduledFor", 40);
-  const scheduledFor = rawScheduledFor
-    ? ukLocalToIso(rawScheduledFor)
-    : null;
+  const adminTimeZone =
+    await getAdminTimeZone();
+
+  const convertedScheduledFor =
+    rawScheduledFor
+      ? zonedLocalDateTimeToUtc(
+          rawScheduledFor,
+          adminTimeZone,
+        )
+      : null;
+
+  if (
+    convertedScheduledFor &&
+    !convertedScheduledFor.ok
+  ) {
+    throw new Error(
+      convertedScheduledFor.error,
+    );
+  }
+
+  const scheduledFor =
+    convertedScheduledFor?.ok
+      ? convertedScheduledFor.iso
+      : null;
 
   const duration = nullableNumber(formData, "durationMinutes");
   const shouldRecordZoom =
@@ -612,9 +635,30 @@ export async function updateTutoringSession(formData: FormData) {
   const status = text(formData, "status", 30) as SessionStatus;
   const topic = text(formData, "topic", 500);
   const rawScheduledFor = text(formData, "scheduledFor", 40);
-  const scheduledFor = rawScheduledFor
-    ? ukLocalToIso(rawScheduledFor)
-    : null;
+  const adminTimeZone =
+    await getAdminTimeZone();
+
+  const convertedScheduledFor =
+    rawScheduledFor
+      ? zonedLocalDateTimeToUtc(
+          rawScheduledFor,
+          adminTimeZone,
+        )
+      : null;
+
+  if (
+    convertedScheduledFor &&
+    !convertedScheduledFor.ok
+  ) {
+    throw new Error(
+      convertedScheduledFor.error,
+    );
+  }
+
+  const scheduledFor =
+    convertedScheduledFor?.ok
+      ? convertedScheduledFor.iso
+      : null;
   const duration = nullableNumber(formData, "durationMinutes");
   const rating = nullableNumber(formData, "understandingRating");
 

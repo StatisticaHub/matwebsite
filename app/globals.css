@@ -6690,3 +6690,36 @@ a.is-active {
     grid-column: auto;
   }
 }
+
+
+/* MAT viewer timezone controls */
+.admin-timezone-control {
+  display: grid;
+  gap: 6px;
+  margin: 10px 0 12px;
+}
+
+.admin-timezone-control > span {
+  color: #9aa8ba;
+  font-size: .7rem;
+  font-weight: 750;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.admin-timezone-control select {
+  width: 100%;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 8px;
+  background: rgba(255,255,255,.06);
+  color: inherit;
+  padding: 7px 8px;
+  font-size: .74rem;
+}
+
+.admin-timezone-control small,
+.admin-timezone-note {
+  color: #718096;
+  font-size: .76rem;
+  line-height: 1.4;
+}

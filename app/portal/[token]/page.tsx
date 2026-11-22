@@ -353,6 +353,15 @@ export default async function StudentPortalPage({
     onboarding?.timezone ||
     null;
 
+  const studentFormatDateTime = (
+    value: string | null,
+  ) =>
+    formatDateTimeInTimeZone(
+      value,
+      savedStudentTimeZone,
+    );
+
+
   const studentTimeZone =
     isValidTimeZone(
       savedStudentTimeZone
@@ -1756,7 +1765,7 @@ const openHomework =
                         >
                           <div className="portal-session-date">
                             <strong>
-                              {formatDateTime(
+                              {studentFormatDateTime(
                                 item.completed_at ||
                                   item.scheduled_for
                               )}
