@@ -1740,6 +1740,20 @@ export default async function SessionsPage() {
                             : "Zoom automation is not configured yet"}
                         </label>
 
+          <label className="admin-email-toggle admin-email-toggle-block">
+            <input
+              name="recordZoomMeeting"
+              type="checkbox"
+            />
+            <span>
+              Record this lesson to Zoom cloud
+            </span>
+            <small>
+              Recording starts automatically when the Zoom lesson begins.
+              Student access remains private until MAT publishes the recording.
+            </small>
+          </label>
+
 
                         <label>
                           <span>
@@ -2099,6 +2113,20 @@ export default async function SessionsPage() {
             {zoomReady
               ? "Create Zoom meeting automatically using the shared MAT Pro account"
               : "Zoom automation is not configured yet"}
+          </label>
+
+          <label className="admin-email-toggle admin-email-toggle-block">
+            <input
+              name="recordZoomMeeting"
+              type="checkbox"
+            />
+            <span>
+              Record this lesson to Zoom cloud
+            </span>
+            <small>
+              Recording starts automatically when the Zoom lesson begins.
+              Student access remains private until MAT publishes the recording.
+            </small>
           </label>
 
 

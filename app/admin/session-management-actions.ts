@@ -406,8 +406,12 @@ export async function createTutoringSessionFromAdmin(formData: FormData) {
     : null;
 
   const duration = nullableNumber(formData, "durationMinutes");
+  const shouldRecordZoom =
+    formData.get("recordZoomMeeting") === "on";
+
   const shouldCreateZoom =
-    formData.get("createZoomMeeting") === "on";
+    formData.get("createZoomMeeting") === "on" ||
+    shouldRecordZoom;
 
   if (!engagementId || !topic || !sessionStatuses.includes(status)) {
     return;
@@ -461,6 +465,7 @@ export async function createTutoringSessionFromAdmin(formData: FormData) {
       topic: `My Academic Tutor — ${topic}`,
       scheduledFor,
       durationMinutes: finalDuration,
+      autoRecord: shouldRecordZoom,
     });
   }
 

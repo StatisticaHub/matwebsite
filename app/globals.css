@@ -4103,3 +4103,925 @@ summary::after {
     grid-template-columns: 1fr !important;
   }
 }
+
+
+/* ==========================================================
+   MAT STUDENT PORTAL — UNIVERSITY APP SHELL
+   ========================================================== */
+
+@media (min-width: 901px) {
+
+  .student-portal-shell {
+    display: grid !important;
+    grid-template-columns: 250px minmax(0, 1fr) !important;
+    align-items: start;
+    min-height: 100vh;
+    background: #f6f8fb;
+    overflow-x: hidden;
+  }
+
+  /* --------------------------------------------------------
+     LEFT SIDEBAR
+     -------------------------------------------------------- */
+
+  .student-portal-shell .portal-topbar {
+    position: sticky !important;
+    top: 0;
+    align-self: start;
+
+    width: 250px !important;
+    max-width: none !important;
+    height: 100vh;
+    margin: 0 !important;
+    padding: 24px 18px !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 24px !important;
+
+    background: #ffffff;
+    border-right: 1px solid #e3e8ef;
+    border-bottom: 0 !important;
+    box-shadow: none !important;
+    z-index: 20;
+  }
+
+  /* Brand */
+
+  .student-portal-shell .portal-brand {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 3px !important;
+
+    text-decoration: none;
+    padding: 4px 6px 18px;
+    border-bottom: 1px solid #edf1f5;
+  }
+
+  .student-portal-shell .portal-brand strong {
+    font-size: 20px !important;
+    line-height: 1.15;
+  }
+
+  .student-portal-shell .portal-brand span {
+    font-size: 11px !important;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: #758399;
+  }
+
+  /* Navigation */
+
+  .student-portal-shell .portal-upgrade-nav {
+    width: 100% !important;
+    max-width: none !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+
+    gap: 5px !important;
+    padding: 0 !important;
+
+    border: 0 !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+  }
+
+  .student-portal-shell .portal-upgrade-nav a {
+    display: flex;
+    align-items: center;
+
+    min-height: 42px;
+    padding: 10px 12px;
+
+    border-radius: 9px;
+    color: #536278 !important;
+    font-size: 14px !important;
+    font-weight: 650;
+    text-decoration: none;
+
+    opacity: 1 !important;
+    transition:
+      background .15s ease,
+      color .15s ease;
+  }
+
+  .student-portal-shell .portal-upgrade-nav a:hover {
+    background: #f1f5f9;
+    color: #102846 !important;
+  }
+
+  /* Account area */
+
+  .student-portal-shell .portal-topbar-meta {
+    margin-top: auto !important;
+    padding: 16px 8px 4px !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
+
+    border-top: 1px solid #edf1f5;
+  }
+
+  .student-portal-shell .portal-topbar-meta > span {
+    display: block !important;
+    font-size: 10px !important;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #8b96a6;
+  }
+
+  .student-portal-shell .portal-topbar-meta strong {
+    font-size: 14px !important;
+  }
+
+  .student-portal-shell .portal-signout {
+    margin-top: 2px !important;
+    font-size: 12px !important;
+    color: #637086 !important;
+  }
+
+  /* --------------------------------------------------------
+     MAIN APPLICATION CONTENT
+     -------------------------------------------------------- */
+
+  .student-portal-shell .portal-page {
+    grid-column: 2;
+
+    width: 100% !important;
+    max-width: 1320px !important;
+
+    margin: 0 auto !important;
+    padding: 30px 34px 60px !important;
+
+    min-width: 0;
+  }
+
+  /* Course workspace becomes compact app control */
+
+  .student-portal-shell #overview > section:first-of-type {
+    background: #fff !important;
+    border: 1px solid #e2e7ee !important;
+    box-shadow: none !important;
+    margin-bottom: 18px !important;
+  }
+
+  /* Main welcome area */
+
+  .student-portal-shell .portal-welcome {
+    background: #fff !important;
+    border: 1px solid #e2e7ee !important;
+    box-shadow: none !important;
+  }
+
+  /* Cards should feel like dashboard modules, not landing-page cards */
+
+  .student-portal-shell .portal-panel,
+  .student-portal-shell .portal-upgrade-next-session,
+  .student-portal-shell .portal-upgrade-next-action {
+    border: 1px solid #e2e7ee !important;
+    box-shadow: none !important;
+    background: #fff;
+  }
+
+  /* Avoid oversized headings inside the authenticated app */
+
+  .student-portal-shell .portal-panel h2 {
+    font-size: 22px;
+  }
+
+  .student-portal-shell .portal-kicker {
+    font-size: 10px;
+    letter-spacing: .14em;
+  }
+}
+
+
+/* ==========================================================
+   STUDENT PORTAL — MOBILE APP HEADER
+   ========================================================== */
+
+@media (max-width: 900px) {
+
+  .student-portal-shell {
+    display: block !important;
+    min-height: 100vh;
+    background: #f6f8fb;
+  }
+
+  .student-portal-shell .portal-topbar {
+    position: relative !important;
+
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+
+    margin: 0 !important;
+    padding: 16px !important;
+
+    display: grid !important;
+    gap: 14px !important;
+
+    background: #fff;
+    border-bottom: 1px solid #e3e8ef;
+  }
+
+  .student-portal-shell .portal-brand {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .student-portal-shell .portal-upgrade-nav {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 6px !important;
+
+    width: 100% !important;
+    padding: 0 0 4px !important;
+
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    background: transparent !important;
+    border: 0 !important;
+  }
+
+  .student-portal-shell .portal-upgrade-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .student-portal-shell .portal-upgrade-nav a {
+    flex: 0 0 auto;
+    padding: 8px 11px;
+    border-radius: 8px;
+
+    background: #f2f5f8;
+    text-decoration: none;
+  }
+
+  .student-portal-shell .portal-topbar-meta {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+
+  .student-portal-shell .portal-topbar-meta > span {
+    display: none !important;
+  }
+
+  .student-portal-shell .portal-page {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 18px 12px 40px !important;
+  }
+}
+
+
+/* ==========================================================
+   MAT STUDENT PORTAL — MODULE VIEWS
+   ========================================================== */
+
+/* Current sidebar item */
+
+.student-portal-shell
+.portal-upgrade-nav
+a.is-active {
+  background: #eaf2fb !important;
+  color: #123f73 !important;
+  font-weight: 750 !important;
+}
+
+
+/* ----------------------------------------------------------
+   DASHBOARD
+   Keep overview only
+   ---------------------------------------------------------- */
+
+.student-portal-shell
+.portal-view-dashboard
+#progress,
+
+.student-portal-shell
+.portal-view-dashboard
+.portal-main-grid {
+  display: none !important;
+}
+
+
+/* ----------------------------------------------------------
+   ALL DEDICATED MODULES
+   Remove dashboard-only content
+   ---------------------------------------------------------- */
+
+.student-portal-shell
+.portal-view-timetable
+.portal-welcome,
+
+.student-portal-shell
+.portal-view-assignments
+.portal-welcome,
+
+.student-portal-shell
+.portal-view-progress
+.portal-welcome,
+
+.student-portal-shell
+.portal-view-files
+.portal-welcome,
+
+.student-portal-shell
+.portal-view-support
+.portal-welcome,
+
+.student-portal-shell
+.portal-view-timetable
+.portal-summary-grid,
+
+.student-portal-shell
+.portal-view-assignments
+.portal-summary-grid,
+
+.student-portal-shell
+.portal-view-progress
+.portal-summary-grid,
+
+.student-portal-shell
+.portal-view-files
+.portal-summary-grid,
+
+.student-portal-shell
+.portal-view-support
+.portal-summary-grid {
+  display: none !important;
+}
+
+
+/* ----------------------------------------------------------
+   TIMETABLE
+   ---------------------------------------------------------- */
+
+.student-portal-shell
+.portal-view-timetable
+#progress {
+  display: none !important;
+}
+
+.student-portal-shell
+.portal-view-timetable
+.portal-upgrade-next-action {
+  display: none !important;
+}
+
+.student-portal-shell
+.portal-view-timetable
+.portal-upgrade-action-grid {
+  grid-template-columns: 1fr !important;
+}
+
+.student-portal-shell
+.portal-view-timetable
+.portal-primary-column > *,
+
+.student-portal-shell
+.portal-view-timetable
+.portal-side-column > * {
+  display: none !important;
+}
+
+.student-portal-shell
+.portal-view-timetable
+#sessions,
+
+.student-portal-shell
+.portal-view-timetable
+#session-request {
+  display: block !important;
+}
+
+
+/* ----------------------------------------------------------
+   ASSIGNMENTS
+   ---------------------------------------------------------- */
+
+.student-portal-shell
+.portal-view-assignments
+.portal-upgrade-action-grid,
+
+.student-portal-shell
+.portal-view-assignments
+#progress {
+  display: none !important;
+}
+
+.student-portal-shell
+.portal-view-assignments
+.portal-primary-column > *,
+
+.student-portal-shell
+.portal-view-assignments
+.portal-side-column > * {
+  display: none !important;
+}
+
+.student-portal-shell
+.portal-view-assignments
+#homework {
+  display: block !important;
+}
+
+
+/* ----------------------------------------------------------
+   PROGRESS
+   ---------------------------------------------------------- */
+
+.student-portal-shell
+.portal-view-progress
+.portal-upgrade-action-grid,
+
+.student-portal-shell
+.portal-view-progress
+.portal-main-grid {
+  display: none !important;
+}
+
+.student-portal-shell
+.portal-view-progress
+#progress {
+  display: block !important;
+}
+
+
+/* ----------------------------------------------------------
+   FILES
+   ---------------------------------------------------------- */
+
+.student-portal-shell
+.portal-view-files
+.portal-upgrade-action-grid,
+
+.student-portal-shell
+.portal-view-files
+#progress {
+  display: none !important;
+}
+
+.student-portal-shell
+.portal-view-files
+.portal-primary-column {
+  display: none !important;
+}
+
+.student-portal-shell
+.portal-view-files
+.portal-side-column > * {
+  display: none !important;
+}
+
+.student-portal-shell
+.portal-view-files
+#materials {
+  display: block !important;
+}
+
+
+/* ----------------------------------------------------------
+   SUPPORT
+   ---------------------------------------------------------- */
+
+.student-portal-shell
+.portal-view-support
+.portal-upgrade-action-grid,
+
+.student-portal-shell
+.portal-view-support
+#progress {
+  display: none !important;
+}
+
+.student-portal-shell
+.portal-view-support
+.portal-primary-column {
+  display: none !important;
+}
+
+.student-portal-shell
+.portal-view-support
+.portal-side-column > * {
+  display: none !important;
+}
+
+.student-portal-shell
+.portal-view-support
+#support {
+  display: block !important;
+}
+
+
+/* Dedicated modules use full width */
+
+.student-portal-shell
+.portal-view-timetable
+.portal-main-grid,
+
+.student-portal-shell
+.portal-view-assignments
+.portal-main-grid,
+
+.student-portal-shell
+.portal-view-files
+.portal-main-grid,
+
+.student-portal-shell
+.portal-view-support
+.portal-main-grid {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+
+
+/* ==========================================================
+   MAT TUTOR PORTAL — UNIVERSITY WORKSPACE
+   ========================================================== */
+
+.tutor-app {
+  min-height: 100vh !important;
+  background: #f6f8fb !important;
+}
+
+
+/* ----------------------------------------------------------
+   SIDEBAR
+   ---------------------------------------------------------- */
+
+.tutor-sidebar {
+  width: 250px !important;
+  background: #ffffff !important;
+  border-right: 1px solid #e3e8ef !important;
+  box-shadow: none !important;
+}
+
+.tutor-sidebar-brand {
+  padding: 24px 20px 20px !important;
+  border-bottom: 1px solid #edf1f5;
+}
+
+.tutor-brand {
+  display: flex !important;
+  align-items: baseline;
+  gap: 7px;
+
+  text-decoration: none !important;
+}
+
+.tutor-brand strong {
+  font-size: 22px !important;
+  letter-spacing: -.02em;
+  color: #102846;
+}
+
+.tutor-brand span {
+  font-size: 11px !important;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #758399;
+}
+
+.tutor-sidebar-brand > small {
+  display: block;
+  margin-top: 6px;
+
+  font-size: 10px !important;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #95a0af;
+}
+
+
+/* ----------------------------------------------------------
+   NAVIGATION
+   ---------------------------------------------------------- */
+
+.tutor-university-nav {
+  display: flex !important;
+  flex-direction: column !important;
+
+  gap: 4px !important;
+  padding: 18px 14px !important;
+}
+
+.tutor-university-nav a {
+  display: flex;
+  align-items: center;
+
+  min-height: 42px;
+  padding: 10px 12px;
+
+  border-radius: 9px;
+
+  color: #536278 !important;
+  text-decoration: none !important;
+
+  font-size: 14px !important;
+  font-weight: 650 !important;
+
+  transition:
+    background .15s ease,
+    color .15s ease;
+}
+
+.tutor-university-nav a:hover {
+  background: #f1f5f9;
+  color: #102846 !important;
+}
+
+.tutor-university-nav a.is-active {
+  background: #eaf2fb !important;
+  color: #123f73 !important;
+  font-weight: 750 !important;
+}
+
+.tutor-nav-label {
+  display: block;
+
+  margin: 3px 10px 8px;
+
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+
+  color: #9aa5b4;
+}
+
+.tutor-nav-label-secondary {
+  margin-top: 20px;
+}
+
+
+/* ----------------------------------------------------------
+   TUTOR ACCOUNT
+   ---------------------------------------------------------- */
+
+.tutor-sidebar-footer {
+  margin-top: auto !important;
+
+  display: grid !important;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 10px !important;
+  align-items: center;
+
+  padding: 18px !important;
+
+  border-top: 1px solid #edf1f5;
+}
+
+.tutor-account-avatar {
+  width: 36px;
+  height: 36px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+
+  background: #102846;
+  color: #fff;
+
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.tutor-account-copy {
+  min-width: 0;
+
+  display: grid;
+  gap: 2px;
+}
+
+.tutor-account-copy strong {
+  font-size: 12px;
+  color: #1b304c;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tutor-account-copy small {
+  font-size: 9px;
+  color: #8591a1;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tutor-sidebar-footer .tutor-signout {
+  grid-column: 1 / -1;
+
+  width: 100%;
+  margin-top: 5px;
+
+  border: 0;
+  background: transparent;
+
+  padding: 7px 0;
+
+  color: #718096;
+  text-align: left;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+
+/* ----------------------------------------------------------
+   MAIN TEACHING AREA
+   ---------------------------------------------------------- */
+
+.tutor-main {
+  min-width: 0 !important;
+  background: #f6f8fb !important;
+}
+
+.tutor-page {
+  width: 100%;
+  max-width: 1320px;
+
+  margin: 0 auto !important;
+  padding: 32px 36px 60px !important;
+}
+
+.tutor-page-head {
+  margin-bottom: 24px;
+}
+
+.tutor-page-head h1 {
+  margin: 4px 0 6px !important;
+
+  font-size: clamp(
+    28px,
+    3vw,
+    38px
+  ) !important;
+
+  letter-spacing: -.025em;
+}
+
+.tutor-page-head p {
+  max-width: 720px;
+
+  margin: 0 !important;
+
+  color: #66758a !important;
+  font-size: 13px !important;
+}
+
+.tutor-eyebrow {
+  color: #3164a8 !important;
+
+  font-size: 9px !important;
+  font-weight: 850 !important;
+  letter-spacing: .13em !important;
+}
+
+
+/* ----------------------------------------------------------
+   DASHBOARD MODULES
+   ---------------------------------------------------------- */
+
+.tutor-metrics {
+  gap: 12px !important;
+  margin-bottom: 20px !important;
+}
+
+.tutor-metrics > div {
+  padding: 18px !important;
+
+  border: 1px solid #e1e7ef !important;
+  border-radius: 12px !important;
+
+  background: #fff !important;
+  box-shadow: none !important;
+}
+
+.tutor-metrics span {
+  font-size: 9px !important;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.tutor-metrics strong {
+  margin-top: 5px;
+
+  font-size: 26px !important;
+}
+
+.tutor-panel {
+  border: 1px solid #e1e7ef !important;
+  border-radius: 13px !important;
+
+  background: #fff !important;
+  box-shadow: none !important;
+}
+
+.tutor-panel-head {
+  padding-bottom: 14px;
+  border-bottom: 1px solid #edf1f5;
+}
+
+.tutor-panel-head h2 {
+  font-size: 18px !important;
+}
+
+
+/* ----------------------------------------------------------
+   TABLES / LISTS
+   ---------------------------------------------------------- */
+
+.tutor-table th {
+  font-size: 9px !important;
+  letter-spacing: .08em !important;
+}
+
+.tutor-table td {
+  font-size: 11px;
+}
+
+.tutor-list > a {
+  border-radius: 9px !important;
+}
+
+.tutor-list > a:hover {
+  background: #f7f9fc;
+}
+
+
+/* ----------------------------------------------------------
+   MOBILE
+   ---------------------------------------------------------- */
+
+@media (max-width: 900px) {
+
+  .tutor-app {
+    display: block !important;
+  }
+
+  .tutor-sidebar {
+    position: relative !important;
+
+    width: 100% !important;
+    height: auto !important;
+
+    border-right: 0 !important;
+    border-bottom: 1px solid #e3e8ef !important;
+  }
+
+  .tutor-sidebar-brand {
+    padding: 16px !important;
+  }
+
+  .tutor-university-nav {
+    flex-direction: row !important;
+
+    padding: 10px 14px 14px !important;
+
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .tutor-university-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tutor-university-nav a {
+    flex: 0 0 auto;
+
+    min-height: 0;
+
+    padding: 8px 11px;
+
+    background: #f2f5f8;
+  }
+
+  .tutor-nav-label {
+    display: none;
+  }
+
+  .tutor-sidebar-footer {
+    display: none !important;
+  }
+
+  .tutor-page {
+    padding: 20px 14px 45px !important;
+  }
+
+}

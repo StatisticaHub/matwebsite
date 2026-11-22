@@ -63,6 +63,7 @@ type Params = Promise<{
 
 type SearchParams = Promise<{
   course?: string;
+  view?: string;
 }>;
 
 
@@ -230,6 +231,43 @@ export default async function StudentPortalPage({
   const query =
     await searchParams;
 
+  const portalViews = [
+    "dashboard",
+    "timetable",
+    "assignments",
+    "progress",
+    "files",
+    "support",
+  ] as const;
+
+  type PortalView =
+    (typeof portalViews)[number];
+
+  const requestedView =
+    String(
+      query.view ||
+      "dashboard"
+    );
+
+  const portalView: PortalView =
+    portalViews.includes(
+      requestedView as PortalView
+    )
+      ? requestedView as PortalView
+      : "dashboard";
+
+  const coursePart =
+    query.course
+      ? `&course=${encodeURIComponent(
+          query.course
+        )}`
+      : "";
+
+  const portalHref = (
+    view: PortalView
+  ) =>
+    `/portal/${token}?view=${view}${coursePart}`;
+
 
   const context =
     await getPortalCourseContext(
@@ -252,7 +290,7 @@ export default async function StudentPortalPage({
           </strong>
 
           <span>
-            Learning portal
+            Student portal
           </span>
         </header>
 
@@ -557,13 +595,73 @@ export default async function StudentPortalPage({
 
         <nav
           className="portal-upgrade-nav"
-          aria-label="Portal sections"
+          aria-label="Student portal"
         >
-          <a href="#overview">Overview</a>
-          <a href="#progress">Progress</a>
-          <a href="#sessions">Sessions</a>
-          <a href="#materials">Files</a>
-          <a href="#support">Support</a>
+          <a
+            href={portalHref("dashboard")}
+            className={
+              portalView === "dashboard"
+                ? "is-active"
+                : undefined
+            }
+          >
+            Dashboard
+          </a>
+
+          <a
+            href={portalHref("timetable")}
+            className={
+              portalView === "timetable"
+                ? "is-active"
+                : undefined
+            }
+          >
+            Timetable
+          </a>
+
+          <a
+            href={portalHref("assignments")}
+            className={
+              portalView === "assignments"
+                ? "is-active"
+                : undefined
+            }
+          >
+            Assignments
+          </a>
+
+          <a
+            href={portalHref("progress")}
+            className={
+              portalView === "progress"
+                ? "is-active"
+                : undefined
+            }
+          >
+            Progress
+          </a>
+
+          <a
+            href={portalHref("files")}
+            className={
+              portalView === "files"
+                ? "is-active"
+                : undefined
+            }
+          >
+            Files
+          </a>
+
+          <a
+            href={portalHref("support")}
+            className={
+              portalView === "support"
+                ? "is-active"
+                : undefined
+            }
+          >
+            Support
+          </a>
         </nav>
 
 
@@ -588,7 +686,7 @@ export default async function StudentPortalPage({
 
 
       <div
-        className="portal-page"
+        className={`portal-page portal-view-${portalView}`}
         id="overview"
       >
 
@@ -1793,7 +1891,8 @@ export default async function StudentPortalPage({
                     SESSION HISTORY
                    ========================================================== */}
 
-                <section className="portal-panel">
+                <section
+                  id="sessions" className="portal-panel">
 
                   <div className="portal-panel-head">
 

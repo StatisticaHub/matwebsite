@@ -173,6 +173,7 @@ export async function createZoomMeeting(args: {
   topic: string;
   scheduledFor: string;
   durationMinutes: number;
+  autoRecord?: boolean;
 }) {
   const hostUserId =
     requiredEnv(
@@ -211,6 +212,11 @@ export async function createZoomMeeting(args: {
 
               waiting_room:
                 true,
+
+              auto_recording:
+                args.autoRecord
+                  ? "cloud"
+                  : "none",
             },
           }),
       }

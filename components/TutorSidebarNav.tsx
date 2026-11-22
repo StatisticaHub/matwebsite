@@ -2,240 +2,110 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 
 import TutorSignOutButton from "@/components/TutorSignOutButton";
 
-type NavItem = {
-  href: string;
-  label: string;
-  external?: boolean;
+type Props = {
+  tutorName: string;
+  email: string;
 };
 
-type NavGroup = {
-  label: string;
-  items: NavItem[];
-};
-
-const groups: NavGroup[] = [
+const primaryLinks = [
   {
-    label: "Workspace",
-    items: [
-      {
-        href: "/tutor",
-        label: "Overview",
-      },
-    ],
+    href: "/tutor",
+    label: "Dashboard",
   },
-
   {
-    label: "Teaching",
-    items: [
-      {
-        href: "/tutor/sessions",
-        label: "Sessions",
-      },
-      {
-        href: "/tutor/students",
-        label: "Students",
-      },
-      {
-        href: "/tutor/materials",
-        label: "Materials",
-      },
-    ],
+    href: "/tutor/students",
+    label: "My Students",
   },
-
   {
-    label: "Learning",
-    items: [
-      {
-        href: "/tutor/progress",
-        label: "Progress",
-      },
-      {
-        href: "/tutor/retention",
-        label: "Retention",
-      },
-    ],
+    href: "/tutor/sessions",
+    label: "Sessions",
   },
-
   {
-    label: "Work",
-    items: [
-      {
-        href: "/tutor/trials",
-        label: "Trials",
-      },
-      {
-        href: "/tutor/availability",
-        label: "Availability",
-      },
-    ],
+    href: "/tutor/progress",
+    label: "Progress",
   },
-
   {
-    label: "MAT",
-    items: [
-      {
-        href: "/",
-        label: "View website ↗",
-        external: true,
-      },
-    ],
+    href: "/tutor/availability",
+    label: "Availability",
   },
 ];
-
-function isActive(
-  pathname: string,
-  href: string,
-) {
-  if (href === "/tutor") {
-    return pathname === "/tutor";
-  }
-
-  if (href === "/") {
-    return false;
-  }
-
-  return (
-    pathname === href ||
-    pathname.startsWith(
-      `${href}/`,
-    )
-  );
-}
 
 export default function TutorSidebarNav({
   tutorName,
   email,
-}: {
-  tutorName: string;
-  email: string;
-}) {
-  const pathname =
-    usePathname();
+}: Props) {
+  const pathname = usePathname();
 
-  const [
-    open,
-    setOpen,
-  ] = useState(false);
+  function active(href: string) {
+    if (href === "/tutor") {
+      return pathname === "/tutor";
+    }
+
+    return pathname.startsWith(href);
+  }
 
   return (
     <>
-      <button
-        className="tutor-mobile-menu-button"
-        type="button"
-        aria-expanded={open}
-        onClick={() =>
-          setOpen(
-            (value) => !value,
-          )
-        }
+      <nav
+        className="tutor-university-nav"
+        aria-label="Tutor portal"
       >
-        <span>
-          Navigation
+        <span className="tutor-nav-label">
+          Teaching
         </span>
 
-        <strong>
-          {open ? "Close" : "Menu"}
-        </strong>
-      </button>
+        {primaryLinks.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={
+              active(item.href)
+                ? "is-active"
+                : undefined
+            }
+          >
+            {item.label}
+          </Link>
+        ))}
 
-      <div
-        className={`tutor-sidebar-content ${
-          open
-            ? "is-open"
-            : ""
-        }`}
-      >
-        <nav
-          className="tutor-workspace-nav"
-          aria-label="Tutor portal"
+        <span className="tutor-nav-label tutor-nav-label-secondary">
+          Additional
+        </span>
+
+        <Link
+          href="/tutor/trials"
+          className={
+            active("/tutor/trials")
+              ? "is-active"
+              : undefined
+          }
         >
-          {groups.map(
-            (group) => (
-              <div
-                className="tutor-nav-group"
-                key={group.label}
-              >
-                <span className="tutor-nav-group-label">
-                  {group.label}
-                </span>
+          Trial Sessions
+        </Link>
+      </nav>
 
-                <div className="tutor-nav-links">
-                  {group.items.map(
-                    (item) => {
-                      const active =
-                        isActive(
-                          pathname,
-                          item.href,
-                        );
-
-                      return (
-                        <Link
-                          key={
-                            item.href
-                          }
-                          href={
-                            item.href
-                          }
-                          target={
-                            item.external
-                              ? "_blank"
-                              : undefined
-                          }
-                          rel={
-                            item.external
-                              ? "noreferrer"
-                              : undefined
-                          }
-                          className={
-                            active
-                              ? "is-active"
-                              : undefined
-                          }
-                          onClick={() =>
-                            setOpen(
-                              false,
-                            )
-                          }
-                        >
-                          <span>
-                            {
-                              item.label
-                            }
-                          </span>
-
-                          {!item.external &&
-                            active && (
-                              <i
-                                aria-hidden="true"
-                              />
-                            )}
-                        </Link>
-                      );
-                    },
-                  )}
-                </div>
-              </div>
-            ),
-          )}
-        </nav>
-
-        <div className="tutor-sidebar-footer">
-          <div className="tutor-account-copy">
-            <span>
-              {tutorName}
-            </span>
-
-            <small>
-              {email}
-            </small>
-          </div>
-
-          <TutorSignOutButton />
+      <div className="tutor-sidebar-footer">
+        <div className="tutor-account-avatar">
+          {tutorName
+            .trim()
+            .slice(0, 1)
+            .toUpperCase() || "T"}
         </div>
+
+        <div className="tutor-account-copy">
+          <strong>
+            {tutorName}
+          </strong>
+
+          <small>
+            {email}
+          </small>
+        </div>
+
+        <TutorSignOutButton />
       </div>
     </>
   );
