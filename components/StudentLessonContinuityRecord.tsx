@@ -1,5 +1,3 @@
-import PortalSessionRecordings from "@/components/PortalSessionRecordings";
-
 type LinkedHomework = {
   id: string;
   title: string;
@@ -73,11 +71,6 @@ export default function StudentLessonContinuityRecord({
         </div>
       </div>
 
-      <PortalSessionRecordings
-        token={token}
-        sessionId={sessionId}
-        embedded
-      />
 
       {(linkedHomework.length > 0 || homeworkSummary) && (
         <section className="portal-continuity-section">
