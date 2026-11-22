@@ -16,6 +16,7 @@ import SessionRequestForm from "@/components/SessionRequestForm";
 import SessionChangeRequestForm from "@/components/SessionChangeRequestForm";
 import StudentSupportForm from "@/components/StudentSupportForm";
 import PortalTimeZoneControl from "@/components/PortalTimeZoneControl";
+import PortalSessionRecordings from "@/components/PortalSessionRecordings";
 import {
   DEFAULT_TIME_ZONE,
   formatDateTimeInTimeZone,
@@ -1997,6 +1998,11 @@ export default async function StudentPortalPage({
                                   }
                                 </small>
                               )}
+
+                              <PortalSessionRecordings
+                                token={token}
+                                sessionId={item.id}
+                              />
 
                             </div>
 

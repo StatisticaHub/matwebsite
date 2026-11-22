@@ -5025,3 +5025,65 @@ a.is-active {
   }
 
 }
+
+
+/* MAT portal session recordings */
+.portal-session-recordings {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(15, 23, 42, 0.1);
+}
+
+.portal-session-recordings-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+
+.portal-session-recordings-list {
+  display: grid;
+  gap: 8px;
+}
+
+.portal-session-recording {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 12px;
+  background: rgba(248, 250, 252, 0.72);
+}
+
+.portal-session-recording > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.portal-session-recording small {
+  display: block;
+  opacity: 0.68;
+}
+
+.portal-recording-button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+@media (max-width: 680px) {
+  .portal-session-recording {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .portal-recording-button {
+    width: 100%;
+    text-align: center;
+  }
+}
