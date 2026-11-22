@@ -11,7 +11,7 @@ import LearningMaterialsList, {
 import { createAdminClient } from "@/lib/supabase/admin";
 
 
-import HomeworkSubmissionForm from "@/components/HomeworkSubmissionForm";
+import HomeworkAssignmentSubmission from "@/components/HomeworkAssignmentSubmission";
 import SessionRequestForm from "@/components/SessionRequestForm";
 import SessionChangeRequestForm from "@/components/SessionChangeRequestForm";
 import StudentSupportForm from "@/components/StudentSupportForm";
@@ -433,15 +433,60 @@ export default async function StudentPortalPage({
     }
   }
 
+  const assignmentMaterialByHomework =
+    new Map<
+      string,
+      LearningMaterialListItem[]
+    >();
+
+  const generalLearningMaterials:
+    LearningMaterialListItem[] = [];
+
+  for (
+    const rawMaterial
+    of learningMaterials
+  ) {
+    const material =
+      rawMaterial as
+        LearningMaterialListItem & {
+          homework_id?:
+            string | null;
+        };
+
+    if (
+      material.homework_id
+    ) {
+      const existing =
+        assignmentMaterialByHomework.get(
+          material.homework_id,
+        ) || [];
+
+      existing.push(
+        rawMaterial,
+      );
+
+      assignmentMaterialByHomework.set(
+        material.homework_id,
+        existing,
+      );
+    } else {
+      generalLearningMaterials.push(
+        rawMaterial,
+      );
+    }
+  }
+
+
+
   const tutorSharedMaterials =
-    learningMaterials.filter(
+    generalLearningMaterials.filter(
       (item) =>
         item.uploaded_by_role !==
         "student",
     );
 
   const studentSharedMaterials =
-    learningMaterials.filter(
+    generalLearningMaterials.filter(
       (item) =>
         item.uploaded_by_role ===
         "student",
@@ -559,8 +604,7 @@ export default async function StudentPortalPage({
       );
     }
   }
-
-  const openHomework =
+const openHomework =
     homework.filter(
       (item) =>
         ![
@@ -1641,22 +1685,22 @@ export default async function StudentPortalPage({
                               item.status
                             ) && (
 
-                              <HomeworkSubmissionForm
-                                token={
-                                  token
-                                }
-                                homeworkId={
-                                  item.id
-                                }
+                              <HomeworkAssignmentSubmission
+                                token={token}
+                                engagementId={engagement.id}
+                                homeworkId={item.id}
+                                homeworkTitle={item.title}
                                 existing={
                                   submission
                                     ? {
-                                        note:
-                                          submission.note,
+                                        note: submission.note,
                                         submission_url:
                                           submission.submission_url,
                                       }
                                     : null
+                                }
+                                materials={
+                                  assignmentMaterialByHomework.get(item.id) || []
                                 }
                               />
 
@@ -1921,7 +1965,7 @@ export default async function StudentPortalPage({
 
                         <span>
                           {
-                            learningMaterials.length
+                            generalLearningMaterials.length
                           }{" "}
                           total
                         </span>
@@ -1931,7 +1975,7 @@ export default async function StudentPortalPage({
 
                       <LearningMaterialsList
                         materials={
-                          learningMaterials
+                          generalLearningMaterials
                         }
                         viewerRole="student"
                         downloadBaseUrl={`/api/portal/${encodeURIComponent(

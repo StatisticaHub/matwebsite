@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { getTutorSession } from "@/lib/tutor-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sessionStatuses, sessionStatusLabels, type SessionStatus } from "@/lib/delivery-data";
-import { updateTutorSessionRecord } from "@/app/tutor/actions";
+import { assignTutorHomework, updateTutorSessionRecord } from "@/app/tutor/actions";
 
 import TutorLessonContinuityRecord from "@/components/TutorLessonContinuityRecord";
 export const dynamic = "force-dynamic";
@@ -17,7 +17,7 @@ export default async function TutorSessionDetailPage({ params, searchParams }: {
   const auth = await getTutorSession(); if (!auth) return null;
   const { id } = await params; const query = await searchParams;
   const { data, error } = await createAdminClient().from("tutoring_sessions")
-    .select("id,scheduled_for,completed_at,duration_minutes,status,topic,lesson_notes,understanding_rating,next_topic,homework_summary,meeting_url,tutor_id,tutoring_engagements(id,tutor_id,subject,title,students(name,email,academic_level))")
+    .select("engagement_id,id,scheduled_for,completed_at,duration_minutes,status,topic,lesson_notes,understanding_rating,next_topic,homework_summary,meeting_url,tutor_id,tutoring_engagements(id,tutor_id,subject,title,students(name,email,academic_level))")
     .eq("id", id).single();
   if (error || !data) notFound();
   const row = data as any;
@@ -48,7 +48,49 @@ export default async function TutorSessionDetailPage({ params, searchParams }: {
           <button className="tutor-primary-button" type="submit">Save session record</button>
         </form>
       </section>
-      <aside className="tutor-stack">
+
+      {/* MAT_TUTOR_ASSIGNMENT_WORKSPACE */}
+      <section className="tutor-panel">
+        <span className="tutor-eyebrow">Assignment</span>
+        <h2>Assign homework</h2>
+        <p className="tutor-help">
+          The student will see this in Assignments and upload completed
+          work directly underneath it.
+        </p>
+
+        <form action={assignTutorHomework} className="tutor-form">
+          <input type="hidden" name="sessionId" value={row.id} />
+
+          <label>
+            <span>Assignment title</span>
+            <input
+              name="title"
+              required
+              defaultValue={`${row.topic} — practice`}
+            />
+          </label>
+
+          <label>
+            <span>Instructions</span>
+            <textarea
+              name="description"
+              defaultValue={row.homework_summary || ""}
+              placeholder="Questions, reading, coding, revision or work the student should submit."
+            />
+          </label>
+
+          <label>
+            <span>Due date</span>
+            <input name="dueDate" type="date" />
+          </label>
+
+          <button className="tutor-primary-button" type="submit">
+            Assign homework
+          </button>
+        </form>
+      </section>
+
+<aside className="tutor-stack">
         <section className="tutor-panel"><h2>Session details</h2><dl className="tutor-details"><div><dt>Student</dt><dd>{row.tutoring_engagements?.students?.name || "—"}</dd></div><div><dt>Level</dt><dd>{row.tutoring_engagements?.students?.academic_level || "—"}</dd></div><div><dt>Scheduled</dt><dd><ViewerLocalDateTime value={row.scheduled_for} /></dd></div><div><dt>Duration</dt><dd>{row.duration_minutes} minutes</dd></div><div><dt>Completed</dt><dd>{row.completed_at ? fmt(row.completed_at) : "—"}</dd></div></dl>{meeting && <a className="tutor-primary-link" href={meeting} target="_blank" rel="noreferrer">Join session ↗</a>}</section>
         <section className="tutor-panel"><h2>Student contact</h2><p className="tutor-help">Use contact details only for tutoring-related communication and keep student information private.</p><p><strong>{row.tutoring_engagements?.students?.email || "No email available"}</strong></p></section>
       </aside>

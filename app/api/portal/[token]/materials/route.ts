@@ -319,6 +319,16 @@ export async function PUT(
     token,
   } = await params;
 
+  // MAT_ASSIGNMENT_ATTACHMENT_LINK
+  const assignmentHomeworkRaw =
+    new URL(request.url).searchParams.get("homework") || "";
+
+  const assignmentHomeworkId =
+    uuidPattern.test(assignmentHomeworkRaw)
+      ? assignmentHomeworkRaw
+      : null;
+
+
   const link =
     await resolvePortalLink(
       token,
@@ -613,7 +623,134 @@ export async function PUT(
     );
   }
 
-  return NextResponse.json(
+
+  if (assignmentHomeworkId) {
+    const {
+      data: homework,
+      error: homeworkError,
+    } = await supabase
+      .from("homework")
+      .select("id,engagement_id,status")
+      .eq("id", assignmentHomeworkId)
+      .eq("engagement_id", engagementId)
+      .maybeSingle();
+
+    if (homeworkError || !homework) {
+      return NextResponse.json(
+        { error: "Assignment not found." },
+        { status: 404 },
+      );
+    }
+
+    const {
+      data: engagement,
+      error: engagementError,
+    } = await supabase
+      .from("tutoring_engagements")
+      .select("id")
+      .eq("id", engagementId)
+      .eq("student_id", link.student_id)
+      .maybeSingle();
+
+    if (engagementError || !engagement) {
+      return NextResponse.json(
+        { error: "Assignment not found." },
+        { status: 404 },
+      );
+    }
+
+    const {
+      data: linkedMaterial,
+      error: materialLinkError,
+    } = await supabase
+      .from("learning_materials")
+      .update({ homework_id: assignmentHomeworkId })
+      .eq("engagement_id", engagementId)
+      .eq("storage_path", storagePath)
+      .select("id")
+      .maybeSingle();
+
+    if (materialLinkError || !linkedMaterial) {
+      console.error(
+        "Could not link uploaded file to assignment:",
+        materialLinkError,
+      );
+
+      return NextResponse.json(
+        {
+          error:
+            "The file uploaded, but it could not be attached to the assignment.",
+        },
+        { status: 500 },
+      );
+    }
+
+    const submittedAt = new Date().toISOString();
+
+    const {
+      data: existingSubmission,
+      error: existingSubmissionError,
+    } = await supabase
+      .from("homework_submissions")
+      .select("homework_id")
+      .eq("homework_id", assignmentHomeworkId)
+      .eq("student_id", link.student_id)
+      .maybeSingle();
+
+    if (existingSubmissionError) {
+      console.error(
+        "Could not check assignment submission:",
+        existingSubmissionError,
+      );
+    } else if (existingSubmission) {
+      const { error: submissionUpdateError } = await supabase
+        .from("homework_submissions")
+        .update({
+          submitted_at: submittedAt,
+          updated_at: submittedAt,
+        })
+        .eq("homework_id", assignmentHomeworkId)
+        .eq("student_id", link.student_id);
+
+      if (submissionUpdateError) {
+        console.error(
+          "Could not update assignment submission:",
+          submissionUpdateError,
+        );
+      }
+    } else {
+      const { error: submissionInsertError } = await supabase
+        .from("homework_submissions")
+        .insert({
+          homework_id: assignmentHomeworkId,
+          student_id: link.student_id,
+          portal_link_id: link.id,
+          note: null,
+          submission_url: null,
+          submitted_at: submittedAt,
+          updated_at: submittedAt,
+        });
+
+      if (submissionInsertError) {
+        console.error(
+          "Could not create assignment submission:",
+          submissionInsertError,
+        );
+      }
+    }
+
+    if (homework.status === "assigned") {
+      await supabase
+        .from("homework")
+        .update({
+          status: "submitted",
+          updated_at: submittedAt,
+        })
+        .eq("id", assignmentHomeworkId);
+    }
+  }
+
+return NextResponse.json(
     {
       ok: true,
       material,

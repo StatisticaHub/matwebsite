@@ -6555,3 +6555,63 @@ a.is-active {
     border-bottom: 0;
   }
 }
+
+
+/* MAT assignment submission workspace */
+.portal-assignment-submission-workspace {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 16px;
+  border: 1px solid rgba(31, 91, 157, 0.16);
+  border-radius: 13px;
+  background: #f8fbff;
+}
+
+.portal-assignment-submission-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.portal-assignment-submission-head > div {
+  display: grid;
+  gap: 3px;
+}
+
+.portal-assignment-submission-head strong {
+  color: #183858;
+}
+
+.portal-assignment-file-count {
+  color: #6d7c90;
+  font-size: 0.76rem;
+  white-space: nowrap;
+}
+
+.portal-assignment-existing-files,
+.portal-assignment-upload-box,
+.portal-assignment-note-box {
+  padding: 13px;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.portal-assignment-note-box > small {
+  display: block;
+  margin-top: 8px;
+  color: #78869a;
+  line-height: 1.45;
+}
+
+@media (max-width: 680px) {
+  .portal-assignment-submission-head {
+    flex-direction: column;
+  }
+
+  .portal-assignment-file-count {
+    white-space: normal;
+  }
+}

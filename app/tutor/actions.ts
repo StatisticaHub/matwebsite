@@ -118,3 +118,75 @@ export async function updateTutorTrialRecord(formData: FormData) {
   revalidatePath("/tutor/trials");
   redirect("/tutor/trials?saved=1");
 }
+
+export async function assignTutorHomework(
+  formData: FormData
+) {
+  const { session, supabase } = await tutorContext();
+  const sessionId = text(formData, "sessionId", 100);
+  const title = text(formData, "title", 500);
+  const description = nullableText(formData, "description", 8000);
+  const rawDueDate = text(formData, "dueDate", 20);
+  const dueDate = /^\d{4}-\d{2}-\d{2}$/.test(rawDueDate)
+    ? rawDueDate
+    : null;
+
+  if (!sessionId || !title) return;
+
+  const { data: row, error: rowError } = await supabase
+    .from("tutoring_sessions")
+    .select("id,tutor_id,engagement_id,tutoring_engagements(tutor_id)")
+    .eq("id", sessionId)
+    .single();
+
+  if (rowError || !row) {
+    throw new Error(rowError?.message || "Session not found.");
+  }
+
+  const engagement = row.tutoring_engagements as unknown as
+    | { tutor_id: string | null }
+    | null;
+
+  if (
+    row.tutor_id !== session.tutor.id &&
+    engagement?.tutor_id !== session.tutor.id
+  ) {
+    throw new Error("You do not have access to this session.");
+  }
+
+  const { data: existing } = await supabase
+    .from("homework")
+    .select("id")
+    .eq("engagement_id", row.engagement_id)
+    .eq("source_session_id", sessionId)
+    .maybeSingle();
+
+  const payload = {
+    engagement_id: row.engagement_id,
+    session_id: sessionId,
+    source_session_id: sessionId,
+    title,
+    description,
+    due_date: dueDate,
+    status: "assigned",
+    updated_at: new Date().toISOString(),
+  };
+
+  if (existing?.id) {
+    const { error } = await supabase
+      .from("homework")
+      .update(payload)
+      .eq("id", existing.id);
+
+    if (error) throw new Error(error.message || "Could not update homework.");
+  } else {
+    const { error } = await supabase
+      .from("homework")
+      .insert(payload);
+
+    if (error) throw new Error(error.message || "Could not assign homework.");
+  }
+
+  revalidatePath(`/tutor/sessions/${sessionId}`);
+  revalidatePath("/tutor/sessions");
+}
