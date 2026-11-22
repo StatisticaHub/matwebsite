@@ -6157,3 +6157,231 @@ a.is-active {
     border-top: 2px solid rgba(45, 112, 184, 0.2);
   }
 }
+
+
+/* MAT weekly-first student dashboard */
+.portal-this-week-command {
+  display: grid;
+  gap: 16px;
+  margin: 18px 0 20px;
+  padding: 24px;
+  border: 1px solid rgba(23, 75, 137, 0.16);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  box-shadow: 0 14px 34px rgba(19, 43, 76, 0.05);
+}
+
+.portal-this-week-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 22px;
+}
+
+.portal-this-week-head h2 {
+  margin: 5px 0 6px;
+  color: #132d50;
+  font-size: 1.42rem;
+}
+
+.portal-this-week-head p {
+  max-width: 720px;
+  margin: 0;
+  color: #61718a;
+}
+
+.portal-this-week-history-link {
+  flex: 0 0 auto;
+  color: #1d5da7;
+  font-size: 0.84rem;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.portal-this-week-main {
+  display: grid;
+  grid-template-columns: minmax(330px, 1.1fr) minmax(0, 1.5fr);
+  gap: 12px;
+}
+
+.portal-this-week-session {
+  display: flex;
+  min-height: 210px;
+  flex-direction: column;
+  justify-content: center;
+  padding: 22px;
+  border: 1px solid rgba(23, 75, 137, 0.13);
+  border-radius: 14px;
+  background: #fff;
+}
+
+.portal-this-week-card-label,
+.portal-this-week-priority > span {
+  color: #1d5da7;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.portal-this-week-session h3 {
+  margin: 8px 0 5px;
+  color: #102a4b;
+  font-size: 1.35rem;
+}
+
+.portal-this-week-session p {
+  margin: 0;
+  color: #53657e;
+}
+
+.portal-this-week-session-time {
+  font-size: 0.98rem;
+  font-weight: 700;
+}
+
+.portal-this-week-session small {
+  display: block;
+  margin-top: 6px;
+  color: #7a8799;
+}
+
+.portal-this-week-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 17px;
+}
+
+.portal-this-week-priority-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.portal-this-week-priority {
+  display: flex;
+  min-height: 100px;
+  flex-direction: column;
+  justify-content: center;
+  padding: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 13px;
+  background: #fff;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 0.16s ease,
+    transform 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.portal-this-week-priority:hover {
+  transform: translateY(-1px);
+  border-color: rgba(32, 102, 181, 0.28);
+  box-shadow: 0 8px 20px rgba(19, 43, 76, 0.06);
+}
+
+.portal-this-week-priority.is-homework {
+  background: #fbfdff;
+}
+
+.portal-this-week-priority strong {
+  display: block;
+  margin: 6px 0 3px;
+  overflow: hidden;
+  color: #172f50;
+  font-size: 1.05rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.portal-this-week-priority small {
+  color: #748299;
+  line-height: 1.35;
+}
+
+.portal-learning-context-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 18px 0 22px;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 14px;
+  background: #fff;
+}
+
+.portal-learning-context-strip article {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 15px 18px;
+  border-right: 1px solid rgba(15, 23, 42, 0.07);
+}
+
+.portal-learning-context-strip article:last-child {
+  border-right: 0;
+}
+
+.portal-learning-context-strip span {
+  color: #8290a3;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.portal-learning-context-strip strong {
+  overflow: hidden;
+  color: #273f60;
+  font-size: 0.92rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.portal-learning-context-strip small {
+  overflow: hidden;
+  color: #7b889b;
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Keep the weekly learning record visually prominent immediately after This Week */
+.portal-this-week-command + .portal-weekly-hub {
+  margin-top: 0;
+}
+
+@media (max-width: 900px) {
+  .portal-this-week-main {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .portal-this-week-command {
+    padding: 18px;
+  }
+
+  .portal-this-week-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .portal-this-week-priority-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-learning-context-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-learning-context-strip article {
+    border-right: 0;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.07);
+  }
+
+  .portal-learning-context-strip article:last-child {
+    border-bottom: 0;
+  }
+}

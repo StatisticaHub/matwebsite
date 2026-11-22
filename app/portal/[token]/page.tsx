@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import LearningMaterialUploadForm from "@/components/LearningMaterialUploadForm";
 
 import StudentWeeklyLearningHub from "@/components/StudentWeeklyLearningHub";
+import StudentThisWeekCommandCentre from "@/components/StudentThisWeekCommandCentre";
 
 import LearningMaterialsList, {
   type LearningMaterialListItem,
@@ -911,218 +912,67 @@ export default async function StudentPortalPage({
 
         </section>
 
+        {engagement && (
+          <>
+            <StudentThisWeekCommandCentre
+              token={token}
+              courseId={engagement.id}
+              nextSession={nextSession as any}
+              nextMeetingUrl={nextMeetingUrl}
+              openHomework={openHomework as any[]}
+              sessions={sessions as any[]}
+              learningMaterials={learningMaterials as any[]}
+              submissions={submissions as any[]}
+              recordingsBySession={recordingBySession}
+              tutorName={tutor?.name || null}
+            />
+
+            <StudentWeeklyLearningHub
+                  token={token}
+                  sessions={sessions as any[]}
+                  homework={homework as any[]}
+                  submissions={submissions as any[]}
+                  resources={resources as any[]}
+                  learningMaterials={learningMaterials as any[]}
+                  recordingsBySession={recordingBySession}
+                />
+
+            <section className="portal-learning-context-strip">
+              <article>
+                <span>Subject</span>
+                <strong>{engagement.subject}</strong>
+                <small>{engagement.module || engagement.title}</small>
+              </article>
+
+              <article>
+                <span>Current focus</span>
+                <strong>
+                  {engagement.current_focus || "Building your learning plan"}
+                </strong>
+                <small>
+                  {engagement.goal || "Your current learning priority"}
+                </small>
+              </article>
+
+              <article>
+                <span>Next deadline</span>
+                <strong>{formatDate(engagement.upcoming_deadline)}</strong>
+                <small>
+                  {engagement.confidence
+                    ? `Confidence ${engagement.confidence}/5`
+                    : "Confidence not yet assessed"}
+                </small>
+              </article>
+            </section>
+          </>
+        )}
+
+
 
         {/* ==================================================================
             PRIMARY ACTIONS
            ================================================================== */}
-
-        <section className="portal-upgrade-action-grid">
-
-          {/* --------------------------------------------------------------
-              NEXT SESSION
-             -------------------------------------------------------------- */}
-
-          <article className="portal-upgrade-next-session">
-
-            <div>
-
-              <span className="portal-kicker">
-                Next session
-              </span>
-
-              <h2>
-                {nextSession
-                  ? portalDateTime(
-                      nextSession.scheduled_for
-                    )
-                  : "No session booked yet"}
-              </h2>
-
-              <p>
-                {nextSession?.topic ||
-                  "Your tutoring team will add the next session here once it is scheduled."}
-              </p>
-
-              {nextSession && (
-                <small>
-                  {
-                    nextSession.duration_minutes
-                  }{" "}
-                  minutes
-                  {tutor?.name
-                    ? ` · ${tutor.name}`
-                    : ""}
-                </small>
-              )}
-
-            </div>
-
-
-            {/* ------------------------------------------------------------
-                SESSION / REBOOKING ACTIONS
-               ------------------------------------------------------------ */}
-
-            <div className="portal-progress-actions">
-
-              {nextMeetingUrl ? (
-                <a
-                  className="button button-primary"
-                  href={
-                    nextMeetingUrl
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Join session ↗
-                </a>
-              ) : nextSession ? (
-                <span className="portal-upgrade-muted-action">
-                  Meeting link will
-                  appear here
-                </span>
-              ) : null}
-
-
-              {nextSession && (
-                <a
-                  className="button button-secondary"
-                  href="#session-change"
-                >
-                  Change this session ↓
-                </a>
-              )}
-
-
-              {engagement ? (
-                <a
-                  className="button button-secondary"
-                  href="#session-request"
-                >
-                  {nextSession
-                    ? "Request another session →"
-                    : "Request next session →"}
-                </a>
-              ) : (
-                <a
-                  className="button button-secondary"
-                  href="#support"
-                >
-                  Contact tutoring team →
-                </a>
-              )}
-
-            </div>
-
-          </article>
-
-
-          {/* --------------------------------------------------------------
-              NEXT ACTION
-             -------------------------------------------------------------- */}
-
-          <article className="portal-upgrade-next-action">
-
-            <span className="portal-kicker">
-              This week
-            </span>
-
-
-            {openHomework[0] ? (
-              <>
-
-                <h3>
-                  {
-                    openHomework[0]
-                      .title
-                  }
-                </h3>
-
-                <p>
-                  {openHomework[0]
-                    .due_date
-                    ? `Due ${formatDate(
-                        openHomework[0]
-                          .due_date
-                      )}`
-                    : "Complete this before your next lesson if possible."}
-                </p>
-
-                <a href="#homework">
-                  Open homework ↓
-                </a>
-
-              </>
-            ) : nextSession ? (
-              <>
-
-                <h3>
-                  Prepare for your
-                  next lesson
-                </h3>
-
-                <p>
-                  Review your previous
-                  notes and bring any
-                  questions you want to
-                  cover.
-                </p>
-
-                <a href="#sessions">
-                  View session details ↓
-                </a>
-
-              </>
-            ) : engagement ? (
-              <>
-
-                <h3>
-                  Ready for your next
-                  session?
-                </h3>
-
-                <p>
-                  Send your preferred
-                  date, time and topic
-                  so your tutoring team
-                  can arrange the next
-                  lesson.
-                </p>
-
-                <a href="#session-request">
-                  Request a session ↓
-                </a>
-
-              </>
-            ) : (
-              <>
-
-                <h3>
-                  Your tutoring plan is
-                  being set up
-                </h3>
-
-                <p>
-                  Your tutoring team is
-                  preparing the next
-                  step. Send a message
-                  if you need anything
-                  in the meantime.
-                </p>
-
-                <a href="#support">
-                  Contact your tutoring
-                  team ↓
-                </a>
-
-              </>
-            )}
-
-          </article>
-
-        </section>
-
-
-        {/* ==================================================================
+{/* ==================================================================
             NO ENGAGEMENT YET
            ================================================================== */}
 
@@ -1187,89 +1037,7 @@ export default async function StudentPortalPage({
             {/* ==============================================================
                 SUMMARY
                ============================================================== */}
-
-            <section className="portal-summary-grid">
-
-              <article>
-                <span>
-                  Subject
-                </span>
-
-                <strong>
-                  {
-                    engagement.subject
-                  }
-                </strong>
-
-                <small>
-                  {engagement.module ||
-                    engagement.title}
-                </small>
-              </article>
-
-
-              <article>
-                <span>
-                  Current focus
-                </span>
-
-                <strong>
-                  {engagement.current_focus ||
-                    "Building your learning plan"}
-                </strong>
-
-                <small>
-                  {engagement.goal ||
-                    "Your goal will be kept here."}
-                </small>
-              </article>
-
-
-              <article>
-                <span>
-                  Open homework
-                </span>
-
-                <strong>
-                  {
-                    openHomework.length
-                  }
-                </strong>
-
-                <small>
-                  {openHomework[0]
-                    ?.due_date
-                    ? `Next due ${formatDate(
-                        openHomework[0]
-                          .due_date
-                      )}`
-                    : "Nothing urgent"}
-                </small>
-              </article>
-
-
-              <article>
-                <span>
-                  Next deadline
-                </span>
-
-                <strong>
-                  {formatDate(
-                    engagement.upcoming_deadline
-                  )}
-                </strong>
-
-                <small>
-                  {engagement.confidence
-                    ? `Current confidence ${engagement.confidence}/5`
-                    : "Confidence not yet assessed"}
-                </small>
-              </article>
-
-            </section>
-
-
-            {/* ==============================================================
+{/* ==============================================================
                 PROGRESS REPORT
                ============================================================== */}
 
@@ -1605,15 +1373,7 @@ export default async function StudentPortalPage({
 
                 <div id="this-week"></div>
 
-        <StudentWeeklyLearningHub
-                  token={token}
-                  sessions={sessions as any[]}
-                  homework={homework as any[]}
-                  submissions={submissions as any[]}
-                  resources={resources as any[]}
-                  learningMaterials={learningMaterials as any[]}
-                  recordingsBySession={recordingBySession}
-                />
+
 
 
                 {/* ==========================================================
