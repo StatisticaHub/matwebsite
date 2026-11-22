@@ -718,6 +718,7 @@ export default async function StudentPortalPage({
             Files
           </a>
 
+          <a href={`/portal/${token}/recordings`}>Recordings</a>
           <a
             href={portalHref("support")}
             className={
