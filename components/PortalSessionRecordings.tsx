@@ -12,33 +12,41 @@ type RecordingRow = {
 
 function fileLabel(fileType: string | null) {
   const type = String(fileType || "").toUpperCase();
+
   if (type === "MP4") return "Lesson recording";
   if (type === "M4A") return "Audio recording";
   if (type === "VTT" || type === "TRANSCRIPT") return "Transcript";
+
   return "Lesson file";
 }
 
 function actionLabel(fileType: string | null) {
   const type = String(fileType || "").toUpperCase();
+
   if (type === "MP4") return "Watch recording ↗";
   if (type === "M4A") return "Listen to audio ↗";
   if (type === "VTT" || type === "TRANSCRIPT") return "Open transcript ↗";
+
   return "Open ↗";
 }
 
 function formatBytes(value: number | null) {
   if (value === null || value < 0) return null;
+
   if (value < 1024) return `${value} B`;
   if (value < 1024 * 1024) return `${Math.round(value / 1024)} KB`;
+
   return `${(value / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 export default async function PortalSessionRecordings({
   token,
   sessionId,
+  embedded = false,
 }: {
   token: string;
   sessionId: string;
+  embedded?: boolean;
 }) {
   const supabase = createAdminClient();
 
@@ -59,31 +67,41 @@ export default async function PortalSessionRecordings({
   }
 
   const recordings = (data || []) as RecordingRow[];
-  if (!recordings.length) return null;
 
-  return (
-    <div className="portal-session-recordings">
-      <span className="portal-session-recordings-label">Lesson recordings</span>
+  if (!recordings.length) {
+    return null;
+  }
+
+  const content = (
+    <>
+      <span className="portal-session-recordings-label">
+        Lesson recordings
+      </span>
 
       <div className="portal-session-recordings-list">
         {recordings.map((recording) => {
           const size = formatBytes(recording.file_size_bytes);
 
           return (
-            <div className="portal-session-recording" key={recording.id}>
+            <div
+              className="portal-session-recording"
+              key={recording.id}
+            >
               <div>
                 <strong>{fileLabel(recording.file_type)}</strong>
+
                 <small>
                   {[recording.file_extension || recording.file_type, size]
                     .filter(Boolean)
                     .join(" · ")}
                 </small>
-
               </div>
 
               <a
                 className="button button-secondary portal-recording-button"
-                href={`/api/portal/${encodeURIComponent(token)}/recordings/${recording.id}`}
+                href={`/api/portal/${encodeURIComponent(
+                  token
+                )}/recordings/${recording.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -93,6 +111,20 @@ export default async function PortalSessionRecordings({
           );
         })}
       </div>
+    </>
+  );
+
+  if (embedded) {
+    return (
+      <div className="portal-session-recordings portal-session-recordings-embedded">
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <div className="portal-session-recordings">
+      {content}
     </div>
   );
 }

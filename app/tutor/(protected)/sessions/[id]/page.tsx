@@ -6,7 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sessionStatuses, sessionStatusLabels, type SessionStatus } from "@/lib/delivery-data";
 import { updateTutorSessionRecord } from "@/app/tutor/actions";
 
-import TutorSessionRecordings from "@/components/TutorSessionRecordings";
+import TutorLessonContinuityRecord from "@/components/TutorLessonContinuityRecord";
 export const dynamic = "force-dynamic";
 type Params = Promise<{ id: string }>;
 type SearchParams = Promise<{ saved?: string }>;
@@ -17,7 +17,7 @@ export default async function TutorSessionDetailPage({ params, searchParams }: {
   const auth = await getTutorSession(); if (!auth) return null;
   const { id } = await params; const query = await searchParams;
   const { data, error } = await createAdminClient().from("tutoring_sessions")
-    .select("id,scheduled_for,completed_at,duration_minutes,status,topic,lesson_notes,understanding_rating,next_topic,homework_summary,meeting_url,tutor_id,tutoring_engagements(tutor_id,subject,title,students(name,email,academic_level))")
+    .select("id,scheduled_for,completed_at,duration_minutes,status,topic,lesson_notes,understanding_rating,next_topic,homework_summary,meeting_url,tutor_id,tutoring_engagements(id,tutor_id,subject,title,students(name,email,academic_level))")
     .eq("id", id).single();
   if (error || !data) notFound();
   const row = data as any;
@@ -27,7 +27,16 @@ export default async function TutorSessionDetailPage({ params, searchParams }: {
     <div className="tutor-breadcrumb"><Link href="/tutor/sessions">← Sessions</Link><span>{row.topic}</span></div>
     <header className="tutor-page-head"><div><span className="tutor-eyebrow">{row.tutoring_engagements?.subject || "Tutoring"}</span><h1>{row.topic}</h1><p>{row.tutoring_engagements?.students?.name || "Student"} · <ViewerLocalDateTime value={row.scheduled_for} /></p></div><span className={`tutor-status ${row.status}`}>{sessionStatusLabels[row.status as SessionStatus]}</span></header>
     {query.saved === "1" && <div className="tutor-alert success">Session record saved.</div>}
-    <TutorSessionRecordings sessionId={row.id} />
+    <TutorLessonContinuityRecord
+      sessionId={row.id}
+      engagementId={row.tutoring_engagements?.id || null}
+      studentName={row.tutoring_engagements?.students?.name || "Student"}
+      subject={row.tutoring_engagements?.subject || "Tutoring"}
+      lessonNotes={row.lesson_notes}
+      understandingRating={row.understanding_rating}
+      homeworkSummary={row.homework_summary}
+      nextTopic={row.next_topic}
+    />
     <div className="tutor-grid-2 align-start">
       <section className="tutor-panel"><div className="tutor-panel-head"><h2>Update session record</h2><span>{row.duration_minutes} min</span></div>
         <form action={updateTutorSessionRecord} className="tutor-form"><input type="hidden" name="sessionId" value={row.id} />

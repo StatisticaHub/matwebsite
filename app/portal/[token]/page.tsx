@@ -16,7 +16,7 @@ import SessionRequestForm from "@/components/SessionRequestForm";
 import SessionChangeRequestForm from "@/components/SessionChangeRequestForm";
 import StudentSupportForm from "@/components/StudentSupportForm";
 import PortalTimeZoneControl from "@/components/PortalTimeZoneControl";
-import PortalSessionRecordings from "@/components/PortalSessionRecordings";
+import StudentLessonContinuityRecord from "@/components/StudentLessonContinuityRecord";
 import {
   DEFAULT_TIME_ZONE,
   formatDateTimeInTimeZone,
@@ -1892,11 +1892,8 @@ export default async function StudentPortalPage({
                     SESSION HISTORY
                    ========================================================== */}
 
-                <section
-                  id="sessions" className="portal-panel">
-
+                <section className="portal-panel portal-lesson-history-panel">
                   <div className="portal-panel-head">
-
                     <div>
                       <span className="portal-kicker">
                         Lesson record
@@ -1908,149 +1905,83 @@ export default async function StudentPortalPage({
                     </div>
 
                     <span>
-                      {
-                        completedSessions.length
-                      }{" "}
-                      completed
+                      {completedSessions.length} completed
                     </span>
-
                   </div>
 
-
-                  <div className="portal-session-timeline">
-
+                  <div className="portal-session-timeline portal-continuity-timeline">
                     {completedSessions
-                      .slice(
-                        0,
-                        5
-                      )
-                      .map(
-                        (item) => (
-
-                          <article
-                            key={
-                              item.id
-                            }
-                          >
-
-                            <div className="portal-session-date">
-
-                              <strong>
-                                {portalDateTime(
-                                  item.completed_at ||
-                                    item.scheduled_for
-                                )}
-                              </strong>
-
-                              <span>
-                                {
-                                  item.duration_minutes
-                                }{" "}
-                                min
-                              </span>
-
-                            </div>
-
-
-                            <div className="portal-session-copy">
-
-                              <strong>
-                                {
-                                  item.topic
-                                }
-                              </strong>
-
-
-                              {item.lesson_notes && (
-                                <p>
-                                  {
-                                    item.lesson_notes
-                                  }
-                                </p>
+                      .slice(0, 12)
+                      .map((item) => (
+                        <article
+                          key={item.id}
+                          className="portal-lesson-record-card"
+                        >
+                          <div className="portal-session-date">
+                            <strong>
+                              {formatDateTime(
+                                item.completed_at ||
+                                  item.scheduled_for
                               )}
+                            </strong>
 
+                            <span>
+                              {item.duration_minutes} min
+                            </span>
+                          </div>
 
-                              {item.homework_summary && (
+                          <div className="portal-session-copy portal-lesson-record-copy">
+                            <div className="portal-lesson-record-title">
+                              <div>
+                                <strong>
+                                  {item.topic}
+                                </strong>
 
-                                <div className="portal-upgrade-session-note">
-
-                                  <span>
-                                    Practice /
-                                    homework
-                                  </span>
-
-                                  <p>
-                                    {
-                                      item.homework_summary
-                                    }
-                                  </p>
-
-                                </div>
-
-                              )}
-
-
-                              {item.next_topic && (
                                 <small>
-                                  Next focus:{" "}
-                                  {
-                                    item.next_topic
-                                  }
+                                  Complete lesson record
                                 </small>
-                              )}
-
-                              <PortalSessionRecordings
-                                token={token}
-                                sessionId={item.id}
-                              />
-
-                            </div>
-
-
-                            <div className="portal-session-meta">
+                              </div>
 
                               <span
                                 className={`portal-status session-${item.status}`}
                               >
-                                {
-                                  sessionStatusLabels[
-                                    item
-                                      .status
-                                  ]
-                                }
+                                {sessionStatusLabels[item.status]}
                               </span>
-
-
-                              {item.understanding_rating && (
-                                <small>
-                                  Understanding{" "}
-                                  {
-                                    item.understanding_rating
-                                  }
-                                  /5
-                                </small>
-                              )}
-
                             </div>
 
-                          </article>
-
-                        )
-                      )}
-
+                            <StudentLessonContinuityRecord
+                              token={token}
+                              sessionId={item.id}
+                              courseId={engagement?.id || null}
+                              lessonNotes={item.lesson_notes}
+                              understandingRating={item.understanding_rating}
+                              homeworkSummary={item.homework_summary}
+                              nextTopic={item.next_topic}
+                              linkedHomework={(homework as any[])
+                                .filter(
+                                  (homeworkItem) =>
+                                    homeworkItem.source_session_id === item.id
+                                )
+                                .map((homeworkItem) => ({
+                                  id: homeworkItem.id,
+                                  title: homeworkItem.title,
+                                  description:
+                                    homeworkItem.description || null,
+                                  due_date:
+                                    homeworkItem.due_date || null,
+                                  status: homeworkItem.status,
+                                }))}
+                            />
+                          </div>
+                        </article>
+                      ))}
 
                     {!completedSessions.length && (
                       <div className="portal-empty">
-                        Your completed
-                        lessons will
-                        build into a
-                        learning history
-                        here.
+                        Your completed lessons will build into a learning history here.
                       </div>
                     )}
-
                   </div>
-
                 </section>
 
               </div>

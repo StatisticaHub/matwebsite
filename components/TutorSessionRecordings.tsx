@@ -38,8 +38,10 @@ function sizeText(value: number | null) {
 
 export default async function TutorSessionRecordings({
   sessionId,
+  embedded = false,
 }: {
   sessionId: string;
+  embedded?: boolean;
 }) {
   const supabase = createAdminClient();
 
@@ -65,20 +67,23 @@ export default async function TutorSessionRecordings({
     return null;
   }
 
-  return (
-    <section className="tutor-panel tutor-recordings-panel">
-      <div className="tutor-panel-head">
-        <div>
-          <span className="tutor-eyebrow">Lesson media</span>
-          <h2>Session recordings</h2>
+  const content = (
+    <>
+      {!embedded && (
+        <div className="tutor-panel-head">
+          <div>
+            <span className="tutor-eyebrow">Lesson media</span>
+            <h2>Session recordings</h2>
+          </div>
+          <span>{recordings.length} available</span>
         </div>
-        <span>{recordings.length} available</span>
-      </div>
+      )}
 
-      <p className="tutor-help">
-        Recordings are stored by MAT after Zoom processing. Technical Zoom
-        metadata is not shown here.
-      </p>
+      {embedded && (
+        <span className="tutor-continuity-label">
+          Lesson recordings
+        </span>
+      )}
 
       <div className="tutor-recording-list">
         {recordings.map((recording) => {
@@ -120,6 +125,20 @@ export default async function TutorSessionRecordings({
           );
         })}
       </div>
+    </>
+  );
+
+  if (embedded) {
+    return (
+      <div className="tutor-continuity-media">
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <section className="tutor-panel tutor-recordings-panel">
+      {content}
     </section>
   );
 }
