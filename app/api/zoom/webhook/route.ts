@@ -553,6 +553,26 @@ async function saveCompletedRecording(
               file.status ||
               "completed",
 
+            /*
+             * Recorded lessons are automatically released
+             * to the enrolled student when Zoom processing
+             * finishes.
+             *
+             * Technical Zoom metadata remains internal.
+             */
+            student_visible:
+              [
+                "MP4",
+                "M4A",
+                "VTT",
+                "TRANSCRIPT",
+              ].includes(
+                String(
+                  file.file_type ||
+                  ""
+                ).toUpperCase()
+              ),
+
             updated_at:
               timestamp,
           },
