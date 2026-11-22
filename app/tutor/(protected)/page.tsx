@@ -2,575 +2,430 @@ import Link from "next/link";
 
 import { getTutorSession } from "@/lib/tutor-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  sessionStatusLabels,
+  type SessionStatus,
+} from "@/lib/delivery-data";
 
 export const metadata = {
-  title: "Tutor portal",
+  title: "Tutor dashboard",
 };
 
-export const dynamic =
-  "force-dynamic";
+export const dynamic = "force-dynamic";
 
-function fmt(
-  value: string | null,
-) {
-  if (!value) {
-    return "Not scheduled";
-  }
+function fmt(value: string | null) {
+  if (!value) return "Not scheduled";
 
-  return new Intl.DateTimeFormat(
-    "en-GB",
-    {
-      dateStyle: "medium",
-      timeStyle: "short",
-      timeZone: "Europe/London",
-    },
-  ).format(
-    new Date(value),
-  );
+  return new Intl.DateTimeFormat("en-GB", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "Europe/London",
+  }).format(new Date(value));
 }
 
-function dayKey(
-  value: Date,
-) {
-  const parts =
-    new Intl.DateTimeFormat(
-      "en-CA",
-      {
-        timeZone:
-          "Europe/London",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      },
-    ).formatToParts(
-      value,
-    );
+function londonDateKey(value: string | Date) {
+  const date =
+    value instanceof Date
+      ? value
+      : new Date(value);
 
-  const map =
-    Object.fromEntries(
-      parts
-        .filter(
-          (part) =>
-            part.type !==
-            "literal",
-        )
-        .map(
-          (part) => [
-            part.type,
-            part.value,
-          ],
-        ),
-    );
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+
+  const map = Object.fromEntries(
+    parts
+      .filter((part) => part.type !== "literal")
+      .map((part) => [part.type, part.value])
+  );
 
   return `${map.year}-${map.month}-${map.day}`;
 }
 
-export default async function TutorHomePage() {
-  const auth =
-    await getTutorSession();
+export default async function TutorDashboardPage() {
+  const auth = await getTutorSession();
 
-  if (!auth) {
-    return null;
-  }
+  if (!auth) return null;
 
-  const supabase =
-    createAdminClient();
-
-  const now =
-    new Date();
+  const supabase = createAdminClient();
 
   const [
-    {
-      data:
-        sessionData,
-    },
-    {
-      data:
-        engagementData,
-    },
-    {
-      data:
-        trialData,
-    },
-    materialResult,
-  ] =
-    await Promise.all([
-      supabase
-        .from(
-          "tutoring_sessions",
-        )
-        .select(
-          "id,scheduled_for,duration_minutes,status,topic,meeting_url,tutoring_engagements(subject,students(name))",
-        )
-        .eq(
-          "tutor_id",
-          auth.tutor.id,
-        )
-        .order(
-          "scheduled_for",
-          {
-            ascending: true,
-            nullsFirst: false,
-          },
-        )
-        .limit(250),
+    sessionResult,
+    engagementResult,
+  ] = await Promise.all([
+    supabase
+      .from("tutoring_sessions")
+      .select(
+        "id,scheduled_for,completed_at,duration_minutes,status,topic,meeting_url,zoom_ended_at,lesson_notes,understanding_rating,next_topic,tutoring_engagements(id,subject,title,students(name))"
+      )
+      .eq("tutor_id", auth.tutor.id)
+      .order("scheduled_for", {
+        ascending: false,
+        nullsFirst: false,
+      })
+      .limit(300),
 
-      supabase
-        .from(
-          "tutoring_engagements",
-        )
-        .select(
-          "id,status,student_id,students(name)",
-        )
-        .eq(
-          "tutor_id",
-          auth.tutor.id,
-        ),
+    supabase
+      .from("tutoring_engagements")
+      .select(
+        "id,status,subject,title,current_focus,upcoming_deadline,students(name,academic_level)"
+      )
+      .eq("tutor_id", auth.tutor.id)
+      .eq("status", "active")
+      .order("created_at", {
+        ascending: false,
+      }),
+  ]);
 
-      supabase
-        .from(
-          "tutoring_leads",
-        )
-        .select(
-          "id,name,subject,trial_status,trial_scheduled_for,trial_duration_minutes,trial_meeting_url",
-        )
-        .eq(
-          "assigned_tutor_id",
-          auth.tutor.id,
-        )
-        .eq(
-          "trial_status",
-          "scheduled",
-        )
-        .order(
-          "trial_scheduled_for",
-          {
-            ascending: true,
-          },
-        ),
+  if (sessionResult.error) {
+    throw new Error(sessionResult.error.message);
+  }
 
-      supabase
-        .from(
-          "learning_materials",
-        )
-        .select(
-          "id",
-          {
-            count: "exact",
-            head: true,
-          },
-        )
-        .eq(
-          "uploaded_by_tutor_id",
-          auth.tutor.id,
-        )
-        .eq(
-          "status",
-          "active",
-        ),
-    ]);
+  if (engagementResult.error) {
+    throw new Error(engagementResult.error.message);
+  }
 
   const sessions =
-    (
-      sessionData ||
-      []
-    ) as any[];
+    (sessionResult.data || []) as any[];
 
-  const activeStudents =
-    new Set(
-      (
-        engagementData ||
-        []
-      )
-        .filter(
-          (item: any) =>
-            item.status ===
-            "active",
-        )
-        .map(
-          (item: any) =>
-            item.student_id,
-        ),
-    ).size;
+  const engagements =
+    (engagementResult.data || []) as any[];
 
-  const planned =
-    sessions.filter(
-      (item) =>
-        item.status ===
-          "planned" &&
-        item.scheduled_for &&
-        new Date(
-          item.scheduled_for,
-        ) >= now,
-    );
-
+  const now = new Date();
+  const nowMs = now.getTime();
   const todayKey =
-    dayKey(now);
+    londonDateKey(now);
 
-  const today =
-    planned.filter(
-      (item) =>
-        dayKey(
-          new Date(
-            item.scheduled_for,
-          ),
-        ) === todayKey,
-    );
-
-  const completedMinutes =
+  const upcoming =
     sessions
       .filter(
         (item) =>
-          item.status ===
-          "completed",
+          item.status === "planned" &&
+          item.scheduled_for &&
+          new Date(item.scheduled_for).getTime() >= nowMs
       )
-      .reduce(
-        (
-          sum,
-          item,
-        ) =>
-          sum +
-          Number(
-            item.duration_minutes ||
-              0,
-          ),
-        0,
+      .sort(
+        (a, b) =>
+          new Date(a.scheduled_for).getTime() -
+          new Date(b.scheduled_for).getTime()
       );
 
-  const upcoming =
-    planned.slice(
-      0,
-      6,
+  const today =
+    upcoming.filter(
+      (item) =>
+        londonDateKey(item.scheduled_for) === todayKey
     );
 
-  const trials =
-    (
-      trialData ||
-      []
-    ) as any[];
+  const needsCloseout =
+    sessions
+      .filter(
+        (item) =>
+          item.status === "planned" &&
+          item.scheduled_for &&
+          (
+            item.zoom_ended_at ||
+            new Date(item.scheduled_for).getTime() < nowMs
+          )
+      )
+      .sort(
+        (a, b) =>
+          new Date(b.scheduled_for).getTime() -
+          new Date(a.scheduled_for).getTime()
+      );
 
-  const materialCount =
-    materialResult.count ||
-    0;
+  const recentCompleted =
+    sessions
+      .filter(
+        (item) =>
+          item.status === "completed"
+      )
+      .slice(0, 5);
+
+  const todayMinutes =
+    today.reduce(
+      (sum, item) =>
+        sum + Number(item.duration_minutes || 0),
+      0
+    );
 
   return (
     <div className="tutor-page tutor-dashboard-page">
-      <header className="tutor-page-head tutor-dashboard-head">
+      <header className="tutor-dashboard-hero">
         <div>
           <span className="tutor-eyebrow">
             Teaching workspace
           </span>
 
           <h1>
-            Welcome,{" "}
-            {
-              auth.tutor.name.split(
-                /\s+/,
-              )[0]
-            }
-            .
+            Welcome back, {auth.tutor.name}.
           </h1>
 
           <p>
-            Manage your teaching day,
-            student learning records,
-            materials and upcoming
-            sessions from one workspace.
+            Your sessions, students and lesson follow-up in one place.
           </p>
         </div>
 
-        <Link
-          href="/tutor/materials"
-          className="tutor-primary-link"
-        >
-          Add learning material
-        </Link>
+        <div className="tutor-dashboard-hero-actions">
+          <Link
+            className="tutor-primary-button"
+            href="/tutor/sessions"
+          >
+            Open sessions
+          </Link>
+
+          <Link
+            className="tutor-secondary-button"
+            href="/tutor/students"
+          >
+            My students
+          </Link>
+        </div>
       </header>
 
-      <section
-        className="tutor-metrics"
-        aria-label="Teaching overview"
-      >
-        <div>
-          <span>
-            Today
-          </span>
+      <section className="tutor-command-metrics">
+        <article>
+          <span>Today</span>
+          <strong>{today.length}</strong>
+          <small>{todayMinutes} teaching minutes</small>
+        </article>
 
-          <strong>
-            {today.length}
-          </strong>
-
+        <article className={needsCloseout.length ? "attention" : ""}>
+          <span>Needs close-out</span>
+          <strong>{needsCloseout.length}</strong>
           <small>
-            planned sessions
+            {needsCloseout.length
+              ? "Complete lesson records"
+              : "Nothing waiting"}
           </small>
-        </div>
+        </article>
 
-        <div>
-          <span>
-            Active students
-          </span>
+        <article>
+          <span>Active students</span>
+          <strong>{engagements.length}</strong>
+          <small>Current tutoring engagements</small>
+        </article>
 
+        <article>
+          <span>Next lesson</span>
           <strong>
-            {activeStudents}
+            {upcoming[0]
+              ? fmt(upcoming[0].scheduled_for)
+              : "—"}
           </strong>
-
           <small>
-            current learners
+            {upcoming[0]?.tutoring_engagements?.students?.name ||
+              "No lesson booked"}
           </small>
-        </div>
-
-        <div>
-          <span>
-            Materials
-          </span>
-
-          <strong>
-            {materialCount}
-          </strong>
-
-          <small>
-            files shared
-          </small>
-        </div>
-
-        <div>
-          <span>
-            Teaching delivered
-          </span>
-
-          <strong>
-            {(
-              completedMinutes /
-              60
-            ).toFixed(1)}
-            h
-          </strong>
-
-          <small>
-            completed sessions
-          </small>
-        </div>
+        </article>
       </section>
 
-      <section className="tutor-command-grid">
-        <Link href="/tutor/sessions">
-          <span>
-            TODAY & UPCOMING
-          </span>
+      <div className="tutor-dashboard-grid">
+        <div className="tutor-dashboard-main">
+          <section className="tutor-panel tutor-dashboard-section">
+            <div className="tutor-panel-head">
+              <div>
+                <span className="tutor-eyebrow">
+                  Today
+                </span>
+                <h2>Teaching schedule</h2>
+              </div>
 
-          <strong>
-            Teaching schedule
-          </strong>
-
-          <p>
-            Open sessions, join lessons
-            and complete delivery notes.
-          </p>
-
-          <small>
-            {planned.length} upcoming →
-          </small>
-        </Link>
-
-        <Link href="/tutor/students">
-          <span>
-            LEARNERS
-          </span>
-
-          <strong>
-            Student workspace
-          </strong>
-
-          <p>
-            Review goals, current focus
-            and individual learning
-            records.
-          </p>
-
-          <small>
-            {activeStudents} active →
-          </small>
-        </Link>
-
-        <Link href="/tutor/materials">
-          <span>
-            RESOURCES
-          </span>
-
-          <strong>
-            Learning materials
-          </strong>
-
-          <p>
-            Share worksheets, slides,
-            datasets and notes or review
-            student uploads.
-          </p>
-
-          <small>
-            Open materials →
-          </small>
-        </Link>
-
-        <Link href="/tutor/progress">
-          <span>
-            DEVELOPMENT
-          </span>
-
-          <strong>
-            Progress records
-          </strong>
-
-          <p>
-            Update topic mastery and
-            prepare progress reports.
-          </p>
-
-          <small>
-            Review progress →
-          </small>
-        </Link>
-      </section>
-
-      <div className="tutor-grid-2 tutor-dashboard-grid">
-        <section className="tutor-panel">
-          <div className="tutor-panel-head">
-            <div>
-              <span className="tutor-panel-kicker">
-                Teaching queue
-              </span>
-
-              <h2>
-                Next sessions
-              </h2>
+              <Link href="/tutor/sessions">
+                View all →
+              </Link>
             </div>
 
-            <Link href="/tutor/sessions">
-              View all →
-            </Link>
-          </div>
+            <div className="tutor-command-list">
+              {today.map((item) => (
+                <article key={item.id}>
+                  <div className="tutor-command-time">
+                    <strong>
+                      {new Intl.DateTimeFormat("en-GB", {
+                        timeStyle: "short",
+                        timeZone: "Europe/London",
+                      }).format(new Date(item.scheduled_for))}
+                    </strong>
+                    <span>
+                      {item.duration_minutes} min
+                    </span>
+                  </div>
 
-          <div className="tutor-list">
-            {upcoming.map(
-              (item) => (
+                  <div className="tutor-command-copy">
+                    <span className="tutor-eyebrow">
+                      {item.tutoring_engagements?.subject ||
+                        "Tutoring"}
+                    </span>
+                    <strong>{item.topic}</strong>
+                    <small>
+                      {item.tutoring_engagements?.students?.name ||
+                        "Student"}
+                    </small>
+                  </div>
+
+                  <div className="tutor-command-actions">
+                    {item.meeting_url && (
+                      <a
+                        className="tutor-secondary-button"
+                        href={item.meeting_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Join ↗
+                      </a>
+                    )}
+
+                    <Link
+                      className="tutor-primary-link"
+                      href={`/tutor/sessions/${item.id}`}
+                    >
+                      Open →
+                    </Link>
+                  </div>
+                </article>
+              ))}
+
+              {!today.length && (
+                <div className="tutor-empty tutor-command-empty">
+                  No lessons scheduled for today.
+                </div>
+              )}
+            </div>
+          </section>
+
+          <section className="tutor-panel tutor-dashboard-section">
+            <div className="tutor-panel-head">
+              <div>
+                <span className="tutor-eyebrow">
+                  Follow-up
+                </span>
+                <h2>Needs close-out</h2>
+              </div>
+
+              <span>
+                {needsCloseout.length} waiting
+              </span>
+            </div>
+
+            <div className="tutor-command-list compact">
+              {needsCloseout.slice(0, 6).map((item) => (
+                <article key={item.id}>
+                  <div className="tutor-command-copy">
+                    <strong>{item.topic}</strong>
+                    <small>
+                      {item.tutoring_engagements?.students?.name ||
+                        "Student"}{" "}
+                      · {fmt(item.scheduled_for)}
+                    </small>
+                  </div>
+
+                  <Link
+                    className="tutor-primary-button"
+                    href={`/tutor/sessions/${item.id}`}
+                  >
+                    Complete record
+                  </Link>
+                </article>
+              ))}
+
+              {!needsCloseout.length && (
+                <div className="tutor-empty">
+                  All recent lessons are up to date.
+                </div>
+              )}
+            </div>
+          </section>
+        </div>
+
+        <aside className="tutor-dashboard-side">
+          <section className="tutor-panel tutor-dashboard-section">
+            <div className="tutor-panel-head">
+              <div>
+                <span className="tutor-eyebrow">
+                  Students
+                </span>
+                <h2>Current learners</h2>
+              </div>
+
+              <Link href="/tutor/students">
+                All →
+              </Link>
+            </div>
+
+            <div className="tutor-learner-list">
+              {engagements.slice(0, 6).map((item) => (
+                <Link
+                  key={item.id}
+                  href={`/tutor/progress/${item.id}`}
+                >
+                  <strong>
+                    {item.students?.name || "Student"}
+                  </strong>
+
+                  <span>{item.subject}</span>
+
+                  <small>
+                    {item.current_focus ||
+                      item.title ||
+                      "Learning plan"}
+                  </small>
+                </Link>
+              ))}
+
+              {!engagements.length && (
+                <div className="tutor-empty">
+                  No active students assigned.
+                </div>
+              )}
+            </div>
+          </section>
+
+          <section className="tutor-panel tutor-dashboard-section">
+            <div className="tutor-panel-head">
+              <div>
+                <span className="tutor-eyebrow">
+                  Recently delivered
+                </span>
+                <h2>Completed lessons</h2>
+              </div>
+            </div>
+
+            <div className="tutor-recent-list">
+              {recentCompleted.map((item) => (
                 <Link
                   href={`/tutor/sessions/${item.id}`}
                   key={item.id}
                 >
                   <div>
-                    <strong>
-                      {
-                        item.topic
-                      }
-                    </strong>
-
-                    <span>
-                      {item
-                        .tutoring_engagements
-                        ?.students
-                        ?.name ||
+                    <strong>{item.topic}</strong>
+                    <small>
+                      {item.tutoring_engagements?.students?.name ||
                         "Student"}
-                      {" · "}
-                      {item
-                        .tutoring_engagements
-                        ?.subject ||
-                        "Tutoring"}
-                    </span>
+                    </small>
                   </div>
 
-                  <div>
-                    <strong>
-                      {fmt(
-                        item.scheduled_for,
-                      )}
-                    </strong>
-
-                    <span>
-                      {
-                        item.duration_minutes
-                      }{" "}
-                      min
-                    </span>
-                  </div>
-                </Link>
-              ),
-            )}
-
-            {!upcoming.length && (
-              <div className="tutor-empty">
-                No upcoming sessions.
-              </div>
-            )}
-          </div>
-        </section>
-
-        <section className="tutor-panel">
-          <div className="tutor-panel-head">
-            <div>
-              <span className="tutor-panel-kicker">
-                New learners
-              </span>
-
-              <h2>
-                Upcoming trials
-              </h2>
-            </div>
-
-            <Link href="/tutor/trials">
-              View trials →
-            </Link>
-          </div>
-
-          <div className="tutor-list">
-            {trials
-              .slice(
-                0,
-                6,
-              )
-              .map(
-                (item) => (
-                  <Link
-                    href="/tutor/trials"
-                    key={item.id}
+                  <span
+                    className={`tutor-status ${
+                      item.status
+                    }`}
                   >
-                    <div>
-                      <strong>
-                        {
-                          item.name
-                        }
-                      </strong>
+                    {sessionStatusLabels[
+                      item.status as SessionStatus
+                    ] || item.status}
+                  </span>
+                </Link>
+              ))}
 
-                      <span>
-                        {
-                          item.subject
-                        }
-                      </span>
-                    </div>
-
-                    <div>
-                      <strong>
-                        {fmt(
-                          item.trial_scheduled_for,
-                        )}
-                      </strong>
-
-                      <span>
-                        {item.trial_duration_minutes ||
-                          30}{" "}
-                        min
-                      </span>
-                    </div>
-                  </Link>
-                ),
+              {!recentCompleted.length && (
+                <div className="tutor-empty">
+                  Completed lessons will appear here.
+                </div>
               )}
-
-            {!trials.length && (
-              <div className="tutor-empty">
-                No upcoming trials.
-              </div>
-            )}
-          </div>
-        </section>
+            </div>
+          </section>
+        </aside>
       </div>
     </div>
   );

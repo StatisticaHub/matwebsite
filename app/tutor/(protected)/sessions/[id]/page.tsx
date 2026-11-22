@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sessionStatuses, sessionStatusLabels, type SessionStatus } from "@/lib/delivery-data";
 import { updateTutorSessionRecord } from "@/app/tutor/actions";
 
+import TutorSessionRecordings from "@/components/TutorSessionRecordings";
 export const dynamic = "force-dynamic";
 type Params = Promise<{ id: string }>;
 type SearchParams = Promise<{ saved?: string }>;
@@ -26,6 +27,7 @@ export default async function TutorSessionDetailPage({ params, searchParams }: {
     <div className="tutor-breadcrumb"><Link href="/tutor/sessions">← Sessions</Link><span>{row.topic}</span></div>
     <header className="tutor-page-head"><div><span className="tutor-eyebrow">{row.tutoring_engagements?.subject || "Tutoring"}</span><h1>{row.topic}</h1><p>{row.tutoring_engagements?.students?.name || "Student"} · <ViewerLocalDateTime value={row.scheduled_for} /></p></div><span className={`tutor-status ${row.status}`}>{sessionStatusLabels[row.status as SessionStatus]}</span></header>
     {query.saved === "1" && <div className="tutor-alert success">Session record saved.</div>}
+    <TutorSessionRecordings sessionId={row.id} />
     <div className="tutor-grid-2 align-start">
       <section className="tutor-panel"><div className="tutor-panel-head"><h2>Update session record</h2><span>{row.duration_minutes} min</span></div>
         <form action={updateTutorSessionRecord} className="tutor-form"><input type="hidden" name="sessionId" value={row.id} />
