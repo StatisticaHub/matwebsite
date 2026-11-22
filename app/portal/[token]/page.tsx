@@ -414,7 +414,7 @@ export default async function StudentPortalPage({
           "learning_materials",
         )
         .select(
-          "id,created_at,title,description,category,uploaded_by_role,original_filename,mime_type,size_bytes,session_id",
+          "id,created_at,title,description,category,uploaded_by_role,original_filename,mime_type,size_bytes,session_id,homework_id",
         )
         .eq(
           "student_id",
