@@ -473,6 +473,47 @@ async function saveCompletedRecording(
     object.recording_files ||
     [];
 
+  console.log(
+    "MAT Zoom recording.completed payload summary",
+    {
+      meetingId:
+        String(object.id),
+
+      meetingUuid:
+        object.uuid || null,
+
+      recordingCount:
+        object.recording_count ?? null,
+
+      fileCount:
+        files.length,
+
+      files:
+        files.map((file) => ({
+          id:
+            file.id || null,
+
+          meeting_id:
+            file.meeting_id || null,
+
+          file_type:
+            file.file_type || null,
+
+          file_extension:
+            file.file_extension || null,
+
+          recording_type:
+            file.recording_type || null,
+
+          status:
+            file.status || null,
+
+          file_size:
+            file.file_size ?? null,
+        })),
+    }
+  );
+
 
   const timestamp =
     eventIso(payload);
