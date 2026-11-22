@@ -213,11 +213,22 @@ async function notifySession(args: {
     meeting_url: string | null;
   };
 }) {
-  const { data: student } = await args.supabase
-    .from("students")
-    .select("name,email")
-    .eq("id", args.studentId)
-    .maybeSingle();
+  const [
+    { data: student },
+    { data: onboarding },
+  ] = await Promise.all([
+    args.supabase
+      .from("students")
+      .select("name,email")
+      .eq("id", args.studentId)
+      .maybeSingle(),
+
+    args.supabase
+      .from("student_onboarding")
+      .select("timezone")
+      .eq("student_id", args.studentId)
+      .maybeSingle(),
+  ]);
 
   if (!student?.email) return;
 
@@ -232,6 +243,9 @@ async function notifySession(args: {
     nextTopic: args.sessionRow.next_topic,
     homeworkSummary: args.sessionRow.homework_summary,
     meetingUrl: args.sessionRow.meeting_url,
+    timeZone:
+      onboarding?.timezone ||
+      "Europe/London",
   });
 
   const subject =
@@ -2224,6 +2238,17 @@ export async function sendTutoringSessionReminder(
     throw new Error("Student email not found.");
   }
 
+  const {
+    data: onboarding,
+  } = await supabase
+    .from("student_onboarding")
+    .select("timezone")
+    .eq(
+      "student_id",
+      relation.student_id,
+    )
+    .maybeSingle();
+
   const result = await sendSessionReminder({
     sessionId,
     name: student.name,
@@ -2233,6 +2258,9 @@ export async function sendTutoringSessionReminder(
     durationMinutes: sessionRow.duration_minutes,
     tutorName: tutor?.name || null,
     meetingUrl: sessionRow.meeting_url,
+    timeZone:
+      onboarding?.timezone ||
+      "Europe/London",
   });
 
   await recordStudentCommunication({

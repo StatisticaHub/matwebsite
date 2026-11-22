@@ -69,13 +69,42 @@ function firstName(name: string) {
   return name.trim().split(/\s+/)[0] || name;
 }
 
-function prettyDate(value: string | null | undefined, includeTime = false) {
+function safeEmailTimeZone(value?: string | null) {
+  const candidate = String(value || "").trim();
+
+  if (!candidate) return "Europe/London";
+
+  try {
+    new Intl.DateTimeFormat("en-GB", {
+      timeZone: candidate,
+    }).format(new Date());
+
+    return candidate;
+  } catch {
+    return "Europe/London";
+  }
+}
+
+function prettyDate(
+  value: string | null | undefined,
+  includeTime = false,
+  timeZone?: string | null,
+) {
   if (!value) return null;
+
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
+
+  const safeTimeZone = safeEmailTimeZone(timeZone);
+
   return new Intl.DateTimeFormat("en-GB", {
     dateStyle: "medium",
-    ...(includeTime ? { timeStyle: "short", timeZone: "Europe/London" as const } : {}),
+    ...(includeTime
+      ? {
+          timeStyle: "short",
+          timeZone: safeTimeZone,
+        }
+      : {}),
   }).format(date);
 }
 
@@ -144,9 +173,22 @@ export async function sendStudentPortalInvitation(input: PortalInvitation): Prom
   return deliver({ to: input.email, subject: draft.subject, html, text: draft.text, idempotencyKey: `mat-portal/${input.linkId}` });
 }
 
-export async function sendSessionNotification(input: SessionNotification): Promise<StudentEmailResult> {
+export async function sendSessionNotification(
+  input: SessionNotification & {
+    timeZone?: string | null;
+  },
+): Promise<StudentEmailResult> {
   const name = firstName(input.name);
-  const scheduled = prettyDate(input.scheduledFor, true);
+  const timeZone = safeEmailTimeZone(input.timeZone);
+  const scheduled = prettyDate(
+    input.scheduledFor,
+    true,
+    timeZone,
+  );
+  const scheduledWithZone =
+    scheduled
+      ? `${scheduled} (${timeZone})`
+      : null;
   const completed = input.status === "completed";
   const cancelled = input.status === "cancelled";
   const subject = cancelled ? `Session update: ${input.topic}` : completed ? `Session follow-up: ${input.topic}` : `Tutoring session scheduled: ${input.topic}`;
@@ -154,7 +196,7 @@ export async function sendSessionNotification(input: SessionNotification): Promi
     ? `Your tutoring session for ${input.topic} has been marked as cancelled.`
     : completed
       ? `Your tutoring session on ${input.topic} has been recorded as completed.`
-      : `Your tutoring session on ${input.topic} has been scheduled${scheduled ? ` for ${scheduled}` : ""}.`;
+      : `Your tutoring session on ${input.topic} has been scheduled${scheduledWithZone ? ` for ${scheduledWithZone}` : ""}.`;
   const next = input.nextTopic ? `\nNext topic: ${input.nextTopic}` : "";
   const homework = input.homeworkSummary ? `\nPractice / homework: ${input.homeworkSummary}` : "";
   const meeting = input.meetingUrl ? `\nJoin link: ${input.meetingUrl}` : "";
@@ -181,15 +223,29 @@ export async function sendSessionReminder(input: StudentRecipient & {
   durationMinutes: number;
   tutorName?: string | null;
   meetingUrl?: string | null;
+  timeZone?: string | null;
 }): Promise<StudentEmailResult> {
   const name = firstName(input.name);
-  const scheduled = prettyDate(input.scheduledFor, true) || input.scheduledFor;
+  const timeZone = safeEmailTimeZone(input.timeZone);
+  const scheduled =
+    prettyDate(
+      input.scheduledFor,
+      true,
+      timeZone,
+    ) || input.scheduledFor;
+  const scheduledWithZone =
+    `${scheduled} (${timeZone})`;
   const subject = `Reminder: ${input.topic}`;
   const tutorLine = input.tutorName ? `\nTutor: ${input.tutorName}` : "";
   const meetingLine = input.meetingUrl ? `\nJoin link: ${input.meetingUrl}` : "";
-  const text = `Hi ${name},\n\nA quick reminder about your upcoming My Academic Tutor session.\n\nTopic: ${input.topic}\nWhen: ${scheduled}\nDuration: ${input.durationMinutes} minutes${tutorLine}${meetingLine}\n\nIf anything needs changing, reply to this email.\n\nKind regards,\nMy Academic Tutor`;
-  const html = `<!doctype html><html><head><meta charset="utf-8"><style>${styles()}</style></head><body><div class="wrap"><div class="card"><div class="top"><strong>My Academic Tutor</strong><div style="margin-top:5px;font-size:13px;opacity:.78">Session reminder</div></div><div class="body"><h1>${escapeHtml(input.topic)}</h1><p>Hi ${escapeHtml(name)},</p><p>A quick reminder about your upcoming tutoring session.</p><div class="box"><strong>When:</strong> ${escapeHtml(scheduled)}<br><strong>Duration:</strong> ${input.durationMinutes} minutes${input.tutorName ? `<br><strong>Tutor:</strong> ${escapeHtml(input.tutorName)}` : ""}</div>${input.meetingUrl ? `<a class="button" href="${escapeHtml(input.meetingUrl)}">Join session</a>` : ""}<p>If anything needs changing, reply to this email.</p><p>Kind regards,<br><strong>My Academic Tutor</strong></p></div><div class="footer">This reminder relates to your upcoming tutoring session.</div></div></div></body></html>`;
-  const reminderDay = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+  const text = `Hi ${name},\n\nA quick reminder about your upcoming My Academic Tutor session.\n\nTopic: ${input.topic}\nWhen: ${scheduledWithZone}\nDuration: ${input.durationMinutes} minutes${tutorLine}${meetingLine}\n\nIf anything needs changing, reply to this email.\n\nKind regards,\nMy Academic Tutor`;
+  const html = `<!doctype html><html><head><meta charset="utf-8"><style>${styles()}</style></head><body><div class="wrap"><div class="card"><div class="top"><strong>My Academic Tutor</strong><div style="margin-top:5px;font-size:13px;opacity:.78">Session reminder</div></div><div class="body"><h1>${escapeHtml(input.topic)}</h1><p>Hi ${escapeHtml(name)},</p><p>A quick reminder about your upcoming tutoring session.</p><div class="box"><strong>When:</strong> ${escapeHtml(scheduledWithZone)}<br><strong>Duration:</strong> ${input.durationMinutes} minutes${input.tutorName ? `<br><strong>Tutor:</strong> ${escapeHtml(input.tutorName)}` : ""}</div>${input.meetingUrl ? `<a class="button" href="${escapeHtml(input.meetingUrl)}">Join session</a>` : ""}<p>If anything needs changing, reply to this email.</p><p>Kind regards,<br><strong>My Academic Tutor</strong></p></div><div class="footer">This reminder relates to your upcoming tutoring session.</div></div></div></body></html>`;
+  const reminderDay = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
   return deliver({ to: input.email, subject, html, text, idempotencyKey: `mat-session-reminder/${input.sessionId}/${input.scheduledFor}/${reminderDay}` });
 }
 
