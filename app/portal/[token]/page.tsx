@@ -604,7 +604,7 @@ export default async function StudentPortalPage({
                 </span>
 
                 <h2>
-                  Choose a learning workspace
+                  Switch course
                 </h2>
 
               </div>
@@ -694,7 +694,7 @@ export default async function StudentPortalPage({
           <div>
 
             <span className="portal-kicker">
-              Your tutoring plan
+              Learning portal
             </span>
 
             <h1>
@@ -858,7 +858,7 @@ export default async function StudentPortalPage({
           <article className="portal-upgrade-next-action">
 
             <span className="portal-kicker">
-              Your next action
+              This week
             </span>
 
 

@@ -3850,3 +3850,256 @@ summary::after {
     justify-content: flex-start;
   }
 }
+
+
+/* MAT CLEAN PORTAL HEADER V2 */
+
+.student-portal-shell .portal-welcome {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  align-items: end;
+  gap: 24px;
+  padding: 20px 0 8px;
+}
+
+.student-portal-shell .portal-welcome h1 {
+  margin: 5px 0 4px;
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.08;
+}
+
+.student-portal-shell .portal-welcome p {
+  margin: 0;
+  font-size: 14px;
+  color: #66717a;
+}
+
+.student-portal-shell .portal-progress-card {
+  padding: 16px 18px;
+  border-radius: 14px;
+  box-shadow: none;
+}
+
+.student-portal-shell .portal-progress-card > span {
+  font-size: 11px;
+}
+
+.student-portal-shell .portal-progress-card > strong {
+  font-size: 24px;
+}
+
+.student-portal-shell .portal-upgrade-action-grid {
+  grid-template-columns: minmax(0, 1.45fr) minmax(260px, .75fr);
+  gap: 14px;
+  margin-top: 14px;
+  margin-bottom: 24px;
+}
+
+.student-portal-shell .portal-upgrade-next-session,
+.student-portal-shell .portal-upgrade-next-action {
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: none;
+}
+
+.student-portal-shell .portal-upgrade-next-session h2 {
+  margin: 5px 0 3px;
+  font-size: 20px;
+}
+
+.student-portal-shell .portal-upgrade-next-action h3 {
+  margin: 5px 0 3px;
+}
+
+.student-portal-shell .portal-upgrade-next-session p,
+.student-portal-shell .portal-upgrade-next-action p {
+  margin: 3px 0 7px;
+  font-size: 14px;
+}
+
+.student-portal-shell .portal-progress-actions {
+  gap: 8px;
+}
+
+/* Requesting another lesson already has its own section lower down */
+.student-portal-shell
+.portal-upgrade-next-session
+.portal-progress-actions
+.button-secondary {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .student-portal-shell .portal-welcome {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .student-portal-shell .portal-progress-card {
+    width: 100%;
+  }
+
+  .student-portal-shell .portal-upgrade-action-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .student-portal-shell .portal-upgrade-next-session {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+
+/* ==========================================================
+   STUDENT PORTAL — FINAL COMPACT LAYOUT
+   ========================================================== */
+
+.student-portal-shell {
+  overflow-x: hidden;
+}
+
+.student-portal-shell *,
+.student-portal-shell *::before,
+.student-portal-shell *::after {
+  box-sizing: border-box;
+}
+
+/* Keep the whole portal centred and stop horizontal overflow */
+.student-portal-shell .portal-topbar,
+.student-portal-shell .portal-page {
+  width: calc(100% - 40px) !important;
+  max-width: 1180px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Cleaner header */
+.student-portal-shell .portal-topbar {
+  padding: 20px 0 !important;
+  min-height: 0 !important;
+}
+
+.student-portal-shell .portal-topbar-meta > span {
+  display: none;
+}
+
+/* Navigation should not stretch across the whole screen */
+.student-portal-shell .portal-upgrade-nav {
+  width: auto !important;
+  max-width: 100%;
+  padding: 10px 14px !important;
+  border-radius: 12px !important;
+}
+
+/* ----------------------------------------------------------
+   COURSE SWITCHER
+   first section inside portal is the course selector
+   ---------------------------------------------------------- */
+
+.student-portal-shell #overview > section:first-of-type {
+  padding: 18px 20px !important;
+  min-height: 0 !important;
+  margin-bottom: 18px !important;
+  border-radius: 14px !important;
+}
+
+.student-portal-shell #overview > section:first-of-type h2 {
+  font-size: 20px !important;
+  margin: 4px 0 12px !important;
+}
+
+/* Force course cards to stay inside viewport */
+.student-portal-shell #overview > section:first-of-type > div:last-child {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+
+.student-portal-shell #overview > section:first-of-type a {
+  min-width: 0 !important;
+  padding: 14px 16px !important;
+}
+
+/* ----------------------------------------------------------
+   WELCOME
+   ---------------------------------------------------------- */
+
+.student-portal-shell .portal-welcome {
+  min-height: 0 !important;
+  padding: 22px !important;
+  margin: 0 0 16px !important;
+  align-items: center !important;
+  grid-template-columns: minmax(0, 1fr) 200px !important;
+  border-radius: 14px !important;
+}
+
+.student-portal-shell .portal-welcome h1 {
+  font-size: clamp(28px, 3.5vw, 38px) !important;
+  margin: 4px 0 6px !important;
+}
+
+.student-portal-shell .portal-welcome p {
+  max-width: 650px;
+  font-size: 14px !important;
+  line-height: 1.5;
+}
+
+.student-portal-shell .portal-progress-card {
+  width: 100% !important;
+  max-width: 200px !important;
+  min-height: 0 !important;
+  padding: 14px !important;
+  border-radius: 12px !important;
+}
+
+.student-portal-shell .portal-progress-card > strong {
+  font-size: 28px !important;
+}
+
+/* ----------------------------------------------------------
+   NEXT SESSION + THIS WEEK
+   ---------------------------------------------------------- */
+
+.student-portal-shell .portal-upgrade-action-grid {
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, .8fr) !important;
+  gap: 12px !important;
+  margin: 0 0 20px !important;
+}
+
+.student-portal-shell .portal-upgrade-next-session,
+.student-portal-shell .portal-upgrade-next-action {
+  min-height: 0 !important;
+  padding: 18px !important;
+  border-radius: 14px !important;
+}
+
+.student-portal-shell .portal-upgrade-next-session h2 {
+  font-size: 20px !important;
+}
+
+/* ----------------------------------------------------------
+   MOBILE
+   ---------------------------------------------------------- */
+
+@media (max-width: 760px) {
+  .student-portal-shell .portal-topbar,
+  .student-portal-shell .portal-page {
+    width: calc(100% - 24px) !important;
+  }
+
+  .student-portal-shell #overview > section:first-of-type > div:last-child {
+    grid-template-columns: 1fr !important;
+  }
+
+  .student-portal-shell .portal-welcome {
+    grid-template-columns: 1fr !important;
+  }
+
+  .student-portal-shell .portal-progress-card {
+    max-width: none !important;
+  }
+
+  .student-portal-shell .portal-upgrade-action-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
