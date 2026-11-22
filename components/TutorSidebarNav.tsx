@@ -10,101 +10,67 @@ type Props = {
   email: string;
 };
 
-const primaryLinks = [
-  {
-    href: "/tutor",
-    label: "Dashboard",
-  },
-  {
-    href: "/tutor/students",
-    label: "My Students",
-  },
-  {
-    href: "/tutor/sessions",
-    label: "Sessions",
-  },
-  {
-    href: "/tutor/progress",
-    label: "Progress",
-  },
-  {
-    href: "/tutor/availability",
-    label: "Availability",
-  },
+const mainItems = [
+  { href: "/tutor", label: "Dashboard" },
+  { href: "/tutor/students", label: "Students" },
+  { href: "/tutor/sessions", label: "Calendar" },
+  { href: "/tutor/assignments", label: "Assignments" },
+  { href: "/tutor/materials", label: "Resources" },
+  { href: "/tutor/progress", label: "Progress" },
+  { href: "/tutor/availability", label: "Availability" },
+  { href: "/tutor/trials", label: "Trials" },
 ];
 
 export default function TutorSidebarNav({
   tutorName,
   email,
 }: Props) {
-  const pathname = usePathname();
-
-  function active(href: string) {
-    if (href === "/tutor") {
-      return pathname === "/tutor";
-    }
-
-    return pathname.startsWith(href);
-  }
+  const pathname =
+    usePathname();
 
   return (
     <>
       <nav
-        className="tutor-university-nav"
-        aria-label="Tutor portal"
+        className="tutor-sidebar-nav"
+        aria-label="Tutor workspace"
       >
-        <span className="tutor-nav-label">
-          Teaching
-        </span>
+        {mainItems.map((item) => {
+          const active =
+            item.href === "/tutor"
+              ? pathname === item.href
+              : pathname === item.href ||
+                pathname.startsWith(
+                  `${item.href}/`
+                );
 
-        {primaryLinks.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={
-              active(item.href)
-                ? "is-active"
-                : undefined
-            }
-          >
-            {item.label}
-          </Link>
-        ))}
+          return (
+            <Link
+              href={item.href}
+              className={
+                active
+                  ? "is-active"
+                  : undefined
+              }
+              key={item.href}
+            >
+              {item.label}
+            </Link>
+          );
+        })}
 
-        <span className="tutor-nav-label tutor-nav-label-secondary">
-          Additional
-        </span>
+        <div className="tutor-sidebar-nav-divider" />
 
         <Link
-          href="/tutor/trials"
-          className={
-            active("/tutor/trials")
-              ? "is-active"
-              : undefined
-          }
+          href="/"
+          target="_blank"
         >
-          Trial Sessions
+          View website ↗
         </Link>
       </nav>
 
       <div className="tutor-sidebar-footer">
-        <div className="tutor-account-avatar">
-          {tutorName
-            .trim()
-            .slice(0, 1)
-            .toUpperCase() || "T"}
-        </div>
-
-        <div className="tutor-account-copy">
-          <strong>
-            {tutorName}
-          </strong>
-
-          <small>
-            {email}
-          </small>
-        </div>
-
+        <span>{tutorName}</span>
+        <small>{email}</small>
         <TutorSignOutButton />
       </div>
     </>

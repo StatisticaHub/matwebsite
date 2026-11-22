@@ -1,5 +1,4 @@
 import Link from "next/link";
-import ViewerLocalDateTime from "@/components/ViewerLocalDateTime";
 import { notFound } from "next/navigation";
 import { getTutorSession } from "@/lib/tutor-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -46,7 +45,7 @@ export default async function TutorSessionDetailPage({ params, searchParams }: {
   const meeting = safeUrl(row.meeting_url);
   return <div className="tutor-page">
     <div className="tutor-breadcrumb"><Link href="/tutor/sessions">← Sessions</Link><span>{row.topic}</span></div>
-    <header className="tutor-page-head"><div><span className="tutor-eyebrow">{row.tutoring_engagements?.subject || "Tutoring"}</span><h1>{row.topic}</h1><p>{row.tutoring_engagements?.students?.name || "Student"} · <ViewerLocalDateTime value={row.scheduled_for} /></p></div><span className={`tutor-status ${row.status}`}>{sessionStatusLabels[row.status as SessionStatus]}</span></header>
+    <header className="tutor-page-head"><div><span className="tutor-eyebrow">{row.tutoring_engagements?.subject || "Tutoring"}</span><h1>{row.topic}</h1><p>{row.tutoring_engagements?.students?.name || "Student"} · {fmt(row.scheduled_for)}</p></div><span className={`tutor-status ${row.status}`}>{sessionStatusLabels[row.status as SessionStatus]}</span></header>
     {query.saved === "1" && <div className="tutor-alert success">Session record saved.</div>}
     <TutorLessonContinuityRecord
       sessionId={row.id}
@@ -112,7 +111,7 @@ export default async function TutorSessionDetailPage({ params, searchParams }: {
       </section>
 
 <aside className="tutor-stack">
-        <section className="tutor-panel"><h2>Session details</h2><dl className="tutor-details"><div><dt>Student</dt><dd>{row.tutoring_engagements?.students?.name || "—"}</dd></div><div><dt>Level</dt><dd>{row.tutoring_engagements?.students?.academic_level || "—"}</dd></div><div><dt>Scheduled</dt><dd><ViewerLocalDateTime value={row.scheduled_for} /></dd></div><div><dt>Duration</dt><dd>{row.duration_minutes} minutes</dd></div><div><dt>Completed</dt><dd>{row.completed_at ? fmt(row.completed_at) : "—"}</dd></div></dl>{meeting && <a className="tutor-primary-link" href={meeting} target="_blank" rel="noreferrer">Join session ↗</a>}</section>
+        <section className="tutor-panel"><h2>Session details</h2><dl className="tutor-details"><div><dt>Student</dt><dd>{row.tutoring_engagements?.students?.name || "—"}</dd></div><div><dt>Level</dt><dd>{row.tutoring_engagements?.students?.academic_level || "—"}</dd></div><div><dt>Scheduled</dt><dd>{fmt(row.scheduled_for)}</dd></div><div><dt>Duration</dt><dd>{row.duration_minutes} minutes</dd></div><div><dt>Completed</dt><dd>{row.completed_at ? fmt(row.completed_at) : "—"}</dd></div></dl>{meeting && <a className="tutor-primary-link" href={meeting} target="_blank" rel="noreferrer">Join session ↗</a>}</section>
         <section className="tutor-panel"><h2>Student contact</h2><p className="tutor-help">Use contact details only for tutoring-related communication and keep student information private.</p><p><strong>{row.tutoring_engagements?.students?.email || "No email available"}</strong></p></section>
       </aside>
     </div>

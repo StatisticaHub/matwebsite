@@ -6723,3 +6723,239 @@ a.is-active {
   font-size: .76rem;
   line-height: 1.4;
 }
+
+
+/* MAT LMS information architecture — Pass 3A */
+
+.portal-lms-settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 0 0 22px;
+  padding: 10px 14px;
+  border: 1px solid rgba(16, 35, 63, .09);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .72);
+}
+
+.portal-lms-settings-row > span {
+  color: #637083;
+  font-size: .78rem;
+}
+
+.portal-view-dashboard .lms-section,
+.portal-view-lessons .lms-section:not(.lms-lessons),
+.portal-view-calendar .lms-section:not(.lms-calendar),
+.portal-view-assignments .lms-section:not(.lms-assignments),
+.portal-view-resources .lms-section:not(.lms-resources),
+.portal-view-progress .lms-section:not(.lms-progress),
+.portal-view-help .lms-section:not(.lms-help) {
+  display: none !important;
+}
+
+.portal-view-lessons .portal-main-grid,
+.portal-view-calendar .portal-main-grid,
+.portal-view-assignments .portal-main-grid,
+.portal-view-resources .portal-main-grid,
+.portal-view-progress .portal-main-grid,
+.portal-view-help .portal-main-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.portal-view-lessons .portal-side-column,
+.portal-view-calendar .portal-side-column,
+.portal-view-assignments .portal-side-column,
+.portal-view-resources .portal-side-column,
+.portal-view-progress .portal-side-column,
+.portal-view-help .portal-side-column {
+  display: contents;
+}
+
+.portal-lms-calendar-list {
+  display: grid;
+  gap: 10px;
+}
+
+.portal-lms-calendar-list > article {
+  display: grid;
+  grid-template-columns: minmax(170px, .8fr) minmax(220px, 1.4fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 0;
+  border-top: 1px solid rgba(16, 35, 63, .08);
+}
+
+.portal-lms-calendar-list > article:first-child {
+  border-top: 0;
+}
+
+.portal-lms-calendar-list > article > div {
+  display: grid;
+  gap: 3px;
+}
+
+.portal-lms-calendar-list span {
+  color: #657386;
+  font-size: .8rem;
+}
+
+.portal-lms-calendar-actions {
+  justify-items: end;
+}
+
+.portal-recordings-library-card > p {
+  max-width: 720px;
+  color: #5e6d80;
+  line-height: 1.65;
+}
+
+.tutor-sidebar-nav {
+  display: grid;
+  gap: 4px;
+}
+
+.tutor-sidebar-nav a {
+  display: flex;
+  align-items: center;
+  min-height: 38px;
+  border-radius: 8px;
+  padding: 8px 10px;
+  text-decoration: none;
+}
+
+.tutor-sidebar-nav a.is-active {
+  font-weight: 750;
+}
+
+.tutor-sidebar-nav-divider {
+  height: 1px;
+  margin: 8px 4px;
+  background: rgba(255, 255, 255, .1);
+}
+
+@media (max-width: 820px) {
+  .portal-lms-settings-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .portal-lms-calendar-list > article {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-lms-calendar-actions {
+    justify-items: start;
+  }
+}
+
+
+/* MAT tutor assignments workspace — Pass 3B */
+
+.tutor-assignment-list {
+  display: grid;
+  gap: 14px;
+}
+
+.tutor-assignment-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, .75fr);
+  gap: 22px;
+  padding: 18px;
+  border: 1px solid rgba(16, 35, 63, .09);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.tutor-assignment-card.attention {
+  border-color: rgba(185, 91, 22, .28);
+}
+
+.tutor-assignment-card-main {
+  min-width: 0;
+}
+
+.tutor-assignment-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.tutor-assignment-card-head h3 {
+  margin: 4px 0 5px;
+}
+
+.tutor-assignment-card-head p {
+  margin: 0;
+  color: #657386;
+}
+
+.tutor-assignment-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin: 14px 0;
+  color: #657386;
+  font-size: .82rem;
+}
+
+.tutor-assignment-meta strong {
+  color: #9b4c13;
+}
+
+.tutor-assignment-submission-review {
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 10px;
+  background: rgba(31, 91, 216, .055);
+}
+
+.tutor-assignment-submission-review > strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.tutor-assignment-submission-review p {
+  margin: 0 0 10px;
+  white-space: pre-line;
+}
+
+.tutor-assignment-review-links,
+.tutor-assignment-card-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  font-size: .82rem;
+}
+
+.tutor-assignment-review-form {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
+.tutor-assignment-review-form label {
+  display: grid;
+  gap: 6px;
+}
+
+.tutor-assignment-review-form label > span {
+  font-size: .78rem;
+  font-weight: 700;
+}
+
+.tutor-assignment-review-form textarea {
+  min-height: 105px;
+  resize: vertical;
+}
+
+@media (max-width: 900px) {
+  .tutor-assignment-card {
+    grid-template-columns: 1fr;
+  }
+
+  .tutor-assignment-card-head {
+    flex-direction: column;
+  }
+}

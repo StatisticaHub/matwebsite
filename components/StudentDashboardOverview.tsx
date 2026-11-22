@@ -1,6 +1,11 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import {
+  DEFAULT_TIME_ZONE,
+  formatDateTimeInTimeZone,
+  normalizeTimeZone,
+} from "@/lib/time-zone";
 
 type SessionItem = {
   id: string;
@@ -32,30 +37,33 @@ type Props = {
   averageProgress: number;
   mastered: number;
   planCount: number;
+  timeZone?: string | null;
 };
 
-function formatDate(value: string | null) {
+function formatDate(
+  value: string | null,
+  timeZone: string,
+) {
   if (!value) return "Not set";
 
   return new Intl.DateTimeFormat("en-GB", {
     day: "numeric",
     month: "short",
     year: "numeric",
-    timeZone: "Europe/London",
+    timeZone,
   }).format(new Date(value));
 }
 
-function formatDateTime(value: string | null) {
+function formatDateTime(
+  value: string | null,
+  timeZone: string,
+) {
   if (!value) return "Not scheduled";
 
-  return new Intl.DateTimeFormat("en-GB", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Europe/London",
-  }).format(new Date(value));
+  return formatDateTimeInTimeZone(
+    value,
+    timeZone,
+  );
 }
 
 export default function StudentDashboardOverview({
@@ -72,7 +80,13 @@ export default function StudentDashboardOverview({
   averageProgress,
   mastered,
   planCount,
+  timeZone,
 }: Props) {
+  const viewerTimeZone =
+    normalizeTimeZone(
+      timeZone,
+      DEFAULT_TIME_ZONE,
+    );
 
   const searchParams =
     useSearchParams();
@@ -106,7 +120,7 @@ export default function StudentDashboardOverview({
 
           <p>
             {nextSession
-              ? formatDateTime(nextSession.scheduled_for)
+              ? formatDateTime(nextSession.scheduled_for, viewerTimeZone)
               : "Your next lesson will appear here once it is scheduled."}
           </p>
 
@@ -124,9 +138,9 @@ export default function StudentDashboardOverview({
 
             <a
               className="button button-secondary"
-              href={`${base}?view=timetable&course=${course}`}
+              href={`${base}?view=calendar&course=${course}`}
             >
-              Open timetable
+              Open calendar
             </a>
           </div>
         </article>
@@ -143,7 +157,7 @@ export default function StudentDashboardOverview({
           <p>
             {nextHomework
               ? nextHomework.due_date
-                ? `Due ${formatDate(nextHomework.due_date)}`
+                ? `Due ${formatDate(nextHomework.due_date, viewerTimeZone)}`
                 : "No due date"
               : "You have no open homework right now."}
           </p>
@@ -167,7 +181,7 @@ export default function StudentDashboardOverview({
 
           <p>
             {nextDeadline
-              ? `Next deadline ${formatDate(nextDeadline)}`
+              ? `Next deadline ${formatDate(nextDeadline, viewerTimeZone)}`
               : confidence
                 ? `Current confidence ${confidence}/5`
                 : "Your tutor will keep your current learning priority here."}
@@ -196,7 +210,8 @@ export default function StudentDashboardOverview({
                 <p>
                   {formatDateTime(
                     recentSession.completed_at ||
-                      recentSession.scheduled_for
+                      recentSession.scheduled_for,
+                    viewerTimeZone,
                   )}
                   {" · "}
                   {recentSession.duration_minutes} min
@@ -220,9 +235,9 @@ export default function StudentDashboardOverview({
 
           <a
             className="button button-secondary"
-            href={`${base}?view=timetable&course=${course}`}
+            href={`${base}?view=lessons&course=${course}`}
           >
-            View lesson history
+            Open lessons
           </a>
         </article>
 
@@ -257,23 +272,16 @@ export default function StudentDashboardOverview({
 
       <section className="portal-dashboard-destinations">
         <a
-          href={`${base}?view=files&course=${course}`}
+          href={`${base}?view=resources&course=${course}`}
         >
-          Files
-          <span>Worksheets, notes and uploads</span>
+          Resources
+          <span>Worksheets, notes, recordings and uploads</span>
         </a>
 
         <a
-          href={`${base}/recordings?course=${course}`}
+          href={`${base}?view=help&course=${course}`}
         >
-          Recordings
-          <span>Video and audio lesson library</span>
-        </a>
-
-        <a
-          href={`${base}?view=support&course=${course}`}
-        >
-          Support
+          Help
           <span>Ask your tutoring team</span>
         </a>
       </section>

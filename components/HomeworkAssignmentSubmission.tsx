@@ -9,6 +9,7 @@ export default function HomeworkAssignmentSubmission({
   homeworkTitle,
   existing,
   materials,
+  timeZone,
 }: {
   token: string;
   engagementId: string;
@@ -21,6 +22,7 @@ export default function HomeworkAssignmentSubmission({
       }
     | null;
   materials: any[];
+  timeZone?: string | null;
 }) {
   return (
     <div className="portal-assignment-submission-workspace">
@@ -42,6 +44,7 @@ export default function HomeworkAssignmentSubmission({
           <LearningMaterialsList
             materials={materials}
             viewerRole="student"
+            timeZone={timeZone}
             downloadBaseUrl={`/api/portal/${encodeURIComponent(token)}/materials`}
             emptyText=""
           />

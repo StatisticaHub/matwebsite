@@ -10,7 +10,7 @@ import { getTutorSession } from "@/lib/tutor-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const metadata = {
-  title: "Learning materials",
+  title: "Resources",
 };
 
 export const dynamic =

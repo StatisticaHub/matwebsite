@@ -10,7 +10,7 @@ import {
 } from "@/lib/time-zone";
 
 export const metadata = {
-  title: "My sessions",
+  title: "Teaching calendar",
 };
 
 export const dynamic = "force-dynamic";
@@ -75,6 +75,32 @@ export default async function TutorSessionsPage() {
       tutorTimeZone,
     );
 
+  const timeOnly = (
+    value: string | null,
+  ) => {
+    if (!value) return "—";
+
+    return new Intl.DateTimeFormat(
+      "en-GB",
+      {
+        timeStyle: "short",
+        timeZone: tutorTimeZone,
+      },
+    ).format(
+      new Date(value),
+    );
+  };
+
+  const dayKey = (
+    value: string | Date,
+  ) =>
+    dateKeyInTimeZone(
+      value instanceof Date
+        ? value
+        : new Date(value),
+      tutorTimeZone,
+    );
+
 
   const { data, error } = await createAdminClient()
     .from("tutoring_sessions")
@@ -95,14 +121,14 @@ export default async function TutorSessionsPage() {
   const rows = (data || []) as any[];
   const now = new Date();
   const nowMs = now.getTime();
-  const todayKey = londonDateKey(now);
+  const todayKey = dayKey(now);
 
   const today = rows
     .filter(
       (row) =>
         row.status === "planned" &&
         row.scheduled_for &&
-        londonDateKey(row.scheduled_for) === todayKey
+        dayKey(row.scheduled_for) === todayKey
     )
     .sort(
       (a, b) =>
@@ -132,7 +158,7 @@ export default async function TutorSessionsPage() {
         row.status === "planned" &&
         row.scheduled_for &&
         new Date(row.scheduled_for).getTime() >= nowMs &&
-        londonDateKey(row.scheduled_for) !== todayKey
+        dayKey(row.scheduled_for) !== todayKey
     )
     .sort(
       (a, b) =>
@@ -166,9 +192,9 @@ export default async function TutorSessionsPage() {
           <span className="tutor-eyebrow">
             Teaching
           </span>
-          <h1>My sessions</h1>
+          <h1>Teaching calendar</h1>
           <p>
-            Prepare upcoming lessons, join live sessions and close out completed teaching.
+            Prepare upcoming lessons, join live sessions and close out completed teaching from one calendar.
           </p>
         </div>
 

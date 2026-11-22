@@ -1,4 +1,9 @@
 import styles from "./LearningMaterials.module.css";
+import {
+  DEFAULT_TIME_ZONE,
+  formatDateTimeInTimeZone,
+  normalizeTimeZone,
+} from "@/lib/time-zone";
 
 export type LearningMaterialListItem = {
   id: string;
@@ -105,29 +110,17 @@ function formatFileSize(
 }
 
 function formatDate(
-  value:
-    | string
-    | null,
+  value: string | null,
+  timeZone: string,
 ) {
   if (!value) {
     return "";
   }
 
   try {
-    return new Intl.DateTimeFormat(
-      "en-GB",
-      {
-        dateStyle:
-          "medium",
-
-        timeStyle:
-          "short",
-
-        timeZone:
-          "Europe/London",
-      },
-    ).format(
-      new Date(value),
+    return formatDateTimeInTimeZone(
+      value,
+      timeZone,
     );
   } catch {
     return "";
@@ -162,6 +155,7 @@ export default function LearningMaterialsList({
   viewerRole,
   emptyText,
   limit,
+  timeZone,
 }: {
   materials:
     LearningMaterialListItem[];
@@ -175,7 +169,14 @@ export default function LearningMaterialsList({
   emptyText?: string;
 
   limit?: number;
+
+  timeZone?: string | null;
 }) {
+  const viewerTimeZone =
+    normalizeTimeZone(
+      timeZone,
+      DEFAULT_TIME_ZONE,
+    );
   const visible =
     typeof limit ===
     "number"
@@ -323,6 +324,7 @@ export default function LearningMaterialsList({
                     <span>
                       {formatDate(
                         material.created_at,
+                        viewerTimeZone,
                       )}
                     </span>
                   )}

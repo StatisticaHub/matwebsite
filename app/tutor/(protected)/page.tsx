@@ -79,6 +79,22 @@ export default async function TutorDashboardPage() {
       tutorTimeZone,
     );
 
+  const timeOnly = (
+    value: string | null,
+  ) => {
+    if (!value) return "—";
+
+    return new Intl.DateTimeFormat(
+      "en-GB",
+      {
+        timeStyle: "short",
+        timeZone: tutorTimeZone,
+      },
+    ).format(
+      new Date(value),
+    );
+  };
+
 
   const supabase = createAdminClient();
 
@@ -127,7 +143,7 @@ export default async function TutorDashboardPage() {
   const now = new Date();
   const nowMs = now.getTime();
   const todayKey =
-    londonDateKey(now);
+    dayKey(now);
 
   const upcoming =
     sessions
@@ -146,7 +162,7 @@ export default async function TutorDashboardPage() {
   const today =
     upcoming.filter(
       (item) =>
-        londonDateKey(item.scheduled_for) === todayKey
+        dayKey(new Date(item.scheduled_for)) === todayKey
     );
 
   const needsCloseout =
@@ -273,10 +289,7 @@ export default async function TutorDashboardPage() {
                 <article key={item.id}>
                   <div className="tutor-command-time">
                     <strong>
-                      {new Intl.DateTimeFormat("en-GB", {
-                        timeStyle: "short",
-                        timeZone: "Europe/London",
-                      }).format(new Date(item.scheduled_for))}
+                      {timeOnly(item.scheduled_for)}
                     </strong>
                     <span>
                       {item.duration_minutes} min

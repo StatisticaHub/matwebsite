@@ -8,6 +8,11 @@ import LearningMaterialsList, {
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { safeExternalUrl } from "@/lib/student-portal";
+import {
+  DEFAULT_TIME_ZONE,
+  formatDateTimeInTimeZone,
+  normalizeTimeZone,
+} from "@/lib/time-zone";
 
 
 type WeekRow = {
@@ -65,26 +70,6 @@ function formatDate(
 }
 
 
-function formatDateTime(
-  value: string | null,
-) {
-  if (!value) {
-    return "Not scheduled";
-  }
-
-  return new Intl.DateTimeFormat(
-    "en-GB",
-    {
-      dateStyle: "medium",
-      timeStyle: "short",
-      timeZone: "Europe/London",
-    },
-  ).format(
-    new Date(value),
-  );
-}
-
-
 function statusLabel(
   status: string,
 ) {
@@ -110,10 +95,25 @@ function statusLabel(
 export default async function StudentWeeklyJourney({
   token,
   engagementId,
+  timeZone,
 }: {
   token: string;
   engagementId: string;
+  timeZone?: string | null;
 }) {
+  const viewerTimeZone =
+    normalizeTimeZone(
+      timeZone,
+      DEFAULT_TIME_ZONE,
+    );
+
+  const formatDateTime = (
+    value: string | null,
+  ) =>
+    formatDateTimeInTimeZone(
+      value,
+      viewerTimeZone,
+    );
   const supabase =
     createAdminClient();
 
@@ -692,6 +692,7 @@ export default async function StudentWeeklyJourney({
                             sessionMaterials
                           }
                           viewerRole="student"
+                          timeZone={viewerTimeZone}
                           downloadBaseUrl={
                             downloadBaseUrl
                           }
@@ -771,6 +772,7 @@ export default async function StudentWeeklyJourney({
                 weeklyMaterials
               }
               viewerRole="student"
+              timeZone={viewerTimeZone}
               downloadBaseUrl={
                 downloadBaseUrl
               }

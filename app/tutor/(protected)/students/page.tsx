@@ -597,7 +597,7 @@ export default async function TutorStudentsPage() {
                             course.id,
                           )}`}
                         >
-                          Materials
+                          Resources
                         </Link>
 
                       </div>

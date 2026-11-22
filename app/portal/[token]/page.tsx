@@ -17,6 +17,7 @@ import SessionChangeRequestForm from "@/components/SessionChangeRequestForm";
 import StudentSupportForm from "@/components/StudentSupportForm";
 import PortalTimeZoneControl from "@/components/PortalTimeZoneControl";
 import StudentLessonContinuityRecord from "@/components/StudentLessonContinuityRecord";
+import StudentWeeklyJourney from "@/components/StudentWeeklyJourney";
 import {
   DEFAULT_TIME_ZONE,
   formatDateTimeInTimeZone,
@@ -234,21 +235,31 @@ export default async function StudentPortalPage({
 
   const portalViews = [
     "dashboard",
-    "timetable",
+    "lessons",
+    "calendar",
     "assignments",
+    "resources",
     "progress",
-    "files",
-    "support",
+    "help",
   ] as const;
 
   type PortalView =
     (typeof portalViews)[number];
 
-  const requestedView =
+  const requestedViewRaw =
     String(
       query.view ||
       "dashboard"
     );
+
+  const requestedView =
+    requestedViewRaw === "timetable"
+      ? "calendar"
+      : requestedViewRaw === "files"
+        ? "resources"
+        : requestedViewRaw === "support"
+          ? "help"
+          : requestedViewRaw;
 
   const portalView: PortalView =
     portalViews.includes(
@@ -714,74 +725,29 @@ const openHomework =
 
         <nav
           className="portal-upgrade-nav"
-          aria-label="Student portal"
+          aria-label="Student learning portal"
         >
-          <a
-            href={portalHref("dashboard")}
-            className={
-              portalView === "dashboard"
-                ? "is-active"
-                : undefined
-            }
-          >
-            Dashboard
-          </a>
-
-          <a
-            href={portalHref("timetable")}
-            className={
-              portalView === "timetable"
-                ? "is-active"
-                : undefined
-            }
-          >
-            Timetable
-          </a>
-
-          <a
-            href={portalHref("assignments")}
-            className={
-              portalView === "assignments"
-                ? "is-active"
-                : undefined
-            }
-          >
-            Assignments
-          </a>
-
-          <a
-            href={portalHref("progress")}
-            className={
-              portalView === "progress"
-                ? "is-active"
-                : undefined
-            }
-          >
-            Progress
-          </a>
-
-          <a
-            href={portalHref("files")}
-            className={
-              portalView === "files"
-                ? "is-active"
-                : undefined
-            }
-          >
-            Files
-          </a>
-
-          <a href={`/portal/${token}/recordings`}>Recordings</a>
-          <a
-            href={portalHref("support")}
-            className={
-              portalView === "support"
-                ? "is-active"
-                : undefined
-            }
-          >
-            Support
-          </a>
+          {[
+            ["dashboard", "Dashboard"],
+            ["lessons", "Lessons"],
+            ["calendar", "Calendar"],
+            ["assignments", "Assignments"],
+            ["resources", "Resources"],
+            ["progress", "Progress"],
+            ["help", "Help"],
+          ].map(([view, label]) => (
+            <a
+              href={portalHref(view as PortalView)}
+              className={
+                portalView === view
+                  ? "is-active"
+                  : undefined
+              }
+              key={view}
+            >
+              {label}
+            </a>
+          ))}
         </nav>
 
 
@@ -852,7 +818,7 @@ const openHomework =
                       }
                       href={`/portal/${encodeURIComponent(
                         token,
-                      )}?course=${encodeURIComponent(
+                      )}?view=${portalView}&course=${encodeURIComponent(
                         course.id,
                       )}`}
                       key={
@@ -964,6 +930,17 @@ const openHomework =
 
         </section>
 
+        <div className="portal-lms-settings-row">
+          <PortalTimeZoneControl
+            token={token}
+            initialTimeZone={studentTimeZone}
+          />
+
+          <span>
+            Times in this learning space use your saved timezone.
+          </span>
+        </div>
+
         {engagement && (
           <>
             <StudentDashboardOverview
@@ -980,6 +957,7 @@ const openHomework =
               averageProgress={averageProgress}
               mastered={mastered}
               planCount={plan.length}
+              timeZone={studentTimeZone}
             />
           </>
         )}
@@ -1059,7 +1037,7 @@ const openHomework =
                ============================================================== */}
 
             <section
-              className="portal-panel portal-progress-report-panel"
+              className="portal-panel portal-progress-report-panel lms-section lms-progress"
               id="progress"
             >
 
@@ -1394,8 +1372,85 @@ const openHomework =
 
 
                 {/* ==========================================================
-                    UPCOMING SESSIONS
+                    CALENDAR
                    ========================================================== */}
+
+                <section
+                  className="portal-panel portal-lms-calendar lms-section lms-calendar"
+                  id="calendar"
+                >
+                  <div className="portal-panel-head">
+                    <div>
+                      <span className="portal-kicker">
+                        Calendar
+                      </span>
+
+                      <h2>
+                        Upcoming lessons
+                      </h2>
+                    </div>
+
+                    <span>
+                      {upcomingSessions.length} booked
+                    </span>
+                  </div>
+
+                  <div className="portal-lms-calendar-list">
+                    {upcomingSessions.map((item) => {
+                      const meetingUrl =
+                        safeExternalUrl(
+                          item.meeting_url
+                        );
+
+                      return (
+                        <article key={item.id}>
+                          <div>
+                            <strong>
+                              {studentFormatDateTime(
+                                item.scheduled_for
+                              )}
+                            </strong>
+
+                            <span>
+                              {item.duration_minutes} min
+                            </span>
+                          </div>
+
+                          <div>
+                            <strong>
+                              {item.topic}
+                            </strong>
+
+                            <span>
+                              {tutor?.name
+                                ? `Tutor: ${tutor.name}`
+                                : "Tutor"}
+                            </span>
+                          </div>
+
+                          <div className="portal-lms-calendar-actions">
+                            {meetingUrl && (
+                              <a
+                                className="button button-primary"
+                                href={meetingUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                Join lesson
+                              </a>
+                            )}
+                          </div>
+                        </article>
+                      );
+                    })}
+
+                    {!upcomingSessions.length && (
+                      <div className="portal-empty">
+                        No upcoming lessons are booked for this course.
+                      </div>
+                    )}
+                  </div>
+                </section>
 
 
                 {/* ==========================================================
@@ -1404,7 +1459,7 @@ const openHomework =
 
                 {upcomingSessions.length > 0 && (
                   <section
-                    className="portal-panel portal-help-card"
+                    className="portal-panel portal-help-card lms-section lms-calendar"
                     id="session-change"
                   >
                     <span className="portal-kicker">
@@ -1459,7 +1514,7 @@ const openHomework =
                     LEARNING PLAN
                    ========================================================== */}
 
-                <section className="portal-panel">
+                <section className="portal-panel portal-learning-plan-panel lms-section lms-progress">
 
                   <div className="portal-panel-head">
 
@@ -1564,7 +1619,7 @@ const openHomework =
                    ========================================================== */}
 
                 <section
-                  className="portal-panel"
+                  className="portal-panel lms-section lms-assignments"
                   id="homework"
                 >
 
@@ -1711,6 +1766,7 @@ const openHomework =
                                 materials={
                                   assignmentMaterialByHomework.get(item.id) || []
                                 }
+                                timeZone={studentTimeZone}
                               />
 
                             )}
@@ -1734,11 +1790,20 @@ const openHomework =
                 </section>
 
 
+                <div className="lms-section lms-lessons">
+                  <StudentWeeklyJourney
+                    token={token}
+                    engagementId={engagement.id}
+                    timeZone={studentTimeZone}
+                  />
+                </div>
+
+
                 {/* ==========================================================
                     SESSION HISTORY
                    ========================================================== */}
 
-                <section className="portal-panel portal-lesson-history-panel">
+                <section className="portal-panel portal-lesson-history-panel lms-section lms-lessons">
                   <div className="portal-panel-head">
                     <div>
                       <span className="portal-kicker">
@@ -1855,7 +1920,7 @@ const openHomework =
                    ========================================================== */}
 
                 <section
-                  className="portal-panel portal-help-card"
+                  className="portal-panel portal-help-card lms-section lms-calendar"
                   id="session-request"
                 >
                   <span className="portal-kicker">
@@ -1898,7 +1963,7 @@ const openHomework =
                    ========================================================== */}
 
                 <section
-                  className="portal-panel portal-learning-materials-panel"
+                  className="portal-panel portal-learning-materials-panel lms-section lms-resources"
                   id="materials"
                 >
 
@@ -1987,6 +2052,7 @@ const openHomework =
                           generalLearningMaterials
                         }
                         viewerRole="student"
+                        timeZone={studentTimeZone}
                         downloadBaseUrl={`/api/portal/${encodeURIComponent(
                           token
                         )}/materials`}
@@ -2015,11 +2081,39 @@ const openHomework =
 
                 </section>
 
+                <section className="portal-panel portal-recordings-library-card lms-section lms-resources">
+                  <div className="portal-panel-head compact">
+                    <div>
+                      <span className="portal-kicker">
+                        Lesson media
+                      </span>
+
+                      <h2>
+                        Recordings & transcripts
+                      </h2>
+                    </div>
+                  </div>
+
+                  <p>
+                    Recordings also appear inside each completed lesson record.
+                    Open the full media library when you want to browse them together.
+                  </p>
+
+                  <a
+                    className="button button-secondary"
+                    href={`/portal/${token}/recordings?course=${encodeURIComponent(
+                      engagement.id
+                    )}`}
+                  >
+                    Open recording library →
+                  </a>
+                </section>
+
                 {resources.length > 0 && (
 
 
                 <section
-                  className="portal-panel"
+                  className="portal-panel lms-section lms-resources"
                   id="resources"
                 >
 
@@ -2116,7 +2210,7 @@ const openHomework =
                    ========================================================== */}
 
                 <section
-                  className="portal-panel portal-help-card"
+                  className="portal-panel portal-help-card lms-section lms-help"
                   id="support"
                 >
 

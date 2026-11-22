@@ -199,3 +199,142 @@ export async function assignTutorHomework(
   revalidatePath(`/tutor/sessions/${sessionId}`);
   revalidatePath("/tutor/sessions");
 }
+
+
+export async function updateTutorAssignmentFromWorkspace(
+  formData: FormData,
+) {
+  const {
+    session,
+    supabase,
+  } =
+    await tutorContext();
+
+  const homeworkId =
+    text(
+      formData,
+      "homeworkId",
+      100,
+    );
+
+  const status =
+    text(
+      formData,
+      "status",
+      30,
+    );
+
+  const feedback =
+    nullableText(
+      formData,
+      "feedback",
+      5000,
+    );
+
+  const validStatuses = [
+    "assigned",
+    "submitted",
+    "reviewed",
+    "completed",
+    "skipped",
+  ];
+
+  if (
+    !homeworkId ||
+    !validStatuses.includes(
+      status,
+    )
+  ) {
+    return;
+  }
+
+  const {
+    data: homework,
+    error: homeworkError,
+  } =
+    await supabase
+      .from(
+        "homework",
+      )
+      .select(
+        "id,engagement_id",
+      )
+      .eq(
+        "id",
+        homeworkId,
+      )
+      .maybeSingle();
+
+  if (
+    homeworkError ||
+    !homework
+  ) {
+    throw new Error(
+      homeworkError?.message ||
+        "Assignment not found.",
+    );
+  }
+
+  const {
+    data: engagement,
+    error: engagementError,
+  } =
+    await supabase
+      .from(
+        "tutoring_engagements",
+      )
+      .select(
+        "id,tutor_id",
+      )
+      .eq(
+        "id",
+        homework.engagement_id,
+      )
+      .eq(
+        "tutor_id",
+        session.tutor.id,
+      )
+      .maybeSingle();
+
+  if (
+    engagementError ||
+    !engagement
+  ) {
+    throw new Error(
+      "You do not have access to this assignment.",
+    );
+  }
+
+  const {
+    error: updateError,
+  } =
+    await supabase
+      .from(
+        "homework",
+      )
+      .update({
+        status,
+        tutor_feedback:
+          feedback,
+        updated_at:
+          new Date().toISOString(),
+      })
+      .eq(
+        "id",
+        homeworkId,
+      );
+
+  if (updateError) {
+    throw new Error(
+      updateError.message,
+    );
+  }
+
+  revalidatePath(
+    "/tutor/assignments",
+  );
+
+  revalidatePath(
+    `/tutor/students/${engagement.id}`,
+  );
+}
