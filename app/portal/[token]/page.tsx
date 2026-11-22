@@ -17,7 +17,6 @@ import SessionChangeRequestForm from "@/components/SessionChangeRequestForm";
 import StudentSupportForm from "@/components/StudentSupportForm";
 import PortalTimeZoneControl from "@/components/PortalTimeZoneControl";
 import StudentLessonContinuityRecord from "@/components/StudentLessonContinuityRecord";
-import PortalSessionRecordings from "@/components/PortalSessionRecordings";
 import {
   DEFAULT_TIME_ZONE,
   formatDateTimeInTimeZone,
@@ -495,6 +494,71 @@ export default async function StudentPortalPage({
           ).getTime()
       );
 
+
+  const recordingBySession = new Map<
+    string,
+    Array<{
+      id: string;
+      file_type: string | null;
+      file_extension: string | null;
+      file_size_bytes: number | null;
+    }>
+  >();
+
+  const completedSessionIds =
+    completedSessions.map((item) => item.id);
+
+  if (completedSessionIds.length) {
+    const { data: recordingRows, error: recordingError } =
+      await createAdminClient()
+        .from("session_recordings")
+        .select(
+          "id,session_id,file_type,file_extension,file_size_bytes"
+        )
+        .in("session_id", completedSessionIds)
+        .eq("student_visible", true)
+        .eq("status", "completed")
+        .in("file_type", [
+          "MP4",
+          "M4A",
+          "VTT",
+          "TRANSCRIPT",
+        ])
+        .order("created_at", {
+          ascending: true,
+        });
+
+    if (recordingError) {
+      console.error(
+        "Could not load student-visible lesson recordings:",
+        recordingError
+      );
+    }
+
+    for (const recording of recordingRows || []) {
+      const sessionId =
+        String(recording.session_id || "");
+
+      if (!sessionId) {
+        continue;
+      }
+
+      const existing =
+        recordingBySession.get(sessionId) || [];
+
+      existing.push({
+        id: recording.id,
+        file_type: recording.file_type,
+        file_extension: recording.file_extension,
+        file_size_bytes: recording.file_size_bytes,
+      });
+
+      recordingBySession.set(
+        sessionId,
+        existing
+      );
+    }
+  }
 
   const openHomework =
     homework.filter(
@@ -1950,12 +2014,6 @@ export default async function StudentPortalPage({
                               </span>
                             </div>
 
-                            <PortalSessionRecordings
-                              token={token}
-                              sessionId={item.id}
-                              embedded
-                            />
-
                             <StudentLessonContinuityRecord
                               token={token}
                               sessionId={item.id}
@@ -1964,6 +2022,7 @@ export default async function StudentPortalPage({
                               understandingRating={item.understanding_rating}
                               homeworkSummary={item.homework_summary}
                               nextTopic={item.next_topic}
+                              recordings={recordingBySession.get(item.id) || []}
                               linkedHomework={(homework as any[])
                                 .filter(
                                   (homeworkItem) =>
