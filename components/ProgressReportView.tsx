@@ -21,7 +21,11 @@ export default function ProgressReportView({ report, studentName, subject, tutor
     <section className="progress-report-score-row">
       <div className="progress-report-score"><span>Overall progress</span><strong>{pct(report.overall_score)}</strong><small>{riskLabel(report)}</small></div>
       <div><span>Attendance</span><strong>{pct(report.attendance_rate)}</strong><small>{report.sessions_completed} attended · {report.sessions_missed} missed</small></div>
-      <div><span>Homework</span><strong>{pct(report.homework_completion_rate)}</strong><small>{report.homework_completed}/{report.homework_total} completed</small></div>
+      <div>
+  <span>Homework</span>
+  <strong>{report.homework_total === 0 ? "—" : pct(report.homework_completion_rate)}</strong>
+  <small>{report.homework_total === 0 ? "No homework assigned" : `${report.homework_completed}/${report.homework_total} completed`}</small>
+</div>
       <div><span>Understanding</span><strong>{report.average_understanding === null ? "—" : `${Number(report.average_understanding).toFixed(1)}/5`}</strong><small>Session average</small></div>
     </section>
 
