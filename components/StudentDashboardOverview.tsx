@@ -1,11 +1,6 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import {
-  DEFAULT_TIME_ZONE,
-  formatDateTimeInTimeZone,
-  normalizeTimeZone,
-} from "@/lib/time-zone";
 
 type SessionItem = {
   id: string;
@@ -13,7 +8,6 @@ type SessionItem = {
   completed_at: string | null;
   duration_minutes: number;
   topic: string;
-  lesson_notes?: string | null;
 };
 
 type HomeworkItem = {
@@ -37,14 +31,11 @@ type Props = {
   averageProgress: number;
   mastered: number;
   planCount: number;
-  timeZone?: string | null;
+  timeZone?: string;
 };
 
-function formatDate(
-  value: string | null,
-  timeZone: string,
-) {
-  if (!value) return "Not set";
+function formatDate(value: string | null, timeZone = "Europe/London") {
+  if (!value) return "No due date";
 
   return new Intl.DateTimeFormat("en-GB", {
     day: "numeric",
@@ -54,61 +45,42 @@ function formatDate(
   }).format(new Date(value));
 }
 
-function formatDateTime(
-  value: string | null,
-  timeZone: string,
-) {
+function formatDateTime(value: string | null, timeZone = "Europe/London") {
   if (!value) return "Not scheduled";
 
-  return formatDateTimeInTimeZone(
-    value,
+  return new Intl.DateTimeFormat("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
     timeZone,
-  );
+  }).format(new Date(value));
 }
 
 export default function StudentDashboardOverview({
   token,
   courseId,
-  subject,
-  currentFocus,
-  nextDeadline,
-  confidence,
   nextSession,
   nextMeetingUrl,
   nextHomework,
-  recentSession,
-  averageProgress,
-  mastered,
-  planCount,
-  timeZone,
+  timeZone = "Europe/London",
 }: Props) {
-  const viewerTimeZone =
-    normalizeTimeZone(
-      timeZone,
-      DEFAULT_TIME_ZONE,
-    );
+  const searchParams = useSearchParams();
+  const activeView = searchParams.get("view") || "dashboard";
 
-  const searchParams =
-    useSearchParams();
-
-  const activeView =
-    searchParams.get("view") ||
-    "dashboard";
-
-  if (
-    activeView !==
-    "dashboard"
-  ) {
+  if (activeView !== "dashboard") {
     return null;
   }
-
 
   const base = `/portal/${encodeURIComponent(token)}`;
   const course = encodeURIComponent(courseId);
 
   return (
     <div className="portal-dashboard-simple">
+
       <section className="portal-dashboard-simple-grid">
+
         <article className="portal-dashboard-simple-card">
           <span className="portal-kicker">Next lesson</span>
 
@@ -120,7 +92,7 @@ export default function StudentDashboardOverview({
 
           <p>
             {nextSession
-              ? formatDateTime(nextSession.scheduled_for, viewerTimeZone)
+              ? formatDateTime(nextSession.scheduled_for, timeZone)
               : "Your next lesson will appear here once it is scheduled."}
           </p>
 
@@ -140,13 +112,14 @@ export default function StudentDashboardOverview({
               className="button button-secondary"
               href={`${base}?view=calendar&course=${course}`}
             >
-              Open calendar
+              View sessions
             </a>
           </div>
         </article>
 
+
         <article className="portal-dashboard-simple-card">
-          <span className="portal-kicker">Next homework</span>
+          <span className="portal-kicker">Assignment</span>
 
           <h2>
             {nextHomework
@@ -157,9 +130,9 @@ export default function StudentDashboardOverview({
           <p>
             {nextHomework
               ? nextHomework.due_date
-                ? `Due ${formatDate(nextHomework.due_date, viewerTimeZone)}`
+                ? `Due ${formatDate(nextHomework.due_date, timeZone)}`
                 : "No due date"
-              : "You have no open homework right now."}
+              : "You have no open assignments."}
           </p>
 
           <div className="portal-dashboard-simple-actions">
@@ -167,24 +140,20 @@ export default function StudentDashboardOverview({
               className="button button-secondary"
               href={`${base}?view=assignments&course=${course}`}
             >
-              Open assignments
+              View assignments
             </a>
           </div>
         </article>
 
-        <article className="portal-dashboard-simple-card">
-          <span className="portal-kicker">Current focus</span>
 
-          <h2>
-            {currentFocus || subject}
-          </h2>
+        <article className="portal-dashboard-simple-card">
+          <span className="portal-kicker">Progress</span>
+
+          <h2>Your learning progress</h2>
 
           <p>
-            {nextDeadline
-              ? `Next deadline ${formatDate(nextDeadline, viewerTimeZone)}`
-              : confidence
-                ? `Current confidence ${confidence}/5`
-                : "Your tutor will keep your current learning priority here."}
+            View your latest progress report, attendance,
+            homework completion and tutor feedback.
           </p>
 
           <div className="portal-dashboard-simple-actions">
@@ -192,99 +161,54 @@ export default function StudentDashboardOverview({
               className="button button-secondary"
               href={`${base}?view=progress&course=${course}`}
             >
-              Open progress
+              View progress
             </a>
           </div>
         </article>
-      </section>
 
-      <section className="portal-dashboard-simple-lower">
-        <article className="portal-dashboard-recent">
-          <div>
-            <span className="portal-kicker">Recent lesson</span>
 
-            {recentSession ? (
-              <>
-                <h2>{recentSession.topic}</h2>
+        <article className="portal-dashboard-simple-card">
+          <span className="portal-kicker">Resources</span>
 
-                <p>
-                  {formatDateTime(
-                    recentSession.completed_at ||
-                      recentSession.scheduled_for,
-                    viewerTimeZone,
-                  )}
-                  {" · "}
-                  {recentSession.duration_minutes} min
-                </p>
-
-                {recentSession.lesson_notes && (
-                  <small>
-                    {recentSession.lesson_notes}
-                  </small>
-                )}
-              </>
-            ) : (
-              <>
-                <h2>No completed lessons yet</h2>
-                <p>
-                  Your recent learning history will appear here.
-                </p>
-              </>
-            )}
-          </div>
-
-          <a
-            className="button button-secondary"
-            href={`${base}?view=lessons&course=${course}`}
-          >
-            Open lessons
-          </a>
-        </article>
-
-        <article className="portal-dashboard-progress-mini">
-          <span className="portal-kicker">
-            Learning progress
-          </span>
-
-          <div className="portal-dashboard-progress-number">
-            {averageProgress}%
-          </div>
-
-          <div className="portal-progress-track">
-            <i
-              style={{
-                width: `${averageProgress}%`,
-              }}
-            />
-          </div>
+          <h2>Learning materials</h2>
 
           <p>
-            {mastered} of {planCount} plan topics mastered
+            Access worksheets, lesson notes and other materials
+            shared for your course.
           </p>
 
-          <a
-            href={`${base}?view=progress&course=${course}`}
-          >
-            View full progress
-          </a>
+          <div className="portal-dashboard-simple-actions">
+            <a
+              className="button button-secondary"
+              href={`${base}?view=resources&course=${course}`}
+            >
+              View resources
+            </a>
+          </div>
         </article>
+
+
+        <article className="portal-dashboard-simple-card">
+          <span className="portal-kicker">Need help?</span>
+
+          <h2>Contact your tutoring team</h2>
+
+          <p>
+            Ask about a lesson, assignment, session or technical issue.
+          </p>
+
+          <div className="portal-dashboard-simple-actions">
+            <a
+              className="button button-secondary"
+              href={`${base}?view=help&course=${course}`}
+            >
+              Get help
+            </a>
+          </div>
+        </article>
+
       </section>
 
-      <section className="portal-dashboard-destinations">
-        <a
-          href={`${base}?view=resources&course=${course}`}
-        >
-          Resources
-          <span>Worksheets, notes, recordings and uploads</span>
-        </a>
-
-        <a
-          href={`${base}?view=help&course=${course}`}
-        >
-          Help
-          <span>Ask your tutoring team</span>
-        </a>
-      </section>
     </div>
   );
 }

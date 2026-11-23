@@ -905,41 +905,14 @@ const openHomework =
 
             <p>
               {engagement
-                ? `Your ${engagement.subject} learning space keeps your lessons, weekly work, progress and files organised in one place.`
+                ? `${engagement.subject} tutoring`
                 : "Your tutoring team is preparing your learning record."}
             </p>
 
           </div>
 
 
-          {engagement && (
-            <div className="portal-progress-card">
 
-              <span>
-                Overall plan progress
-              </span>
-
-              <strong>
-                {averageProgress}%
-              </strong>
-
-              <div className="portal-progress-track">
-                <i
-                  style={{
-                    width:
-                      `${averageProgress}%`,
-                  }}
-                />
-              </div>
-
-              <small>
-                {mastered} of{" "}
-                {plan.length} plan
-                topics mastered
-              </small>
-
-            </div>
-          )}
 
         </section>
 
