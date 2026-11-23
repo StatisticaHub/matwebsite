@@ -1,3 +1,10 @@
+import {
+  DEFAULT_TIME_ZONE,
+  dateKeyInTimeZone,
+  normalizeTimeZone,
+  zonedLocalDateTimeToUtc,
+} from "@/lib/time-zone";
+
 export type ProgressReport = {
   id: string;
   created_at: string;
@@ -83,21 +90,92 @@ function round(value: number, digits = 0) {
   return Math.round(value * factor) / factor;
 }
 
-function dateStart(value: string) {
-  return `${value}T00:00:00.000Z`;
+function addCalendarDays(
+  value: string,
+  days: number,
+) {
+  const [year, month, day] =
+    value.split("-").map(Number);
+
+  return new Date(
+    Date.UTC(
+      year,
+      month - 1,
+      day + days,
+    ),
+  )
+    .toISOString()
+    .slice(0, 10);
 }
 
-function dateEnd(value: string) {
-  return `${value}T23:59:59.999Z`;
+function progressReportWindow(
+  periodStart: string,
+  periodEnd: string,
+  requestedTimeZone: string | null | undefined,
+) {
+  const timeZone =
+    normalizeTimeZone(
+      requestedTimeZone,
+      DEFAULT_TIME_ZONE,
+    );
+
+  const start =
+    zonedLocalDateTimeToUtc(
+      periodStart,
+      "00:00",
+      timeZone,
+    );
+
+  const nextDate =
+    addCalendarDays(
+      periodEnd,
+      1,
+    );
+
+  const endExclusive =
+    zonedLocalDateTimeToUtc(
+      nextDate,
+      "00:00",
+      timeZone,
+    );
+
+  if (!start.ok || !endExclusive.ok) {
+    throw new Error(
+      "Could not resolve the progress report period.",
+    );
+  }
+
+  return {
+    timeZone,
+    startIso: start.iso,
+    endExclusiveIso:
+      endExclusive.iso,
+  };
 }
 
-export async function calculateProgressMetrics(supabase: any, engagementId: string, periodStart: string, periodEnd: string): Promise<ProgressMetrics> {
+export async function calculateProgressMetrics(
+  supabase: any,
+  engagementId: string,
+  periodStart: string,
+  periodEnd: string,
+  requestedTimeZone: string | null | undefined = DEFAULT_TIME_ZONE,
+): Promise<ProgressMetrics> {
+  const {
+    timeZone,
+    startIso,
+    endExclusiveIso,
+  } = progressReportWindow(
+    periodStart,
+    periodEnd,
+    requestedTimeZone,
+  );
+
   const [sessionsResult, homeworkResult, planResult] = await Promise.all([
     supabase.from("tutoring_sessions")
       .select("id,status,scheduled_for,completed_at,understanding_rating")
       .eq("engagement_id", engagementId)
-      .gte("scheduled_for", dateStart(periodStart))
-      .lte("scheduled_for", dateEnd(periodEnd)),
+      .gte("scheduled_for", startIso)
+      .lt("scheduled_for", endExclusiveIso),
     supabase.from("homework")
       .select("id,status,due_date,created_at")
       .eq("engagement_id", engagementId),
@@ -119,12 +197,23 @@ export async function calculateProgressMetrics(supabase: any, engagementId: stri
   const ratings = completedSessions.map((item) => Number(item.understanding_rating)).filter((value) => Number.isFinite(value) && value >= 1 && value <= 5);
   const averageUnderstanding = ratings.length ? round(ratings.reduce((a, b) => a + b, 0) / ratings.length, 2) : null;
 
-  const startMs = new Date(dateStart(periodStart)).getTime();
-  const endMs = new Date(dateEnd(periodEnd)).getTime();
-  const homework = ((homeworkResult.data || []) as any[]).filter((item) => {
-    const key = item.due_date ? new Date(`${item.due_date}T12:00:00.000Z`).getTime() : new Date(item.created_at).getTime();
-    return key >= startMs && key <= endMs && item.status !== "skipped";
-  });
+  const homework =
+    ((homeworkResult.data || []) as any[])
+      .filter((item) => {
+        const key =
+          item.due_date
+            ? String(item.due_date).slice(0, 10)
+            : dateKeyInTimeZone(
+                item.created_at,
+                timeZone,
+              );
+
+        return (
+          key >= periodStart &&
+          key <= periodEnd &&
+          item.status !== "skipped"
+        );
+      });
   const homeworkCompleted = homework.filter((item) => ["reviewed", "completed"].includes(item.status)).length;
   const homeworkCompletionRate = homework.length ? round((homeworkCompleted / homework.length) * 100, 1) : null;
 

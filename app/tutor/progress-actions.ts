@@ -52,7 +52,14 @@ export async function generateTutorProgressReport(formData: FormData) {
   const periodEnd = text(formData, "periodEnd", 20);
   if (!engagementId || !periodStart || !periodEnd) return;
   const engagement = await ownedEngagement(supabase, session.tutor.id, engagementId);
-  const metrics = await calculateProgressMetrics(supabase, engagementId, periodStart, periodEnd);
+  const metrics =
+    await calculateProgressMetrics(
+      supabase,
+      engagementId,
+      periodStart,
+      periodEnd,
+      session.tutor.timezone,
+    );
   const title = nullable(formData, "title", 300) || `${engagement.subject} progress report`;
   const payload = {
     student_id: engagement.student_id,
