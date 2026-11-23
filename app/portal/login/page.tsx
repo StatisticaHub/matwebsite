@@ -24,13 +24,12 @@ export default async function StudentLoginPage({
 }: {
   searchParams: SearchParams;
 }) {
+  const query = await searchParams;
   const session = await getStudentSession();
 
-  if (session) {
+  if (session && query.expired !== "1") {
     redirect("/portal/me");
   }
-
-  const query = await searchParams;
 
   return (
     <main className="tutor-auth-shell">

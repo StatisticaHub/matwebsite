@@ -295,46 +295,7 @@ export default async function StudentPortalPage({
      ------------------------------------------------------------------------ */
 
   if (!context) {
-    return (
-      <div className="student-portal-shell portal-unavailable-shell">
-
-        <header className="portal-topbar">
-          <strong>
-            My Academic Tutor
-          </strong>
-
-          <span>
-            Student portal
-          </span>
-        </header>
-
-
-        <div className="portal-unavailable">
-
-          <span className="portal-kicker">
-            Secure learning portal
-          </span>
-
-          <h1>
-            This portal link is no longer available.
-          </h1>
-
-          <p>
-            It may have expired or been replaced.
-            Please contact your tutoring team for a fresh link.
-          </p>
-
-          <a
-            className="button button-primary"
-            href="/contact"
-          >
-            Contact My Academic Tutor
-          </a>
-
-        </div>
-
-      </div>
-    );
+    redirect("/portal/login?expired=1");
   }
 
 
