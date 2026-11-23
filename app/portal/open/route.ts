@@ -44,10 +44,9 @@ export async function GET(
     now.toISOString();
 
   /*
-   * The portal-link table allows only one
-   * active link per student. Revoke any
-   * existing active link before creating
-   * the short-lived authenticated link.
+   * Clean up expired authenticated-session
+   * links before creating another short-lived
+   * portal token. Other active tabs remain valid.
    */
   await admin
     .from("student_portal_links")
@@ -62,6 +61,10 @@ export async function GET(
     .eq(
       "access_kind",
       "authenticated_session",
+    )
+    .lte(
+      "expires_at",
+      nowIso,
     )
     .is(
       "revoked_at",
