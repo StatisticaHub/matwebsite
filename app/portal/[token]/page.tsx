@@ -1,4 +1,6 @@
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
+import { getStudentSession } from "@/lib/student-auth";
 
 import LearningMaterialUploadForm from "@/components/LearningMaterialUploadForm";
 
@@ -398,6 +400,22 @@ export default async function StudentPortalPage({
   let learningMaterials:
     LearningMaterialListItem[] =
       [];
+
+  /*
+   * Account-based portal sessions use a short-lived compatibility token.
+   * If it expires or is replaced, recover through the authenticated
+   * student account instead of showing a broken-link page.
+   */
+  if (!context) {
+    const studentSession = await getStudentSession();
+
+    if (studentSession) {
+      redirect("/portal/open");
+    }
+
+    redirect("/portal/login?expired=1");
+  }
+
 
   if (engagement) {
     const materialClient =

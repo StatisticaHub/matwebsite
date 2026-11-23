@@ -28,7 +28,7 @@ export async function GET(
   if (!session) {
     return NextResponse.redirect(
       new URL(
-        "/portal/login?unauthorized=1",
+        "/portal/login",
         request.url,
       ),
     );

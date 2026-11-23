@@ -16,6 +16,7 @@ export const dynamic = "force-dynamic";
 
 type SearchParams = Promise<{
   unauthorized?: string;
+  expired?: string;
 }>;
 
 export default async function StudentLoginPage({
@@ -48,6 +49,12 @@ export default async function StudentLoginPage({
           Sign in to access your sessions, homework,
           learning files, progress and support.
         </p>
+
+        {query.expired === "1" && (
+          <div className="tutor-alert warning">
+            Your portal session has expired. Sign in again to continue.
+          </div>
+        )}
 
         {query.unauthorized === "1" && (
           <div className="tutor-alert warning">
