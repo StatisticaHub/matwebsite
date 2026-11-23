@@ -725,29 +725,42 @@ const openHomework =
 
         <nav
           className="portal-upgrade-nav"
-          aria-label="Student learning portal"
+          aria-label="Student portal"
         >
-          {[
-            ["dashboard", "Dashboard"],
-            ["lessons", "Lessons"],
-            ["calendar", "Calendar"],
-            ["assignments", "Assignments"],
-            ["resources", "Resources"],
-            ["progress", "Progress"],
-            ["help", "Help"],
-          ].map(([view, label]) => (
-            <a
-              href={portalHref(view as PortalView)}
-              className={
-                portalView === view
-                  ? "is-active"
-                  : undefined
-              }
-              key={view}
-            >
-              {label}
-            </a>
-          ))}
+          <a
+            href={portalHref("dashboard")}
+            className={portalView === "dashboard" ? "is-active" : undefined}
+          >
+            Home
+          </a>
+
+          <a
+            href={portalHref("calendar")}
+            className={portalView === "calendar" ? "is-active" : undefined}
+          >
+            Sessions
+          </a>
+
+          <a
+            href={portalHref("assignments")}
+            className={portalView === "assignments" ? "is-active" : undefined}
+          >
+            Assignments
+          </a>
+
+          <a
+            href={portalHref("progress")}
+            className={portalView === "progress" ? "is-active" : undefined}
+          >
+            Progress
+          </a>
+
+          <a
+            href={portalHref("help")}
+            className={portalView === "help" ? "is-active" : undefined}
+          >
+            Help
+          </a>
         </nav>
 
 
