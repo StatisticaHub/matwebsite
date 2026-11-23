@@ -33,7 +33,7 @@ export default async function StudentPortalsPage({ searchParams }: { searchParam
 
   const [studentResult, linkResult, supportResult, submissionResult] = await Promise.all([
     supabase.from("students").select("id,name,email,status").order("name"),
-    supabase.from("student_portal_links").select("id,student_id,token_preview,expires_at,created_at,last_accessed_at").is("revoked_at", null).order("created_at", { ascending: false }),
+    supabase.from("student_portal_links").select("id,student_id,token_preview,expires_at,created_at,last_accessed_at").eq("access_kind", "admin_link").is("revoked_at", null).order("created_at", { ascending: false }),
     supabase.from("student_support_requests").select("*").order("created_at", { ascending: false }).limit(50),
     supabase.from("homework_submissions").select("*,homework(title)").order("submitted_at", { ascending: false }).limit(50),
   ]);

@@ -40,8 +40,8 @@ export async function GET(
         session.student.id,
       )
       .eq(
-        "label",
-        "Authenticated student login",
+        "access_kind",
+        "authenticated_session",
       )
       .is(
         "revoked_at",

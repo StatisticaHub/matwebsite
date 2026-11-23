@@ -32,7 +32,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: S
     supabase.from("student_intake_links").select("id,student_id,token_preview,expires_at,created_at,last_accessed_at").is("revoked_at", null).order("created_at", { ascending: false }),
     supabase.from("tutoring_engagements").select("*").order("created_at", { ascending: false }),
     supabase.from("tutoring_sessions").select("id,engagement_id,status,scheduled_for").eq("status", "planned"),
-    supabase.from("student_portal_links").select("id,student_id").is("revoked_at", null),
+    supabase.from("student_portal_links").select("id,student_id").eq("access_kind", "admin_link").is("revoked_at", null),
     supabase.from("tutors").select("id,name"),
   ]);
 

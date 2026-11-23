@@ -59,6 +59,10 @@ export async function GET(
       "student_id",
       session.student.id,
     )
+    .eq(
+      "access_kind",
+      "authenticated_session",
+    )
     .is(
       "revoked_at",
       null,
@@ -101,6 +105,9 @@ export async function GET(
 
       label:
         "Authenticated student login",
+
+      access_kind:
+        "authenticated_session",
     });
 
   if (error) {

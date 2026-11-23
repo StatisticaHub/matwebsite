@@ -71,6 +71,10 @@ export type StudentPortalLink = {
 
   created_by_email: string | null;
   label: string | null;
+
+  access_kind:
+    | "admin_link"
+    | "authenticated_session";
 };
 
 

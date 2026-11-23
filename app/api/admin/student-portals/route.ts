@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
   if (studentError || !student) return NextResponse.json({ error: "Student not found." }, { status: 404 });
 
   const now = new Date();
-  await supabase.from("student_portal_links").update({ revoked_at: now.toISOString(), updated_at: now.toISOString() }).eq("student_id", studentId).is("revoked_at", null);
+  await supabase.from("student_portal_links").update({ revoked_at: now.toISOString(), updated_at: now.toISOString() }).eq("student_id", studentId).eq("access_kind", "admin_link").is("revoked_at", null);
 
   const token = generatePortalToken();
   const expiresAt = new Date(now.getTime() + expiryDays * 24 * 60 * 60 * 1000).toISOString();
@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
       expires_at: expiresAt,
       created_by_email: session.user.email || null,
       label: "Student learning portal",
+      access_kind: "admin_link",
     })
     .select("id,student_id,token_preview,expires_at,created_at,last_accessed_at")
     .single();
@@ -77,7 +78,7 @@ export async function DELETE(request: NextRequest) {
   if (!uuidPattern.test(linkId)) return NextResponse.json({ error: "Invalid link." }, { status: 400 });
   const supabase = createAdminClient();
   const now = new Date().toISOString();
-  const { error } = await supabase.from("student_portal_links").update({ revoked_at: now, updated_at: now }).eq("id", linkId).is("revoked_at", null);
+  const { error } = await supabase.from("student_portal_links").update({ revoked_at: now, updated_at: now }).eq("id", linkId).eq("access_kind", "admin_link").is("revoked_at", null);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });
 }
