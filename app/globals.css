@@ -12462,3 +12462,126 @@ main {
 }
 
 /* ===== END ADMIN MANUAL TESTIMONIAL ENTRY ===== */
+
+
+/* ============================================================
+   PUBLIC TESTIMONIAL CARDS
+   ============================================================ */
+
+.testimonial-grid,
+.home-v2-testimonial-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  align-items: stretch;
+}
+
+
+.testimonial-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
+  padding: 30px;
+  border: 1px solid rgba(17, 41, 75, 0.12);
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow:
+    0 1px 2px rgba(17, 41, 75, 0.03),
+    0 12px 32px rgba(17, 41, 75, 0.055);
+}
+
+
+.testimonial-stars {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-bottom: 22px;
+  color: var(--navy);
+  font-size: 19px;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+
+.testimonial-quote,
+.testimonial-card blockquote {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--navy);
+  font-family: var(--font-serif);
+  font-size: 20px;
+  line-height: 1.55;
+  letter-spacing: -0.012em;
+}
+
+
+.testimonial-person,
+.testimonial-card footer {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: auto;
+  padding-top: 26px;
+}
+
+
+.testimonial-person strong,
+.testimonial-card footer strong {
+  display: block;
+  color: var(--navy);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 750;
+  line-height: 1.3;
+}
+
+
+.testimonial-person span,
+.testimonial-card footer span {
+  display: block;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+
+.home-v2-testimonials .testimonial-card {
+  min-height: 100%;
+}
+
+
+.home-v2-testimonials .testimonial-grid {
+  margin-top: 30px;
+}
+
+
+@media (max-width: 980px) {
+  .testimonial-grid,
+  .home-v2-testimonial-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .testimonial-card {
+    padding: 26px;
+  }
+}
+
+
+@media (max-width: 640px) {
+  .testimonial-card {
+    padding: 22px;
+    border-radius: 15px;
+  }
+
+  .testimonial-quote,
+  .testimonial-card blockquote {
+    font-size: 18px;
+  }
+}
+
+
+/* ============================================================
+   END PUBLIC TESTIMONIAL CARDS
+   ============================================================ */
