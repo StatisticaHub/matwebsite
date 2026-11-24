@@ -9066,3 +9066,406 @@ body {
     font-size: 10.5px !important;
   }
 }
+
+
+/* ==========================================================================
+   PUBLIC SITE — TYPOGRAPHY + DENSITY REFINEMENT
+   ========================================================================== */
+
+/*
+ * Slightly larger typography and tighter vertical rhythm.
+ * Goal: less empty white space without making the site crowded.
+ */
+
+
+/* --------------------------------------------------------------------------
+   HEADER
+   -------------------------------------------------------------------------- */
+
+.mat-public-brand-copy strong {
+  font-size: 15px !important;
+}
+
+.mat-public-brand-copy small {
+  font-size: 10.5px !important;
+}
+
+.mat-public-nav a {
+  font-size: 12px !important;
+}
+
+.mat-public-portal-link {
+  font-size: 11.5px !important;
+}
+
+.mat-public-request {
+  min-height: 42px;
+  padding-right: 17px !important;
+  padding-left: 17px !important;
+  font-size: 11.5px !important;
+}
+
+
+/* --------------------------------------------------------------------------
+   HOMEPAGE HERO
+   -------------------------------------------------------------------------- */
+
+.home-v2-hero {
+  padding-top: 68px !important;
+  padding-bottom: 64px !important;
+}
+
+.home-v2-hero h1 {
+  max-width: 780px;
+  font-size: clamp(46px, 5vw, 68px) !important;
+  line-height: 1.02 !important;
+  letter-spacing: -.04em !important;
+}
+
+.home-v2-hero-copy > p,
+.home-v2-hero .hero-lead {
+  max-width: 720px;
+  font-size: 18px !important;
+  line-height: 1.68 !important;
+}
+
+.home-v2-kicker,
+.eyebrow {
+  font-size: 10.5px !important;
+  letter-spacing: .105em !important;
+}
+
+.home-v2-principles {
+  margin-top: 28px !important;
+}
+
+.home-v2-principles strong {
+  font-size: 14px !important;
+}
+
+.home-v2-principles p {
+  font-size: 12.5px !important;
+  line-height: 1.55 !important;
+}
+
+
+/* --------------------------------------------------------------------------
+   HOMEPAGE SECTIONS
+   -------------------------------------------------------------------------- */
+
+.home-v2-section {
+  padding-top: 64px !important;
+  padding-bottom: 64px !important;
+}
+
+.home-v2-section-heading {
+  margin-bottom: 30px !important;
+}
+
+.home-v2-section-heading h2 {
+  font-size: clamp(34px, 3.4vw, 45px) !important;
+  line-height: 1.08 !important;
+}
+
+.home-v2-section-heading p {
+  max-width: 700px;
+  font-size: 16.5px !important;
+  line-height: 1.7 !important;
+}
+
+
+/* Learning cards */
+
+.home-v2-learning-grid {
+  gap: 18px !important;
+}
+
+.home-v2-learning-card {
+  padding: 25px !important;
+}
+
+.home-v2-learning-card strong,
+.home-v2-learning-card h3 {
+  font-size: 21px !important;
+  line-height: 1.2 !important;
+}
+
+.home-v2-learning-card p {
+  font-size: 15px !important;
+  line-height: 1.65 !important;
+}
+
+
+/* Subject cards */
+
+.home-v2-subject-grid {
+  gap: 14px !important;
+}
+
+.home-v2-subject-card {
+  padding: 22px !important;
+}
+
+.home-v2-subject-card h3 {
+  font-size: 20px !important;
+}
+
+.home-v2-subject-card p {
+  font-size: 14.5px !important;
+  line-height: 1.6 !important;
+}
+
+
+/* Process / tutoring section */
+
+.home-v2-process-grid {
+  gap: 16px !important;
+}
+
+.home-v2-process-grid article {
+  padding: 23px !important;
+}
+
+.home-v2-process-grid h3 {
+  font-size: 19px !important;
+}
+
+.home-v2-process-grid p {
+  font-size: 14.5px !important;
+  line-height: 1.62 !important;
+}
+
+
+/* Learning resources */
+
+.home-v2-resource-grid {
+  gap: 16px !important;
+}
+
+.home-v2-resource-card {
+  padding: 23px !important;
+}
+
+.home-v2-resource-card h3 {
+  font-size: 20px !important;
+  line-height: 1.25 !important;
+}
+
+.home-v2-resource-card p {
+  font-size: 14.5px !important;
+  line-height: 1.65 !important;
+}
+
+
+/* --------------------------------------------------------------------------
+   GENERAL PUBLIC PAGES
+   -------------------------------------------------------------------------- */
+
+.page-hero {
+  padding-top: 70px !important;
+  padding-bottom: 62px !important;
+}
+
+.compact-hero {
+  padding-top: 62px !important;
+  padding-bottom: 54px !important;
+}
+
+.page-hero h1 {
+  font-size: clamp(42px, 4.7vw, 62px) !important;
+  line-height: 1.04 !important;
+  letter-spacing: -.035em !important;
+}
+
+.page-lead {
+  max-width: 760px;
+  font-size: 18px !important;
+  line-height: 1.7 !important;
+}
+
+.section {
+  padding-top: 62px !important;
+  padding-bottom: 62px !important;
+}
+
+.section h2,
+.section-head h2,
+.conversion-section-head h2 {
+  font-size: clamp(32px, 3vw, 42px) !important;
+  line-height: 1.1 !important;
+}
+
+.section-intro,
+.conversion-section-head > p {
+  font-size: 16px !important;
+  line-height: 1.7 !important;
+}
+
+
+/* Standard cards */
+
+.card p,
+.quote-card p,
+.detail-card p,
+.contact-card p,
+.level-card p,
+.subject-card p,
+.resource-card p {
+  font-size: 14.5px !important;
+  line-height: 1.65 !important;
+}
+
+.card h3,
+.detail-card h3,
+.contact-card h2,
+.level-card h2,
+.subject-card h3,
+.resource-card h3 {
+  line-height: 1.2 !important;
+}
+
+
+/* Links and buttons */
+
+.text-link {
+  font-size: 13px !important;
+}
+
+.button {
+  font-size: 13px !important;
+}
+
+.button-large {
+  min-height: 48px;
+  padding-right: 20px !important;
+  padding-left: 20px !important;
+}
+
+
+/* --------------------------------------------------------------------------
+   FOOTER
+   -------------------------------------------------------------------------- */
+
+.site-footer {
+  padding-top: 54px !important;
+}
+
+.footer-brand > strong {
+  font-size: 20px !important;
+}
+
+.footer-brand p {
+  font-size: 13.5px !important;
+  line-height: 1.65 !important;
+}
+
+.footer-columns b {
+  font-size: 10px !important;
+}
+
+.footer-columns a,
+.footer-columns span {
+  font-size: 12.5px !important;
+  line-height: 1.55 !important;
+}
+
+
+/* ==========================================================================
+   TABLET
+   ========================================================================== */
+
+@media (max-width: 900px) {
+
+  .home-v2-hero {
+    padding-top: 52px !important;
+    padding-bottom: 50px !important;
+  }
+
+  .home-v2-hero h1 {
+    font-size: clamp(42px, 7vw, 56px) !important;
+  }
+
+  .home-v2-section,
+  .section {
+    padding-top: 52px !important;
+    padding-bottom: 52px !important;
+  }
+
+  .page-hero,
+  .compact-hero {
+    padding-top: 52px !important;
+    padding-bottom: 48px !important;
+  }
+}
+
+
+/* ==========================================================================
+   MOBILE
+   ========================================================================== */
+
+@media (max-width: 680px) {
+
+  .home-v2-hero {
+    padding-top: 40px !important;
+    padding-bottom: 42px !important;
+  }
+
+  .home-v2-hero h1 {
+    font-size: 39px !important;
+    line-height: 1.04 !important;
+  }
+
+  .home-v2-hero-copy > p,
+  .home-v2-hero .hero-lead {
+    font-size: 16.5px !important;
+    line-height: 1.65 !important;
+  }
+
+  .home-v2-section,
+  .section {
+    padding-top: 44px !important;
+    padding-bottom: 44px !important;
+  }
+
+  .home-v2-section-heading {
+    margin-bottom: 23px !important;
+  }
+
+  .home-v2-section-heading h2,
+  .section h2,
+  .section-head h2,
+  .conversion-section-head h2 {
+    font-size: 31px !important;
+  }
+
+  .home-v2-section-heading p,
+  .section-intro,
+  .conversion-section-head > p {
+    font-size: 15.5px !important;
+  }
+
+  .page-hero,
+  .compact-hero {
+    padding-top: 42px !important;
+    padding-bottom: 42px !important;
+  }
+
+  .page-hero h1 {
+    font-size: 37px !important;
+  }
+
+  .page-lead {
+    font-size: 16.5px !important;
+  }
+
+  .home-v2-learning-card,
+  .home-v2-subject-card,
+  .home-v2-resource-card,
+  .home-v2-process-grid article {
+    padding: 20px !important;
+  }
+
+  .mat-mobile-menu-panel nav a {
+    font-size: 12px !important;
+  }
+}
