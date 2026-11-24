@@ -1,456 +1,652 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import {
+  FormEvent,
+  useState,
+} from "react";
 
-type State =
-  | { status: "idle"; message: ""; reference: "" }
-  | { status: "sending"; message: ""; reference: "" }
-  | { status: "success"; message: string; reference: string }
-  | { status: "error"; message: string; reference: "" };
+type SubmitState = {
+  loading: boolean;
+  error: string | null;
+  reference: string | null;
+};
 
 export default function TutorApplicationForm() {
-  const [state, setState] = useState<State>({
-    status: "idle",
-    message: "",
-    reference: "",
+  const [
+    state,
+    setState,
+  ] = useState<SubmitState>({
+    loading: false,
+    error: null,
+    reference: null,
   });
 
-  async function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(
+    event: FormEvent<HTMLFormElement>,
+  ) {
     event.preventDefault();
 
-    if (state.status === "sending") return;
+    if (state.loading) {
+      return;
+    }
+
+    const form =
+      event.currentTarget;
 
     setState({
-      status: "sending",
-      message: "",
-      reference: "",
+      loading: true,
+      error: null,
+      reference: null,
     });
 
-    const form = event.currentTarget;
-    const data = new FormData(form);
-
     try {
-      const response = await fetch("/api/tutor-application", {
-        method: "POST",
-        body: data,
-      });
+      const body =
+        new FormData(form);
 
-      const result = await response.json().catch(() => ({}));
+      const response =
+        await fetch(
+          "/api/tutor-application",
+          {
+            method: "POST",
+            body,
+          },
+        );
+
+      let payload: {
+        error?: string;
+        reference?: string;
+      } = {};
+
+      try {
+        payload =
+          await response.json();
+      } catch {
+        // Use generic error below.
+      }
 
       if (!response.ok) {
         throw new Error(
-          result.error ||
-            "We could not submit your application. Please try again.",
+          payload.error ||
+            "Your application could not be submitted. Please try again.",
         );
       }
 
-      setState({
-        status: "success",
-        message:
-          "Your tutor application has been received. The MAT team will review your qualifications, references and teaching demonstration.",
-        reference: result.reference || "",
-      });
-
       form.reset();
-      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      setState({
+        loading: false,
+        error: null,
+        reference:
+          payload.reference ||
+          "Submitted",
+      });
     } catch (error) {
       setState({
-        status: "error",
-        message:
+        loading: false,
+        error:
           error instanceof Error
             ? error.message
-            : "We could not submit your application.",
-        reference: "",
+            : "Your application could not be submitted.",
+        reference: null,
       });
     }
   }
 
-  if (state.status === "success") {
+  if (state.reference) {
     return (
-      <div>
-        <div className="eyebrow">APPLICATION RECEIVED</div>
-        <h2>Thank you for applying.</h2>
+      <div className="form-success">
+        <span className="success-mark">
+          ✓
+        </span>
 
-        <p>{state.message}</p>
-
-        {state.reference && (
-          <p>
-            Your application reference is{" "}
-            <strong>{state.reference}</strong>.
-          </p>
-        )}
+        <h3>
+          Application received.
+        </h3>
 
         <p>
-          Please keep this reference in case you need to contact us about
-          your application.
+          Thank you for applying to
+          My Academic Tutor. Our team
+          will review your subject
+          background, teaching
+          experience, qualification
+          evidence, references and
+          teaching demonstration.
         </p>
 
-        <button
-          type="button"
-          className="button button-secondary"
-          onClick={() =>
-            setState({
-              status: "idle",
-              message: "",
-              reference: "",
-            })
-          }
-        >
-          Submit another application
-        </button>
+        <p>
+          <strong>
+            Application reference:
+          </strong>
+          {" "}
+          {state.reference}
+        </p>
+
+        <p>
+          We will contact you using
+          the email address provided
+          if we would like to progress
+          your application.
+        </p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={submit} className="portal-form">
-      <div>
-        <h2>Apply to tutor with MAT</h2>
-        <p>
-          Please provide accurate academic, teaching and availability
-          information. Applications are reviewed before tutors are invited
-          to the MAT onboarding process.
-        </p>
-      </div>
-
-      <label>
-        <span>Full name *</span>
-        <input name="name" required maxLength={120} />
-      </label>
-
-      <label>
-        <span>Email *</span>
-        <input
-          name="email"
-          type="email"
-          required
-          maxLength={240}
-          autoComplete="email"
-        />
-      </label>
-
-      <label>
-        <span>Phone</span>
-        <input name="phone" type="tel" maxLength={80} />
-      </label>
-
-      <label>
-        <span>Country / current location *</span>
-        <input
-          name="country"
-          required
-          maxLength={120}
-          placeholder="United Kingdom"
-        />
-      </label>
-
-      <label>
-        <span>Subjects you can teach *</span>
-        <input
-          name="subjects"
-          required
-          placeholder="Statistics, Mathematics, Data Science"
-        />
-        <small>Separate subjects with commas.</small>
-      </label>
-
-      <label>
-        <span>Academic levels you can teach *</span>
-        <input
-          name="levels"
-          required
-          placeholder="GCSE, A-Level, Undergraduate, Master's"
-        />
-        <small>Separate levels with commas.</small>
-      </label>
-
-      <label>
-        <span>Specialist topics, methods or software</span>
-        <input
-          name="specialisms"
-          placeholder="Regression, Econometrics, R, Python, SPSS"
-        />
-      </label>
-
-      <label>
-        <span>Languages you can teach in *</span>
-        <input
-          name="languages"
-          required
-          placeholder="English, Hindi"
-        />
-      </label>
-
-      <label>
-        <span>Qualifications *</span>
-        <textarea
-          name="qualifications"
-          required
-          maxLength={5000}
-          placeholder="List your degrees, institutions, fields of study and relevant professional qualifications."
-        />
-      </label>
-
-      <label>
-        <span>Teaching / tutoring experience *</span>
-        <textarea
-          name="teachingExperience"
-          required
-          maxLength={5000}
-          placeholder="Describe your teaching, tutoring, academic, research or relevant professional experience."
-        />
-      </label>
-
-      <label>
-        <span>Degree certificate *</span>
-        <input
-          name="degreeCertificate"
-          type="file"
-          accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
-          required
-        />
-        <small>
-          PDF, JPG or PNG. Maximum file size 10 MB. This document is stored
-          privately and is available only to the MAT review team.
-        </small>
-      </label>
-
-      <label>
-        <span>Timezone *</span>
-        <input
-          name="timezone"
-          required
-          placeholder="Europe/London"
-          maxLength={120}
-        />
-      </label>
-
-      <label>
-        <span>Typical teaching availability *</span>
-        <textarea
-          name="availability"
-          required
-          maxLength={2000}
-          placeholder="For example: Monday–Thursday evenings after 18:00 and flexible weekends."
-        />
-      </label>
-
-      <label>
-        <span>Online teaching setup *</span>
-        <textarea
-          name="onlineTeachingSetup"
-          required
-          maxLength={2000}
-          placeholder="Describe your laptop/computer, internet connection, webcam, microphone, tablet or writing setup."
-        />
-      </label>
-
-      <label>
-        <span>Why would you like to tutor with MAT? *</span>
-        <textarea
-          name="motivation"
-          required
-          maxLength={3000}
-        />
-      </label>
-
-      <hr />
-
-      <div>
-        <div className="eyebrow">REFERENCE 1</div>
-        <h3>First academic or professional referee</h3>
-      </div>
-
-      <label>
-        <span>Referee name *</span>
-        <input name="reference1Name" required maxLength={160} />
-      </label>
-
-      <label>
-        <span>Referee email *</span>
-        <input
-          name="reference1Email"
-          type="email"
-          required
-          maxLength={240}
-        />
-      </label>
-
-      <label>
-        <span>Organisation / institution</span>
-        <input name="reference1Organisation" maxLength={240} />
-      </label>
-
-      <label>
-        <span>Relationship to you *</span>
-        <input
-          name="reference1Relationship"
-          required
-          maxLength={240}
-          placeholder="Dissertation supervisor, lecturer, manager..."
-        />
-      </label>
-
-      <label>
-        <span>Referee phone</span>
-        <input name="reference1Phone" type="tel" maxLength={80} />
-      </label>
-
-      <hr />
-
-      <div>
-        <div className="eyebrow">REFERENCE 2</div>
-        <h3>Second academic or professional referee</h3>
-      </div>
-
-      <label>
-        <span>Referee name *</span>
-        <input name="reference2Name" required maxLength={160} />
-      </label>
-
-      <label>
-        <span>Referee email *</span>
-        <input
-          name="reference2Email"
-          type="email"
-          required
-          maxLength={240}
-        />
-      </label>
-
-      <label>
-        <span>Organisation / institution</span>
-        <input name="reference2Organisation" maxLength={240} />
-      </label>
-
-      <label>
-        <span>Relationship to you *</span>
-        <input
-          name="reference2Relationship"
-          required
-          maxLength={240}
-        />
-      </label>
-
-      <label>
-        <span>Referee phone</span>
-        <input name="reference2Phone" type="tel" maxLength={80} />
-      </label>
-
-      <hr />
-
-      <div>
-        <div className="eyebrow">TEACHING DEMONSTRATION</div>
-        <h3>Submit a short demo lesson</h3>
-        <p>
-          Record yourself explaining or teaching a topic as if you were
-          working with a student. Upload the recording to a private or
-          unlisted service such as Google Drive, OneDrive or YouTube and
-          provide a shareable link.
-        </p>
-      </div>
-
-      <label>
-        <span>Demo subject *</span>
-        <input
-          name="demoSubject"
-          required
-          maxLength={160}
-          placeholder="Statistics"
-        />
-      </label>
-
-      <label>
-        <span>Demo academic level *</span>
-        <input
-          name="demoLevel"
-          required
-          maxLength={160}
-          placeholder="Undergraduate"
-        />
-      </label>
-
-      <label>
-        <span>Demo lesson topic *</span>
-        <input
-          name="demoTopic"
-          required
-          maxLength={300}
-          placeholder="Simple linear regression and interpretation"
-        />
-      </label>
-
-      <label>
-        <span>Demo recording link *</span>
-        <input
-          name="demoVideoUrl"
-          type="url"
-          required
-          placeholder="https://..."
-        />
-        <small>
-          Make sure the MAT review team can open the link.
-        </small>
-      </label>
-
-      <label>
-        <span>Anything we should know about the demo?</span>
-        <textarea
-          name="demoNotes"
-          maxLength={2000}
-          placeholder="Optional context about the lesson or intended student level."
-        />
-      </label>
-
-      <label className="tutor-check-single">
-        <input
-          name="academicIntegrity"
-          type="checkbox"
-          value="yes"
-          required
-        />
-        <span>
-          I understand that MAT tutors teach, explain and guide students,
-          but must not complete assessed academic work on a student's behalf.
-        </span>
-      </label>
-
-      {/* Honeypot */}
-      <div
+    <form
+      className="lead-form"
+      onSubmit={submit}
+      encType="multipart/form-data"
+    >
+      {/* Bot trap — genuine applicants never see this. */}
+      <label
+        className="honeypot"
         aria-hidden="true"
-        style={{
-          position: "absolute",
-          left: "-10000px",
-          width: 1,
-          height: 1,
-          overflow: "hidden",
-        }}
       >
-        <label>
+        <span>
           Company website
+        </span>
+
+        <input
+          name="companyWebsite"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+        />
+      </label>
+
+      <div className="form-span-2">
+        <div className="eyebrow">
+          YOUR DETAILS
+        </div>
+        <h3>
+          Tell us about you
+        </h3>
+      </div>
+
+      <div className="form-grid">
+        <label>
+          <span>
+            Full name
+          </span>
           <input
-            name="companyWebsite"
-            tabIndex={-1}
-            autoComplete="off"
+            name="name"
+            required
+            autoComplete="name"
+            placeholder="Your full name"
+          />
+        </label>
+
+        <label>
+          <span>
+            Email
+          </span>
+          <input
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            placeholder="you@example.com"
+          />
+        </label>
+
+        <label>
+          <span>
+            Phone
+          </span>
+          <input
+            name="phone"
+            type="tel"
+            autoComplete="tel"
+            placeholder="+44..."
+          />
+        </label>
+
+        <label>
+          <span>
+            Country
+          </span>
+          <input
+            name="country"
+            required
+            autoComplete="country-name"
+            placeholder="e.g. United Kingdom"
           />
         </label>
       </div>
 
+      <div className="form-span-2">
+        <div className="eyebrow">
+          TEACHING PROFILE
+        </div>
+        <h3>
+          Your subject expertise
+        </h3>
+        <p className="form-note">
+          For fields with several
+          items, separate them with
+          commas.
+        </p>
+      </div>
+
+      <div className="form-grid">
+        <label>
+          <span>
+            Subjects you can teach
+          </span>
+          <input
+            name="subjects"
+            required
+            placeholder="Statistics, Mathematics, Data Science"
+          />
+        </label>
+
+        <label>
+          <span>
+            Levels you can teach
+          </span>
+          <input
+            name="levels"
+            required
+            placeholder="GCSE, A-level, Undergraduate, Master's"
+          />
+        </label>
+
+        <label>
+          <span>
+            Specialist areas
+          </span>
+          <input
+            name="specialisms"
+            placeholder="Regression, R, Econometrics, Machine Learning"
+          />
+        </label>
+
+        <label>
+          <span>
+            Languages
+          </span>
+          <input
+            name="languages"
+            required
+            placeholder="English, Hindi"
+          />
+        </label>
+
+        <label className="form-span-2">
+          <span>
+            Qualifications
+          </span>
+          <textarea
+            name="qualifications"
+            required
+            minLength={10}
+            placeholder="List your relevant degrees, qualifications and subject training."
+          />
+        </label>
+
+        <label className="form-span-2">
+          <span>
+            Teaching or tutoring experience
+          </span>
+          <textarea
+            name="teachingExperience"
+            required
+            minLength={30}
+            placeholder="Describe your teaching, tutoring, mentoring or academic support experience."
+          />
+        </label>
+      </div>
+
+      <div className="form-span-2">
+        <div className="eyebrow">
+          AVAILABILITY
+        </div>
+        <h3>
+          How you would teach with MAT
+        </h3>
+      </div>
+
+      <div className="form-grid">
+        <label>
+          <span>
+            Timezone
+          </span>
+          <input
+            name="timezone"
+            required
+            placeholder="e.g. Europe/London"
+          />
+        </label>
+
+        <label>
+          <span>
+            Typical availability
+          </span>
+          <input
+            name="availability"
+            required
+            placeholder="e.g. Weekday evenings and weekends"
+          />
+        </label>
+
+        <label className="form-span-2">
+          <span>
+            Online teaching setup
+          </span>
+          <textarea
+            name="onlineTeachingSetup"
+            required
+            placeholder="Tell us about your laptop, internet connection, microphone, camera, tablet or other teaching equipment."
+          />
+        </label>
+
+        <label className="form-span-2">
+          <span>
+            Why would you like to tutor with My Academic Tutor?
+          </span>
+          <textarea
+            name="motivation"
+            required
+            minLength={30}
+            placeholder="Tell us what interests you about teaching students through MAT."
+          />
+        </label>
+      </div>
+
+      <div className="form-span-2">
+        <div className="eyebrow">
+          TEACHING DEMONSTRATION
+        </div>
+        <h3>
+          Show us how you explain
+        </h3>
+        <p className="form-note">
+          Provide a link to a short
+          teaching demonstration you
+          have uploaded to a service
+          such as Google Drive,
+          OneDrive, YouTube or Vimeo.
+          Make sure the MAT team can
+          access the link.
+        </p>
+      </div>
+
+      <div className="form-grid">
+        <label>
+          <span>
+            Demo subject
+          </span>
+          <input
+            name="demoSubject"
+            required
+            placeholder="e.g. Statistics"
+          />
+        </label>
+
+        <label>
+          <span>
+            Demo level
+          </span>
+          <input
+            name="demoLevel"
+            required
+            placeholder="e.g. Undergraduate"
+          />
+        </label>
+
+        <label className="form-span-2">
+          <span>
+            Topic demonstrated
+          </span>
+          <input
+            name="demoTopic"
+            required
+            placeholder="e.g. Interpreting a confidence interval"
+          />
+        </label>
+
+        <label className="form-span-2">
+          <span>
+            Teaching demonstration URL
+          </span>
+          <input
+            name="demoVideoUrl"
+            type="url"
+            required
+            placeholder="https://..."
+          />
+        </label>
+
+        <label className="form-span-2">
+          <span>
+            Demo notes
+          </span>
+          <textarea
+            name="demoNotes"
+            placeholder="Optional context about your demonstration."
+          />
+        </label>
+      </div>
+
+      <div className="form-span-2">
+        <div className="eyebrow">
+          REFERENCES
+        </div>
+        <h3>
+          Referee 1
+        </h3>
+        <p className="form-note">
+          Please provide someone who
+          can comment professionally
+          or academically on your
+          suitability to teach.
+        </p>
+      </div>
+
+      <div className="form-grid">
+        <label>
+          <span>
+            Referee name
+          </span>
+          <input
+            name="reference1Name"
+            required
+          />
+        </label>
+
+        <label>
+          <span>
+            Referee email
+          </span>
+          <input
+            name="reference1Email"
+            type="email"
+            required
+          />
+        </label>
+
+        <label>
+          <span>
+            Organisation
+          </span>
+          <input
+            name="reference1Organisation"
+            placeholder="University, company or organisation"
+          />
+        </label>
+
+        <label>
+          <span>
+            Relationship to you
+          </span>
+          <input
+            name="reference1Relationship"
+            required
+            placeholder="e.g. Lecturer, manager"
+          />
+        </label>
+
+        <label className="form-span-2">
+          <span>
+            Referee phone
+          </span>
+          <input
+            name="reference1Phone"
+            type="tel"
+          />
+        </label>
+      </div>
+
+      <div className="form-span-2">
+        <h3>
+          Referee 2
+        </h3>
+      </div>
+
+      <div className="form-grid">
+        <label>
+          <span>
+            Referee name
+          </span>
+          <input
+            name="reference2Name"
+            required
+          />
+        </label>
+
+        <label>
+          <span>
+            Referee email
+          </span>
+          <input
+            name="reference2Email"
+            type="email"
+            required
+          />
+        </label>
+
+        <label>
+          <span>
+            Organisation
+          </span>
+          <input
+            name="reference2Organisation"
+            placeholder="University, company or organisation"
+          />
+        </label>
+
+        <label>
+          <span>
+            Relationship to you
+          </span>
+          <input
+            name="reference2Relationship"
+            required
+            placeholder="e.g. Supervisor, employer"
+          />
+        </label>
+
+        <label className="form-span-2">
+          <span>
+            Referee phone
+          </span>
+          <input
+            name="reference2Phone"
+            type="tel"
+          />
+        </label>
+      </div>
+
+      <div className="form-span-2">
+        <div className="eyebrow">
+          QUALIFICATION EVIDENCE
+        </div>
+        <h3>
+          Degree certificate
+        </h3>
+      </div>
+
+      <div className="form-grid">
+        <label className="form-span-2">
+          <span>
+            Upload degree certificate
+          </span>
+          <input
+            name="degreeCertificate"
+            type="file"
+            required
+            accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+          />
+          <small>
+            PDF, JPG or PNG only.
+            Maximum file size 10 MB.
+          </small>
+        </label>
+      </div>
+
+      <div className="form-span-2">
+        <div className="eyebrow">
+          ACADEMIC INTEGRITY
+        </div>
+
+        <label
+          style={{
+            display: "flex",
+            gap: 10,
+            alignItems: "flex-start",
+          }}
+        >
+          <input
+            name="academicIntegrity"
+            type="checkbox"
+            value="yes"
+            required
+            style={{
+              width: "auto",
+              marginTop: 4,
+            }}
+          />
+
+          <span>
+            I understand that tutors
+            must support learning and
+            academic development. I
+            will not complete assessed
+            work, examinations,
+            dissertations or research
+            on behalf of students.
+          </span>
+        </label>
+      </div>
+
+      {state.error && (
+        <div
+          className="form-error"
+          role="alert"
+        >
+          {state.error}
+        </div>
+      )}
+
       <button
+        className="button button-primary submit-button"
         type="submit"
-        className="button button-primary"
-        disabled={state.status === "sending"}
+        disabled={state.loading}
       >
-        {state.status === "sending"
+        {state.loading
           ? "Submitting application…"
           : "Submit tutor application"}
       </button>
 
-      {state.status === "error" && (
-        <p className="form-error" role="alert">
-          {state.message}
-        </p>
-      )}
+      <p className="form-note">
+        Your application is reviewed
+        by the My Academic Tutor team.
+        Qualification documents and
+        referee information are used
+        only as part of the tutor
+        recruitment and verification
+        process.
+      </p>
     </form>
   );
 }
