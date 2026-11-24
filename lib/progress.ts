@@ -214,7 +214,10 @@ export async function calculateProgressMetrics(
           item.status !== "skipped"
         );
       });
-  const homeworkCompleted = homework.filter((item) => ["reviewed", "completed"].includes(item.status)).length;
+  const homeworkCompleted = homework.filter(
+    (item) =>
+      item.status === "completed",
+  ).length;
   const homeworkCompletionRate = homework.length ? round((homeworkCompleted / homework.length) * 100, 1) : null;
 
   const plan = (planResult.data || []) as Array<{ progress_status: ProgressPlanItem["progress_status"]; mastery_percent: number | null }>;

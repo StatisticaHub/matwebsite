@@ -1,16 +1,15 @@
-import type { ProgressPlanItem, ProgressReport } from "@/lib/progress";
-import { masteryLabel, reportPeriodLabel, riskLabel, topicMastery } from "@/lib/progress";
+import type { ProgressReport } from "@/lib/progress";
+import { reportPeriodLabel, riskLabel } from "@/lib/progress";
 
 function pct(value: number | null) {
   return value === null ? "—" : `${Math.round(value)}%`;
 }
 
-export default function ProgressReportView({ report, studentName, subject, tutorName, topics = [] }: {
+export default function ProgressReportView({ report, studentName, subject, tutorName }: {
   report: ProgressReport;
   studentName: string;
   subject: string;
   tutorName?: string | null;
-  topics?: ProgressPlanItem[];
 }) {
   return <article className="progress-report-sheet">
     <header className="progress-report-header">
@@ -29,12 +28,26 @@ export default function ProgressReportView({ report, studentName, subject, tutor
       <div><span>Understanding</span><strong>{report.average_understanding === null ? "—" : `${Number(report.average_understanding).toFixed(1)}/5`}</strong><small>Session average</small></div>
     </section>
 
-    {topics.length > 0 && <section className="progress-report-section"><h2>Topic mastery</h2><div className="progress-topic-report-list">{topics.map((topic) => {
-      const mastery = topicMastery(topic);
-      return <div key={topic.id}><div><strong>{topic.topic}</strong>{topic.next_step && <small>Next: {topic.next_step}</small>}</div><div className="progress-mini-bar"><i style={{ width: `${mastery}%` }} /></div><span>{mastery}% · {masteryLabel(mastery)}</span></div>;
-    })}</div></section>}
+    {report.topic_mastery_average !== null && (
+      <section className="progress-report-section">
+        <h2>Topic mastery</h2>
 
-    <div className="progress-report-copy-grid">
+        <p>
+          <strong>
+            {pct(
+              report.topic_mastery_average,
+            )} average
+          </strong>
+        </p>
+
+        <p>
+          Learning-plan mastery snapshot at the
+          time this report was generated.
+        </p>
+      </section>
+    )}
+
+<div className="progress-report-copy-grid">
       {report.summary && <section className="progress-report-section"><h2>Summary</h2><p>{report.summary}</p></section>}
       {report.strengths && <section className="progress-report-section"><h2>Strengths</h2><p>{report.strengths}</p></section>}
       {report.areas_for_improvement && <section className="progress-report-section"><h2>Areas to develop</h2><p>{report.areas_for_improvement}</p></section>}

@@ -61,6 +61,13 @@ export async function generateTutorProgressReport(formData: FormData) {
       session.tutor.timezone,
     );
   const title = nullable(formData, "title", 300) || `${engagement.subject} progress report`;
+
+  const nextFocus =
+    nullable(
+      formData,
+      "nextFocus",
+    );
+
   const payload = {
     student_id: engagement.student_id,
     engagement_id: engagement.id,
@@ -80,7 +87,7 @@ export async function generateTutorProgressReport(formData: FormData) {
     summary: nullable(formData, "summary"),
     strengths: nullable(formData, "strengths"),
     areas_for_improvement: nullable(formData, "areasForImprovement"),
-    next_focus: nullable(formData, "nextFocus"),
+    next_focus: nextFocus,
     tutor_comment: nullable(formData, "tutorComment"),
     student_visible: formData.get("studentVisible") === "on",
     created_by: "tutor",
@@ -89,6 +96,39 @@ export async function generateTutorProgressReport(formData: FormData) {
   const { data: report, error } = await supabase.from("progress_reports")
     .upsert(payload, { onConflict: "engagement_id,period_start,period_end" }).select("*").single();
   if (error || !report) throw new Error(error?.message || "Could not save progress report.");
+
+  /*
+   * A progress report should move the live learning
+   * journey forward, not leave its next focus trapped
+   * inside a historical report.
+   */
+  if (nextFocus) {
+    const {
+      error: focusError,
+    } =
+      await supabase
+        .from(
+          "tutoring_engagements",
+        )
+        .update({
+          current_focus:
+            nextFocus,
+        })
+        .eq(
+          "id",
+          engagement.id,
+        )
+        .eq(
+          "tutor_id",
+          session.tutor.id,
+        );
+
+    if (focusError) {
+      throw new Error(
+        focusError.message,
+      );
+    }
+  }
 
   const student = engagement.students;
   if (formData.get("emailStudent") === "on" && student?.email) {
@@ -118,6 +158,8 @@ export async function generateTutorProgressReport(formData: FormData) {
     });
   }
 
+  revalidatePath("/tutor");
+  revalidatePath("/tutor/students");
   revalidatePath("/tutor/progress");
   revalidatePath(`/tutor/progress/${engagementId}`);
   redirect(`/tutor/progress/report/${report.id}`);
