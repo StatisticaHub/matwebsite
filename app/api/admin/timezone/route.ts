@@ -16,9 +16,46 @@ import {
   isValidTimeZone,
 } from "@/lib/time-zone";
 
+
+function sameOrigin(
+  request: NextRequest,
+) {
+  const origin =
+    request.headers.get(
+      "origin",
+    );
+
+  if (!origin) {
+    return true;
+  }
+
+  try {
+    return (
+      new URL(origin).host ===
+      request.headers.get(
+        "host",
+      )
+    );
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(
   request: NextRequest,
 ) {
+  if (!sameOrigin(request)) {
+    return NextResponse.json(
+      {
+        error:
+          "Invalid origin.",
+      },
+      {
+        status: 403,
+      },
+    );
+  }
+
   const session =
     await getAdminSession();
 
