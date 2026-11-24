@@ -794,13 +794,13 @@ export default async function TutorSessionsPage() {
 
                           <label>
                             <span>
-                              Meeting link
+                              Meeting link (optional)
                             </span>
 
                             <input
                               type="url"
                               name="meetingUrl"
-                              placeholder="Optional Zoom / Teams / Meet link"
+                              placeholder="Leave blank to create MAT Zoom automatically"
                             />
                           </label>
 
@@ -986,13 +986,13 @@ export default async function TutorSessionsPage() {
 
               <label>
                 <span>
-                  Meeting link
+                  Meeting link (optional)
                 </span>
 
                 <input
                   type="url"
                   name="meetingUrl"
-                  placeholder="Optional Zoom / Teams / Google Meet link"
+                  placeholder="Leave blank to create MAT Zoom automatically"
                 />
               </label>
 

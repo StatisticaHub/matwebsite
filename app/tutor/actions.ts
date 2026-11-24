@@ -13,6 +13,11 @@ import {
 } from "@/lib/time-zone";
 import { sendSessionNotification } from "@/lib/email/student";
 import { recordStudentCommunication } from "@/lib/student-communications";
+import {
+  createZoomMeeting,
+  deleteZoomMeeting,
+  zoomHostUserId,
+} from "@/lib/zoom";
 function text(formData: FormData, key: string, max = 5000) {
   return String(formData.get(key) || "").trim().slice(0, max);
 }
@@ -984,7 +989,7 @@ export async function scheduleTutorSessionFromPortal(
   }
 
 
-  const meetingUrl =
+  const manualMeetingUrl =
     safeUrl(
       nullableText(
         formData,
@@ -992,6 +997,125 @@ export async function scheduleTutorSessionFromPortal(
         1000,
       ),
     );
+
+
+  /*
+   * If the tutor does not explicitly supply another
+   * meeting URL, MAT creates a managed Zoom meeting.
+   */
+  let zoomMeeting:
+    | {
+        id: string;
+        uuid: string | null;
+        joinUrl: string;
+      }
+    | null = null;
+
+
+  if (!manualMeetingUrl) {
+
+    /*
+     * MAT currently uses a managed Zoom host.
+     * Prevent overlapping managed Zoom meetings,
+     * even when they belong to different tutors.
+     */
+    const {
+      data:
+        managedZoomSessions,
+      error:
+        zoomConflictError,
+    } =
+      await supabase
+        .from(
+          "tutoring_sessions",
+        )
+        .select(
+          "id,topic,scheduled_for,duration_minutes,zoom_meeting_id",
+        )
+        .eq(
+          "status",
+          "planned",
+        )
+        .not(
+          "zoom_meeting_id",
+          "is",
+          null,
+        )
+        .gte(
+          "scheduled_for",
+          searchStart,
+        )
+        .lte(
+          "scheduled_for",
+          searchEnd,
+        );
+
+    if (zoomConflictError) {
+      throw new Error(
+        zoomConflictError.message,
+      );
+    }
+
+
+    const zoomConflict =
+      (
+        managedZoomSessions ||
+        []
+      ).find(
+        (
+          existing,
+        ) => {
+          if (
+            !existing
+              .scheduled_for
+          ) {
+            return false;
+          }
+
+          const existingStart =
+            new Date(
+              existing
+                .scheduled_for,
+            ).getTime();
+
+          const existingEnd =
+            existingStart +
+            Number(
+              existing
+                .duration_minutes ||
+                60,
+            ) *
+              60_000;
+
+          return (
+            scheduledMs <
+              existingEnd &&
+            proposedEnd >
+              existingStart
+          );
+        },
+      );
+
+
+    if (zoomConflict) {
+      throw new Error(
+        `The MAT Zoom host is already in use for "${zoomConflict.topic}" at that time. Choose another time or enter a different meeting link.`,
+      );
+    }
+
+
+    zoomMeeting =
+      await createZoomMeeting({
+        topic:
+          `My Academic Tutor — ${topic}`,
+
+        scheduledFor,
+
+        durationMinutes:
+          finalDuration,
+      });
+  }
+
 
   const now =
     new Date()
@@ -1041,7 +1165,26 @@ export async function scheduleTutorSessionFromPortal(
           null,
 
         meeting_url:
-          meetingUrl,
+          zoomMeeting?.joinUrl ||
+          manualMeetingUrl,
+
+        zoom_meeting_id:
+          zoomMeeting?.id ||
+          null,
+
+        zoom_meeting_uuid:
+          zoomMeeting?.uuid ||
+          null,
+
+        zoom_host_user_id:
+          zoomMeeting
+            ? zoomHostUserId()
+            : null,
+
+        zoom_synced_at:
+          zoomMeeting
+            ? now
+            : null,
 
         student_rate:
           engagement
@@ -1059,7 +1202,7 @@ export async function scheduleTutorSessionFromPortal(
           now,
       })
       .select(
-        "id,scheduled_for,status,topic,duration_minutes,meeting_url",
+        "id,scheduled_for,status,topic,duration_minutes,meeting_url,zoom_meeting_id",
       )
       .single();
 
@@ -1067,6 +1210,26 @@ export async function scheduleTutorSessionFromPortal(
     createError ||
     !created
   ) {
+
+    /*
+     * Do not leave an orphan Zoom meeting behind
+     * if database creation fails.
+     */
+    if (zoomMeeting?.id) {
+      try {
+        await deleteZoomMeeting(
+          zoomMeeting.id,
+        );
+      } catch (
+        cleanupError
+      ) {
+        console.error(
+          "Tutor session creation failed and Zoom cleanup also failed:",
+          cleanupError,
+        );
+      }
+    }
+
     throw new Error(
       createError?.message ||
         "Could not schedule the session.",
