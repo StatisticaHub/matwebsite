@@ -5,6 +5,21 @@ import { hasServerSupabaseConfig } from "@/lib/supabase/config";
 export const runtime = "nodejs";
 
 const MAX_CERTIFICATE_BYTES = 10 * 1024 * 1024;
+const MAX_APPLICATION_BODY_BYTES = 12 * 1024 * 1024;
+
+function sameOrigin(request: NextRequest) {
+  const origin = request.headers.get("origin");
+
+  if (!origin) {
+    return false;
+  }
+
+  try {
+    return new URL(origin).host === request.nextUrl.host;
+  } catch {
+    return false;
+  }
+}
 
 const allowedCertificateTypes = new Map([
   ["application/pdf", "pdf"],
@@ -53,6 +68,27 @@ function reference() {
 }
 
 export async function POST(request: NextRequest) {
+  if (!sameOrigin(request)) {
+    return NextResponse.json(
+      { error: "Invalid origin." },
+      { status: 403 },
+    );
+  }
+
+  const contentLength = Number(
+    request.headers.get("content-length") || 0,
+  );
+
+  if (
+    Number.isFinite(contentLength) &&
+    contentLength > MAX_APPLICATION_BODY_BYTES
+  ) {
+    return NextResponse.json(
+      { error: "Application submission is too large." },
+      { status: 413 },
+    );
+  }
+
   if (!hasServerSupabaseConfig()) {
     return NextResponse.json(
       { error: "Tutor applications are temporarily unavailable." },

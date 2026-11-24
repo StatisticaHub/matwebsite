@@ -5,6 +5,22 @@ import { sendNewLeadNotification, sendStudentAcknowledgement } from "@/lib/email
 
 export const runtime = "nodejs";
 
+const MAX_LEAD_BODY_BYTES = 32 * 1024;
+
+function sameOrigin(request: NextRequest) {
+  const origin = request.headers.get("origin");
+
+  if (!origin) {
+    return false;
+  }
+
+  try {
+    return new URL(origin).host === request.nextUrl.host;
+  } catch {
+    return false;
+  }
+}
+
 function clean(value: unknown, max = 1200) {
   return String(value ?? "").replace(/[<>]/g, "").trim().slice(0, max);
 }
@@ -42,7 +58,49 @@ function gaSessionCookieName(measurementId: string) {
 
 export async function POST(request: NextRequest) {
   try {
-    const raw = await request.json();
+    if (!sameOrigin(request)) {
+      return NextResponse.json(
+        { error: "Invalid origin." },
+        { status: 403 },
+      );
+    }
+
+    const contentLength = Number(
+      request.headers.get("content-length") || 0,
+    );
+
+    if (
+      Number.isFinite(contentLength) &&
+      contentLength > MAX_LEAD_BODY_BYTES
+    ) {
+      return NextResponse.json(
+        { error: "Request is too large." },
+        { status: 413 },
+      );
+    }
+
+    const rawText = await request.text();
+
+    if (
+      Buffer.byteLength(rawText, "utf8") >
+      MAX_LEAD_BODY_BYTES
+    ) {
+      return NextResponse.json(
+        { error: "Request is too large." },
+        { status: 413 },
+      );
+    }
+
+    let raw: Record<string, unknown>;
+
+    try {
+      raw = JSON.parse(rawText);
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid request." },
+        { status: 400 },
+      );
+    }
 
     // Honeypot: act successful without storing bot submissions.
     if (clean(raw.companyWebsite)) {
