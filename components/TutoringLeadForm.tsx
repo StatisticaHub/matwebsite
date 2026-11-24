@@ -27,13 +27,18 @@ type Status = {
 
 export default function TutoringLeadForm({
   compact = false,
-  defaultSubject = "Statistics",
-  defaultSupportType = "Regular 1:1 tutoring",
+  defaultSubject = "",
+  defaultSupportType = "",
   submitLabel,
 }: Props) {
   const subjectExists = useMemo(
     () => subjects.some((subject) => subject.name === defaultSubject),
     [defaultSubject]
+  );
+
+  const supportTypeExists = useMemo(
+    () => supportTypes.includes(defaultSupportType),
+    [defaultSupportType]
   );
 
   const [status, setStatus] = useState<Status>({
@@ -220,12 +225,11 @@ export default function TutoringLeadForm({
           <select
             name="subject"
             required
-            defaultValue={
-              subjectExists
-                ? defaultSubject
-                : subjects[0]?.name
-            }
+            defaultValue={subjectExists ? defaultSubject : ""}
           >
+            <option value="" disabled>
+              Choose a subject
+            </option>
             {subjects.map((subject) => (
               <option key={subject.slug} value={subject.name}>
                 {subject.name}
@@ -237,7 +241,10 @@ export default function TutoringLeadForm({
 
         <label>
           <span>Academic level</span>
-          <select name="level" required defaultValue="Master's">
+          <select name="level" required defaultValue="">
+            <option value="" disabled>
+              Choose your academic level
+            </option>
             {levels.map((level) => (
               <option key={level} value={level}>
                 {level}
@@ -262,12 +269,11 @@ export default function TutoringLeadForm({
           <select
             name="supportType"
             required
-            defaultValue={
-              supportTypes.includes(defaultSupportType)
-                ? defaultSupportType
-                : supportTypes[0]
-            }
+            defaultValue={supportTypeExists ? defaultSupportType : ""}
           >
+            <option value="" disabled>
+              Choose the type of support
+            </option>
             {supportTypes.map((type) => (
               <option key={type} value={type}>
                 {type}
