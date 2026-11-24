@@ -65,7 +65,61 @@ export default async function TutorSessionDetailPage({ params, searchParams }: {
           <label><span>Lesson notes</span><textarea name="lessonNotes" defaultValue={row.lesson_notes || ""} placeholder="Concepts covered, misconceptions, progress, teaching notes…" /></label>
           <div className="tutor-form-grid"><label><span>Understanding (1–5)</span><input name="understandingRating" type="number" min="1" max="5" defaultValue={row.understanding_rating ?? ""} /></label><label><span>Next topic</span><input name="nextTopic" defaultValue={row.next_topic || ""} /></label></div>
           <label><span>Homework / practice summary</span><textarea name="homeworkSummary" defaultValue={row.homework_summary || ""} /></label>
-          <button className="tutor-primary-button" type="submit">Save session record</button>
+
+          <fieldset>
+            <legend>Post-session follow-up</legend>
+
+            <label className="tutor-check-single">
+              <input
+                name="createHomework"
+                type="checkbox"
+              />
+              Create or update a linked homework assignment when this session is completed
+            </label>
+
+            <label>
+              <span>Homework title</span>
+              <input
+                name="homeworkTitle"
+                defaultValue={`${row.topic} — practice`}
+                placeholder="For example: Regression practice — Questions 1–10"
+              />
+            </label>
+
+            <label>
+              <span>Homework instructions</span>
+              <textarea
+                name="homeworkDescription"
+                defaultValue={row.homework_summary || ""}
+                placeholder="Questions, reading, coding, revision or work the student should submit."
+              />
+            </label>
+
+            <label>
+              <span>Homework due date</span>
+              <input
+                name="homeworkDueDate"
+                type="date"
+              />
+            </label>
+
+            <label className="tutor-check-single">
+              <input
+                name="notifyStudent"
+                type="checkbox"
+                defaultChecked={row.status !== "completed"}
+              />
+              Email the student the completed-session follow-up
+            </label>
+
+            <small>
+              Homework creation and the student follow-up run only when the session is saved as Completed.
+            </small>
+          </fieldset>
+
+          <button className="tutor-primary-button" type="submit">
+            Save session record
+          </button>
         </form>
       </section>
 

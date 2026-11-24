@@ -81,36 +81,275 @@ export async function updateTutorSessionRecord(formData: FormData) {
   const { session, supabase } = await tutorContext();
   const sessionId = text(formData, "sessionId", 100);
   const status = text(formData, "status", 30) as SessionStatus;
+
   if (!sessionId || !sessionStatuses.includes(status)) return;
 
   const { data: row, error: rowError } = await supabase
     .from("tutoring_sessions")
-    .select("id,tutor_id,completed_at,engagement_id,tutoring_engagements(tutor_id)")
+    .select(
+      "id,tutor_id,completed_at,engagement_id,tutoring_engagements(tutor_id,student_id)",
+    )
     .eq("id", sessionId)
     .single();
-  if (rowError || !row) throw new Error(rowError?.message || "Session not found.");
-  const engagement = row.tutoring_engagements as unknown as { tutor_id: string | null } | null;
-  if (row.tutor_id !== session.tutor.id && engagement?.tutor_id !== session.tutor.id) throw new Error("You do not have access to this session.");
 
-  const rating = nullableNumber(formData, "understandingRating");
-  const meetingUrl = safeUrl(nullableText(formData, "meetingUrl", 1000));
-  const completedAt = status === "completed" ? (row.completed_at || new Date().toISOString()) : null;
-  const { error } = await supabase.from("tutoring_sessions").update({
-    status,
-    completed_at: completedAt,
-    lesson_notes: nullableText(formData, "lessonNotes", 8000),
-    understanding_rating: rating !== null && rating >= 1 && rating <= 5 ? Math.round(rating) : null,
-    next_topic: nullableText(formData, "nextTopic", 1000),
-    homework_summary: nullableText(formData, "homeworkSummary", 3000),
-    meeting_url: meetingUrl,
-    updated_at: new Date().toISOString(),
-  }).eq("id", sessionId);
-  if (error) throw new Error(error.message);
+  if (rowError || !row) {
+    throw new Error(
+      rowError?.message || "Session not found.",
+    );
+  }
+
+  const engagement =
+    row.tutoring_engagements as unknown as {
+      tutor_id: string | null;
+      student_id: string;
+    } | null;
+
+  if (
+    row.tutor_id !== session.tutor.id &&
+    engagement?.tutor_id !== session.tutor.id
+  ) {
+    throw new Error(
+      "You do not have access to this session.",
+    );
+  }
+
+  const rating =
+    nullableNumber(
+      formData,
+      "understandingRating",
+    );
+
+  const meetingUrl =
+    safeUrl(
+      nullableText(
+        formData,
+        "meetingUrl",
+        1000,
+      ),
+    );
+
+  const completedAt =
+    status === "completed"
+      ? (
+          row.completed_at ||
+          new Date().toISOString()
+        )
+      : null;
+
+  const {
+    data: updated,
+    error,
+  } = await supabase
+    .from("tutoring_sessions")
+    .update({
+      status,
+      completed_at: completedAt,
+      lesson_notes:
+        nullableText(
+          formData,
+          "lessonNotes",
+          8000,
+        ),
+      understanding_rating:
+        rating !== null &&
+        rating >= 1 &&
+        rating <= 5
+          ? Math.round(rating)
+          : null,
+      next_topic:
+        nullableText(
+          formData,
+          "nextTopic",
+          1000,
+        ),
+      homework_summary:
+        nullableText(
+          formData,
+          "homeworkSummary",
+          3000,
+        ),
+      meeting_url: meetingUrl,
+      updated_at:
+        new Date().toISOString(),
+    })
+    .eq("id", sessionId)
+    .select(
+      "id,engagement_id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary,meeting_url",
+    )
+    .single();
+
+  if (error || !updated) {
+    throw new Error(
+      error?.message ||
+        "Could not update session.",
+    );
+  }
+
+  /*
+   * Optional post-session assignment.
+   *
+   * Reuses assignTutorHomework(), which already:
+   * - verifies tutor ownership;
+   * - links homework to this session;
+   * - uses source_session_id;
+   * - updates the existing assignment instead of duplicating it.
+   */
+  if (
+    status === "completed" &&
+    formData.get("createHomework") === "on"
+  ) {
+    const homeworkTitle =
+      text(
+        formData,
+        "homeworkTitle",
+        500,
+      );
+
+    if (!homeworkTitle) {
+      throw new Error(
+        "Add a homework title before creating the assignment.",
+      );
+    }
+
+    const homeworkForm =
+      new FormData();
+
+    homeworkForm.set(
+      "sessionId",
+      sessionId,
+    );
+
+    homeworkForm.set(
+      "title",
+      homeworkTitle,
+    );
+
+    const homeworkDescription =
+      nullableText(
+        formData,
+        "homeworkDescription",
+        8000,
+      );
+
+    if (homeworkDescription) {
+      homeworkForm.set(
+        "description",
+        homeworkDescription,
+      );
+    }
+
+    const homeworkDueDate =
+      text(
+        formData,
+        "homeworkDueDate",
+        20,
+      );
+
+    if (homeworkDueDate) {
+      homeworkForm.set(
+        "dueDate",
+        homeworkDueDate,
+      );
+    }
+
+    await assignTutorHomework(
+      homeworkForm,
+    );
+  }
+
+  /*
+   * Completed-session student follow-up.
+   *
+   * Notification failure must not roll back the
+   * teaching record, matching the existing MAT
+   * session scheduling behaviour.
+   */
+  if (
+    status === "completed" &&
+    formData.get("notifyStudent") === "on" &&
+    engagement?.student_id
+  ) {
+    try {
+      const {
+        data: student,
+      } = await supabase
+        .from("students")
+        .select("name,email")
+        .eq(
+          "id",
+          engagement.student_id,
+        )
+        .maybeSingle();
+
+      if (student?.email) {
+        const result =
+          await sendSessionNotification({
+            sessionId:
+              updated.id,
+            name:
+              student.name,
+            email:
+              student.email,
+            topic:
+              updated.topic,
+            status:
+              updated.status,
+            scheduledFor:
+              updated.scheduled_for,
+            durationMinutes:
+              updated.duration_minutes,
+            nextTopic:
+              updated.next_topic,
+            homeworkSummary:
+              updated.homework_summary,
+            meetingUrl:
+              updated.meeting_url,
+          });
+
+        await recordStudentCommunication({
+          studentId:
+            engagement.student_id,
+          engagementId:
+            updated.engagement_id,
+          type:
+            "session_update",
+          recipient:
+            student.email,
+          subject:
+            `Session follow-up: ${updated.topic}`,
+          result,
+          createdByEmail:
+            session.user.email ||
+            null,
+        });
+      }
+    } catch (notificationError) {
+      console.error(
+        "Tutor completed the session, but the student follow-up notification failed:",
+        notificationError,
+      );
+    }
+  }
 
   revalidatePath("/tutor");
   revalidatePath("/tutor/sessions");
-  revalidatePath(`/tutor/sessions/${sessionId}`);
-  redirect(`/tutor/sessions/${sessionId}?saved=1`);
+  revalidatePath(
+    `/tutor/sessions/${sessionId}`,
+  );
+  revalidatePath(
+    `/tutor/students/${row.engagement_id}`,
+  );
+  revalidatePath("/admin/sessions");
+
+  if (engagement?.student_id) {
+    revalidatePath(
+      `/admin/students/${engagement.student_id}`,
+    );
+  }
+
+  redirect(
+    `/tutor/sessions/${sessionId}?saved=1`,
+  );
 }
 
 export async function updateTutorTrialRecord(formData: FormData) {
