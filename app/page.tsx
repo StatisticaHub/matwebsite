@@ -25,7 +25,7 @@ export default async function HomePage() {
         <div className="shell home-v2-hero-grid">
           <div className="home-v2-hero-copy">
             <div className="home-v2-kicker">
-              PERSONALISED ONE-TO-ONE EDUCATION
+              ONLINE LEARNING + PERSONALISED TEACHING
             </div>
 
             <h1>
@@ -66,18 +66,18 @@ export default async function HomePage() {
             >
               <span>Teaching since 2020</span>
               <span>School to postgraduate</span>
-              <span>Live online lessons</span>
-              <span>Students worldwide</span>
+              <span>Free learning resources</span>
+              <span>Courses & programmes coming soon</span>
             </div>
           </div>
 
           <aside className="home-v2-hero-card">
             <div className="home-v2-card-kicker">
-              EDUCATION FIRST
+              ONE LEARNING PLATFORM
             </div>
 
             <h2>
-              The aim is not simply to finish the question.
+              Different ways to learn, one goal: real understanding.
             </h2>
 
             <p>
@@ -168,11 +168,11 @@ export default async function HomePage() {
           <div className="home-v2-section-heading">
             <div>
               <span className="home-v2-kicker">
-                LEARN. PRACTISE. PROGRESS.
+                LEARN IN THE WAY THAT FITS YOU
               </span>
 
               <h2>
-                Academic support should strengthen your own thinking.
+                Learn independently, follow a structured pathway or work one-to-one.
               </h2>
             </div>
 

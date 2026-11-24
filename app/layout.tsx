@@ -30,12 +30,12 @@ export const metadata: Metadata = {
   applicationName: "My Academic Tutor",
 
   title: {
-    default: "My Academic Tutor | Personalised 1:1 Online Tutoring",
+    default: "My Academic Tutor | Online Learning, Courses & Personalised Tutoring",
     template: "%s | My Academic Tutor",
   },
 
   description:
-    "Personalised one-to-one online tutoring for school, university, Master's and research-level students across Mathematics, Statistics, Science, Data Science, Computer Science, Bioinformatics and Research Methods.",
+    "Online learning, educational resources, upcoming structured courses and personalised one-to-one tutoring for school, university, Master's and research-level students across Mathematics, Statistics, Science, Data Science, Computer Science, Bioinformatics and Research Methods.",
 
   creator: "My Academic Tutor",
   publisher: "My Academic Tutor",
@@ -59,14 +59,14 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_GB",
     siteName: "My Academic Tutor",
-    title: "My Academic Tutor | Personalised 1:1 Online Tutoring",
+    title: "My Academic Tutor | Online Learning, Courses & Personalised Tutoring",
     description:
       "Personalised online tutoring designed to build understanding, confidence and independent problem-solving from school to postgraduate study.",
   },
 
   twitter: {
     card: "summary",
-    title: "My Academic Tutor | Personalised 1:1 Online Tutoring",
+    title: "My Academic Tutor | Online Learning, Courses & Personalised Tutoring",
     description:
       "One-to-one online tutoring from school to postgraduate and research-level study.",
   },
@@ -81,7 +81,7 @@ const organisationSchema = {
   logo: `${siteUrl}/logo.png`,
   email: "Contact@myacademictutor.com",
   description:
-    "Personalised one-to-one online tutoring for school, university, postgraduate and research-level learners.",
+    "Online learning, educational resources, upcoming structured courses and personalised one-to-one tutoring for school, university, postgraduate and research-level learners.",
   areaServed: "Worldwide",
   knowsAbout: subjects.map((subject) => subject.name),
 };

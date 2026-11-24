@@ -5,49 +5,98 @@ export default function Footer() {
     <footer className="site-footer">
       <div className="shell">
         <div className="footer-grid">
+
           <div className="footer-brand">
-            <strong>My Academic Tutor</strong>
-            <p>One-to-one online tutoring for school, university and postgraduate students.</p>
-            <p className="footer-small">From core academic subjects to advanced technical, computing, data and research-focused study.</p>
+            <strong>
+              My Academic Tutor
+            </strong>
+
+            <p>
+              Online learning, structured education and personalised
+              tutoring built around real understanding.
+            </p>
+
+            <p className="footer-small">
+              Free learning resources and one-to-one teaching are
+              available now. Structured programmes and self-paced
+              courses are coming soon.
+            </p>
           </div>
 
           <div className="footer-columns">
+
             <div>
               <b>Learn</b>
-              <Link href="/learn">Learning hub</Link>
-              <Link href="/learn/editorial-policy">How we write our guides</Link>
-              <Link href="/subjects">Subjects</Link>
-              <Link href="/levels">Academic levels</Link>
+              <Link href="/learn">
+                Learning hub
+              </Link>
+              <Link href="/subjects">
+                Subjects
+              </Link>
+              <Link href="/levels">
+                Academic levels
+              </Link>
+              <span>
+                Courses & programmes · coming soon
+              </span>
             </div>
+
             <div>
               <b>Tutoring</b>
-              <Link href="/tutoring">All tutoring</Link>
-              <Link href="/tutoring/exam-preparation">Exam preparation</Link>
-              <Link href="/tutoring/statistics-data-analysis">Statistics & data analysis</Link>
-              <Link href="/tutoring/dissertation-research">Dissertation & research</Link>
+              <Link href="/tutoring">
+                Personalised tutoring
+              </Link>
+              <Link href="/find-a-tutor">
+                Request tutoring
+              </Link>
+              <Link href="/how-it-works">
+                How tutoring works
+              </Link>
             </div>
+
             <div>
               <b>Company</b>
-              <Link href="/about">About</Link>
-              <Link href="/tutors">Tutor standards</Link>
-              <Link href="/become-a-tutor">Become a tutor</Link>
-              <Link href="/contact">Contact</Link>
-              <Link href="/portal/login">Student Portal</Link>
-              <Link href="/tutor/login">Tutor Portal</Link>
+              <Link href="/about">
+                About
+              </Link>
+              <Link href="/tutors">
+                Tutor standards
+              </Link>
+              <Link href="/become-a-tutor">
+                Become a tutor
+              </Link>
+              <Link href="/contact">
+                Contact
+              </Link>
             </div>
+
             <div>
               <b>Policies</b>
-              <Link href="/academic-integrity">Academic integrity</Link>
-              <Link href="/safeguarding">Safeguarding</Link>
-              <Link href="/privacy">Privacy</Link>
-              <Link href="/terms">Terms</Link>
+              <Link href="/academic-integrity">
+                Academic integrity
+              </Link>
+              <Link href="/safeguarding">
+                Safeguarding
+              </Link>
+              <Link href="/privacy">
+                Privacy
+              </Link>
+              <Link href="/terms">
+                Terms
+              </Link>
             </div>
+
           </div>
         </div>
 
         <div className="footer-bottom">
-          <span>© {new Date().getFullYear()} My Academic Tutor.</span>
-          <span>Understand it. Practise it. Use it.</span>
+          <span>
+            © 2026 My Academic Tutor.
+          </span>
+
+          <span>
+            Learn it. Practise it. Use it.
+          </span>
         </div>
       </div>
     </footer>
