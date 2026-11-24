@@ -10,10 +10,41 @@ import { resources } from "@/lib/resources";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const testimonials = await getApprovedTestimonials({
+  const approvedTestimonials = await getApprovedTestimonials({
     featuredFirst: true,
-    limit: 3,
+    limit: 30,
   });
+
+  const homepageTestimonialNames = [
+    "Rajvi Shah",
+    "Darshan Patil",
+    "Sercan Gokdemir",
+  ];
+
+  const preferredTestimonials = homepageTestimonialNames
+    .map((name) =>
+      approvedTestimonials.find(
+        (testimonial) =>
+          testimonial.display_name.trim().toLowerCase() ===
+          name.toLowerCase(),
+      ),
+    )
+    .filter(
+      (testimonial): testimonial is (typeof approvedTestimonials)[number] =>
+        Boolean(testimonial),
+    );
+
+  const fallbackTestimonials = approvedTestimonials.filter(
+    (testimonial) =>
+      !preferredTestimonials.some(
+        (preferred) => preferred.id === testimonial.id,
+      ),
+  );
+
+  const testimonials = [
+    ...preferredTestimonials,
+    ...fallbackTestimonials,
+  ].slice(0, 3);
 
   return (
     <>
