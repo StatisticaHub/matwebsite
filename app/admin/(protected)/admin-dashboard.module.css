@@ -1556,3 +1556,110 @@
     display: none;
   }
 }
+
+/* ================================================================
+   TUTOR APPLICATION REVIEW READINESS
+   ================================================================ */
+
+.shell :global(.admin-application-readiness) {
+  border-color: #d9e2ee;
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff 0%,
+      #fbfcfe 100%
+    );
+}
+
+.shell :global(.admin-readiness-eyebrow) {
+  margin-bottom: 6px;
+  font-size: 8.5px;
+  font-weight: 850;
+  letter-spacing: .12em;
+  color: #6f7f94;
+}
+
+.shell :global(.admin-readiness-status) {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 6px 9px;
+  font-size: 8.5px;
+  font-weight: 850;
+  letter-spacing: .07em;
+}
+
+.shell :global(.admin-readiness-status.is-ready) {
+  background: #eaf7ef;
+  color: #257146;
+}
+
+.shell :global(.admin-readiness-status.is-pending) {
+  background: #fff5df;
+  color: #865f13;
+}
+
+.shell :global(.admin-readiness-intro) {
+  margin: 10px 0 15px;
+  color: #66758a;
+  font-size: 10.5px;
+  line-height: 1.55;
+}
+
+.shell :global(.admin-readiness-list) {
+  display: grid;
+  gap: 8px;
+}
+
+.shell :global(.admin-readiness-item) {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  align-items: start;
+  gap: 10px;
+  border: 1px solid #e5eaf0;
+  border-radius: 9px;
+  padding: 10px 11px;
+  background: #fff;
+}
+
+.shell :global(.admin-readiness-icon) {
+  display: grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.shell :global(.admin-readiness-item.is-complete .admin-readiness-icon) {
+  background: #e8f6ee;
+  color: #237045;
+}
+
+.shell :global(.admin-readiness-item.is-missing .admin-readiness-icon) {
+  background: #fff2d9;
+  color: #8a6011;
+}
+
+.shell :global(.admin-readiness-item strong) {
+  display: block;
+  color: var(--navy);
+  font-size: 10.5px;
+}
+
+.shell :global(.admin-readiness-item p) {
+  margin: 3px 0 0;
+  color: #748196;
+  font-size: 9.5px;
+  line-height: 1.45;
+}
+
+.shell :global(.admin-application-decision) {
+  border-color: #d9e2ee;
+}
+
+@media (max-width: 760px) {
+  .shell :global(.admin-application-readiness .admin-action-card-head) {
+    align-items: flex-start;
+  }
+}

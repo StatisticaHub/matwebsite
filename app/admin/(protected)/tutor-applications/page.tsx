@@ -858,7 +858,145 @@ export default async function TutorApplicationsPage({
               </form>
             </section>
 
-            <section className="admin-panel admin-action-card">
+            <section className="admin-panel admin-action-card admin-application-readiness">
+              <div className="admin-action-card-head">
+                <div>
+                  <div className="admin-readiness-eyebrow">
+                    APPROVAL READINESS
+                  </div>
+
+                  <h2>
+                    {ready
+                      ? "Ready to approve"
+                      : "Checks still required"}
+                  </h2>
+                </div>
+
+                <span
+                  className={
+                    ready
+                      ? "admin-readiness-status is-ready"
+                      : "admin-readiness-status is-pending"
+                  }
+                >
+                  {ready ? "READY" : "IN REVIEW"}
+                </span>
+              </div>
+
+              <p className="admin-readiness-intro">
+                Complete every required quality check before converting
+                this applicant into a tutor.
+              </p>
+
+              <div className="admin-readiness-list">
+                <div
+                  className={
+                    verifiedCertificate
+                      ? "admin-readiness-item is-complete"
+                      : "admin-readiness-item is-missing"
+                  }
+                >
+                  <span className="admin-readiness-icon">
+                    {verifiedCertificate ? "✓" : "!"}
+                  </span>
+
+                  <div>
+                    <strong>Degree certificate</strong>
+                    <p>
+                      {verifiedCertificate
+                        ? "Qualification evidence verified."
+                        : "Certificate still needs verification."}
+                    </p>
+                  </div>
+                </div>
+
+                <div
+                  className={
+                    verifiedReferences >= 2
+                      ? "admin-readiness-item is-complete"
+                      : "admin-readiness-item is-missing"
+                  }
+                >
+                  <span className="admin-readiness-icon">
+                    {verifiedReferences >= 2 ? "✓" : "!"}
+                  </span>
+
+                  <div>
+                    <strong>References</strong>
+                    <p>
+                      {verifiedReferences >= 2
+                        ? "Both references verified."
+                        : `${verifiedReferences}/2 references verified.`}
+                    </p>
+                  </div>
+                </div>
+
+                <div
+                  className={
+                    demoComplete
+                      ? "admin-readiness-item is-complete"
+                      : "admin-readiness-item is-missing"
+                  }
+                >
+                  <span className="admin-readiness-icon">
+                    {demoComplete ? "✓" : "!"}
+                  </span>
+
+                  <div>
+                    <strong>Teaching demonstration</strong>
+                    <p>
+                      {demoComplete
+                        ? "Teaching demo evidence submitted."
+                        : "Teaching demo submission is incomplete."}
+                    </p>
+                  </div>
+                </div>
+
+                <div
+                  className={
+                    demoSatisfactory
+                      ? "admin-readiness-item is-complete"
+                      : "admin-readiness-item is-missing"
+                  }
+                >
+                  <span className="admin-readiness-icon">
+                    {demoSatisfactory ? "✓" : "!"}
+                  </span>
+
+                  <div>
+                    <strong>Teaching review</strong>
+                    <p>
+                      {demoSatisfactory
+                        ? "Demo reviewed as satisfactory."
+                        : "Demo still needs a satisfactory review."}
+                    </p>
+                  </div>
+                </div>
+
+                <div
+                  className={
+                    selected.academic_integrity_confirmed
+                      ? "admin-readiness-item is-complete"
+                      : "admin-readiness-item is-missing"
+                  }
+                >
+                  <span className="admin-readiness-icon">
+                    {selected.academic_integrity_confirmed ? "✓" : "!"}
+                  </span>
+
+                  <div>
+                    <strong>Academic integrity</strong>
+                    <p>
+                      {selected.academic_integrity_confirmed
+                        ? "Applicant confirmed the MAT academic-integrity standard."
+                        : "Academic-integrity confirmation is missing."}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section className="admin-panel admin-action-card admin-application-decision">
               <h2>Application decision</h2>
 
               <div
@@ -869,8 +1007,8 @@ export default async function TutorApplicationsPage({
                 }
               >
                 {ready
-                  ? "All mandatory quality checks are complete. This applicant can be converted into a pending tutor."
-                  : "Approval is blocked until one degree certificate and both references are verified and the teaching demo has been reviewed as satisfactory."}
+                  ? "All mandatory quality checks are complete. This applicant can now be converted into a pending tutor."
+                  : "Approval remains locked until every readiness check above is complete."}
               </div>
 
               {selected.status === "converted" &&
