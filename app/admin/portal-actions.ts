@@ -25,28 +25,29 @@ import {
 function text(
   formData: FormData,
   key: string,
-  max = 5000
+  max = 5000,
 ) {
   return String(
-    formData.get(key) || ""
+    formData.get(key) || "",
   )
     .trim()
     .slice(
       0,
-      max
+      max,
     );
 }
 
 
 export async function updateSupportRequest(
-  formData: FormData
+  formData: FormData,
 ) {
   const session =
     await getAdminSession();
 
+
   if (!session) {
     redirect(
-      "/admin/login"
+      "/admin/login",
     );
   }
 
@@ -55,7 +56,7 @@ export async function updateSupportRequest(
     text(
       formData,
       "requestId",
-      100
+      100,
     );
 
 
@@ -63,22 +64,14 @@ export async function updateSupportRequest(
     text(
       formData,
       "status",
-      30
+      30,
     ) as PortalSupportStatus;
-
-
-  const adminNote =
-    text(
-      formData,
-      "adminNote",
-      5000
-    ) || null;
 
 
   if (
     !requestId ||
     !portalSupportStatuses.includes(
-      status
+      status,
     )
   ) {
     return;
@@ -95,11 +88,96 @@ export async function updateSupportRequest(
 
 
   const {
+    data:
+      current,
+    error:
+      currentError,
+  } =
+    await supabase
+      .from(
+        "student_support_requests",
+      )
+      .select(
+        "id,admin_note",
+      )
+      .eq(
+        "id",
+        requestId,
+      )
+      .maybeSingle();
+
+
+  if (currentError) {
+    throw new Error(
+      currentError.message,
+    );
+  }
+
+
+  if (!current) {
+    return;
+  }
+
+
+  let adminNote:
+    string | null =
+      current.admin_note ||
+      null;
+
+
+  /*
+   * Legacy forms on Student Portals / Sessions submit adminNote.
+   * Keep their original replacement behaviour.
+   */
+  if (
+    formData.has(
+      "adminNote",
+    )
+  ) {
+    adminNote =
+      text(
+        formData,
+        "adminNote",
+        5000,
+      ) ||
+      null;
+  }
+
+
+  /*
+   * Unified Request Centre appends notes instead of replacing history.
+   */
+  const appendNote =
+    text(
+      formData,
+      "appendNote",
+      3000,
+    );
+
+
+  if (appendNote) {
+    const actor =
+      session.user.email ||
+      "admin";
+
+
+    const line =
+      `[Admin · ${actor} · ${now}] ${appendNote}`;
+
+
+    adminNote =
+      adminNote
+        ? `${adminNote}\n\n${line}`
+        : line;
+  }
+
+
+  const {
     error,
   } =
     await supabase
       .from(
-        "student_support_requests"
+        "student_support_requests",
       )
       .update({
         status,
@@ -118,22 +196,26 @@ export async function updateSupportRequest(
       })
       .eq(
         "id",
-        requestId
+        requestId,
       );
 
 
   if (error) {
     throw new Error(
-      error.message
+      error.message,
     );
   }
 
 
   revalidatePath(
-    "/admin/portals"
+    "/admin/portals",
   );
 
   revalidatePath(
-    "/admin/sessions"
+    "/admin/sessions",
+  );
+
+  revalidatePath(
+    "/admin/requests",
   );
 }

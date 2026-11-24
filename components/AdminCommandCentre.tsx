@@ -197,7 +197,7 @@ export default async function AdminCommandCentre() {
         </Link>
 
         <Link
-          href="/admin/portals"
+          href="/admin/requests"
           className={
             totalSupport > 0
               ? "admin-command-metric is-attention"
