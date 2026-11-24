@@ -98,7 +98,7 @@ export default async function HomePage() {
               <span>Teaching since 2020</span>
               <span>School to postgraduate</span>
               <span>Free learning resources</span>
-              <span>Courses & programmes coming soon</span>
+              <span>Private student learning portal</span>
             </div>
           </div>
 
@@ -405,6 +405,134 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ============================================================
+          WHY STUDENTS CHOOSE MAT
+          ============================================================ */}
+
+      <section className="section home-v2-trust-section">
+
+        <div className="shell">
+
+          <div className="home-v2-section-heading">
+
+            <div>
+
+              <span className="home-v2-kicker">
+                MORE THAN A SINGLE LESSON
+              </span>
+
+              <h2>
+                Tutoring built around clarity, continuity and responsible support.
+              </h2>
+
+            </div>
+
+
+            <p>
+              MAT combines personalised one-to-one teaching with clear
+              expectations, ongoing learning records and a private student
+              workspace.
+            </p>
+
+          </div>
+
+
+          <div className="home-v2-trust-grid">
+
+            <article>
+
+              <span className="home-v2-trust-number">
+                01
+              </span>
+
+              <h3>
+                Matched to the academic need
+              </h3>
+
+              <p>
+                We review the subject, academic level, topic, teaching need and
+                practical fit before arranging tutoring.
+              </p>
+
+              <Link href="/tutors">
+                How tutor matching works →
+              </Link>
+
+            </article>
+
+
+            <article>
+
+              <span className="home-v2-trust-number">
+                02
+              </span>
+
+              <h3>
+                One private learning space
+              </h3>
+
+              <p>
+                Active tutoring students can keep sessions, homework, learning
+                files, progress and support in their private MAT learning portal.
+              </p>
+
+              <Link href="/how-it-works">
+                See how tutoring works →
+              </Link>
+
+            </article>
+
+
+            <article>
+
+              <span className="home-v2-trust-number">
+                03
+              </span>
+
+              <h3>
+                Clear pricing before you book
+              </h3>
+
+              <p>
+                One-to-one tutoring starts from £20 an hour. The exact rate and
+                proposed support are confirmed before you decide whether to proceed.
+              </p>
+
+              <Link href="/pricing">
+                See pricing →
+              </Link>
+
+            </article>
+
+
+            <article>
+
+              <span className="home-v2-trust-number">
+                04
+              </span>
+
+              <h3>
+                Academically responsible support
+              </h3>
+
+              <p>
+                Tutors can explain, demonstrate and guide your practice, while
+                assessed work and academic submissions remain your own.
+              </p>
+
+              <Link href="/academic-integrity">
+                Academic integrity →
+              </Link>
+
+            </article>
+
+          </div>
+
+        </div>
+
+      </section>
+
 
       {/* ============================================================
           TESTIMONIALS
