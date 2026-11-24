@@ -1,5 +1,6 @@
 import TutorStudentActivityTimeline from "@/components/TutorStudentActivityTimeline";
 import TutorStudentCommunicationTimeline from "@/components/TutorStudentCommunicationTimeline";
+import TutorStudentSupportRequests from "@/components/TutorStudentSupportRequests";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -567,6 +568,11 @@ export default async function TutorStudentWeeklyWorkspace({
 
 
       <TutorStudentCommunicationTimeline
+        engagementId={engagement.id}
+      />
+
+
+      <TutorStudentSupportRequests
         engagementId={engagement.id}
       />
 

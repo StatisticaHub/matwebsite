@@ -12135,3 +12135,298 @@ main {
 
 /* ===== END TUTOR STUDENT COMMUNICATION TIMELINE ===== */
 
+
+/* ===== TUTOR STUDENT SUPPORT WORKFLOW ===== */
+
+.tutor-support-workflow {
+  margin: 16px 0;
+}
+
+.tutor-support-workflow .tutor-panel-head p {
+  margin: 5px 0 0;
+  color: #718095;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.tutor-support-metrics {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.tutor-support-metrics > div {
+  padding: 9px 11px;
+  border: 1px solid #e5eaf0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.tutor-support-metrics span,
+.tutor-support-metrics strong {
+  display: block;
+}
+
+.tutor-support-metrics span {
+  color: #8290a1;
+  font-size: 7.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.tutor-support-metrics strong {
+  margin-top: 3px;
+  color: #344b65;
+  font-size: 15px;
+}
+
+.tutor-support-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.tutor-support-request {
+  overflow: hidden;
+  border: 1px solid #e4e9ef;
+  border-radius: 9px;
+  background: #fff;
+}
+
+.tutor-support-request.status-new {
+  border-left: 3px solid #4f7fab;
+}
+
+.tutor-support-request.status-in_progress {
+  border-left: 3px solid #b17a32;
+}
+
+.tutor-support-request.status-resolved {
+  border-left: 3px solid #4c8662;
+}
+
+.tutor-support-request > summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  padding: 11px 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.tutor-support-request > summary::-webkit-details-marker {
+  display: none;
+}
+
+.tutor-support-request-title span,
+.tutor-support-request-title strong {
+  display: block;
+}
+
+.tutor-support-request-title span {
+  margin-bottom: 3px;
+  color: #7e8b9a;
+  font-size: 7px;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.tutor-support-request-title strong {
+  color: #344b65;
+  font-size: 9.5px;
+}
+
+.tutor-support-request-summary {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.tutor-support-request-summary time {
+  color: #909ba7;
+  font-size: 7.5px;
+}
+
+.tutor-support-status {
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: #eef2f6;
+  color: #68778a;
+  font-size: 7px;
+  font-weight: 850;
+}
+
+.tutor-support-status.status-new {
+  background: #edf4fb;
+  color: #3b668f;
+}
+
+.tutor-support-status.status-in_progress {
+  background: #fff5e7;
+  color: #956424;
+}
+
+.tutor-support-status.status-resolved {
+  background: #eaf6ee;
+  color: #34704b;
+}
+
+.tutor-support-request-body {
+  display: grid;
+  gap: 12px;
+  padding: 0 12px 12px;
+  border-top: 1px solid #eef1f4;
+}
+
+.tutor-support-message,
+.tutor-support-history {
+  padding-top: 11px;
+}
+
+.tutor-support-message > span,
+.tutor-support-history > span {
+  display: block;
+  margin-bottom: 5px;
+  color: #7d8997;
+  font-size: 7px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.tutor-support-message p {
+  margin: 0;
+  color: #5f7084;
+  font-size: 8.5px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.tutor-support-history pre {
+  max-height: 190px;
+  overflow: auto;
+  margin: 0;
+  padding: 9px;
+  border-radius: 7px;
+  background: #f7f9fb;
+  color: #68788a;
+  font-family: inherit;
+  font-size: 7.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.tutor-support-session-note {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 9px 10px;
+  border: 1px solid #dce8f3;
+  border-radius: 8px;
+  background: #f4f8fc;
+}
+
+.tutor-support-session-note strong {
+  color: #3b5f82;
+  font-size: 8.5px;
+}
+
+.tutor-support-session-note p {
+  margin: 3px 0 0;
+  color: #718399;
+  font-size: 7.5px;
+}
+
+.tutor-support-session-note a {
+  flex-shrink: 0;
+  color: #315f99;
+  font-size: 7.5px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.tutor-support-form {
+  display: grid;
+  grid-template-columns:
+    minmax(140px, .45fr)
+    minmax(240px, 1.55fr);
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #eef1f4;
+}
+
+.tutor-support-form label > span {
+  display: block;
+  margin-bottom: 4px;
+  color: #748294;
+  font-size: 7px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.tutor-support-form select,
+.tutor-support-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.tutor-support-form textarea {
+  min-height: 74px;
+  resize: vertical;
+}
+
+.tutor-support-form-footer {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  align-items: center;
+}
+
+.tutor-support-form-footer small {
+  margin-right: auto;
+  color: #8592a1;
+  font-size: 7.5px;
+  line-height: 1.45;
+}
+
+@media (max-width: 760px) {
+
+  .tutor-support-metrics {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .tutor-support-request > summary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .tutor-support-request-summary {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .tutor-support-session-note {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .tutor-support-form {
+    grid-template-columns: 1fr;
+  }
+
+  .tutor-support-form-footer {
+    grid-column: auto;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+/* ===== END TUTOR STUDENT SUPPORT WORKFLOW ===== */
+
