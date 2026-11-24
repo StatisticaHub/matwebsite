@@ -140,7 +140,18 @@ export async function loadSystemHealthReport(): Promise<SystemHealthReport> {
     supabase.from("lead_nurture_settings").select("automation_enabled").eq("id", 1).maybeSingle(),
     supabase.from("lead_nurture_log").select("id", { count: "exact", head: true }).eq("status", "failed").gte("created_at", isoAgo(7 * DAY)),
     supabase.from("ga4_lifecycle_event_log").select("id", { count: "exact", head: true }).eq("status", "failed").gte("attempted_at", isoAgo(7 * DAY)),
-    supabase.from("tutoring_leads").select("id,ga_client_id,created_at").gte("created_at", isoAgo(7 * DAY)),
+    supabase
+      .from("tutoring_leads")
+      .select("id,ga_client_id,created_at")
+      .gte(
+        "created_at",
+        new Date(
+          Math.max(
+            Date.now() - 7 * DAY,
+            Date.parse("2026-11-20T05:02:20.883298Z"),
+          ),
+        ).toISOString(),
+      ),
     supabase.from("retention_settings").select("automation_enabled,last_scan_at,scan_interval_hours").eq("id", 1).maybeSingle(),
     supabase.from("tutoring_leads").select("id", { count: "exact", head: true }).not("status", "in", "(closed,lost)").lt("next_follow_up_at", new Date().toISOString()),
     supabase.from("tutoring_leads").select("id", { count: "exact", head: true }).in("status", ["new", "contacted", "matching", "tutor_assigned"]).lt("updated_at", isoAgo(3 * DAY)),
