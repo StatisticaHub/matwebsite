@@ -11533,3 +11533,233 @@ main {
 
 /* ===== END ADMIN STUDENT ACTIVITY TIMELINE ===== */
 
+
+/* ===== TUTOR COURSE ACTIVITY TIMELINE ===== */
+
+.tutor-course-activity {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.tutor-course-activity-head > div > p {
+  margin: 5px 0 0;
+  color: #718095;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.tutor-course-activity-metrics {
+  display: grid;
+  grid-template-columns:
+    repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.tutor-course-activity-metrics > div {
+  padding: 9px 10px;
+  border: 1px solid #e5eaf0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.tutor-course-activity-metrics span,
+.tutor-course-activity-metrics strong {
+  display: block;
+}
+
+.tutor-course-activity-metrics span {
+  color: #8290a1;
+  font-size: 7.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.tutor-course-activity-metrics strong {
+  margin-top: 3px;
+  color: #344b65;
+  font-size: 15px;
+}
+
+.tutor-course-activity-list {
+  display: grid;
+  margin-top: 15px;
+}
+
+.tutor-course-activity-row {
+  display: grid;
+  grid-template-columns:
+    20px minmax(0, 1fr) auto;
+  gap: 10px;
+  min-height: 66px;
+}
+
+.tutor-course-activity-marker {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.tutor-course-activity-marker::after {
+  content: "";
+  position: absolute;
+  top: 18px;
+  bottom: -1px;
+  width: 1px;
+  background: #e2e7ed;
+}
+
+.tutor-course-activity-row:last-child
+.tutor-course-activity-marker::after {
+  display: none;
+}
+
+.tutor-course-activity-marker span {
+  position: relative;
+  z-index: 1;
+  width: 9px;
+  height: 9px;
+  margin-top: 6px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #71859a;
+  box-shadow:
+    0 0 0 1px #dce3ea;
+}
+
+.tutor-course-activity-row.activity-session
+.tutor-course-activity-marker span {
+  background: #32689e;
+}
+
+.tutor-course-activity-row.activity-homework
+.tutor-course-activity-marker span {
+  background: #7663a8;
+}
+
+.tutor-course-activity-row.activity-submission
+.tutor-course-activity-marker span {
+  background: #8b69a2;
+}
+
+.tutor-course-activity-row.activity-request
+.tutor-course-activity-marker span {
+  background: #b57b31;
+}
+
+.tutor-course-activity-row.activity-report
+.tutor-course-activity-marker span {
+  background: #3e8059;
+}
+
+.tutor-course-activity-row.activity-communication
+.tutor-course-activity-marker span {
+  background: #56798e;
+}
+
+.tutor-course-activity-copy {
+  padding-bottom: 14px;
+}
+
+.tutor-course-activity-top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 7px;
+  margin-bottom: 4px;
+}
+
+.tutor-course-activity-top span {
+  color: #75869a;
+  font-size: 7.5px;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.tutor-course-activity-top time {
+  color: #909ba8;
+  font-size: 7.5px;
+}
+
+.tutor-course-activity-copy > strong {
+  display: block;
+  color: #344b65;
+  font-size: 10px;
+}
+
+.tutor-course-activity-copy > p {
+  margin: 4px 0 0;
+  color: #718095;
+  font-size: 8.5px;
+  line-height: 1.5;
+}
+
+.tutor-course-activity-action {
+  display: grid;
+  justify-items: end;
+  align-content: start;
+  gap: 5px;
+  min-width: 78px;
+}
+
+.tutor-course-activity-status {
+  padding: 4px 6px;
+  border-radius: 999px;
+  background: #eef2f6;
+  color: #617287;
+  font-size: 7px;
+  font-weight: 850;
+}
+
+.tutor-course-activity-status.status-completed,
+.tutor-course-activity-status.status-reviewed,
+.tutor-course-activity-status.status-published,
+.tutor-course-activity-status.status-sent,
+.tutor-course-activity-status.status-resolved {
+  background: #eaf6ee;
+  color: #34704b;
+}
+
+.tutor-course-activity-status.status-failed,
+.tutor-course-activity-status.status-no_show,
+.tutor-course-activity-status.status-cancelled {
+  background: #fff0f0;
+  color: #994545;
+}
+
+.tutor-course-activity-status.status-planned,
+.tutor-course-activity-status.status-submitted,
+.tutor-course-activity-status.status-new,
+.tutor-course-activity-status.status-in_progress {
+  background: #edf4fb;
+  color: #3b668f;
+}
+
+.tutor-course-activity-action a {
+  color: #315f99;
+  font-size: 7.5px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+@media (max-width: 760px) {
+  .tutor-course-activity-metrics {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .tutor-course-activity-row {
+    grid-template-columns:
+      18px minmax(0, 1fr);
+  }
+
+  .tutor-course-activity-action {
+    grid-column: 2;
+    justify-items: start;
+    padding-bottom: 12px;
+  }
+}
+
+/* ===== END TUTOR COURSE ACTIVITY TIMELINE ===== */
+

@@ -1,3 +1,4 @@
+import TutorStudentActivityTimeline from "@/components/TutorStudentActivityTimeline";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -557,6 +558,11 @@ export default async function TutorStudentWeeklyWorkspace({
         </article>
 
       </section>
+
+
+      <TutorStudentActivityTimeline
+        engagementId={engagement.id}
+      />
 
 
       <details className="tutor-panel tutor-week-create">
