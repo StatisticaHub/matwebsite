@@ -171,14 +171,7 @@ export default async function TutorStudentsPage() {
         frequency,
         session_duration_minutes,
         upcoming_deadline,
-        students (
-          id,
-          name,
-          email,
-          academic_level,
-          institution,
-          programme
-        )
+        students(id,name,academic_level,institution,programme)
       `)
       .eq(
         "tutor_id",
@@ -433,13 +426,7 @@ export default async function TutorStudentsPage() {
                       : "s"}
                   </strong>
 
-                  <a
-                    href={`mailto:${student.email}`}
-                  >
-                    {
-                      student.email
-                    }
-                  </a>
+                  
 
                 </div>
 

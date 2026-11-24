@@ -49,7 +49,7 @@ export default async function TutorMaterialsPage({
         "tutoring_engagements",
       )
       .select(
-        "id,status,student_id,subject,title,module,current_focus,students(id,name,email,academic_level,institution,programme)",
+        "id,status,student_id,subject,title,module,current_focus,students(id,name,academic_level,institution,programme)",
       )
       .eq(
         "tutor_id",

@@ -37,7 +37,7 @@ export default async function TutorSessionDetailPage({ params, searchParams }: {
 
   const { id } = await params; const query = await searchParams;
   const { data, error } = await createAdminClient().from("tutoring_sessions")
-    .select("engagement_id,id,scheduled_for,completed_at,duration_minutes,status,topic,lesson_notes,understanding_rating,next_topic,homework_summary,meeting_url,tutor_id,tutoring_engagements(id,tutor_id,subject,title,students(name,email,academic_level))")
+    .select("engagement_id,id,scheduled_for,completed_at,duration_minutes,status,topic,lesson_notes,understanding_rating,next_topic,homework_summary,meeting_url,tutor_id,tutoring_engagements(id,tutor_id,subject,title,students(name,academic_level))")
     .eq("id", id).single();
   if (error || !data) notFound();
   const row = data as any;
@@ -112,7 +112,6 @@ export default async function TutorSessionDetailPage({ params, searchParams }: {
 
 <aside className="tutor-stack">
         <section className="tutor-panel"><h2>Session details</h2><dl className="tutor-details"><div><dt>Student</dt><dd>{row.tutoring_engagements?.students?.name || "—"}</dd></div><div><dt>Level</dt><dd>{row.tutoring_engagements?.students?.academic_level || "—"}</dd></div><div><dt>Scheduled</dt><dd>{fmt(row.scheduled_for)}</dd></div><div><dt>Duration</dt><dd>{row.duration_minutes} minutes</dd></div><div><dt>Completed</dt><dd>{row.completed_at ? fmt(row.completed_at) : "—"}</dd></div></dl>{meeting && <a className="tutor-primary-link" href={meeting} target="_blank" rel="noreferrer">Join session ↗</a>}</section>
-        <section className="tutor-panel"><h2>Student contact</h2><p className="tutor-help">Use contact details only for tutoring-related communication and keep student information private.</p><p><strong>{row.tutoring_engagements?.students?.email || "No email available"}</strong></p></section>
       </aside>
     </div>
   </div>;

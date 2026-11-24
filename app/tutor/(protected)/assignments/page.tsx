@@ -156,12 +156,7 @@ export default async function TutorAssignmentsPage() {
         title,
         module,
         status,
-        students (
-          id,
-          name,
-          email,
-          academic_level
-        )
+        students(id,name,academic_level)
       `)
       .eq(
         "tutor_id",
@@ -738,13 +733,7 @@ export default async function TutorAssignmentsPage() {
                         Student workspace →
                       </Link>
 
-                      {student?.email && (
-                        <a
-                          href={`mailto:${student.email}`}
-                        >
-                          Email student ↗
-                        </a>
-                      )}
+                      
                     </div>
                   </form>
                 </article>

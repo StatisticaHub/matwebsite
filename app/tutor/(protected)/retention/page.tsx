@@ -23,7 +23,7 @@ export default async function TutorRetentionPage() {
   const studentIds = [...new Set(cases.map((item) => item.student_id))];
   const [{ data: engagements }, { data: students }] = await Promise.all([
     engagementIds.length ? supabase.from("tutoring_engagements").select("id,student_id,subject,title,current_focus,frequency,session_duration_minutes,status").in("id", engagementIds) : Promise.resolve({ data: [] as any[] }),
-    studentIds.length ? supabase.from("students").select("id,name,email,academic_level").in("id", studentIds) : Promise.resolve({ data: [] as any[] }),
+    studentIds.length ? supabase.from("students").select("id,name,academic_level").in("id", studentIds) : Promise.resolve({ data: [] as any[] }),
   ]);
   const engagementMap = new Map(((engagements || []) as any[]).map((row) => [row.id, row]));
   const studentMap = new Map(((students || []) as any[]).map((row) => [row.id, row]));
@@ -50,7 +50,7 @@ export default async function TutorRetentionPage() {
           <div className="tutor-retention-next"><strong>Suggested action</strong><p>{item.suggested_action || "Review the current tutoring plan."}</p></div>
           <form action={reviewTutorRetentionCase} className="tutor-retention-review-form"><input type="hidden" name="caseId" value={item.id} /><label><span>Your continuity note</span><textarea name="tutorNote" defaultValue={item.tutor_note || ""} placeholder="Recommended next topic, scheduling context, barriers discussed…" /></label><button className="tutor-secondary-button" type="submit">Save review</button></form>
           <form action={logTutorRetentionOutreach} className="tutor-retention-outreach-form"><input type="hidden" name="caseId" value={item.id} /><input type="hidden" name="engagementId" value={item.engagement_id} /><input type="hidden" name="studentId" value={item.student_id} /><div><label><span>Channel</span><select name="channel" defaultValue="email"><option value="email">Email</option><option value="phone">Phone</option><option value="whatsapp">WhatsApp</option><option value="portal">Portal</option><option value="other">Other</option></select></label><label><span>Outcome</span><select name="outcome" defaultValue="contacted"><option value="contacted">Contacted</option><option value="rebooked">Rebooked</option><option value="no_response">No response</option><option value="paused">Paused</option><option value="completed">Completed plan</option><option value="declined">Does not want to continue</option><option value="other">Other</option></select></label></div><label><span>Note</span><textarea name="note" placeholder="Brief operational note" /></label><button className="tutor-primary-button" type="submit">Log outreach</button></form>
-          <div className="tutor-retention-links"><Link href={`/tutor/progress/${item.engagement_id}`}>Progress →</Link><Link href="/tutor/sessions">Sessions →</Link>{student?.email && <a href={`mailto:${student.email}`}>Email student ↗</a>}</div>
+          <div className="tutor-retention-links"><Link href={`/tutor/progress/${item.engagement_id}`}>Progress →</Link><Link href="/tutor/sessions">Sessions →</Link></div>
         </article>;
       })}
       {!actionable.length && <div className="tutor-panel tutor-empty">No students currently need a retention review. Monitoring cases will continue to update through the scheduled scan.</div>}

@@ -11,7 +11,7 @@ export default async function TutorStudentProgressPage({ params }: { params: Par
   const auth = await getTutorSession(); if (!auth) return null;
   const { engagementId } = await params; const supabase = createAdminClient();
   const [{ data: engagement, error }, { data: plan }, { data: reports }] = await Promise.all([
-    supabase.from("tutoring_engagements").select("id,student_id,tutor_id,subject,title,current_focus,students(name,email,academic_level)").eq("id", engagementId).eq("tutor_id", auth.tutor.id).maybeSingle(),
+    supabase.from("tutoring_engagements").select("id,student_id,tutor_id,subject,title,current_focus,students(name,academic_level)").eq("id", engagementId).eq("tutor_id", auth.tutor.id).maybeSingle(),
     supabase.from("learning_plan_items").select("id,engagement_id,topic,objective,priority,progress_status,mastery_percent,last_assessed_at,strength_note,next_step").eq("engagement_id", engagementId).order("sort_order").order("created_at"),
     supabase.from("progress_reports").select("*").eq("engagement_id", engagementId).eq("tutor_id", auth.tutor.id).order("period_end", { ascending: false }),
   ]);
