@@ -11932,3 +11932,206 @@ main {
 
 /* ===== END TUTOR STUDENT RECENCY ===== */
 
+
+/* ===== TUTOR STUDENT COMMUNICATION TIMELINE ===== */
+
+.tutor-communication-timeline {
+  margin: 16px 0;
+}
+
+.tutor-communication-timeline .tutor-panel-head p {
+  margin: 5px 0 0;
+  color: #718095;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.tutor-communication-metrics {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.tutor-communication-metrics > div {
+  padding: 9px 11px;
+  border: 1px solid #e5eaf0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.tutor-communication-metrics span,
+.tutor-communication-metrics strong,
+.tutor-communication-metrics small {
+  display: block;
+}
+
+.tutor-communication-metrics span {
+  color: #8290a1;
+  font-size: 7.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.tutor-communication-metrics strong {
+  margin-top: 3px;
+  color: #344b65;
+  font-size: 15px;
+}
+
+.tutor-communication-metrics small {
+  margin-top: 2px;
+  color: #9aa4af;
+  font-size: 7px;
+}
+
+.tutor-communication-list {
+  display: grid;
+  margin-top: 14px;
+}
+
+.tutor-communication-row {
+  display: grid;
+  grid-template-columns:
+    20px minmax(0, 1fr) auto;
+  gap: 10px;
+  min-height: 64px;
+}
+
+.tutor-communication-marker {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.tutor-communication-marker::after {
+  content: "";
+  position: absolute;
+  top: 18px;
+  bottom: -1px;
+  width: 1px;
+  background: #e2e7ed;
+}
+
+.tutor-communication-row:last-child
+.tutor-communication-marker::after {
+  display: none;
+}
+
+.tutor-communication-marker span {
+  position: relative;
+  z-index: 1;
+  width: 9px;
+  height: 9px;
+  margin-top: 6px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #557b91;
+  box-shadow:
+    0 0 0 1px #dce3ea;
+}
+
+.tutor-communication-row.communication-request
+.tutor-communication-marker span {
+  background: #b47a31;
+}
+
+.tutor-communication-copy {
+  padding-bottom: 13px;
+}
+
+.tutor-communication-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 7px;
+  margin-bottom: 4px;
+}
+
+.tutor-communication-meta span {
+  color: #75869a;
+  font-size: 7.5px;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.tutor-communication-meta time {
+  color: #929ca8;
+  font-size: 7.5px;
+}
+
+.tutor-communication-copy > strong {
+  display: block;
+  color: #344b65;
+  font-size: 10px;
+}
+
+.tutor-communication-copy > p {
+  margin: 4px 0 0;
+  color: #718095;
+  font-size: 8.5px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.tutor-communication-state {
+  min-width: 70px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+
+.tutor-communication-state > span {
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: #eef2f6;
+  color: #68778a;
+  font-size: 7px;
+  font-weight: 850;
+}
+
+.tutor-communication-state > span.status-sent,
+.tutor-communication-state > span.status-resolved {
+  background: #eaf6ee;
+  color: #34704b;
+}
+
+.tutor-communication-state > span.status-failed {
+  background: #fff0f0;
+  color: #994545;
+}
+
+.tutor-communication-state > span.status-new,
+.tutor-communication-state > span.status-in_progress {
+  background: #edf4fb;
+  color: #3b668f;
+}
+
+.tutor-communication-state > span.status-skipped {
+  background: #f5f1e9;
+  color: #806e4f;
+}
+
+@media (max-width: 760px) {
+
+  .tutor-communication-metrics {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .tutor-communication-row {
+    grid-template-columns:
+      18px minmax(0, 1fr);
+  }
+
+  .tutor-communication-state {
+    grid-column: 2;
+    justify-content: flex-start;
+    padding-bottom: 12px;
+  }
+}
+
+/* ===== END TUTOR STUDENT COMMUNICATION TIMELINE ===== */
+
