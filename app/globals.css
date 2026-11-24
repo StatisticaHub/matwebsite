@@ -8131,3 +8131,140 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ==========================================================================
+   HOMEPAGE RESPONSIVE QA FIXES
+   ========================================================================== */
+
+/*
+ * Switch to the compact menu before the desktop header becomes crowded.
+ * This also ensures Student Portal and Tutor Portal remain accessible
+ * across tablet widths.
+ */
+@media (max-width: 1100px) {
+  .mat-public-nav,
+  .mat-public-actions {
+    display: none;
+  }
+
+  .mat-mobile-menu {
+    position: relative;
+    display: block;
+    margin-left: auto;
+  }
+
+  .mat-mobile-menu summary {
+    display: flex;
+    min-height: 38px;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #dce3ea;
+    border-radius: 8px;
+    padding: 0 12px;
+    color: #31465f;
+    background: #fff;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 800;
+    list-style: none;
+  }
+
+  .mat-mobile-menu summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .mat-mobile-menu-icon {
+    display: grid;
+    width: 15px;
+    gap: 3px;
+  }
+
+  .mat-mobile-menu-icon i {
+    display: block;
+    height: 1px;
+    background: #41546b;
+  }
+
+  .mat-mobile-menu-panel {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: min(330px, calc(100vw - 28px));
+    border: 1px solid #dae2ea;
+    border-radius: 13px;
+    padding: 18px;
+    background: #fff;
+    box-shadow:
+      0 22px 55px rgba(25, 47, 73, .16);
+  }
+
+  .mat-mobile-menu-panel nav {
+    display: grid;
+  }
+
+  .mat-mobile-menu-panel nav a {
+    border-bottom: 1px solid #edf0f4;
+    padding: 12px 2px;
+    color: #283d57;
+    font-size: 12px;
+    font-weight: 730;
+    text-decoration: none;
+  }
+
+  .mat-mobile-menu-divider {
+    height: 1px;
+    margin: 16px 0;
+    background: #e9edf2;
+  }
+
+  .mat-mobile-menu-label {
+    display: block;
+    margin-bottom: 7px;
+    color: #8a95a4;
+    font-size: 8px;
+    font-weight: 850;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+  }
+
+  .mat-mobile-portal {
+    display: flex;
+    padding: 9px 2px;
+    align-items: center;
+    justify-content: space-between;
+    color: #52647a;
+    font-size: 10.5px;
+    font-weight: 720;
+    text-decoration: none;
+  }
+
+  .mat-mobile-menu-panel > .button {
+    width: 100%;
+    margin-top: 13px;
+  }
+}
+
+
+/*
+ * Keep the fixed mobile tutoring CTA from covering the bottom
+ * of the public footer.
+ */
+@media (max-width: 680px) {
+  body:has(.home-v2-mobile-cta) .site-footer {
+    padding-bottom:
+      calc(78px + env(safe-area-inset-bottom));
+  }
+}
+
+
+/* Keyboard / accessibility polish */
+
+.mat-public-header a:focus-visible,
+.mat-mobile-menu summary:focus-visible,
+.home-v2-hero a:focus-visible,
+.home-v2-subject-card:focus-visible,
+.home-v2-resource-card:focus-visible {
+  outline: 3px solid rgba(49, 95, 143, .32);
+  outline-offset: 3px;
+}
