@@ -9,8 +9,17 @@ export const metadata = { title: "Student onboarding" };
 export const dynamic = "force-dynamic";
 
 type SearchParams = Promise<{ student?: string }>;
-type StudentRow = { id: string; name: string; email: string; status: string; academic_level: string | null; programme: string | null; institution: string | null };
-type PortalRow = { id: string; student_id: string };
+type StudentRow = {
+  id: string;
+  name: string;
+  email: string;
+  status: string;
+  academic_level: string | null;
+  programme: string | null;
+  institution: string | null;
+  auth_user_id: string | null;
+  portal_enabled: boolean;
+};
 type TutorRow = { id: string; name: string };
 
 function formatDateTime(value: string | null) {
@@ -26,13 +35,12 @@ function formatDate(value: string | null) {
 export default async function OnboardingPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
   const supabase = createAdminClient();
-  const [studentsResult, onboardingResult, intakeLinkResult, engagementResult, sessionResult, portalResult, tutorResult] = await Promise.all([
-    supabase.from("students").select("id,name,email,status,academic_level,programme,institution").order("updated_at", { ascending: false }),
+  const [studentsResult, onboardingResult, intakeLinkResult, engagementResult, sessionResult, tutorResult] = await Promise.all([
+    supabase.from("students").select("id,name,email,status,academic_level,programme,institution,auth_user_id,portal_enabled").order("updated_at", { ascending: false }),
     supabase.from("student_onboarding").select("*").order("updated_at", { ascending: false }),
     supabase.from("student_intake_links").select("id,student_id,token_preview,expires_at,created_at,last_accessed_at").is("revoked_at", null).order("created_at", { ascending: false }),
     supabase.from("tutoring_engagements").select("*").order("created_at", { ascending: false }),
     supabase.from("tutoring_sessions").select("id,engagement_id,status,scheduled_for").eq("status", "planned"),
-    supabase.from("student_portal_links").select("id,student_id").eq("access_kind", "admin_link").is("revoked_at", null),
     supabase.from("tutors").select("id,name"),
   ]);
 
@@ -41,13 +49,11 @@ export default async function OnboardingPage({ searchParams }: { searchParams: S
   const intakeLinks = (intakeLinkResult.data || []) as StudentIntakeLink[];
   const engagements = (engagementResult.data || []) as TutoringEngagement[];
   const sessions = (sessionResult.data || []) as Pick<TutoringSession, "id" | "engagement_id" | "status" | "scheduled_for">[];
-  const portals = (portalResult.data || []) as PortalRow[];
   const tutors = (tutorResult.data || []) as TutorRow[];
 
   const onboardingByStudent = new Map(onboardingRows.map((row) => [row.student_id, row]));
   const engagementByStudent = new Map<string, TutoringEngagement>();
   for (const engagement of engagements) if (!engagementByStudent.has(engagement.student_id) || engagement.status === "active") engagementByStudent.set(engagement.student_id, engagement);
-  const portalStudents = new Set(portals.map((row) => row.student_id));
   const plannedEngagements = new Set(sessions.map((row) => row.engagement_id));
   const tutorById = new Map(tutors.map((row) => [row.id, row.name]));
 
@@ -62,7 +68,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: S
         <div>
           <span className="admin-eyebrow">Lead → learner</span>
           <h1>Student onboarding</h1>
-          <p>Collect academic context, review learning needs, prepare the tutor, activate the portal and confirm the first session from one place.</p>
+          <p>Collect academic context, review learning needs, prepare the tutor, activate Student Portal login and confirm the first session from one place.</p>
         </div>
       </header>
 
@@ -83,7 +89,10 @@ export default async function OnboardingPage({ searchParams }: { searchParams: S
         {students.map((student) => {
           const onboarding = onboardingByStudent.get(student.id);
           const engagement = engagementByStudent.get(student.id);
-          const hasPortal = portalStudents.has(student.id);
+          const hasPortal = Boolean(
+            student.portal_enabled &&
+            student.auth_user_id
+          );
           const hasTutor = Boolean(engagement?.tutor_id);
           const hasFirstSession = Boolean(engagement && plannedEngagements.has(engagement.id));
           const hasIntake = Boolean(onboarding?.intake_completed_at);
@@ -98,7 +107,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: S
               <div className="admin-readiness-grid">
                 <div className={hasIntake ? "is-done" : ""}><span>1</span><strong>Intake</strong><small>{hasIntake ? `Submitted ${formatDateTime(onboarding?.intake_completed_at || null)}` : "Waiting for student"}</small></div>
                 <div className={hasTutor ? "is-done" : ""}><span>2</span><strong>Tutor</strong><small>{hasTutor ? tutorById.get(engagement?.tutor_id || "") || "Assigned" : "Not assigned"}</small></div>
-                <div className={hasPortal ? "is-done" : ""}><span>3</span><strong>Portal</strong><small>{hasPortal ? "Active link ready" : "Not prepared"}</small></div>
+                <div className={hasPortal ? "is-done" : ""}><span>3</span><strong>Student login</strong><small>{hasPortal ? "Portal account enabled" : "Not activated"}</small></div>
                 <div className={hasFirstSession ? "is-done" : ""}><span>4</span><strong>First session</strong><small>{hasFirstSession ? "Planned" : "Not booked"}</small></div>
               </div>
 
@@ -129,7 +138,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: S
                   <input name="adminNotes" defaultValue={onboarding?.admin_notes || ""} placeholder="Internal onboarding note" />
                   <button type="submit">Save review</button>
                 </form>
-                <div className="admin-onboarding-links"><Link href={`/admin/students/${student.id}`}>Student record →</Link><Link href={`/admin/portals?student=${student.id}`}>Portal →</Link></div>
+                <div className="admin-onboarding-links"><Link href={`/admin/students/${student.id}`}>Student record →</Link><Link href={`/admin/student-access?student=${student.id}`}>Student login →</Link></div>
               </div>
             </article>
           );

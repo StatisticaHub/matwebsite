@@ -262,59 +262,12 @@ function readableZoneName(
     );
 }
 
-function currentShortZoneName(
-  zone: string,
-) {
-  try {
-    const part =
-      new Intl.DateTimeFormat(
-        "en-US",
-        {
-          timeZone:
-            zone,
-          timeZoneName:
-            "short",
-        },
-      )
-        .formatToParts(
-          new Date(),
-        )
-        .find(
-          (item) =>
-            item.type ===
-            "timeZoneName",
-        )
-        ?.value;
-
-    if (
-      !part ||
-      part === zone
-    ) {
-      return "";
-    }
-
-    return part;
-  } catch {
-    return "";
-  }
-}
-
 export function genericTimeZoneLabel(
   zone: string,
 ) {
-  const readable =
-    readableZoneName(
-      zone,
-    );
-
-  const shortName =
-    currentShortZoneName(
-      zone,
-    );
-
-  return shortName
-    ? `${readable} — ${shortName}`
-    : readable;
+  return readableZoneName(
+    zone,
+  );
 }
 
 function broadRegion(

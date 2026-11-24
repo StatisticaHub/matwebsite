@@ -16,6 +16,7 @@ export const dynamic =
 
 type SearchParams =
   Promise<{
+    student?: string;
     sent?: string;
     disabled?: string;
   }>;
@@ -120,6 +121,11 @@ export default async function StudentAccessPage({
                   <tr
                     key={
                       student.id
+                    }
+                    className={
+                      student.id === query.student
+                        ? "admin-table-row-focus"
+                        : undefined
                     }
                   >
                     <td>

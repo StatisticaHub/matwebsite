@@ -833,6 +833,14 @@
   border-bottom: 0;
 }
 
+.shell :global(.admin-table-row-focus td) {
+  background: var(--admin-accent-soft);
+}
+
+.shell :global(.admin-table-row-focus td:first-child) {
+  box-shadow: inset 3px 0 0 var(--admin-accent);
+}
+
 
 /* ============================================================
    TUTOR / RECORD LISTS

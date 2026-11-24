@@ -417,7 +417,7 @@ export async function sendStudentAccountInvite(
   );
 
   redirect(
-    "/admin/student-access?sent=1",
+    `/admin/student-access?student=${encodeURIComponent(studentId)}&sent=1`,
   );
 }
 
@@ -490,6 +490,6 @@ export async function disableStudentAccount(
   );
 
   redirect(
-    "/admin/student-access?disabled=1",
+    `/admin/student-access?student=${encodeURIComponent(studentId)}&disabled=1`,
   );
 }
