@@ -343,6 +343,27 @@ export default function TutoringLeadForm({
                 placeholder="For example: I am studying MSc Finance and need help understanding regression, hypothesis testing and econometrics before my next assessment."
               />
             </label>
+
+            <label>
+              <span>Preferred availability <small>(optional)</small></span>
+              <input
+                name="availability"
+                type="text"
+                maxLength={500}
+                placeholder="e.g. Tuesday and Thursday evenings"
+              />
+            </label>
+
+            <label>
+              <span>How soon would you like to start? <small>(optional)</small></span>
+              <select name="urgency" defaultValue="">
+                <option value="">No preference</option>
+                <option value="As soon as possible">As soon as possible</option>
+                <option value="Within 1 week">Within 1 week</option>
+                <option value="Within 2–4 weeks">Within 2–4 weeks</option>
+                <option value="Flexible">Flexible</option>
+              </select>
+            </label>
           </div>
         </section>
 
