@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import TutorSidebarNav from "@/components/TutorSidebarNav";
 import { getTutorAccountSession } from "@/lib/tutor-auth";
 
-import styles from "./tutor-workspace.module.css";
 
 export const metadata = {
   robots: {
@@ -44,9 +43,7 @@ export default async function TutorProtectedLayout({
   }
 
   return (
-    <div
-      className={`${styles.shell} tutor-app`}
-    >
+    <div className="tutor-app">
       <aside className="tutor-sidebar">
         <div className="tutor-sidebar-brand">
           <Link
