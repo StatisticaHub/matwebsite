@@ -68,7 +68,10 @@ export async function updateLeadAssignment(formData: FormData) {
   });
 
   revalidatePath("/admin");
+  revalidatePath("/admin/matching");
   revalidatePath(`/admin/leads/${leadId}`);
+
+  redirect(`/admin/leads/${leadId}`);
 }
 
 export async function saveLeadNotes(formData: FormData) {
