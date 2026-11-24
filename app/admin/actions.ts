@@ -128,6 +128,8 @@ export async function createTutor(formData: FormData) {
   const availabilityDays = formData.getAll("availabilityDays").map((value) => String(value)).filter(Boolean);
   const availabilityPeriods = formData.getAll("availabilityPeriods").map((value) => String(value)).filter(Boolean);
   const acceptsTrials = formData.get("acceptsTrials") === "yes";
+  const verified =
+    formData.get("verified") === "yes";
 
   const { error } = await supabase.from("tutors").insert({
     name,
@@ -222,12 +224,51 @@ export async function updateTutor(formData: FormData) {
   const availabilityDays = formData.getAll("availabilityDays").map((value) => String(value)).filter(Boolean);
   const availabilityPeriods = formData.getAll("availabilityPeriods").map((value) => String(value)).filter(Boolean);
   const acceptsTrials = formData.get("acceptsTrials") === "yes";
+  const verified =
+    formData.get("verified") === "yes";
 
   if (!tutorId || !name || !email) return;
   if (!["active", "inactive", "pending"].includes(status)) return;
   if (hourlyRate !== null && (!Number.isFinite(hourlyRate) || hourlyRate < 0)) return;
   if (weeklyCapacityHours !== null && (!Number.isFinite(weeklyCapacityHours) || weeklyCapacityHours < 0 || weeklyCapacityHours > 80)) return;
   if (maxActiveStudents !== null && (!Number.isFinite(maxActiveStudents) || maxActiveStudents < 0 || maxActiveStudents > 100)) return;
+
+  const {
+    data: currentTutor,
+    error: currentTutorError,
+  } = await supabase
+    .from("tutors")
+    .select("status,onboarding_status")
+    .eq("id", tutorId)
+    .single();
+
+  if (currentTutorError || !currentTutor) {
+    throw new Error(
+      currentTutorError?.message ||
+        "Tutor record could not be loaded.",
+    );
+  }
+
+  const activatingTutor =
+    currentTutor.status === "pending" &&
+    status === "active";
+
+  if (
+    activatingTutor &&
+    !["submitted", "approved"].includes(
+      String(currentTutor.onboarding_status || ""),
+    )
+  ) {
+    redirect(
+      `/admin/tutors/${tutorId}?activation=onboarding`,
+    );
+  }
+
+  if (activatingTutor && !verified) {
+    redirect(
+      `/admin/tutors/${tutorId}?activation=verification`,
+    );
+  }
 
   const subjects = String(formData.get("subjects") || "")
     .split(",")
@@ -281,7 +322,7 @@ export async function updateTutor(formData: FormData) {
             onboarding_updated_at: new Date().toISOString(),
           }
         : {}),
-      verified: formData.get("verified") === "yes",
+      verified,
       updated_at: new Date().toISOString(),
     })
     .eq("id", tutorId);

@@ -9,7 +9,13 @@ export const metadata = { title: "Edit tutor" };
 export const dynamic = "force-dynamic";
 
 type Params = Promise<{ id: string }>;
-type SearchParams = Promise<{ updated?: string; delete?: string; portal?: string }>;
+type SearchParams = Promise<{
+  updated?: string;
+  delete?: string;
+  portal?: string;
+  activation?: string;
+  from_application?: string;
+}>;
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
@@ -49,6 +55,32 @@ export default async function TutorDetailPage({
   const sessionCount = sessionsResult.count || 0;
   const linkedCount = leadCount + engagementCount + sessionCount;
 
+  const tutorActive = tutor.status === "active";
+
+  const portalReady =
+    tutor.portal_enabled === true &&
+    Boolean(tutor.auth_user_id);
+
+  const onboardingSubmitted =
+    tutorActive ||
+    tutor.onboarding_status === "submitted" ||
+    tutor.onboarding_status === "approved" ||
+    Boolean(tutor.onboarding_submitted_at);
+
+  const verificationComplete =
+    tutorActive || tutor.verified === true;
+
+  const currentOnboardingStep =
+    tutorActive
+      ? "complete"
+      : !portalReady
+        ? "portal"
+        : !onboardingSubmitted
+          ? "onboarding"
+          : !verificationComplete
+            ? "verification"
+            : "activation";
+
   return (
     <div className="admin-page">
       <div className="admin-breadcrumb"><Link href="/admin/tutors">← Tutor records</Link><span>{tutor.name}</span></div>
@@ -74,8 +106,29 @@ export default async function TutorDetailPage({
       {query.portal === "sent" && <div className="admin-inline-message success">Tutor portal access email sent.</div>}
       {query.portal === "disabled" && <div className="admin-inline-message warning">Tutor portal access disabled.</div>}
 
+      {query.from_application === "1" && (
+        <div className="admin-inline-message success">
+          Tutor record created. Send portal access to begin onboarding.
+        </div>
+      )}
+
+      {query.activation === "onboarding" && (
+        <div className="admin-inline-message warning">
+          This tutor cannot be activated until they submit their onboarding profile.
+        </div>
+      )}
+
+      {query.activation === "verification" && (
+        <div className="admin-inline-message warning">
+          Confirm qualifications / identity verification before activating this tutor.
+        </div>
+      )}
+
       <div className="admin-tutor-layout">
-        <section className="admin-panel admin-detail-card admin-tutor-edit-card">
+        <section
+          id="tutor-profile-review"
+          className="admin-panel admin-detail-card admin-tutor-edit-card"
+        >
           <div className="admin-card-head"><h2>Edit tutor</h2><span>{tutor.verified ? "Verified" : "Not verified"}</span></div>
           <form action={updateTutor} className="admin-tutor-edit-form">
             <input type="hidden" name="tutorId" value={tutor.id} />
@@ -164,6 +217,177 @@ export default async function TutorDetailPage({
         </section>
 
         <aside className="admin-detail-side">
+          <section className="admin-panel admin-action-card admin-tutor-onboarding-journey">
+            <div className="admin-action-card-head">
+              <div>
+                <span className="admin-eyebrow">
+                  Tutor onboarding
+                </span>
+                <h2>Activation journey</h2>
+              </div>
+
+              <span
+                className={`admin-onboarding-state is-${currentOnboardingStep}`}
+              >
+                {tutorActive
+                  ? "ACTIVE"
+                  : currentOnboardingStep === "portal"
+                    ? "SEND INVITE"
+                    : currentOnboardingStep === "onboarding"
+                      ? "WAITING"
+                      : currentOnboardingStep === "verification"
+                        ? "REVIEW"
+                        : "READY"}
+              </span>
+            </div>
+
+            <div className="admin-onboarding-steps">
+              <div className="admin-onboarding-step is-complete">
+                <span>✓</span>
+                <div>
+                  <strong>Tutor record created</strong>
+                  <p>
+                    Applicant approved into the MAT tutor workflow.
+                  </p>
+                </div>
+              </div>
+
+              <div
+                className={`admin-onboarding-step ${
+                  tutorActive || portalReady
+                    ? "is-complete"
+                    : currentOnboardingStep === "portal"
+                      ? "is-current"
+                      : "is-pending"
+                }`}
+              >
+                <span>
+                  {tutorActive || portalReady ? "✓" : "2"}
+                </span>
+                <div>
+                  <strong>Portal access</strong>
+                  <p>
+                    {portalReady
+                      ? "Tutor account is linked and portal access is enabled."
+                      : "Send the tutor their secure portal invitation."}
+                  </p>
+                </div>
+              </div>
+
+              <div
+                className={`admin-onboarding-step ${
+                  tutorActive || onboardingSubmitted
+                    ? "is-complete"
+                    : currentOnboardingStep === "onboarding"
+                      ? "is-current"
+                      : "is-pending"
+                }`}
+              >
+                <span>
+                  {tutorActive || onboardingSubmitted ? "✓" : "3"}
+                </span>
+                <div>
+                  <strong>Onboarding profile</strong>
+                  <p>
+                    {onboardingSubmitted
+                      ? "Tutor submitted their subjects, qualifications and availability."
+                      : tutor.onboarding_status === "draft"
+                        ? "Tutor has started onboarding but has not submitted it."
+                        : "Waiting for the tutor to complete onboarding."}
+                  </p>
+                </div>
+              </div>
+
+              <div
+                className={`admin-onboarding-step ${
+                  tutorActive || verificationComplete
+                    ? "is-complete"
+                    : currentOnboardingStep === "verification"
+                      ? "is-current"
+                      : "is-pending"
+                }`}
+              >
+                <span>
+                  {tutorActive || verificationComplete ? "✓" : "4"}
+                </span>
+                <div>
+                  <strong>Admin verification</strong>
+                  <p>
+                    {verificationComplete
+                      ? "Qualifications / identity verification confirmed."
+                      : "Review the submitted tutor profile and confirm verification."}
+                  </p>
+                </div>
+              </div>
+
+              <div
+                className={`admin-onboarding-step ${
+                  tutorActive
+                    ? "is-complete"
+                    : currentOnboardingStep === "activation"
+                      ? "is-current"
+                      : "is-pending"
+                }`}
+              >
+                <span>{tutorActive ? "✓" : "5"}</span>
+                <div>
+                  <strong>Activate tutor</strong>
+                  <p>
+                    {tutorActive
+                      ? "Tutor is active and available for MAT operations."
+                      : "Change tutor status to Active once all checks are complete."}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {currentOnboardingStep === "portal" && (
+              <form action={sendTutorPortalInvite}>
+                <input
+                  type="hidden"
+                  name="tutorId"
+                  value={tutor.id}
+                />
+                <button
+                  className="admin-primary-button"
+                  type="submit"
+                >
+                  Enable & send portal invite
+                </button>
+              </form>
+            )}
+
+            {currentOnboardingStep === "onboarding" && (
+              <div className="admin-inline-message warning">
+                Portal access is ready. Waiting for the tutor to submit onboarding.
+              </div>
+            )}
+
+            {currentOnboardingStep === "verification" && (
+              <a
+                href="#tutor-profile-review"
+                className="admin-primary-button"
+              >
+                Review & verify tutor ↓
+              </a>
+            )}
+
+            {currentOnboardingStep === "activation" && (
+              <a
+                href="#tutor-profile-review"
+                className="admin-primary-button"
+              >
+                Activate tutor ↓
+              </a>
+            )}
+
+            {tutorActive && (
+              <div className="admin-inline-message success">
+                Tutor onboarding is complete and the tutor is active.
+              </div>
+            )}
+          </section>
+
           <section className="admin-panel admin-action-card admin-tutor-record-card">
             <h2>Record summary</h2>
             <dl className="admin-tutor-record-summary">
@@ -214,8 +438,9 @@ export default async function TutorDetailPage({
                 Review qualifications, experience, subjects,
                 specialisms and availability above. When satisfied,
                 verify the tutor and change their status to
-                <strong> Active</strong>. This also marks onboarding
-                as approved.
+                <strong> Active</strong>. Activation is blocked until
+                onboarding has been submitted and verification is
+                confirmed.
               </p>
             )}
           </section>

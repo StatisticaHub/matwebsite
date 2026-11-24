@@ -1907,3 +1907,109 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ================================================================
+   TUTOR ONBOARDING ACTIVATION JOURNEY
+   ================================================================ */
+
+.shell :global(.admin-tutor-onboarding-journey) {
+  border-color: #d7e0eb;
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff 0%,
+      #fbfcfe 100%
+    );
+}
+
+.shell :global(.admin-onboarding-state) {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 6px 9px;
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: .07em;
+}
+
+.shell :global(.admin-onboarding-state.is-portal),
+.shell :global(.admin-onboarding-state.is-onboarding) {
+  background: #fff2d8;
+  color: #805b12;
+}
+
+.shell :global(.admin-onboarding-state.is-verification),
+.shell :global(.admin-onboarding-state.is-activation) {
+  background: #e9f1fb;
+  color: #315f94;
+}
+
+.shell :global(.admin-onboarding-state.is-complete) {
+  background: #e8f6ee;
+  color: #286c46;
+}
+
+.shell :global(.admin-onboarding-steps) {
+  display: grid;
+  gap: 7px;
+  margin: 15px 0;
+}
+
+.shell :global(.admin-onboarding-step) {
+  display: grid;
+  grid-template-columns: 27px 1fr;
+  gap: 10px;
+  align-items: start;
+  border: 1px solid #e5eaf0;
+  border-radius: 9px;
+  padding: 10px;
+  background: #fff;
+}
+
+.shell :global(.admin-onboarding-step > span) {
+  display: grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
+  border-radius: 50%;
+  background: #eef1f5;
+  color: #758297;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.shell :global(.admin-onboarding-step strong) {
+  display: block;
+  color: var(--navy);
+  font-size: 10px;
+}
+
+.shell :global(.admin-onboarding-step p) {
+  margin: 3px 0 0;
+  color: #748196;
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.shell :global(.admin-onboarding-step.is-complete) {
+  border-color: #d1e8da;
+  background: #fbfefc;
+}
+
+.shell :global(.admin-onboarding-step.is-complete > span) {
+  background: #e7f5ed;
+  color: #277047;
+}
+
+.shell :global(.admin-onboarding-step.is-current) {
+  border-color: #d8c38e;
+  background: #fffdf7;
+}
+
+.shell :global(.admin-onboarding-step.is-current > span) {
+  background: #fff0cb;
+  color: #805b12;
+}
+
+.shell :global(.admin-onboarding-step.is-pending) {
+  opacity: .65;
+}
