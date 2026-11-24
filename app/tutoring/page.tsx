@@ -52,7 +52,7 @@ export default function Page() {
         <div className="shell">
           <div className="conversion-section-head">
             <div className="eyebrow">HOW TUTORING WORKS</div>
-            <h2>Tell us where you're stuck help with. We'll match the tutor.</h2>
+            <h2>Tell us where you're stuck. We'll arrange suitable tutoring.</h2>
           </div>
           <div className="conversion-journey">
             <article><span>1</span><h3>Tell us where you're stuck</h3><p>Send us the subject, level and exact topic or problem.</p></article>

@@ -59,9 +59,7 @@ export default function Footer() {
               <Link href="/about">
                 About
               </Link>
-              <Link href="/tutors">
-                Tutor standards
-              </Link>
+              <Link href="/tutors">Tutor standards</Link>
               <Link href="/become-a-tutor">
                 Become a tutor
               </Link>

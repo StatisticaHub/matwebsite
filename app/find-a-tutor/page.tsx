@@ -160,8 +160,8 @@ export default async function Page({
               <h3>You decide whether to proceed</h3>
 
               <p>
-                You see the tutor, price and next step before deciding whether
-                to book.
+                You receive the proposed support, price and next step before deciding
+                whether to book.
               </p>
             </article>
           </div>
