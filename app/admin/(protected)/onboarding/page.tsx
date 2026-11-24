@@ -8,7 +8,10 @@ import type { TutoringEngagement, TutoringSession } from "@/lib/delivery-data";
 export const metadata = { title: "Student onboarding" };
 export const dynamic = "force-dynamic";
 
-type SearchParams = Promise<{ student?: string }>;
+type SearchParams = Promise<{
+  student?: string;
+  blocked?: string;
+}>;
 type StudentRow = {
   id: string;
   name: string;
@@ -40,7 +43,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: S
     supabase.from("student_onboarding").select("*").order("updated_at", { ascending: false }),
     supabase.from("student_intake_links").select("id,student_id,token_preview,expires_at,created_at,last_accessed_at").is("revoked_at", null).order("created_at", { ascending: false }),
     supabase.from("tutoring_engagements").select("*").order("created_at", { ascending: false }),
-    supabase.from("tutoring_sessions").select("id,engagement_id,status,scheduled_for").eq("status", "planned"),
+    supabase.from("tutoring_sessions").select("id,engagement_id,status,scheduled_for").in("status", ["planned", "completed"]),
     supabase.from("tutors").select("id,name"),
   ]);
 
@@ -54,7 +57,9 @@ export default async function OnboardingPage({ searchParams }: { searchParams: S
   const onboardingByStudent = new Map(onboardingRows.map((row) => [row.student_id, row]));
   const engagementByStudent = new Map<string, TutoringEngagement>();
   for (const engagement of engagements) if (!engagementByStudent.has(engagement.student_id) || engagement.status === "active") engagementByStudent.set(engagement.student_id, engagement);
-  const plannedEngagements = new Set(sessions.map((row) => row.engagement_id));
+  const sessionReadyEngagements = new Set(
+    sessions.map((row) => row.engagement_id)
+  );
   const tutorById = new Map(tutors.map((row) => [row.id, row.name]));
 
   const awaiting = onboardingRows.filter((row) => row.status === "awaiting_intake").length;
@@ -71,6 +76,13 @@ export default async function OnboardingPage({ searchParams }: { searchParams: S
           <p>Collect academic context, review learning needs, prepare the tutor, activate Student Portal login and confirm the first session from one place.</p>
         </div>
       </header>
+
+      {params.blocked === "1" && (
+        <div className="admin-inline-message warning">
+          Onboarding cannot be marked complete until intake, tutor assignment,
+          Student Portal login and a planned or completed first session are all ready.
+        </div>
+      )}
 
       <section className="admin-metrics admin-metrics-4">
         <div><span>Awaiting intake</span><strong>{awaiting}</strong></div>
@@ -94,9 +106,19 @@ export default async function OnboardingPage({ searchParams }: { searchParams: S
             student.auth_user_id
           );
           const hasTutor = Boolean(engagement?.tutor_id);
-          const hasFirstSession = Boolean(engagement && plannedEngagements.has(engagement.id));
+          const hasFirstSession = Boolean(
+            engagement &&
+            sessionReadyEngagements.has(
+              engagement.id
+            )
+          );
           const hasIntake = Boolean(onboarding?.intake_completed_at);
           const status = onboarding?.status || "awaiting_intake";
+          const canComplete =
+            hasIntake &&
+            hasTutor &&
+            hasPortal &&
+            hasFirstSession;
           return (
             <article key={student.id} className={student.id === params.student ? "is-focus" : ""}>
               <div className="admin-onboarding-head">
@@ -134,7 +156,21 @@ export default async function OnboardingPage({ searchParams }: { searchParams: S
               <div className="admin-onboarding-footer">
                 <form action={saveOnboardingReview} className="admin-onboarding-review-form">
                   <input type="hidden" name="studentId" value={student.id} />
-                  <select name="status" defaultValue={status}>{onboardingStatuses.map((item) => <option key={item} value={item}>{onboardingStatusLabels[item]}</option>)}</select>
+                  <select name="status" defaultValue={status}>
+                    {onboardingStatuses.map((item) => (
+                      <option
+                        key={item}
+                        value={item}
+                        disabled={
+                          item === "complete" &&
+                          !canComplete &&
+                          status !== "complete"
+                        }
+                      >
+                        {onboardingStatusLabels[item]}
+                      </option>
+                    ))}
+                  </select>
                   <input name="adminNotes" defaultValue={onboarding?.admin_notes || ""} placeholder="Internal onboarding note" />
                   <button type="submit">Save review</button>
                 </form>

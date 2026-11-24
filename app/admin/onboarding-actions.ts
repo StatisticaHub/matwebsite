@@ -26,6 +26,118 @@ export async function saveOnboardingReview(formData: FormData) {
   const status = text(formData, "status", 30) as OnboardingStatus;
   if (!studentId || !onboardingStatuses.includes(status)) return;
 
+  if (status === "complete") {
+    const [
+      studentResult,
+      onboardingResult,
+      engagementResult,
+    ] = await Promise.all([
+      supabase
+        .from("students")
+        .select("auth_user_id,portal_enabled")
+        .eq("id", studentId)
+        .maybeSingle(),
+
+      supabase
+        .from("student_onboarding")
+        .select("intake_completed_at")
+        .eq("student_id", studentId)
+        .maybeSingle(),
+
+      supabase
+        .from("tutoring_engagements")
+        .select("id,tutor_id,status")
+        .eq("student_id", studentId)
+        .in("status", ["active", "completed"]),
+    ]);
+
+    if (studentResult.error) {
+      throw new Error(studentResult.error.message);
+    }
+
+    if (onboardingResult.error) {
+      throw new Error(onboardingResult.error.message);
+    }
+
+    if (engagementResult.error) {
+      throw new Error(engagementResult.error.message);
+    }
+
+    const engagements =
+      engagementResult.data || [];
+
+    const hasIntake =
+      Boolean(
+        onboardingResult.data?.intake_completed_at,
+      );
+
+    const hasTutor =
+      engagements.some(
+        (engagement) =>
+          Boolean(
+            engagement.tutor_id,
+          ),
+      );
+
+    const hasStudentLogin =
+      Boolean(
+        studentResult.data?.portal_enabled &&
+        studentResult.data?.auth_user_id,
+      );
+
+    const engagementIds =
+      engagements.map(
+        (engagement) =>
+          engagement.id,
+      );
+
+    let hasFirstSession =
+      false;
+
+    if (engagementIds.length) {
+      const {
+        data: sessionRows,
+        error: sessionError,
+      } = await supabase
+        .from("tutoring_sessions")
+        .select("id")
+        .in(
+          "engagement_id",
+          engagementIds,
+        )
+        .in(
+          "status",
+          [
+            "planned",
+            "completed",
+          ],
+        )
+        .limit(1);
+
+      if (sessionError) {
+        throw new Error(
+          sessionError.message,
+        );
+      }
+
+      hasFirstSession =
+        Boolean(
+          sessionRows?.length,
+        );
+    }
+
+    if (
+      !hasIntake ||
+      !hasTutor ||
+      !hasStudentLogin ||
+      !hasFirstSession
+    ) {
+      redirect(
+        `/admin/onboarding?student=${encodeURIComponent(studentId)}&blocked=1`,
+      );
+    }
+  }
+
   const now = new Date().toISOString();
   const { error } = await supabase.from("student_onboarding").upsert({
     student_id: studentId,
