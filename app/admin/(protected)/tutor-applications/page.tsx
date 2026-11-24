@@ -73,6 +73,228 @@ export default async function TutorApplicationsPage({
   }
 
   const applications = applicationsResult.data || [];
+
+
+  /*
+   * List-level recruitment checks.
+   *
+   * Fetch review metadata in two batch queries rather than issuing
+   * reference/document queries once per application.
+   */
+  const applicationIds = applications.map(
+    (item) => item.id,
+  );
+
+  const [
+    listReferencesResult,
+    listDocumentsResult,
+  ] = applicationIds.length
+    ? await Promise.all([
+        supabase
+          .from("tutor_application_references")
+          .select("application_id,status")
+          .in("application_id", applicationIds),
+
+        supabase
+          .from("tutor_application_documents")
+          .select(
+            "application_id,document_type,verification_status",
+          )
+          .in("application_id", applicationIds),
+      ])
+    : [
+        { data: [], error: null },
+        { data: [], error: null },
+      ];
+
+  if (listReferencesResult.error) {
+    throw new Error(
+      listReferencesResult.error.message,
+    );
+  }
+
+  if (listDocumentsResult.error) {
+    throw new Error(
+      listDocumentsResult.error.message,
+    );
+  }
+
+  const referencesByApplication =
+    new Map<string, any[]>();
+
+  for (
+    const reference of
+      (listReferencesResult.data || []) as any[]
+  ) {
+    const rows =
+      referencesByApplication.get(
+        reference.application_id,
+      ) || [];
+
+    rows.push(reference);
+
+    referencesByApplication.set(
+      reference.application_id,
+      rows,
+    );
+  }
+
+  const documentsByApplication =
+    new Map<string, any[]>();
+
+  for (
+    const document of
+      (listDocumentsResult.data || []) as any[]
+  ) {
+    const rows =
+      documentsByApplication.get(
+        document.application_id,
+      ) || [];
+
+    rows.push(document);
+
+    documentsByApplication.set(
+      document.application_id,
+      rows,
+    );
+  }
+
+  const applicationListChecks = new Map<
+    string,
+    {
+      degreeState: "complete" | "action" | "problem";
+      degreeLabel: string;
+      referenceState: "complete" | "action" | "problem";
+      referenceLabel: string;
+      demoState: "complete" | "action" | "problem";
+      demoLabel: string;
+    }
+  >();
+
+  for (const item of applications) {
+    const references =
+      referencesByApplication.get(item.id) || [];
+
+    const documents =
+      documentsByApplication.get(item.id) || [];
+
+    const verifiedReferenceCount =
+      references.filter(
+        (reference) =>
+          reference.status === "verified",
+      ).length;
+
+    const hasReferenceConcern =
+      references.some(
+        (reference) =>
+          reference.status === "concern",
+      );
+
+    const degreeDocuments =
+      documents.filter(
+        (document) =>
+          document.document_type ===
+          "degree_certificate",
+      );
+
+    const degreeVerified =
+      degreeDocuments.some(
+        (document) =>
+          document.verification_status ===
+          "verified",
+      );
+
+    const degreeRejected =
+      degreeDocuments.some(
+        (document) =>
+          document.verification_status ===
+          "rejected",
+      );
+
+    const itemDemoComplete = Boolean(
+      item.demo_subject &&
+        item.demo_level &&
+        item.demo_topic &&
+        item.demo_video_url,
+    );
+
+    const itemDemoScores = [
+      Number(item.demo_subject_accuracy || 0),
+      Number(item.demo_explanation_clarity || 0),
+      Number(item.demo_teaching_structure || 0),
+      Number(item.demo_communication || 0),
+      Number(item.demo_professionalism || 0),
+    ];
+
+    const itemDemoScoresComplete =
+      itemDemoScores.every(
+        (score) =>
+          score >= 1 &&
+          score <= 5,
+      );
+
+    const itemDemoSatisfactory =
+      itemDemoComplete &&
+      itemDemoScoresComplete &&
+      item.demo_review_status ===
+        "satisfactory";
+
+    const degreeState =
+      degreeVerified
+        ? "complete"
+        : degreeRejected
+          ? "problem"
+          : "action";
+
+    const degreeLabel =
+      degreeVerified
+        ? "Verified"
+        : degreeRejected
+          ? "Rejected"
+          : degreeDocuments.length
+            ? "Review"
+            : "Missing";
+
+    const referenceState =
+      hasReferenceConcern
+        ? "problem"
+        : verifiedReferenceCount >= 2
+          ? "complete"
+          : "action";
+
+    const referenceLabel =
+      hasReferenceConcern
+        ? "Concern"
+        : `${verifiedReferenceCount}/2 verified`;
+
+    const demoState =
+      item.demo_review_status === "rejected"
+        ? "problem"
+        : itemDemoSatisfactory
+          ? "complete"
+          : "action";
+
+    const demoLabel =
+      item.demo_review_status === "rejected"
+        ? "Unsatisfactory"
+        : itemDemoSatisfactory
+          ? "Satisfactory"
+          : itemDemoComplete
+            ? "Awaiting review"
+            : "Incomplete";
+
+    applicationListChecks.set(
+      item.id,
+      {
+        degreeState,
+        degreeLabel,
+        referenceState,
+        referenceLabel,
+        demoState,
+        demoLabel,
+      },
+    );
+  }
   const references = referencesResult.data || [];
   const documents = documentsResult.data || [];
 
@@ -225,6 +447,47 @@ export default async function TutorApplicationsPage({
                     {(item.subjects || []).join(" · ") ||
                       "Subjects not provided"}
                   </small>
+                </div>
+
+                <div className="admin-application-checks">
+                  <span
+                    className={`admin-application-check is-${
+                      applicationListChecks.get(item.id)
+                        ?.degreeState || "action"
+                    }`}
+                  >
+                    <small>Degree</small>
+                    <strong>
+                      {applicationListChecks.get(item.id)
+                        ?.degreeLabel || "Review"}
+                    </strong>
+                  </span>
+
+                  <span
+                    className={`admin-application-check is-${
+                      applicationListChecks.get(item.id)
+                        ?.referenceState || "action"
+                    }`}
+                  >
+                    <small>References</small>
+                    <strong>
+                      {applicationListChecks.get(item.id)
+                        ?.referenceLabel || "0/2 verified"}
+                    </strong>
+                  </span>
+
+                  <span
+                    className={`admin-application-check is-${
+                      applicationListChecks.get(item.id)
+                        ?.demoState || "action"
+                    }`}
+                  >
+                    <small>Demo</small>
+                    <strong>
+                      {applicationListChecks.get(item.id)
+                        ?.demoLabel || "Review"}
+                    </strong>
+                  </span>
                 </div>
 
                 <div className="admin-tutor-meta">

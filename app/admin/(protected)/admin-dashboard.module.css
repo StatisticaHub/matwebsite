@@ -1784,3 +1784,126 @@
   }
 }
 
+
+/* ================================================================
+   TUTOR APPLICATION LIST READINESS
+   ================================================================ */
+
+.shell
+  :global(
+    .admin-tutor-applications-page
+    .admin-tutor-list > article
+  ) {
+  grid-template-columns:
+    minmax(175px, 1.15fr)
+    minmax(260px, 1.45fr)
+    minmax(150px, .8fr)
+    auto;
+  align-items: center;
+}
+
+.shell :global(.admin-application-checks) {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(75px, 1fr));
+  gap: 7px;
+}
+
+.shell :global(.admin-application-check) {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  border: 1px solid #e3e8ef;
+  border-radius: 8px;
+  padding: 8px 9px;
+  background: #f9fafc;
+}
+
+.shell :global(.admin-application-check small) {
+  overflow: hidden;
+  color: #8692a2;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .055em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.shell :global(.admin-application-check strong) {
+  overflow: hidden;
+  color: #41536b;
+  font-size: 9px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shell :global(.admin-application-check.is-complete) {
+  border-color: #cfe7d8;
+  background: #f4faf6;
+}
+
+.shell
+  :global(
+    .admin-application-check.is-complete strong
+  ) {
+  color: #286a45;
+}
+
+.shell :global(.admin-application-check.is-action) {
+  border-color: #eadbb7;
+  background: #fffaf0;
+}
+
+.shell
+  :global(
+    .admin-application-check.is-action strong
+  ) {
+  color: #805d13;
+}
+
+.shell :global(.admin-application-check.is-problem) {
+  border-color: #e6c3c3;
+  background: #fff5f5;
+}
+
+.shell
+  :global(
+    .admin-application-check.is-problem strong
+  ) {
+  color: #963c3c;
+}
+
+@media (max-width: 1100px) {
+  .shell
+    :global(
+      .admin-tutor-applications-page
+      .admin-tutor-list > article
+    ) {
+    grid-template-columns:
+      minmax(180px, 1fr)
+      minmax(230px, 1.2fr)
+      auto;
+  }
+
+  .shell :global(.admin-application-checks) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+@media (max-width: 760px) {
+  .shell
+    :global(
+      .admin-tutor-applications-page
+      .admin-tutor-list > article
+    ) {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .shell :global(.admin-application-checks) {
+    grid-column: auto;
+    grid-template-columns: 1fr;
+  }
+}
