@@ -286,10 +286,56 @@ export async function loadSystemHealthReport(): Promise<SystemHealthReport> {
       checks.push(failedCheck("portal-coverage", "CRM & delivery", "Student portal coverage", portalLinks.error.message, "/admin/portals"));
     } else {
       const now = Date.now();
-      const validPortalStudents = new Set((portalLinks.data ?? []).filter((row) => !row.revoked_at && (!row.expires_at || new Date(row.expires_at).getTime() > now)).map((row) => row.student_id));
-      const activeEngagementStudents = new Set((activeEngagements.data ?? []).map((row) => row.student_id));
-      const missingPortals = [...activeEngagementStudents].filter((id) => !validPortalStudents.has(id)).length;
-      checks.push(countCheck({ id: "portal-coverage", group: "CRM & delivery", title: "Active students without valid portal link", count: missingPortals, healthySummary: "Every active tutoring student has a valid portal link.", issueSummary: `${missingPortals} active student(s) do not have a valid portal link.`, detail: "This may be intentional for very new students; review before treating it as an error.", href: "/admin/portals" }));
+
+      const validPortalStudents = new Set(
+        (portalLinks.data ?? [])
+          .filter(
+            (row) =>
+              !row.revoked_at &&
+              (!row.expires_at ||
+                new Date(row.expires_at).getTime() > now),
+          )
+          .map((row) => row.student_id),
+      );
+
+      const authenticatedPortalStudents = new Set(
+        (activeStudents.data ?? [])
+          .filter(
+            (row) =>
+              row.portal_enabled &&
+              Boolean(row.auth_user_id),
+          )
+          .map((row) => row.id),
+      );
+
+      const activeEngagementStudents = new Set(
+        (activeEngagements.data ?? []).map(
+          (row) => row.student_id,
+        ),
+      );
+
+      const missingPortals = [
+        ...activeEngagementStudents,
+      ].filter(
+        (id) =>
+          !validPortalStudents.has(id) &&
+          !authenticatedPortalStudents.has(id),
+      ).length;
+
+      checks.push(
+        countCheck({
+          id: "portal-coverage",
+          group: "CRM & delivery",
+          title: "Active students without portal access",
+          count: missingPortals,
+          healthySummary:
+            "Every active tutoring student has authenticated portal access or a valid portal link.",
+          issueSummary: `${missingPortals} active student(s) do not have portal access.`,
+          detail:
+            "Authenticated student accounts do not require a persistent portal token link.",
+          href: "/admin/student-access",
+        }),
+      );
     }
   }
 
