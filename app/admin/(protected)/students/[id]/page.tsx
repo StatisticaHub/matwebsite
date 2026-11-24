@@ -30,6 +30,7 @@ import {
   updateTutoringSessionStatus,
 } from "@/app/admin/delivery-actions";
 import type { StudentCommunication } from "@/lib/student-communications";
+import { acknowledgeStudentCommunicationFailure } from "@/app/admin/student-management-actions";
 
 import { getAdminTimeZone } from "@/lib/admin-time-zone";
 import { formatDateTimeInTimeZone, friendlyTimeZoneLabel } from "@/lib/time-zone";
@@ -621,9 +622,59 @@ export default async function StudentDetailPage({
             <div className="admin-communication-list">
               {communications.map((item) => (
                 <article key={item.id}>
-                  <div><strong>{item.subject}</strong><span>{item.communication_type.replaceAll("_", " ")} · {formatDateTime(item.created_at)}</span></div>
-                  <div className={`admin-status communication-${item.status}`}>{item.status}</div>
+                  <div>
+                    <strong>{item.subject}</strong>
+                    <span>
+                      {item.communication_type.replaceAll("_", " ")} ·{" "}
+                      {formatDateTime(item.created_at)}
+                    </span>
+                  </div>
+
+                  <div className={`admin-status communication-${item.status}`}>
+                    {item.status}
+                    {item.failure_acknowledged_at ? " · acknowledged" : ""}
+                  </div>
+
                   {item.error && <small>{item.error}</small>}
+
+                  {item.status === "failed" &&
+                    !item.failure_acknowledged_at && (
+                      <form
+                        action={acknowledgeStudentCommunicationFailure}
+                        className="admin-inline-form"
+                      >
+                        <input
+                          type="hidden"
+                          name="studentId"
+                          value={student.id}
+                        />
+                        <input
+                          type="hidden"
+                          name="communicationId"
+                          value={item.id}
+                        />
+                        <input
+                          name="acknowledgementNote"
+                          placeholder="Resolution note (optional)"
+                        />
+                        <button type="submit">
+                          Acknowledge resolved
+                        </button>
+                      </form>
+                    )}
+
+                  {item.failure_acknowledged_at && (
+                    <small>
+                      Acknowledged{" "}
+                      {formatDateTime(item.failure_acknowledged_at)}
+                      {item.failure_acknowledged_by_email
+                        ? ` by ${item.failure_acknowledged_by_email}`
+                        : ""}
+                      {item.failure_acknowledgement_note
+                        ? ` · ${item.failure_acknowledgement_note}`
+                        : ""}
+                    </small>
+                  )}
                 </article>
               ))}
               {!communications.length && <div className="admin-empty compact">No student emails logged yet.</div>}

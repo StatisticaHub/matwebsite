@@ -23,6 +23,43 @@ function nullableText(formData: FormData, key: string, max = 5000) {
   return value || null;
 }
 
+export async function acknowledgeStudentCommunicationFailure(
+  formData: FormData,
+) {
+  const { session, supabase } = await adminContext();
+
+  const studentId = text(formData, "studentId", 100);
+  const communicationId = text(formData, "communicationId", 100);
+  const note = nullableText(formData, "acknowledgementNote", 1000);
+
+  if (!studentId || !communicationId) return;
+
+  const { data, error } = await supabase
+    .from("student_communications")
+    .update({
+      failure_acknowledged_at: new Date().toISOString(),
+      failure_acknowledged_by_email: session.user.email || null,
+      failure_acknowledgement_note: note,
+    })
+    .eq("id", communicationId)
+    .eq("student_id", studentId)
+    .eq("status", "failed")
+    .is("failure_acknowledged_at", null)
+    .select("id")
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+
+  if (!data) {
+    throw new Error(
+      "This communication failure was not found or has already been acknowledged.",
+    );
+  }
+
+  revalidatePath(`/admin/students/${studentId}`);
+  revalidatePath("/admin/system-health");
+}
+
 export async function updateStudentProfile(formData: FormData) {
   const { supabase } = await adminContext();
   const studentId = text(formData, "studentId", 100);

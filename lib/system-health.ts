@@ -136,7 +136,7 @@ export async function loadSystemHealthReport(): Promise<SystemHealthReport> {
   ] = await Promise.all([
     supabase.from("notification_settings").select("automation_enabled").eq("id", 1).maybeSingle(),
     supabase.from("notification_log").select("id", { count: "exact", head: true }).eq("status", "failed").gte("created_at", isoAgo(7 * DAY)),
-    supabase.from("student_communications").select("id", { count: "exact", head: true }).eq("status", "failed").gte("created_at", isoAgo(7 * DAY)),
+    supabase.from("student_communications").select("id", { count: "exact", head: true }).eq("status", "failed").is("failure_acknowledged_at", null).gte("created_at", isoAgo(7 * DAY)),
     supabase.from("lead_nurture_settings").select("automation_enabled").eq("id", 1).maybeSingle(),
     supabase.from("lead_nurture_log").select("id", { count: "exact", head: true }).eq("status", "failed").gte("created_at", isoAgo(7 * DAY)),
     supabase.from("ga4_lifecycle_event_log").select("id", { count: "exact", head: true }).eq("status", "failed").gte("attempted_at", isoAgo(7 * DAY)),
@@ -184,9 +184,9 @@ export async function loadSystemHealthReport(): Promise<SystemHealthReport> {
     id: "student-email-failures",
     group: "CRM & delivery",
     title: "Student email delivery",
-    healthySummary: "No direct student emails failed in the last 7 days.",
+    healthySummary: "No unresolved student email failures in the last 7 days.",
     issueSummary: `${studentCommunicationFailures.count ?? 0} direct student email(s) failed in the last 7 days.`,
-    detail: "This includes operational emails sent from session, progress and student workflows.",
+    detail: "Acknowledged failures remain in the audit history but no longer count as active incidents.",
     href: "/admin/students",
     failure: true,
   });

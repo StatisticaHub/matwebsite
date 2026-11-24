@@ -26,6 +26,9 @@ export type StudentCommunication = {
   provider_id: string | null;
   error: string | null;
   created_by_email: string | null;
+  failure_acknowledged_at: string | null;
+  failure_acknowledged_by_email: string | null;
+  failure_acknowledgement_note: string | null;
 };
 
 export async function recordStudentCommunication(input: {
