@@ -288,8 +288,11 @@ export default function TutoringLeadForm({
             </label>
 
             <label className="form-span-2">
-              <span>Country</span>
-              <select name="country" required defaultValue="United Kingdom">
+              <span>Country / region</span>
+              <select name="country" required defaultValue="">
+                <option value="" disabled>
+                  Choose your country / region
+                </option>
                 {countries.map((country) => (
                   <option key={country} value={country}>
                     {country}
