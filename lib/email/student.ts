@@ -202,7 +202,27 @@ export async function sendSessionNotification(
   const meeting = input.meetingUrl ? `\nJoin link: ${input.meetingUrl}` : "";
   const text = `Hi ${name},\n\n${statusLine}\n\nDuration: ${input.durationMinutes} minutes${next}${homework}${meeting}\n\nIf anything needs changing, reply to this email.\n\nKind regards,\nMy Academic Tutor`;
   const html = `<!doctype html><html><head><meta charset="utf-8"><style>${styles()}</style></head><body><div class="wrap"><div class="card"><div class="top"><strong>My Academic Tutor</strong><div style="margin-top:5px;font-size:13px;opacity:.78">Tutoring session update</div></div><div class="body"><h1>${escapeHtml(input.topic)}</h1><p>Hi ${escapeHtml(name)},</p><p>${escapeHtml(statusLine)}</p><div class="box"><strong>Duration:</strong> ${input.durationMinutes} minutes${input.nextTopic ? `<br><strong>Next topic:</strong> ${escapeHtml(input.nextTopic)}` : ""}${input.homeworkSummary ? `<br><strong>Practice / homework:</strong> ${escapeHtml(input.homeworkSummary)}` : ""}</div>${input.meetingUrl ? `<a class="button" href="${escapeHtml(input.meetingUrl)}">Join session</a>` : ""}<p>If anything needs changing, reply to this email.</p><p>Kind regards,<br><strong>My Academic Tutor</strong></p></div><div class="footer">This message relates to your tutoring delivery record.</div></div></div></body></html>`;
-  return deliver({ to: input.email, subject, html, text, idempotencyKey: `mat-session/${input.sessionId}/${input.status}` });
+  const notificationVersion = [
+    input.status,
+    input.scheduledFor || "unscheduled",
+    String(input.durationMinutes),
+    input.topic,
+    input.nextTopic || "",
+    input.homeworkSummary || "",
+    input.meetingUrl || "",
+  ].join("|");
+
+  const versionHash = Buffer.from(notificationVersion)
+    .toString("base64url")
+    .slice(0, 80);
+
+  return deliver({
+    to: input.email,
+    subject,
+    html,
+    text,
+    idempotencyKey: `mat-session/${input.sessionId}/${versionHash}`,
+  });
 }
 
 export async function sendHomeworkNotification(input: HomeworkNotification): Promise<StudentEmailResult> {
