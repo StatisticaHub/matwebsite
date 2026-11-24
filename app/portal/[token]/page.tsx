@@ -769,9 +769,9 @@ const openHomework =
       >
 
         {courses.length > 1 && (
-          <section className="portal-course-switcher">
+          <section className="portal-course-hub">
 
-            <div className="portal-course-switcher-head">
+            <div className="portal-course-hub-head">
 
               <div>
 
@@ -780,19 +780,28 @@ const openHomework =
                 </span>
 
                 <h2>
-                  Switch course
+                  Your learning spaces
                 </h2>
+
+                <p>
+                  Choose a course to see its lessons, assignments,
+                  progress and learning materials.
+                </p>
 
               </div>
 
-              <span>
-                {courses.length} active courses
+
+              <span className="portal-course-hub-count">
+                {courses.length} active{" "}
+                {courses.length === 1
+                  ? "course"
+                  : "courses"}
               </span>
 
             </div>
 
 
-            <div className="portal-course-switcher-grid">
+            <div className="portal-course-hub-grid">
 
               {courses.map(
                 (course) => {
@@ -801,52 +810,103 @@ const openHomework =
                     engagement?.id ===
                     course.id;
 
+
+                  const initials =
+                    course.subject
+                      .trim()
+                      .split(/\s+/)
+                      .slice(0, 2)
+                      .map(
+                        (word) =>
+                          word
+                            .slice(0, 1)
+                            .toUpperCase(),
+                      )
+                      .join("");
+
+
                   return (
                     <a
-                      className={
+                      className={`portal-course-hub-card${
                         selected
-                          ? "is-active"
+                          ? " is-active"
                           : ""
-                      }
+                      }`}
                       href={`/portal/${encodeURIComponent(
                         token,
-                      )}?view=${portalView}&course=${encodeURIComponent(
+                      )}?course=${encodeURIComponent(
                         course.id,
                       )}`}
                       key={
                         course.id
                       }
+                      aria-current={
+                        selected
+                          ? "page"
+                          : undefined
+                      }
                     >
 
-                      <div>
+                      <div className="portal-course-hub-card-top">
 
-                        <strong>
+                        <div className="portal-course-hub-icon">
                           {
-                            course.subject
+                            initials ||
+                            "C"
                           }
-                        </strong>
+                        </div>
 
-                        <span>
-                          {course.module ||
-                            course.title}
-                        </span>
+
+                        <div className="portal-course-hub-title">
+
+                          <span>
+                            {
+                              course.subject
+                            }
+                          </span>
+
+                          <strong>
+                            {course.module ||
+                              course.title}
+                          </strong>
+
+                        </div>
+
+
+                        {selected && (
+                          <span className="portal-course-hub-current">
+                            Current
+                          </span>
+                        )}
 
                       </div>
 
 
-                      <div className="portal-course-switcher-meta">
+                      <div className="portal-course-hub-tutor">
 
-                        <small>
-                          {course.tutorName
-                            ? `Tutor: ${course.tutorName}`
-                            : "Tutor being arranged"}
-                        </small>
+                        <span>
+                          Tutor
+                        </span>
 
-                        {selected && (
-                          <b>
-                            Current
-                          </b>
-                        )}
+                        <strong>
+                          {course.tutorName ||
+                            "Being arranged"}
+                        </strong>
+
+                      </div>
+
+
+                      <div className="portal-course-hub-action">
+
+                        <span>
+                          {selected
+                            ? "Currently viewing"
+                            : "Switch to course"}
+                        </span>
+
+                        <b aria-hidden="true">
+                          →
+                        </b>
 
                       </div>
 
