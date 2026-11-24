@@ -31,6 +31,7 @@ import {
 } from "@/app/admin/delivery-actions";
 import type { StudentCommunication } from "@/lib/student-communications";
 import { acknowledgeStudentCommunicationFailure } from "@/app/admin/student-management-actions";
+import AdminStudentActivityTimeline from "@/components/AdminStudentActivityTimeline";
 
 import { getAdminTimeZone } from "@/lib/admin-time-zone";
 import { formatDateTimeInTimeZone, friendlyTimeZoneLabel } from "@/lib/time-zone";
@@ -499,6 +500,10 @@ export default async function StudentDetailPage({
         <div><span>Plan mastered</span><strong>{plan.length ? `${mastered}/${plan.length}` : "—"}</strong></div>
         <div><span>Next session</span><strong className="admin-metric-text">{nextSession ? formatDateTime(nextSession.scheduled_for) : "Not booked"}</strong></div>
       </section>
+
+      <AdminStudentActivityTimeline
+        studentId={student.id}
+      />
 
       {!engagement ? (
         <section className="admin-panel admin-detail-card"><h2>No tutoring engagement</h2><p>This student record does not yet have a tutoring engagement.</p></section>

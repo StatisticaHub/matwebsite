@@ -11316,3 +11316,220 @@ main {
 
 /* ===== END ADMIN STUDENT HEALTH ===== */
 
+
+/* ===== ADMIN STUDENT ACTIVITY TIMELINE ===== */
+
+.admin-student-activity {
+  margin-top: 18px;
+  margin-bottom: 18px;
+}
+
+.admin-student-activity-metrics {
+  display: grid;
+  grid-template-columns:
+    repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.admin-student-activity-metrics > div {
+  padding: 9px 11px;
+  border: 1px solid #e7ebf0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.admin-student-activity-metrics span,
+.admin-student-activity-metrics strong {
+  display: block;
+}
+
+.admin-student-activity-metrics span {
+  color: #8290a1;
+  font-size: 7.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.admin-student-activity-metrics strong {
+  margin-top: 3px;
+  color: #334a65;
+  font-size: 15px;
+}
+
+.admin-student-activity-list {
+  display: grid;
+  margin-top: 14px;
+}
+
+.admin-student-activity-row {
+  display: grid;
+  grid-template-columns:
+    20px minmax(0, 1fr) auto;
+  gap: 10px;
+  min-height: 68px;
+}
+
+.admin-student-activity-marker {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.admin-student-activity-marker::after {
+  content: "";
+  position: absolute;
+  top: 18px;
+  bottom: -1px;
+  width: 1px;
+  background: #e2e8ef;
+}
+
+.admin-student-activity-row:last-child
+.admin-student-activity-marker::after {
+  display: none;
+}
+
+.admin-student-activity-marker span {
+  position: relative;
+  z-index: 1;
+  width: 9px;
+  height: 9px;
+  margin-top: 6px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #7a8ca0;
+  box-shadow:
+    0 0 0 1px #dce3ea;
+}
+
+.admin-student-activity-row.activity-session
+.admin-student-activity-marker span {
+  background: #35689e;
+}
+
+.admin-student-activity-row.activity-homework
+.admin-student-activity-marker span {
+  background: #7563a9;
+}
+
+.admin-student-activity-row.activity-request
+.admin-student-activity-marker span {
+  background: #b5792f;
+}
+
+.admin-student-activity-row.activity-report
+.admin-student-activity-marker span {
+  background: #3e8059;
+}
+
+.admin-student-activity-row.activity-communication
+.admin-student-activity-marker span {
+  background: #56798e;
+}
+
+.admin-student-activity-copy {
+  padding: 0 0 14px;
+}
+
+.admin-student-activity-top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.admin-student-activity-top span {
+  color: #75869a;
+  font-size: 7.5px;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.admin-student-activity-top time {
+  color: #909ba8;
+  font-size: 7.5px;
+}
+
+.admin-student-activity-copy > strong {
+  display: block;
+  color: #344b65;
+  font-size: 10px;
+}
+
+.admin-student-activity-copy > p {
+  margin: 4px 0 0;
+  color: #718095;
+  font-size: 8.5px;
+  line-height: 1.5;
+}
+
+.admin-student-activity-action {
+  display: grid;
+  justify-items: end;
+  align-content: start;
+  gap: 5px;
+  min-width: 78px;
+}
+
+.admin-student-activity-status {
+  padding: 4px 6px;
+  border-radius: 999px;
+  background: #eef2f6;
+  color: #617287;
+  font-size: 7px;
+  font-weight: 850;
+}
+
+.admin-student-activity-status.status-completed,
+.admin-student-activity-status.status-published,
+.admin-student-activity-status.status-sent,
+.admin-student-activity-status.status-resolved {
+  background: #eaf6ee;
+  color: #34704b;
+}
+
+.admin-student-activity-status.status-failed,
+.admin-student-activity-status.status-no_show,
+.admin-student-activity-status.status-cancelled {
+  background: #fff0f0;
+  color: #9b4545;
+}
+
+.admin-student-activity-status.status-planned,
+.admin-student-activity-status.status-new,
+.admin-student-activity-status.status-in_progress,
+.admin-student-activity-status.status-submitted {
+  background: #edf4fb;
+  color: #3b668f;
+}
+
+.admin-student-activity-action a {
+  color: #315f99;
+  font-size: 7.5px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+@media (max-width: 760px) {
+  .admin-student-activity-metrics {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-student-activity-row {
+    grid-template-columns:
+      18px minmax(0, 1fr);
+  }
+
+  .admin-student-activity-action {
+    grid-column: 2;
+    justify-items: start;
+    padding-bottom: 12px;
+  }
+}
+
+/* ===== END ADMIN STUDENT ACTIVITY TIMELINE ===== */
+
