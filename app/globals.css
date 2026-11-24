@@ -11150,3 +11150,169 @@ main {
 
 /* ===== END ADMIN REQUEST CENTRE ===== */
 
+
+/* ===== ADMIN STUDENT HEALTH ===== */
+
+.admin-student-health {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.admin-health-metrics {
+  display: grid;
+  grid-template-columns:
+    repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.admin-health-metrics > div {
+  padding: 11px 12px;
+  border: 1px solid #e7ebf0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.admin-health-metrics span,
+.admin-health-metrics strong,
+.admin-health-metrics small {
+  display: block;
+}
+
+.admin-health-metrics span {
+  color: #76869a;
+  font-size: 7.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.admin-health-metrics strong {
+  margin: 4px 0 2px;
+  color: #2d435e;
+  font-size: 17px;
+}
+
+.admin-health-metrics small {
+  color: #8a96a4;
+  font-size: 7.5px;
+}
+
+.admin-health-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 13px;
+}
+
+.admin-health-row {
+  display: grid;
+  grid-template-columns:
+    minmax(180px, .9fr)
+    minmax(260px, 1.5fr)
+    auto;
+  gap: 14px;
+  align-items: center;
+  padding: 12px 13px;
+  border: 1px solid #e6ebf0;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.admin-health-person strong,
+.admin-health-person span,
+.admin-health-person small {
+  display: block;
+}
+
+.admin-health-person strong {
+  color: #344a65;
+  font-size: 10.5px;
+}
+
+.admin-health-person span {
+  margin-top: 2px;
+  color: #7c8998;
+  font-size: 8.5px;
+}
+
+.admin-health-person small {
+  margin-top: 4px;
+  color: #909aa7;
+  font-size: 7.5px;
+}
+
+.admin-health-signals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.admin-health-signals span {
+  padding: 5px 7px;
+  border-radius: 999px;
+  background: #f1f4f7;
+  color: #5d6f84;
+  font-size: 7.5px;
+  font-weight: 800;
+}
+
+.admin-health-signals span.is-risk {
+  background: #fff0f0;
+  color: #9b4545;
+}
+
+.admin-health-action {
+  display: grid;
+  justify-items: end;
+  gap: 6px;
+}
+
+.admin-health-action > span {
+  padding: 5px 7px;
+  border-radius: 999px;
+  background: #eef3f7;
+  color: #607286;
+  font-size: 7.5px;
+  font-weight: 850;
+}
+
+.admin-health-action > span.is-attention {
+  background: #fff4df;
+  color: #8c641c;
+}
+
+.admin-health-action > span.is-high {
+  background: #ffeded;
+  color: #993e3e;
+}
+
+.admin-health-action a {
+  color: #315f99;
+  font-size: 8px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+@media (max-width: 1050px) {
+  .admin-health-metrics {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .admin-health-metrics {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-health-row {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-health-action {
+    justify-items: start;
+  }
+}
+
+/* ===== END ADMIN STUDENT HEALTH ===== */
+

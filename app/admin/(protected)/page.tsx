@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AdminCommandCentre from "@/components/AdminCommandCentre";
+import AdminStudentHealth from "@/components/AdminStudentHealth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   leadStatusLabels,
@@ -113,6 +114,8 @@ export default async function AdminDashboard({
       </header>
 
       <AdminCommandCentre />
+
+      <AdminStudentHealth />
 
 
       
