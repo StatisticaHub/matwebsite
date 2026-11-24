@@ -10,7 +10,23 @@ export const metadata: Metadata = {
     "Tell us what you are studying and where you are stuck. We will read your request, match you with a suitable tutor and confirm the price before you book.",
 };
 
-export default function Page() {
+type SearchParams = Promise<
+  Record<string, string | string[] | undefined>
+>;
+
+function firstParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] || "" : value || "";
+}
+
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const params = await searchParams;
+  const defaultSubject = firstParam(params.subject);
+  const defaultSupportType = firstParam(params.support);
+
   return (
     <>
       <section className="page-hero compact-hero conversion-request-hero">
@@ -85,7 +101,10 @@ export default function Page() {
               </div>
             </div>
 
-            <TutoringLeadForm />
+            <TutoringLeadForm
+              defaultSubject={defaultSubject || undefined}
+              defaultSupportType={defaultSupportType || undefined}
+            />
           </div>
         </div>
       </section>
