@@ -866,26 +866,35 @@ export default async function TutorApplicationsPage({
                   </div>
 
                   <h2>
-                    {ready
-                      ? "Ready to approve"
-                      : "Checks still required"}
+                    {selected.status === "rejected"
+                      ? "Application rejected"
+                      : ready
+                        ? "Ready to approve"
+                        : "Checks still required"}
                   </h2>
                 </div>
 
                 <span
                   className={
-                    ready
-                      ? "admin-readiness-status is-ready"
-                      : "admin-readiness-status is-pending"
+                    selected.status === "rejected"
+                      ? "admin-readiness-status is-rejected"
+                      : ready
+                        ? "admin-readiness-status is-ready"
+                        : "admin-readiness-status is-pending"
                   }
                 >
-                  {ready ? "READY" : "IN REVIEW"}
+                  {selected.status === "rejected"
+                    ? "REJECTED"
+                    : ready
+                      ? "READY"
+                      : "IN REVIEW"}
                 </span>
               </div>
 
               <p className="admin-readiness-intro">
-                Complete every required quality check before converting
-                this applicant into a tutor.
+                {selected.status === "rejected"
+                  ? "This application is currently closed as rejected. The checks below remain visible as part of the review record."
+                  : "Complete every required quality check before converting this applicant into a tutor."}
               </p>
 
               <div className="admin-readiness-list">
@@ -1006,9 +1015,11 @@ export default async function TutorApplicationsPage({
                     : "admin-inline-message warning"
                 }
               >
-                {ready
-                  ? "All mandatory quality checks are complete. This applicant can now be converted into a pending tutor."
-                  : "Approval remains locked until every readiness check above is complete."}
+                {selected.status === "rejected"
+                  ? "This application has been rejected. Reopen the review if you want to assess the applicant again."
+                  : ready
+                    ? "All mandatory quality checks are complete. This applicant can now be converted into a pending tutor."
+                    : "Approval remains locked until every readiness check above is complete."}
               </div>
 
               {selected.status === "converted" &&
@@ -1019,6 +1030,32 @@ export default async function TutorApplicationsPage({
                 >
                   Open tutor record →
                 </Link>
+              ) : selected.status === "rejected" ? (
+                <form
+                  action={reviewTutorApplication}
+                  className="admin-onboarding-review-form"
+                >
+                  <input
+                    type="hidden"
+                    name="applicationId"
+                    value={selected.id}
+                  />
+
+                  <input
+                    name="adminNotes"
+                    defaultValue={selected.admin_notes || ""}
+                    placeholder="Reason for reopening or internal review note"
+                  />
+
+                  <button
+                    className="admin-secondary-button"
+                    type="submit"
+                    name="decision"
+                    value="reviewing"
+                  >
+                    Reopen review
+                  </button>
+                </form>
               ) : (
                 <>
                   <form
