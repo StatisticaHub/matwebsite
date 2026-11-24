@@ -9469,3 +9469,486 @@ body {
     font-size: 12px !important;
   }
 }
+
+
+/* ==========================================================================
+   MAT TYPOGRAPHY SYSTEM — FINAL READABILITY PASS
+   Public website + Student Portal + Tutor Portal
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1. PUBLIC WEBSITE
+   ========================================================================== */
+
+body {
+  font-size: 16px;
+}
+
+.site-header,
+.site-footer,
+main {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+
+/* General public body copy */
+
+.section p,
+.page-hero p,
+.card p,
+.article-shell p,
+.contact-card p,
+.quote-card p {
+  font-size: 15.5px;
+  line-height: 1.68;
+}
+
+
+/* Navigation */
+
+.mat-public-nav a {
+  font-size: 12.5px !important;
+}
+
+.mat-public-portal-link {
+  font-size: 12px !important;
+}
+
+.mat-public-request {
+  font-size: 12px !important;
+}
+
+
+/* Smaller public UI text */
+
+.eyebrow,
+.home-v2-kicker {
+  font-size: 11px !important;
+}
+
+.text-link {
+  font-size: 13.5px !important;
+}
+
+.button {
+  font-size: 13.5px !important;
+}
+
+
+/* Cards */
+
+.home-v2-learning-card p,
+.home-v2-subject-card p,
+.home-v2-resource-card p,
+.home-v2-process-grid p {
+  font-size: 15px !important;
+}
+
+.home-v2-learning-card strong,
+.home-v2-learning-card h3,
+.home-v2-subject-card h3,
+.home-v2-resource-card h3 {
+  font-size: 20px;
+}
+
+
+/* Footer */
+
+.footer-brand p {
+  font-size: 14px !important;
+}
+
+.footer-columns a,
+.footer-columns span {
+  font-size: 13px !important;
+}
+
+
+/* ==========================================================================
+   2. STUDENT PORTAL
+   ========================================================================== */
+
+.student-portal-shell {
+  font-size: 15px;
+}
+
+
+/* Student portal brand */
+
+.student-portal-shell .portal-brand strong {
+  font-size: 18px !important;
+}
+
+.student-portal-shell .portal-brand span {
+  font-size: 11px !important;
+}
+
+
+/* Main navigation */
+
+.student-portal-shell .portal-upgrade-nav a {
+  font-size: 13px !important;
+  line-height: 1.2 !important;
+}
+
+
+/* Student identity */
+
+.student-portal-shell .portal-topbar-meta {
+  font-size: 12.5px !important;
+}
+
+.student-portal-shell .portal-topbar-meta > span {
+  font-size: 10.5px !important;
+}
+
+.student-portal-shell .portal-topbar-meta strong {
+  font-size: 13px !important;
+}
+
+.student-portal-shell .portal-signout {
+  font-size: 12px !important;
+}
+
+
+/* Student page hero */
+
+.student-portal-shell .portal-welcome h1 {
+  font-size: clamp(40px, 4.3vw, 54px) !important;
+}
+
+.student-portal-shell .portal-welcome p {
+  font-size: 16px !important;
+  line-height: 1.68 !important;
+}
+
+.student-portal-shell .portal-kicker {
+  font-size: 10.5px !important;
+}
+
+
+/* Dashboard cards */
+
+.student-portal-shell .portal-dashboard-simple-card h2,
+.student-portal-shell .portal-dashboard-recent h2,
+.student-portal-shell .portal-dashboard-progress-mini h2 {
+  font-size: 21px !important;
+  line-height: 1.22 !important;
+}
+
+.student-portal-shell .portal-dashboard-simple-card p,
+.student-portal-shell .portal-dashboard-recent p,
+.student-portal-shell .portal-dashboard-progress-mini p {
+  font-size: 15px !important;
+  line-height: 1.62 !important;
+}
+
+
+/* General student panels */
+
+.student-portal-shell .portal-panel h2 {
+  font-size: 24px !important;
+}
+
+.student-portal-shell .portal-panel h3 {
+  font-size: 18px !important;
+}
+
+.student-portal-shell .portal-panel p,
+.student-portal-shell .portal-panel li {
+  font-size: 14.5px !important;
+  line-height: 1.65 !important;
+}
+
+
+/* Student summary / progress */
+
+.student-portal-shell .portal-summary-grid span {
+  font-size: 10px !important;
+}
+
+.student-portal-shell .portal-summary-grid strong {
+  font-size: 15px !important;
+}
+
+.student-portal-shell .portal-summary-grid small {
+  font-size: 11.5px !important;
+}
+
+.student-portal-shell .portal-progress-card > span {
+  font-size: 10.5px !important;
+}
+
+.student-portal-shell .portal-progress-card > strong {
+  font-size: 38px !important;
+}
+
+.student-portal-shell .portal-progress-card small {
+  font-size: 11px !important;
+}
+
+
+/* Student forms */
+
+.student-portal-shell input,
+.student-portal-shell select,
+.student-portal-shell textarea,
+.student-portal-shell button {
+  font-size: 14px !important;
+}
+
+.student-portal-shell label > span {
+  font-size: 12.5px !important;
+}
+
+
+/* Student buttons */
+
+.student-portal-shell .button {
+  font-size: 13px !important;
+}
+
+
+/* Student tables / lists */
+
+.student-portal-shell table th {
+  font-size: 10.5px !important;
+}
+
+.student-portal-shell table td {
+  font-size: 13px !important;
+}
+
+
+/* ==========================================================================
+   3. TUTOR PORTAL
+   ========================================================================== */
+
+.tutor-app {
+  font-size: 14px;
+}
+
+
+/* Tutor branding */
+
+.tutor-app .tutor-brand strong {
+  font-size: 19px !important;
+}
+
+.tutor-app .tutor-brand span {
+  font-size: 13px !important;
+}
+
+.tutor-app .tutor-sidebar-brand > small {
+  font-size: 10.5px !important;
+}
+
+
+/* Tutor navigation */
+
+.tutor-app .tutor-sidebar-nav a {
+  font-size: 12.5px !important;
+}
+
+.tutor-app .tutor-nav-label {
+  font-size: 9.5px !important;
+}
+
+
+/* Tutor account area */
+
+.tutor-app .tutor-sidebar-footer span {
+  font-size: 13px !important;
+}
+
+.tutor-app .tutor-sidebar-footer small {
+  font-size: 11px !important;
+}
+
+.tutor-app .tutor-signout {
+  font-size: 12px !important;
+}
+
+
+/* Tutor page heading */
+
+.tutor-app .tutor-page-head h1 {
+  font-size: 34px !important;
+  line-height: 1.15 !important;
+}
+
+.tutor-app .tutor-page-head p {
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+}
+
+.tutor-app .tutor-eyebrow {
+  font-size: 10.5px !important;
+}
+
+
+/* Metrics */
+
+.tutor-app .tutor-metrics span {
+  font-size: 10.5px !important;
+}
+
+.tutor-app .tutor-metrics strong {
+  font-size: 26px !important;
+}
+
+.tutor-app .tutor-metrics small {
+  font-size: 11.5px !important;
+}
+
+
+/* Tutor panels */
+
+.tutor-app .tutor-panel h2,
+.tutor-app .tutor-student-card h2 {
+  font-size: 20px !important;
+}
+
+.tutor-app .tutor-panel h3,
+.tutor-app .tutor-student-card h3 {
+  font-size: 16px !important;
+}
+
+.tutor-app .tutor-panel p,
+.tutor-app .tutor-student-card p {
+  font-size: 13.5px !important;
+  line-height: 1.6 !important;
+}
+
+
+/* Lists */
+
+.tutor-app .tutor-list > a strong {
+  font-size: 13.5px !important;
+}
+
+.tutor-app .tutor-list > a span {
+  font-size: 11.5px !important;
+}
+
+.tutor-app .tutor-empty {
+  font-size: 13px !important;
+}
+
+
+/* Tables */
+
+.tutor-app .tutor-table th {
+  font-size: 10.5px !important;
+  line-height: 1.35 !important;
+}
+
+.tutor-app .tutor-table td {
+  font-size: 12.75px !important;
+  line-height: 1.5 !important;
+}
+
+
+/* Panel utility links */
+
+.tutor-app .tutor-panel-head a {
+  font-size: 12px !important;
+}
+
+
+/* Tutor forms */
+
+.tutor-app input,
+.tutor-app select,
+.tutor-app textarea {
+  font-size: 13.5px !important;
+}
+
+.tutor-app label > span {
+  font-size: 12px !important;
+}
+
+.tutor-app .tutor-primary-button,
+.tutor-app .tutor-secondary-button,
+.tutor-app .tutor-primary-link {
+  font-size: 12.5px !important;
+}
+
+
+/* Alerts */
+
+.tutor-app .tutor-alert {
+  font-size: 13px !important;
+}
+
+
+/* ==========================================================================
+   MOBILE TYPOGRAPHY
+   ========================================================================== */
+
+@media (max-width: 680px) {
+
+  /* Public */
+
+  body {
+    font-size: 16px;
+  }
+
+  .home-v2-hero h1 {
+    font-size: 38px !important;
+  }
+
+  .page-hero h1 {
+    font-size: 36px !important;
+  }
+
+
+  /* Student */
+
+  .student-portal-shell {
+    font-size: 15px;
+  }
+
+  .student-portal-shell .portal-welcome h1 {
+    font-size: 35px !important;
+  }
+
+  .student-portal-shell .portal-welcome p {
+    font-size: 15.5px !important;
+  }
+
+  .student-portal-shell .portal-upgrade-nav a {
+    font-size: 12px !important;
+  }
+
+  .student-portal-shell .portal-dashboard-simple-card h2,
+  .student-portal-shell .portal-dashboard-recent h2 {
+    font-size: 20px !important;
+  }
+
+
+  /* Tutor */
+
+  .tutor-app {
+    font-size: 14px;
+  }
+
+  .tutor-app .tutor-page-head h1 {
+    font-size: 29px !important;
+  }
+
+  .tutor-app .tutor-sidebar-nav a {
+    font-size: 11.5px !important;
+  }
+
+  .tutor-app .tutor-panel h2,
+  .tutor-app .tutor-student-card h2 {
+    font-size: 19px !important;
+  }
+
+  .tutor-app .tutor-table td {
+    font-size: 12.5px !important;
+  }
+}
