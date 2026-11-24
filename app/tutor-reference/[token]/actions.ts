@@ -3,6 +3,21 @@
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+const REFERENCE_LINK_VALID_DAYS = 30;
+
+function referenceLinkExpired(requestSentAt: string) {
+  const sentAt = new Date(requestSentAt).getTime();
+
+  if (!Number.isFinite(sentAt)) {
+    return true;
+  }
+
+  return (
+    Date.now() - sentAt >
+    REFERENCE_LINK_VALID_DAYS * 24 * 60 * 60 * 1000
+  );
+}
+
 function text(formData: FormData, key: string, max = 5000) {
   return String(formData.get(key) || "")
     .trim()
@@ -104,6 +119,12 @@ export async function submitTutorReference(
   ) {
     redirect(
       `/tutor-reference/${token}?submitted=1`,
+    );
+  }
+
+  if (referenceLinkExpired(reference.request_sent_at)) {
+    redirect(
+      `/tutor-reference/${token}?expired=1`,
     );
   }
 

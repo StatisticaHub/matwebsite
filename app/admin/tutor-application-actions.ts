@@ -1,5 +1,6 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/admin-auth";
@@ -124,8 +125,25 @@ export async function sendTutorReferenceRequest(
     "https://www.myacademictutor.com"
   ).replace(/\/$/, "");
 
+  // Rotate the bearer token every time a reference request is sent.
+  // This permanently invalidates links from older emails.
+  const newRequestToken = randomUUID();
+
+  const { error: tokenError } = await supabase
+    .from("tutor_application_references")
+    .update({
+      request_token: newRequestToken,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", referenceId)
+    .eq("application_id", applicationId);
+
+  if (tokenError) {
+    throw new Error(tokenError.message);
+  }
+
   const responseUrl =
-    `${siteUrl}/tutor-reference/${reference.request_token}`;
+    `${siteUrl}/tutor-reference/${newRequestToken}`;
 
   const result = await sendTutorReferenceRequestEmail({
     refereeName: reference.name,

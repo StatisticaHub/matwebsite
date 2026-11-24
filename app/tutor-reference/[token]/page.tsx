@@ -14,6 +14,21 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
+const REFERENCE_LINK_VALID_DAYS = 30;
+
+function referenceLinkExpired(requestSentAt: string) {
+  const sentAt = new Date(requestSentAt).getTime();
+
+  if (!Number.isFinite(sentAt)) {
+    return true;
+  }
+
+  return (
+    Date.now() - sentAt >
+    REFERENCE_LINK_VALID_DAYS * 24 * 60 * 60 * 1000
+  );
+}
+
 export default async function TutorReferencePage({
   params,
   searchParams,
@@ -22,6 +37,7 @@ export default async function TutorReferencePage({
   searchParams: Promise<{
     submitted?: string;
     error?: string;
+    expired?: string;
   }>;
 }) {
   const { token } = await params;
@@ -73,6 +89,13 @@ export default async function TutorReferencePage({
     reference.status === "verified" ||
     query.submitted === "1";
 
+  const expired =
+    !alreadySubmitted &&
+    (
+      query.expired === "1" ||
+      referenceLinkExpired(reference.request_sent_at)
+    );
+
   return (
     <main className="page-hero compact-hero">
       <div
@@ -92,7 +115,25 @@ export default async function TutorReferencePage({
           applicant's suitability for one-to-one teaching.
         </p>
 
-        {alreadySubmitted ? (
+        {expired ? (
+          <div className="card form-card">
+            <h2>This reference link has expired.</h2>
+
+            <p>
+              For privacy and security, tutor reference links are
+              available for 30 days after they are sent.
+            </p>
+
+            <p>
+              Please contact My Academic Tutor or ask the applicant
+              to request a new reference email from our team.
+            </p>
+
+            <Link href="/" className="button button-secondary">
+              My Academic Tutor
+            </Link>
+          </div>
+        ) : alreadySubmitted ? (
           <div className="card form-card">
             <h2>Reference received</h2>
 
