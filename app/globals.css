@@ -10019,3 +10019,82 @@ main {
     padding-bottom:10px;
   }
 }
+
+
+/* MAT tutoring enquiry success journey */
+.form-success-intro{
+  max-width:600px;
+  margin:0 auto 18px;
+  color:#607086;
+  line-height:1.65;
+}
+
+.form-success-next{
+  max-width:620px;
+  margin:22px auto 0;
+  padding:20px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--surface);
+  text-align:left;
+}
+
+.form-success-next>strong{
+  display:block;
+  margin-bottom:14px;
+  color:var(--navy);
+  font-size:13px;
+}
+
+.form-success-steps{
+  display:grid;
+  gap:12px;
+}
+
+.form-success-steps>div{
+  display:grid;
+  grid-template-columns:28px minmax(0,1fr);
+  gap:10px;
+  align-items:start;
+}
+
+.form-success-steps span{
+  display:grid;
+  place-items:center;
+  width:28px;
+  height:28px;
+  border-radius:999px;
+  background:#eef4ff;
+  color:#174ba8;
+  font-size:10px;
+  font-weight:850;
+}
+
+.form-success-steps p{
+  margin:4px 0 0;
+  color:#607086;
+  font-size:12px;
+  line-height:1.55;
+}
+
+.form-success-actions{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:22px;
+}
+
+@media(max-width:680px){
+  .form-success{
+    padding:28px 8px;
+  }
+
+  .form-success-actions{
+    display:grid;
+  }
+
+  .form-success-actions .button{
+    width:100%;
+  }
+}

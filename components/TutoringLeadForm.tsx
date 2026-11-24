@@ -151,14 +151,14 @@ export default function TutoringLeadForm({
 
         <h3>Request received</h3>
 
-        <p>
+        <p className="form-success-intro">
           {status.message ||
-            "Thank you. Our team will review your request and get back to you shortly."}
+            "Thank you. We have your tutoring request and will review the academic context before suggesting the next step."}
         </p>
 
         {status.reference && (
           <div className="reference">
-            Reference: <strong>{status.reference}</strong>
+            Your reference: <strong>{status.reference}</strong>
           </div>
         )}
 
@@ -168,17 +168,49 @@ export default function TutoringLeadForm({
           </p>
         )}
 
-        <button
-          className="button button-secondary"
-          type="button"
-          onClick={() =>
-            setStatus({
-              type: "idle",
-            })
-          }
-        >
-          Submit another request
-        </button>
+        {status.mode !== "demo" && (
+          <div className="form-success-next">
+            <strong>What happens next</strong>
+
+            <div className="form-success-steps">
+              <div>
+                <span>1</span>
+                <p>We review your subject, level and learning need.</p>
+              </div>
+
+              <div>
+                <span>2</span>
+                <p>We identify suitable tutoring support for the request.</p>
+              </div>
+
+              <div>
+                <span>3</span>
+                <p>We contact you with the proposed next step and price before you book.</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="form-success-actions">
+          <a
+            className="button button-primary"
+            href="/learn"
+          >
+            Explore free learning resources
+          </a>
+
+          <button
+            className="button button-secondary"
+            type="button"
+            onClick={() =>
+              setStatus({
+                type: "idle",
+              })
+            }
+          >
+            Submit another request
+          </button>
+        </div>
       </div>
     );
   }
