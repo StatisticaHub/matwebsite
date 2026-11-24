@@ -1,10 +1,24 @@
 import type { Metadata } from "next";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { Manrope, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { subjects } from "@/lib/tutoring-data";
+
+
+const matSans = Manrope({
+  subsets: ["latin"],
+  variable: "--mat-font-sans",
+  display: "swap",
+});
+
+const matSerif = Source_Serif_4({
+  subsets: ["latin"],
+  variable: "--mat-font-serif",
+  display: "swap",
+});
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
@@ -90,7 +104,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className={`${matSans.variable} ${matSerif.variable}`}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

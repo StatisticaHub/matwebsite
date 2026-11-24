@@ -1,180 +1,273 @@
 import Link from "next/link";
-import TutoringLeadForm from "@/components/TutoringLeadForm";
+
+import TestimonialCard from "@/components/TestimonialCard";
+import TrackedLink from "@/components/TrackedLink";
+
+import { getApprovedTestimonials } from "@/lib/testimonials";
 import { subjects } from "@/lib/tutoring-data";
 import { resources } from "@/lib/resources";
-import TestimonialCard from "@/components/TestimonialCard";
-import { getApprovedTestimonials } from "@/lib/testimonials";
 
-import ConversionProofBar from "@/components/ConversionProofBar";
-import HighIntentLinkGrid from "@/components/HighIntentLinkGrid";
-import TrackedLink from "@/components/TrackedLink";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const testimonials = await getApprovedTestimonials({ featuredFirst: true, limit: 3 });
+  const testimonials = await getApprovedTestimonials({
+    featuredFirst: true,
+    limit: 3,
+  });
+
   return (
     <>
-      <section className="hero">
-        <div className="shell hero-grid">
-          <div className="hero-copy">
-            <div className="eyebrow">
-              LIVE ONE-TO-ONE ONLINE TUTORING
+      {/* ============================================================
+          HERO
+          ============================================================ */}
+
+      <section className="home-v2-hero">
+        <div className="shell home-v2-hero-grid">
+          <div className="home-v2-hero-copy">
+            <div className="home-v2-kicker">
+              PERSONALISED ONE-TO-ONE EDUCATION
             </div>
 
             <h1>
-              One-to-one tutoring that starts with what you actually need help with.
+              Understand difficult subjects.
+              <span> Build skills that last.</span>
             </h1>
 
-            <p className="hero-lead">
-              Tell us your subject, level and the topic that is giving you trouble. We’ll match you with a tutor who can explain it clearly, work through examples with you and help you practise until it makes sense.
+            <p>
+              My Academic Tutor provides thoughtful one-to-one
+              teaching for students who want difficult ideas
+              explained clearly, practised properly and understood
+              at the level their course requires.
             </p>
 
-            <div className="button-row">
+            <div className="home-v2-actions">
               <TrackedLink
                 className="button button-primary button-large"
                 href="/find-a-tutor"
-                trackingId="home_hero_request_tutoring"
+                trackingId="home_v2_request_tutoring"
               >
-                Request tutoring
+                Request personalised tutoring
               </TrackedLink>
 
               <TrackedLink
-                className="button button-secondary button-large"
+                className="home-v2-text-action"
                 href="/learn"
-                trackingId="home_hero_free_learning"
+                trackingId="home_v2_learning_hub"
                 contentType="learning_cta"
               >
                 Explore free learning
+                <span>→</span>
               </TrackedLink>
             </div>
 
-            <div className="trust-row" aria-label="Service highlights">
-              <span>Since 2020</span>
-              <span>Tutor matching by subject</span>
-              <span>School to PhD & research</span>
-              <span>Online worldwide</span>
+            <div
+              className="home-v2-trust"
+              aria-label="My Academic Tutor highlights"
+            >
+              <span>Teaching since 2020</span>
+              <span>School to postgraduate</span>
+              <span>Live online lessons</span>
+              <span>Students worldwide</span>
             </div>
           </div>
 
-          <aside
-            className="hero-panel lesson-panel"
-            aria-label="How tutoring works"
-          >
-            <div className="hero-panel-label">
-              A SESSION BUILT AROUND WHAT YOU NEED
+          <aside className="home-v2-hero-card">
+            <div className="home-v2-card-kicker">
+              EDUCATION FIRST
             </div>
 
             <h2>
-              Start with the part that is not making sense.
+              The aim is not simply to finish the question.
             </h2>
 
-            <div className="lesson-sequence">
+            <p>
+              Good tutoring should help you understand why a method
+              works, recognise when to use it and become more
+              confident working independently.
+            </p>
+
+            <div className="home-v2-principles">
               <div>
                 <span>01</span>
-                <strong>Clarify</strong>
-                <p>
-                  Pinpoint the idea, method or step that is causing trouble.
-                </p>
+                <div>
+                  <strong>Understand</strong>
+                  <p>
+                    Build a clear explanation from the foundations.
+                  </p>
+                </div>
               </div>
 
               <div>
                 <span>02</span>
-                <strong>Explain</strong>
-                <p>
-                  Explain it in a way that fits your course and current level.
-                </p>
+                <div>
+                  <strong>Practise</strong>
+                  <p>
+                    Apply the idea through guided examples.
+                  </p>
+                </div>
               </div>
 
               <div>
                 <span>03</span>
-                <strong>Practise</strong>
-                <p>
-                  Work through an example together, then try it with guidance.
-                </p>
-              </div>
-
-              <div>
-                <span>04</span>
-                <strong>Progress</strong>
-                <p>
-                  Finish with a clear idea of what you understand and what to practise next.
-                </p>
+                <div>
+                  <strong>Become independent</strong>
+                  <p>
+                    Develop the confidence to solve new problems.
+                  </p>
+                </div>
               </div>
             </div>
           </aside>
         </div>
       </section>
 
-      <section className="trust-band" aria-label="Academic levels supported">
-        <div className="shell trust-band-grid">
-          <Link href="/levels/school-secondary">Secondary school</Link>
-          <Link href="/levels/gcse-igcse">GCSE / IGCSE</Link>
-          <Link href="/levels/a-level-ib">A-Level / IB</Link>
-          <Link href="/levels/undergraduate">Undergraduate</Link>
-          <Link href="/levels/masters">Master’s</Link>
-          <Link href="/levels/phd-research">PhD & research</Link>
+      {/* ============================================================
+          LEVELS
+          ============================================================ */}
+
+      <section className="home-v2-level-bar">
+        <div className="shell">
+          <span className="home-v2-level-label">
+            SUPPORT ACROSS YOUR EDUCATION
+          </span>
+
+          <div className="home-v2-levels">
+            <Link href="/levels/school-secondary">
+              Secondary
+            </Link>
+
+            <Link href="/levels/gcse-igcse">
+              GCSE / IGCSE
+            </Link>
+
+            <Link href="/levels/a-level-ib">
+              A-Level / IB
+            </Link>
+
+            <Link href="/levels/undergraduate">
+              Undergraduate
+            </Link>
+
+            <Link href="/levels/masters">
+              Master&apos;s
+            </Link>
+
+            <Link href="/levels/phd-research">
+              PhD & research
+            </Link>
+          </div>
         </div>
       </section>
 
-      <ConversionProofBar />
+      {/* ============================================================
+          EDUCATIONAL MODEL
+          ============================================================ */}
 
-      <section className="section home-tutoring-journey">
+      <section className="section home-v2-learning">
         <div className="shell">
-          <div className="conversion-section-head">
-            <div className="eyebrow">HOW TUTORING WORKS</div>
-            <h2>Tell us what you’re studying. We’ll take it from there.</h2>
-            <p>We look at what you’re studying, where you’re stuck and what you want to achieve, then match you with a tutor who fits.</p>
-            <Link href="/tutors" className="text-link">See our tutor standards</Link>
-          </div>
-          <div className="conversion-journey">
-            <article><span>1</span><h3>Tell us where you’re stuck</h3><p>Tell us your subject, level and the exact topic or problem you want help with.</p></article>
-            <article><span>2</span><h3>We read it and match carefully</h3><p>We look at the topic, level and your goals, then find a suitable available tutor.</p></article>
-            <article><span>3</span><h3>Meet your tutor online</h3><p>Ask questions, work through examples and practise the parts you find difficult.</p></article>
-          </div>
-        </div>
-      </section>
-      {testimonials.length ? (
-        <section className="section section-soft testimonial-home-section">
-          <div className="shell">
-            <div className="section-head">
-              <div><div className="eyebrow">STUDENT EXPERIENCES</div><h2>What students say after working with us.</h2><p className="section-intro">Feedback from students who have used My Academic Tutor, published with their permission.</p></div>
-              <Link href="/testimonials" className="text-link">Read all testimonials</Link>
-            </div>
-            <div className="testimonial-grid testimonial-grid-home">{testimonials.map((item) => <TestimonialCard key={item.id} testimonial={item} />)}</div>
-          </div>
-        </section>
-      ) : null}
-
-
-      <section className="section section-soft">
-        <div className="shell">
-          <div className="section-head">
+          <div className="home-v2-section-heading">
             <div>
-              <div className="eyebrow">SUBJECTS</div>
+              <span className="home-v2-kicker">
+                LEARN. PRACTISE. PROGRESS.
+              </span>
 
               <h2>
-                Find tutoring for the subject you’re studying.
+                Academic support should strengthen your own thinking.
               </h2>
-
-              <p className="section-intro">
-                Choose a subject to see the topics, levels and types of tutoring
-                we can cover.
-              </p>
             </div>
 
-            <Link href="/subjects" className="text-link">
-              View all subjects
+            <p>
+              Use MAT as a place to learn independently, develop
+              technical skills and access one-to-one teaching when
+              deeper explanation or feedback would help.
+            </p>
+          </div>
+
+          <div className="home-v2-learning-grid">
+            <article>
+              <span className="home-v2-card-number">01</span>
+
+              <h3>Learn concepts clearly</h3>
+
+              <p>
+                Read free explanations and study guides designed to
+                make difficult academic ideas more approachable.
+              </p>
+
+              <Link href="/learn">
+                Visit the learning hub →
+              </Link>
+            </article>
+
+            <article>
+              <span className="home-v2-card-number">02</span>
+
+              <h3>Practise the method</h3>
+
+              <p>
+                Move from reading an explanation to solving,
+                interpreting and applying ideas in realistic
+                academic problems.
+              </p>
+
+              <Link href="/subjects">
+                Explore subjects →
+              </Link>
+            </article>
+
+            <article>
+              <span className="home-v2-card-number">03</span>
+
+              <h3>Work one-to-one</h3>
+
+              <p>
+                Get live teaching, guided practice and feedback
+                centred on your course, current level and learning
+                goals.
+              </p>
+
+              <Link href="/tutoring">
+                Explore tutoring →
+              </Link>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================
+          SUBJECTS
+          ============================================================ */}
+
+      <section className="section home-v2-subject-section">
+        <div className="shell">
+          <div className="home-v2-section-heading">
+            <div>
+              <span className="home-v2-kicker">
+                SUBJECTS
+              </span>
+
+              <h2>
+                From core academic study to advanced quantitative
+                and technical work.
+              </h2>
+            </div>
+
+            <Link
+              href="/subjects"
+              className="home-v2-section-link"
+            >
+              View every subject →
             </Link>
           </div>
 
-          <div className="subject-grid">
+          <div className="home-v2-subject-grid">
             {subjects.slice(0, 6).map((subject, index) => (
               <Link
                 key={subject.slug}
                 href={`/subjects/${subject.slug}`}
-                className="subject-card"
+                className="home-v2-subject-card"
               >
-                <span className="subject-index">
+                <span>
                   {String(index + 1).padStart(2, "0")}
                 </span>
 
@@ -182,130 +275,180 @@ export default async function HomePage() {
 
                 <p>{subject.short}</p>
 
-                <span className="text-link">
-                  Explore {subject.name}
-                </span>
+                <strong>
+                  Explore subject
+                  <i>→</i>
+                </strong>
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-            <section className="section section-tint">
-        <div className="shell">
-          <div className="conversion-section-head">
-            <div className="eyebrow">POPULAR SPECIALIST SUPPORT</div>
-            <h2>Need help with a specific topic, method or software problem?</h2>
-            <p>Start with the problem you have now, then see the related subject tutoring we can arrange.</p>
-          </div>
-          <HighIntentLinkGrid />
-        </div>
-      </section>
+      {/* ============================================================
+          HOW TUTORING WORKS
+          ============================================================ */}
 
-      <section className="section home-pricing-section" id="pricing">
-        <div className="shell home-pricing-grid">
-          <div className="section-copy-block">
-            <div className="eyebrow">CLEAR PRICING</div>
+      <section className="section home-v2-process">
+        <div className="shell home-v2-process-layout">
+          <div className="home-v2-process-copy">
+            <span className="home-v2-kicker">
+              PERSONALISED TUTORING
+            </span>
 
-            <h2>Clear pricing before you start.</h2>
+            <h2>
+              Start with the academic problem, not a directory of
+              tutor profiles.
+            </h2>
 
-            <p className="section-intro">
-              The exact rate depends on the subject, course level and any specialist
-              requirements. Tell us what you need help with and we’ll confirm the
-              price before you book.
+            <p>
+              Tell us what you are studying and where you need help.
+              We review the academic context and organise suitable
+              one-to-one support around it.
             </p>
 
+            <div className="home-v2-price-note">
+              Tutoring from <strong>£20/hour</strong>
+              <small>
+                Your rate is confirmed before tutoring is arranged.
+              </small>
+            </div>
+
             <TrackedLink
-              className="button button-primary"
               href="/find-a-tutor"
-              trackingId="home_pricing_request_tutoring"
+              className="button button-primary"
+              trackingId="home_v2_process_request"
             >
-              Get a quote
+              Tell us what you need help with
             </TrackedLink>
           </div>
 
-          <aside className="home-pricing-card" aria-label="Tutoring pricing">
-            <span className="home-pricing-label">Tutoring starts from</span>
+          <div className="home-v2-process-steps">
+            <article>
+              <span>1</span>
 
-            <div className="home-price-amount">
-              £20
-              <span>/hour</span>
-            </div>
+              <div>
+                <h3>Tell us what you are studying</h3>
+                <p>
+                  Share your subject, level, topic and learning
+                  goal.
+                </p>
+              </div>
+            </article>
 
-            <p>
-              Get in touch for a quote based on your course level,
-              subject and requirements.
-            </p>
+            <article>
+              <span>2</span>
 
-            <small>
-              Sending an enquiry does not book a lesson. You’ll know the rate
-              before deciding whether to go ahead.
-            </small>
-          </aside>
+              <div>
+                <h3>We review the academic context</h3>
+                <p>
+                  We consider the required depth, teaching need and
+                  practical fit.
+                </p>
+              </div>
+            </article>
+
+            <article>
+              <span>3</span>
+
+              <div>
+                <h3>Start focused one-to-one learning</h3>
+                <p>
+                  Your tutor explains, demonstrates and practises
+                  the material with you.
+                </p>
+              </div>
+            </article>
+
+            <article>
+              <span>4</span>
+
+              <div>
+                <h3>Build continuity and progress</h3>
+                <p>
+                  Sessions can follow your course and develop skills
+                  over time.
+                </p>
+              </div>
+            </article>
+          </div>
         </div>
       </section>
 
+      {/* ============================================================
+          TESTIMONIALS
+          ============================================================ */}
 
-      <section className="section section-soft">
-        <div className="shell lead-section-grid">
-          <div className="section-copy-block">
-            <div className="eyebrow">
-              REQUEST TUTORING
-            </div>
+      {testimonials.length ? (
+        <section className="section home-v2-testimonials">
+          <div className="shell">
+            <div className="home-v2-section-heading">
+              <div>
+                <span className="home-v2-kicker">
+                  STUDENT EXPERIENCES
+                </span>
 
-            <h2>
-              Tell us where you’re stuck help understanding.
-            </h2>
-
-            <p className="section-intro">
-              Send us your subject, academic level and a short description of
-              what you are struggling with. We’ll review it and recommend
-              suitable one-to-one support.
-            </p>
-
-            <ul className="check-list">
-              <li>Choose your subject and level</li>
-              <li>Tell us where you’re stuck help with</li>
-              <li>We read your request</li>
-              <li>We confirm the tutor, price and next step</li>
-            </ul>
-          </div>
-
-          <div className="card form-card">
-            <TutoringLeadForm compact />
-          </div>
-        </div>
-      </section>
-
-      <section className="section section-tint">
-        <div className="shell">
-          <div className="section-head">
-            <div>
-              <div className="eyebrow">
-                LEARNING HUB
+                <h2>
+                  What students say about learning with MAT.
+                </h2>
               </div>
 
+              <Link
+                href="/testimonials"
+                className="home-v2-section-link"
+              >
+                Read all feedback →
+              </Link>
+            </div>
+
+            <div className="testimonial-grid testimonial-grid-home">
+              {testimonials.map((item) => (
+                <TestimonialCard
+                  key={item.id}
+                  testimonial={item}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {/* ============================================================
+          LEARNING HUB
+          ============================================================ */}
+
+      <section className="section home-v2-resource-section">
+        <div className="shell">
+          <div className="home-v2-section-heading">
+            <div>
+              <span className="home-v2-kicker">
+                FREE LEARNING HUB
+              </span>
+
               <h2>
-                Start with a free guide before you book a lesson.
+                Start learning before you ever book a lesson.
               </h2>
 
-              <p className="section-intro">
-                Use our free explanations and study guides when you want to work
-                through a topic on your own first.
+              <p>
+                Read clear explanations across statistics,
+                mathematics, data science and research methods.
               </p>
             </div>
 
-            <Link href="/learn" className="text-link">
-              Browse the learning hub
+            <Link
+              href="/learn"
+              className="home-v2-section-link"
+            >
+              Browse all learning →
             </Link>
           </div>
 
-          <div className="resource-grid">
+          <div className="home-v2-resource-grid">
             {resources.slice(0, 3).map((resource) => (
               <Link
                 href={`/learn/${resource.slug}`}
-                className="card resource-card"
                 key={resource.slug}
+                className="home-v2-resource-card"
               >
                 <span>{resource.category}</span>
 
@@ -313,51 +456,69 @@ export default async function HomePage() {
 
                 <p>{resource.description}</p>
 
-                <small>{resource.readTime} read</small>
+                <small>
+                  {resource.readTime} read
+                  <strong>→</strong>
+                </small>
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-            <section className="cta-band">
-        <div className="shell cta-band-inner">
-          <div>
-            <div className="eyebrow eyebrow-light">
-              READY TO START?
+      {/* ============================================================
+          FINAL CTA
+          ============================================================ */}
+
+      <section className="home-v2-final">
+        <div className="shell">
+          <div className="home-v2-final-card">
+            <div>
+              <span className="home-v2-kicker">
+                WHEN YOU NEED MORE THAN A GUIDE
+              </span>
+
+              <h2>
+                Get one-to-one teaching built around what you are
+                learning now.
+              </h2>
+
+              <p>
+                Tell us the subject, your academic level and the
+                problem you want to understand. We will review your
+                requirements and organise the next step.
+              </p>
             </div>
 
-            <h2>
-              Ready for more focused support?
-            </h2>
+            <div className="home-v2-final-actions">
+              <TrackedLink
+                href="/find-a-tutor"
+                className="button button-light button-large"
+                trackingId="home_v2_final_request"
+              >
+                Request tutoring
+              </TrackedLink>
 
-            <p>
-              Start with what you want to understand better. We’ll review the academic context and arrange suitable one-to-one support.
-            </p>
+              <Link href="/how-it-works">
+                How MAT works →
+              </Link>
+            </div>
           </div>
-
-          <TrackedLink
-            className="button button-light button-large"
-            href="/find-a-tutor"
-            trackingId="home_footer_request_tutoring"
-          >
-            Request tutoring
-          </TrackedLink>
         </div>
       </section>
 
-      <div className="mobile-home-cta-spacer" aria-hidden="true" />
-
-      <div className="mobile-home-cta" aria-label="Request tutoring">
+      <div
+        className="home-v2-mobile-cta"
+        aria-label="Request tutoring"
+      >
         <TrackedLink
-          className="button button-primary"
           href="/find-a-tutor"
-          trackingId="home_mobile_sticky_request"
+          className="button button-primary"
+          trackingId="home_v2_mobile_request"
         >
           Request tutoring
         </TrackedLink>
       </div>
-
-</>
+    </>
   );
 }
