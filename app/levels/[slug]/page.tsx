@@ -616,7 +616,7 @@ export default async function Page({
               </li>
 
               <li>
-                Tutoring matched to your course level
+                Tutoring matched to your course level · 18+ enquiries only
               </li>
 
               <li>

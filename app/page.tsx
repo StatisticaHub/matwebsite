@@ -96,7 +96,7 @@ export default async function HomePage() {
               aria-label="My Academic Tutor highlights"
             >
               <span>Teaching since 2020</span>
-              <span>School to postgraduate</span>
+              <span>Adult tutoring · undergraduate to research</span>
               <span>Free learning resources</span>
               <span>Private student learning portal</span>
             </div>

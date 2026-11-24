@@ -142,7 +142,7 @@ export async function sendStudentAcknowledgement(lead: LeadEmailData): Promise<E
     <p>Please keep your reference <strong>${escapeHtml(lead.reference)}</strong> if you contact us about this request.</p>
     <p>If you need to add anything, simply reply to this email.</p>
     <p>Kind regards,<br><strong>My Academic Tutor</strong></p>
-    </div><div class="footer">One-to-one online tutoring from school to postgraduate and research-level study.</div>
+    </div><div class="footer">One-to-one online tutoring for adult learners from undergraduate to research-level study.</div>
   </div></div></body></html>`;
 
   const text = `Hi ${firstName},\n\nThank you for your tutoring request.\n\nReference: ${lead.reference}\nSubject: ${lead.subject}\nLevel: ${lead.level}\nTopic: ${value(lead.topic)}\n\nWhat happens next:\n1. We review your learning requirements.\n2. We match your request with a suitable tutor.\n3. We contact you with the next-step details for starting tutoring.\n\nIf you need to add anything, reply to this email.\n\nKind regards,\nMy Academic Tutor`;

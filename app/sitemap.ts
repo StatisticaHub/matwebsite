@@ -17,6 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticPages: MetadataRoute.Sitemap = [
     { url: url("/"), changeFrequency: "weekly", priority: 1 },
     { url: url("/find-a-tutor"), changeFrequency: "weekly", priority: 0.95 },
+    { url: url("/pricing"), changeFrequency: "monthly", priority: 0.8 },
     { url: url("/subjects"), changeFrequency: "weekly", priority: 0.9 },
     { url: url("/tutoring"), changeFrequency: "weekly", priority: 0.9 },
     { url: url("/learn"), changeFrequency: "weekly", priority: 0.85 },
@@ -25,6 +26,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: url("/how-it-works"), changeFrequency: "monthly", priority: 0.7 },
     { url: url("/tutors"), changeFrequency: "monthly", priority: 0.65 },
     { url: url("/become-a-tutor"), changeFrequency: "monthly", priority: 0.6 },
+    { url: url("/testimonials"), changeFrequency: "monthly", priority: 0.65 },
     { url: url("/faq"), changeFrequency: "monthly", priority: 0.6 },
     { url: url("/about"), changeFrequency: "monthly", priority: 0.55 },
     { url: url("/contact"), changeFrequency: "monthly", priority: 0.55 },

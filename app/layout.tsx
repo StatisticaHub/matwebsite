@@ -61,14 +61,14 @@ export const metadata: Metadata = {
     siteName: "My Academic Tutor",
     title: "My Academic Tutor | Online Learning, Courses & Personalised Tutoring",
     description:
-      "Personalised online tutoring designed to build understanding, confidence and independent problem-solving from school to postgraduate study.",
+      "Personalised online tutoring for adult learners, designed to build understanding, confidence and independent problem-solving from undergraduate to postgraduate and research-level study.",
   },
 
   twitter: {
     card: "summary",
     title: "My Academic Tutor | Online Learning, Courses & Personalised Tutoring",
     description:
-      "One-to-one online tutoring from school to postgraduate and research-level study.",
+      "One-to-one online tutoring for adult learners from undergraduate to research-level study.",
   },
 };
 
