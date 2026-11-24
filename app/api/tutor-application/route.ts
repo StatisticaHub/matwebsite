@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { hasServerSupabaseConfig } from "@/lib/supabase/config";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 
 export const runtime = "nodejs";
 
@@ -245,6 +246,29 @@ export async function POST(request: NextRequest) {
           "The degree certificate must be no larger than 10 MB.",
       },
       { status: 400 },
+    );
+  }
+
+  const turnstile =
+    await verifyTurnstileToken({
+      token:
+        form.get(
+          "cf-turnstile-response",
+        ),
+      expectedAction:
+        "tutor_application",
+    });
+
+  if (!turnstile.ok) {
+    return NextResponse.json(
+      {
+        error:
+          turnstile.error,
+      },
+      {
+        status:
+          turnstile.status,
+      },
     );
   }
 

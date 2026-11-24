@@ -1,5 +1,7 @@
 "use client";
 
+import TurnstileWidget, { resetTurnstile } from "@/components/TurnstileWidget";
+
 import { FormEvent, useMemo, useState } from "react";
 import { sendGAEvent } from "@next/third-parties/google";
 import {
@@ -70,7 +72,16 @@ export default function TutoringLeadForm({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          ...payload,
+          turnstileToken: String(
+            new FormData(
+              event.currentTarget,
+            ).get(
+              "cf-turnstile-response",
+            ) || "",
+          ),
+        }),
       });
 
       const data = await response.json();
@@ -284,6 +295,8 @@ export default function TutoringLeadForm({
           I agree that My Academic Tutor may contact me about this request.
         </span>
       </label>
+
+      <TurnstileWidget action="tutoring_enquiry" />
 
       <button
         className="button button-primary submit-button"

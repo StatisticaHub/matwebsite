@@ -1,5 +1,7 @@
 "use client";
 
+import TurnstileWidget, { resetTurnstile } from "@/components/TurnstileWidget";
+
 import {
   FormEvent,
   useState,
@@ -65,6 +67,8 @@ export default function TutorApplicationForm() {
       }
 
       if (!response.ok) {
+        resetTurnstile();
+
         throw new Error(
           payload.error ||
             "Your application could not be submitted. Please try again.",
@@ -618,6 +622,8 @@ export default function TutorApplicationForm() {
           </span>
         </label>
       </div>
+
+      <TurnstileWidget action="tutor_application" />
 
       {state.error && (
         <div

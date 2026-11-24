@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { hasServerSupabaseConfig } from "@/lib/supabase/config";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 import { sendNewLeadNotification, sendStudentAcknowledgement } from "@/lib/email/resend";
 
 export const runtime = "nodejs";
@@ -138,6 +139,27 @@ export async function POST(request: NextRequest) {
     }
     if (requirements.length < 20) {
       return NextResponse.json({ error: "Please tell us a little more about the support you need." }, { status: 400 });
+    }
+
+    const turnstile =
+      await verifyTurnstileToken({
+        token:
+          raw.turnstileToken,
+        expectedAction:
+          "tutoring_enquiry",
+      });
+
+    if (!turnstile.ok) {
+      return NextResponse.json(
+        {
+          error:
+            turnstile.error,
+        },
+        {
+          status:
+            turnstile.status,
+        },
+      );
     }
 
     const ref = reference();
