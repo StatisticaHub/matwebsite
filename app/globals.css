@@ -8279,13 +8279,18 @@ body {
   width: 46px;
   height: 46px;
   flex: 0 0 auto;
-  object-fit: contain;
+  border: 1px solid rgba(16, 33, 59, .10);
+  border-radius: 50%;
+  padding: 3px;
+  background: #fff;
+  object-fit: cover;
 }
 
 @media (max-width: 680px) {
   .mat-public-brand-logo {
     width: 39px;
     height: 39px;
+    padding: 2px;
   }
 }
 
