@@ -198,100 +198,142 @@ export default function TutoringLeadForm({
         aria-hidden="true"
       />
 
-      <div className="form-grid">
-        <label>
-          <span>Your name</span>
-          <input
-            name="name"
-            required
-            autoComplete="name"
-            placeholder="Your name"
-          />
-        </label>
+      <div className="lead-form-groups">
+        <section className="lead-form-group">
+          {!compact && (
+            <div className="lead-form-group-head">
+              <span>01</span>
+              <div>
+                <strong>Study details</strong>
+                <small>Tell us what and where you are studying.</small>
+              </div>
+            </div>
+          )}
 
-        <label>
-          <span>Email</span>
-          <input
-            type="email"
-            name="email"
-            required
-            autoComplete="email"
-            placeholder="you@example.com"
-          />
-        </label>
+          <div className="form-grid">
+            <label>
+              <span>Subject</span>
+              <select
+                name="subject"
+                required
+                defaultValue={subjectExists ? defaultSubject : ""}
+              >
+                <option value="" disabled>
+                  Choose a subject
+                </option>
+                {subjects.map((subject) => (
+                  <option key={subject.slug} value={subject.name}>
+                    {subject.name}
+                  </option>
+                ))}
+                <option value="Other">Other</option>
+              </select>
+            </label>
 
-        <label>
-          <span>Subject</span>
-          <select
-            name="subject"
-            required
-            defaultValue={subjectExists ? defaultSubject : ""}
-          >
-            <option value="" disabled>
-              Choose a subject
-            </option>
-            {subjects.map((subject) => (
-              <option key={subject.slug} value={subject.name}>
-                {subject.name}
-              </option>
-            ))}
-            <option value="Other">Other</option>
-          </select>
-        </label>
+            <label>
+              <span>Academic level</span>
+              <select name="level" required defaultValue="">
+                <option value="" disabled>
+                  Choose your academic level
+                </option>
+                {levels.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
+                ))}
+              </select>
+            </label>
 
-        <label>
-          <span>Academic level</span>
-          <select name="level" required defaultValue="">
-            <option value="" disabled>
-              Choose your academic level
-            </option>
-            {levels.map((level) => (
-              <option key={level} value={level}>
-                {level}
-              </option>
-            ))}
-          </select>
-        </label>
+            <label className="form-span-2">
+              <span>Country</span>
+              <select name="country" required defaultValue="United Kingdom">
+                {countries.map((country) => (
+                  <option key={country} value={country}>
+                    {country}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </section>
 
-        <label className="form-span-2">
-          <span>What do you want help understanding?</span>
-          <textarea
-            name="requirements"
-            required
-            minLength={20}
-            rows={4}
-            placeholder="For example: I am studying MSc Finance and need help understanding regression, hypothesis testing and econometrics before my next assessment."
-          />
-        </label>
+        <section className="lead-form-group">
+          {!compact && (
+            <div className="lead-form-group-head">
+              <span>02</span>
+              <div>
+                <strong>What do you need help with?</strong>
+                <small>Give us enough context to understand the teaching you need.</small>
+              </div>
+            </div>
+          )}
 
-        <label>
-          <span>Type of support</span>
-          <select
-            name="supportType"
-            required
-            defaultValue={supportTypeExists ? defaultSupportType : ""}
-          >
-            <option value="" disabled>
-              Choose the type of support
-            </option>
-            {supportTypes.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
-        </label>
+          <div className="form-grid">
+            <label className="form-span-2">
+              <span>Type of support</span>
+              <select
+                name="supportType"
+                required
+                defaultValue={supportTypeExists ? defaultSupportType : ""}
+              >
+                <option value="" disabled>
+                  Choose the type of support
+                </option>
+                {supportTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </label>
 
-        <label>
-          <span>Country</span>
-          <select name="country" required defaultValue="United Kingdom">
-            {countries.map((country) => (
-              <option key={country} value={country}>
-                {country}
-              </option>
-            ))}
-          </select>
-        </label>
+            <label className="form-span-2">
+              <span>What do you want help understanding?</span>
+              <textarea
+                name="requirements"
+                required
+                minLength={20}
+                rows={4}
+                placeholder="For example: I am studying MSc Finance and need help understanding regression, hypothesis testing and econometrics before my next assessment."
+              />
+            </label>
+          </div>
+        </section>
+
+        <section className="lead-form-group">
+          {!compact && (
+            <div className="lead-form-group-head">
+              <span>03</span>
+              <div>
+                <strong>Contact details</strong>
+                <small>We will use these only to respond to your tutoring request.</small>
+              </div>
+            </div>
+          )}
+
+          <div className="form-grid">
+            <label>
+              <span>Your name</span>
+              <input
+                name="name"
+                required
+                autoComplete="name"
+                placeholder="Your name"
+              />
+            </label>
+
+            <label>
+              <span>Email</span>
+              <input
+                type="email"
+                name="email"
+                required
+                autoComplete="email"
+                placeholder="you@example.com"
+              />
+            </label>
+          </div>
+        </section>
       </div>
 
       <label className="consent-row">

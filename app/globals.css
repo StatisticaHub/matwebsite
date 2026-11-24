@@ -9952,3 +9952,70 @@ main {
     font-size: 12.5px !important;
   }
 }
+
+
+/* MAT lead form grouped conversion UX */
+.lead-form-groups{
+  display:grid;
+  gap:26px;
+}
+
+.lead-form-group{
+  display:grid;
+  gap:14px;
+}
+
+.lead-form-group-head{
+  display:flex;
+  align-items:flex-start;
+  gap:11px;
+  padding-bottom:11px;
+  border-bottom:1px solid var(--line);
+}
+
+.lead-form-group-head>span{
+  flex:0 0 auto;
+  display:grid;
+  place-items:center;
+  width:28px;
+  height:28px;
+  border-radius:999px;
+  background:#eef4ff;
+  color:#174ba8;
+  font-size:10px;
+  font-weight:850;
+}
+
+.lead-form-group-head>div{
+  display:grid;
+  gap:2px;
+}
+
+.lead-form-group-head strong{
+  color:#18304d;
+  font-size:13px;
+}
+
+.lead-form-group-head small{
+  color:#748296;
+  font-size:10.5px;
+  line-height:1.45;
+}
+
+.lead-form-compact .lead-form-groups{
+  gap:15px;
+}
+
+.lead-form-compact .lead-form-group{
+  gap:0;
+}
+
+@media(max-width:680px){
+  .lead-form-groups{
+    gap:22px;
+  }
+
+  .lead-form-group-head{
+    padding-bottom:10px;
+  }
+}
