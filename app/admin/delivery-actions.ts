@@ -127,7 +127,18 @@ export async function convertLeadToStudent(formData: FormData) {
   });
   if (engagementError) throw new Error(engagementError.message);
 
-  await supabase.from("tutoring_leads").update({ status: "ongoing", updated_at: new Date().toISOString() }).eq("id", leadId);
+  const { error: leadUpdateError } = await supabase
+    .from("tutoring_leads")
+    .update({
+      status: "ongoing",
+      next_follow_up_at: null,
+      follow_up_note: null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", leadId);
+
+  if (leadUpdateError) throw new Error(leadUpdateError.message);
+
   await supabase.from("lead_activity").insert({
     lead_id: leadId,
     event_type: "student_created",
@@ -137,6 +148,7 @@ export async function convertLeadToStudent(formData: FormData) {
   });
 
   revalidatePath("/admin");
+  revalidatePath("/admin/follow-ups");
   revalidatePath("/admin/students");
   redirect(`/admin/students/${student.id}`);
 }
