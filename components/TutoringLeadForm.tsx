@@ -179,7 +179,12 @@ export default function TutoringLeadForm({
   }
 
   return (
-    <form className={`lead-form ${compact ? "lead-form-compact" : ""}`} onSubmit={submit}>
+    <form
+      id="tutoring-enquiry-form"
+      name="tutoring_enquiry"
+      className={`lead-form ${compact ? "lead-form-compact" : ""}`}
+      onSubmit={submit}
+    >
       <input
         className="honeypot"
         name="companyWebsite"
