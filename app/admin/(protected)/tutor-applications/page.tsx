@@ -120,6 +120,19 @@ export default async function TutorApplicationsPage({
       item.verification_status === "verified",
   );
 
+  const certificateRejected =
+    selectedDocuments.some(
+      (document) =>
+        document.document_type === "degree_certificate" &&
+        document.verification_status === "rejected",
+    );
+
+  const referenceConcern =
+    selectedReferences.some(
+      (reference) =>
+        reference.status === "concern",
+    );
+
   const demoComplete = Boolean(
     selected?.demo_subject &&
       selected?.demo_level &&
@@ -338,7 +351,15 @@ export default async function TutorApplicationsPage({
               <p>{selected.motivation || "—"}</p>
             </section>
 
-            <section className="admin-panel admin-action-card">
+            <section
+              className={`admin-panel admin-action-card admin-review-status-card ${
+                verifiedCertificate
+                  ? "is-complete"
+                  : certificateRejected
+                    ? "is-problem"
+                    : "needs-action"
+              }`}
+            >
               <div className="admin-card-head">
                 <h2>Degree evidence</h2>
 
@@ -350,7 +371,16 @@ export default async function TutorApplicationsPage({
               </div>
 
               {selectedDocuments.map((document) => (
-                <article key={document.id}>
+                <article
+                  key={document.id}
+                  className={`admin-review-subcard ${
+                    document.verification_status === "verified"
+                      ? "is-complete"
+                      : document.verification_status === "rejected"
+                        ? "is-problem"
+                        : "needs-action"
+                  }`}
+                >
                   <p>
                     <strong>{document.original_filename}</strong>
                   </p>
@@ -433,7 +463,15 @@ export default async function TutorApplicationsPage({
               )}
             </section>
 
-            <section className="admin-panel admin-action-card">
+            <section
+              className={`admin-panel admin-action-card admin-review-status-card ${
+                referenceConcern
+                  ? "is-problem"
+                  : verifiedReferences >= 2
+                    ? "is-complete"
+                    : "needs-action"
+              }`}
+            >
               <div className="admin-card-head">
                 <h2>References</h2>
 
@@ -443,7 +481,16 @@ export default async function TutorApplicationsPage({
               </div>
 
               {selectedReferences.map((reference) => (
-                <article key={reference.id}>
+                <article
+                  key={reference.id}
+                  className={`admin-review-subcard ${
+                    reference.status === "verified"
+                      ? "is-complete"
+                      : reference.status === "concern"
+                        ? "is-problem"
+                        : "needs-action"
+                  }`}
+                >
                   <p>
                     <strong>
                       Reference {reference.reference_number}:{" "}
@@ -627,7 +674,15 @@ export default async function TutorApplicationsPage({
               ))}
             </section>
 
-            <section className="admin-panel admin-action-card">
+            <section
+              className={`admin-panel admin-action-card admin-review-status-card ${
+                selected.demo_review_status === "rejected"
+                  ? "is-problem"
+                  : demoSatisfactory
+                    ? "is-complete"
+                    : "needs-action"
+              }`}
+            >
               <div className="admin-card-head">
                 <div>
                   <span className="admin-eyebrow">

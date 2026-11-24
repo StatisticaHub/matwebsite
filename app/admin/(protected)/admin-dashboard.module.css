@@ -1663,3 +1663,124 @@
     align-items: flex-start;
   }
 }
+
+/* ================================================================
+   TUTOR APPLICATION REVIEW STATUS CARDS
+   ================================================================ */
+
+.shell :global(.admin-review-status-card) {
+  position: relative;
+  overflow: hidden;
+}
+
+.shell :global(.admin-review-status-card::before) {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+}
+
+.shell :global(.admin-review-status-card.is-complete) {
+  border-color: #cfe8d9;
+  background: #fcfefd;
+}
+
+.shell :global(.admin-review-status-card.is-complete::before) {
+  background: #3f9161;
+}
+
+.shell :global(.admin-review-status-card.needs-action) {
+  border-color: #ead9ad;
+  background: #fffdfa;
+}
+
+.shell :global(.admin-review-status-card.needs-action::before) {
+  background: #c18a21;
+}
+
+.shell :global(.admin-review-status-card.is-problem) {
+  border-color: #e6c2c2;
+  background: #fffafa;
+}
+
+.shell :global(.admin-review-status-card.is-problem::before) {
+  background: #b84d4d;
+}
+
+.shell :global(
+  .admin-review-status-card .admin-card-head > span
+) {
+  border-radius: 999px;
+  padding: 5px 8px;
+  font-size: 8.5px;
+  font-weight: 850;
+  letter-spacing: .04em;
+}
+
+.shell :global(
+  .admin-review-status-card.is-complete
+  .admin-card-head > span
+) {
+  background: #e8f6ee;
+  color: #286b46;
+}
+
+.shell :global(
+  .admin-review-status-card.needs-action
+  .admin-card-head > span
+) {
+  background: #fff2d7;
+  color: #805d13;
+}
+
+.shell :global(
+  .admin-review-status-card.is-problem
+  .admin-card-head > span
+) {
+  background: #fae8e8;
+  color: #963b3b;
+}
+
+.shell :global(.admin-review-subcard) {
+  margin-top: 12px;
+  border: 1px solid #e4e9ef;
+  border-radius: 10px;
+  padding: 14px;
+  background: #fff;
+}
+
+.shell :global(
+  .admin-review-subcard + .admin-review-subcard
+) {
+  margin-top: 10px;
+}
+
+.shell :global(.admin-review-subcard.is-complete) {
+  border-color: #d1e8da;
+  background: #fbfefc;
+}
+
+.shell :global(.admin-review-subcard.needs-action) {
+  border-color: #eadbb8;
+  background: #fffdf8;
+}
+
+.shell :global(.admin-review-subcard.is-problem) {
+  border-color: #e7c4c4;
+  background: #fffafa;
+}
+
+.shell :global(
+  .admin-review-subcard .admin-onboarding-review-form
+) {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #edf0f4;
+}
+
+@media (max-width: 760px) {
+  .shell :global(.admin-review-subcard) {
+    padding: 12px;
+  }
+}
+
