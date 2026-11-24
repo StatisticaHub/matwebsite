@@ -8828,3 +8828,241 @@ body {
     font-size: 10.5px !important;
   }
 }
+
+
+/* ==========================================================================
+   STUDENT PORTAL — MAT LEARNING COLOUR SYSTEM
+   ========================================================================== */
+
+.student-portal-shell {
+  background: #f4f7fa !important;
+  color: #10213b;
+}
+
+
+/* ==========================================================================
+   STUDENT SIDEBAR / NAVIGATION
+   ========================================================================== */
+
+.student-portal-shell > .portal-topbar {
+  background:
+    linear-gradient(
+      180deg,
+      #10213b 0%,
+      #142f50 100%
+    ) !important;
+  border-color: #203d5d !important;
+  color: #fff !important;
+}
+
+
+/* Brand */
+
+.student-portal-shell .portal-brand,
+.student-portal-shell .portal-brand strong {
+  color: #fff !important;
+}
+
+.student-portal-shell .portal-brand span {
+  color: #91abc5 !important;
+}
+
+
+/* Navigation */
+
+.student-portal-shell .portal-upgrade-nav a {
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: #c5d4e4 !important;
+  box-shadow: none !important;
+  transition:
+    background .15s ease,
+    border-color .15s ease,
+    color .15s ease;
+}
+
+.student-portal-shell .portal-upgrade-nav a:hover {
+  border-color: rgba(255,255,255,.08) !important;
+  background: rgba(255,255,255,.07) !important;
+  color: #fff !important;
+}
+
+
+/* Current page */
+
+.student-portal-shell .portal-upgrade-nav a.is-active,
+.student-portal-shell .portal-upgrade-nav .portal-nav-current {
+  border-color: #547fa9 !important;
+  background: #315f8f !important;
+  color: #fff !important;
+  box-shadow:
+    0 6px 18px rgba(0,0,0,.14) !important;
+  font-weight: 800 !important;
+}
+
+
+/* Private learning record / student identity */
+
+.student-portal-shell .portal-topbar-meta {
+  border-color: rgba(255,255,255,.11) !important;
+}
+
+.student-portal-shell .portal-topbar-meta > span {
+  color: #819bb5 !important;
+}
+
+.student-portal-shell .portal-topbar-meta strong {
+  color: #fff !important;
+}
+
+.student-portal-shell .portal-signout {
+  border-color: rgba(255,255,255,.15) !important;
+  background: rgba(255,255,255,.04) !important;
+  color: #d8e4ef !important;
+}
+
+.student-portal-shell .portal-signout:hover {
+  background: rgba(255,255,255,.09) !important;
+  color: #fff !important;
+}
+
+
+/* ==========================================================================
+   MAIN LEARNING SPACE
+   ========================================================================== */
+
+.student-portal-shell .portal-page {
+  background: #f4f7fa;
+}
+
+
+/* Welcome card */
+
+.student-portal-shell .portal-welcome {
+  border-color: #dce4ec !important;
+  background: #fff !important;
+  box-shadow:
+    0 1px 2px rgba(16,33,59,.02) !important;
+}
+
+.student-portal-shell .portal-welcome h1 {
+  color: #10213b !important;
+}
+
+.student-portal-shell .portal-welcome p {
+  color: #64758a !important;
+}
+
+
+/* Kicker labels */
+
+.student-portal-shell .portal-kicker {
+  color: #315f8f !important;
+}
+
+
+/* Timezone row */
+
+.student-portal-shell .portal-lms-settings-row {
+  border-color: #dce4ec !important;
+  background: #fbfcfd !important;
+  color: #65768a !important;
+}
+
+
+/* ==========================================================================
+   DASHBOARD CARDS
+   ========================================================================== */
+
+.student-portal-shell .portal-dashboard-simple-card,
+.student-portal-shell .portal-dashboard-recent,
+.student-portal-shell .portal-dashboard-progress-mini,
+.student-portal-shell .portal-panel {
+  border-color: #dce4ec !important;
+  background: #fff !important;
+  box-shadow:
+    0 1px 2px rgba(16,33,59,.025) !important;
+}
+
+.student-portal-shell .portal-dashboard-simple-card h2,
+.student-portal-shell .portal-dashboard-recent h2,
+.student-portal-shell .portal-dashboard-progress-mini h2,
+.student-portal-shell .portal-panel h2 {
+  color: #173753 !important;
+}
+
+.student-portal-shell .portal-dashboard-simple-card p,
+.student-portal-shell .portal-dashboard-recent p {
+  color: #65768a !important;
+}
+
+
+/* Secondary actions */
+
+.student-portal-shell .button-secondary {
+  border-color: #c9d7e5 !important;
+  background: #f8fafc !important;
+  color: #214f7d !important;
+}
+
+.student-portal-shell .button-secondary:hover {
+  border-color: #9fb7ce !important;
+  background: #edf3f8 !important;
+}
+
+
+/* Primary actions */
+
+.student-portal-shell .button-primary {
+  background: #315f8f !important;
+  color: #fff !important;
+}
+
+.student-portal-shell .button-primary:hover {
+  background: #214f7d !important;
+}
+
+
+/* ==========================================================================
+   TABLET / MOBILE
+   ========================================================================== */
+
+@media (max-width: 900px) {
+
+  .student-portal-shell > .portal-topbar {
+    background:
+      linear-gradient(
+        180deg,
+        #10213b 0%,
+        #142f50 100%
+      ) !important;
+  }
+
+  .student-portal-shell .portal-upgrade-nav {
+    scrollbar-width: none;
+  }
+
+  .student-portal-shell .portal-upgrade-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .student-portal-shell .portal-upgrade-nav a {
+    min-width: max-content;
+  }
+}
+
+
+@media (max-width: 560px) {
+
+  .student-portal-shell .portal-brand strong {
+    font-size: 17px !important;
+  }
+
+  .student-portal-shell .portal-brand span {
+    font-size: 9px !important;
+  }
+
+  .student-portal-shell .portal-upgrade-nav a {
+    font-size: 10.5px !important;
+  }
+}
