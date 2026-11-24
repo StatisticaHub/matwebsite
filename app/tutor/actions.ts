@@ -16,6 +16,7 @@ import { recordStudentCommunication } from "@/lib/student-communications";
 import {
   createZoomMeeting,
   deleteZoomMeeting,
+  updateZoomMeeting,
   zoomHostUserId,
 } from "@/lib/zoom";
 function text(formData: FormData, key: string, max = 5000) {
@@ -1343,6 +1344,999 @@ export async function scheduleTutorSessionFromPortal(
 
   redirect(
     "/tutor/sessions?scheduled=1",
+  );
+}
+
+
+/* MAT_TUTOR_SESSION_CHANGE_RESPONSES
+   ========================================================================== */
+
+export async function respondTutorSessionChangeRequest(
+  formData: FormData,
+) {
+  const {
+    session,
+    supabase,
+  } =
+    await tutorContext();
+
+  const requestId =
+    text(
+      formData,
+      "requestId",
+      100,
+    );
+
+  const responseKind =
+    text(
+      formData,
+      "responseKind",
+      40,
+    );
+
+
+  if (
+    !requestId ||
+    ![
+      "cancel",
+      "approve_reschedule",
+      "propose_reschedule",
+    ].includes(
+      responseKind,
+    )
+  ) {
+    return;
+  }
+
+
+  const {
+    data: request,
+    error: requestError,
+  } =
+    await supabase
+      .from(
+        "student_support_requests",
+      )
+      .select(
+        "id,student_id,engagement_id,category,message,status,admin_note",
+      )
+      .eq(
+        "id",
+        requestId,
+      )
+      .maybeSingle();
+
+
+  if (
+    requestError ||
+    !request
+  ) {
+    throw new Error(
+      requestError?.message ||
+        "Session change request not found.",
+    );
+  }
+
+
+  if (
+    request.category !==
+      "session_request" ||
+    request.status ===
+      "resolved" ||
+    !request.message.startsWith(
+      "SESSION CHANGE REQUEST",
+    )
+  ) {
+    throw new Error(
+      "This request is no longer available.",
+    );
+  }
+
+
+  const changeType =
+    sessionRequestLine(
+      request.message,
+      "Change type",
+    );
+
+  const sessionId =
+    sessionRequestLine(
+      request.message,
+      "Session ID",
+    );
+
+
+  if (!sessionId) {
+    throw new Error(
+      "The requested session could not be identified.",
+    );
+  }
+
+
+  const {
+    data: sessionRow,
+    error: sessionError,
+  } =
+    await supabase
+      .from(
+        "tutoring_sessions",
+      )
+      .select(
+        "id,engagement_id,tutor_id,scheduled_for,status,topic,duration_minutes,meeting_url,zoom_meeting_id,zoom_meeting_uuid,zoom_host_user_id,tutoring_engagements(student_id,tutor_id)",
+      )
+      .eq(
+        "id",
+        sessionId,
+      )
+      .maybeSingle();
+
+
+  if (
+    sessionError ||
+    !sessionRow
+  ) {
+    throw new Error(
+      sessionError?.message ||
+        "Session not found.",
+    );
+  }
+
+
+  const relation =
+    sessionRow.tutoring_engagements as unknown as
+      | {
+          student_id: string;
+          tutor_id:
+            string | null;
+        }
+      | null;
+
+
+  /*
+   * Never trust the request/form alone.
+   *
+   * The tutor must own the actual session and
+   * the support request must belong to the
+   * same student + engagement.
+   */
+  if (
+    sessionRow.tutor_id !==
+      session.tutor.id &&
+    relation?.tutor_id !==
+      session.tutor.id
+  ) {
+    throw new Error(
+      "You do not have access to this session.",
+    );
+  }
+
+
+  if (
+    request.engagement_id !==
+      sessionRow.engagement_id ||
+    request.student_id !==
+      relation?.student_id
+  ) {
+    throw new Error(
+      "This request does not belong to this session.",
+    );
+  }
+
+
+  if (
+    sessionRow.status !==
+      "planned"
+  ) {
+    throw new Error(
+      "Only planned sessions can be changed.",
+    );
+  }
+
+
+  const now =
+    new Date()
+      .toISOString();
+
+
+  /*
+   * ----------------------------------------------------------
+   * CANCELLATION
+   * ----------------------------------------------------------
+   */
+
+  if (
+    responseKind ===
+      "cancel"
+  ) {
+    if (
+      changeType !==
+        "Cancellation"
+    ) {
+      throw new Error(
+        "This is not a cancellation request.",
+      );
+    }
+
+
+    if (
+      sessionRow.zoom_meeting_id
+    ) {
+      await deleteZoomMeeting(
+        sessionRow.zoom_meeting_id,
+      );
+    }
+
+
+    const {
+      data: updated,
+      error: updateError,
+    } =
+      await supabase
+        .from(
+          "tutoring_sessions",
+        )
+        .update({
+          status:
+            "cancelled",
+
+          completed_at:
+            null,
+
+          meeting_url:
+            sessionRow.zoom_meeting_id
+              ? null
+              : sessionRow.meeting_url,
+
+          zoom_meeting_id:
+            null,
+
+          zoom_meeting_uuid:
+            null,
+
+          zoom_host_user_id:
+            null,
+
+          zoom_synced_at:
+            sessionRow.zoom_meeting_id
+              ? now
+              : null,
+
+          updated_at:
+            now,
+        })
+        .eq(
+          "id",
+          sessionId,
+        )
+        .select(
+          "id,engagement_id,scheduled_for,status,topic,duration_minutes,meeting_url",
+        )
+        .single();
+
+
+    if (
+      updateError ||
+      !updated
+    ) {
+      throw new Error(
+        updateError?.message ||
+          "Could not cancel the session.",
+      );
+    }
+
+
+    const note =
+      `Tutor accepted cancellation request for session ${sessionId}.`;
+
+    const nextAdminNote =
+      request.admin_note
+        ? `${request.admin_note}\n${note}`
+        : note;
+
+
+    const {
+      error:
+        resolveError,
+    } =
+      await supabase
+        .from(
+          "student_support_requests",
+        )
+        .update({
+          status:
+            "resolved",
+
+          admin_note:
+            nextAdminNote,
+
+          resolved_at:
+            now,
+
+          updated_at:
+            now,
+        })
+        .eq(
+          "id",
+          requestId,
+        );
+
+
+    if (resolveError) {
+      throw new Error(
+        resolveError.message,
+      );
+    }
+
+
+    try {
+      const {
+        data: student,
+      } =
+        await supabase
+          .from(
+            "students",
+          )
+          .select(
+            "name,email",
+          )
+          .eq(
+            "id",
+            request.student_id,
+          )
+          .maybeSingle();
+
+
+      if (student?.email) {
+        const result =
+          await sendSessionNotification({
+            sessionId:
+              updated.id,
+
+            name:
+              student.name,
+
+            email:
+              student.email,
+
+            topic:
+              updated.topic,
+
+            status:
+              updated.status,
+
+            scheduledFor:
+              updated.scheduled_for,
+
+            durationMinutes:
+              updated.duration_minutes,
+
+            nextTopic:
+              null,
+
+            homeworkSummary:
+              null,
+
+            meetingUrl:
+              updated.meeting_url,
+          });
+
+
+        await recordStudentCommunication({
+          studentId:
+            request.student_id,
+
+          engagementId:
+            updated.engagement_id,
+
+          type:
+            "session_update",
+
+          recipient:
+            student.email,
+
+          subject:
+            `Session update: ${updated.topic}`,
+
+          result,
+
+          createdByEmail:
+            session.user.email ||
+            null,
+        });
+      }
+
+    } catch (
+      notificationError
+    ) {
+      console.error(
+        "Tutor cancelled the session, but student notification failed:",
+        notificationError,
+      );
+    }
+
+
+    revalidatePath(
+      "/tutor",
+    );
+
+    revalidatePath(
+      "/tutor/sessions",
+    );
+
+    revalidatePath(
+      "/admin/sessions",
+    );
+
+    revalidatePath(
+      "/admin/portals",
+    );
+
+
+    redirect(
+      "/tutor/sessions?change=cancelled",
+    );
+  }
+
+
+  /*
+   * ----------------------------------------------------------
+   * RESCHEDULE
+   * ----------------------------------------------------------
+   */
+
+  if (
+    changeType !==
+      "Reschedule"
+  ) {
+    throw new Error(
+      "This is not a reschedule request.",
+    );
+  }
+
+
+  let newScheduledFor:
+    string | null =
+      null;
+
+
+  if (
+    responseKind ===
+      "approve_reschedule"
+  ) {
+    const requestedUtc =
+      sessionRequestLine(
+        request.message,
+        "Requested UTC",
+      );
+
+
+    if (
+      !requestedUtc ||
+      Number.isNaN(
+        new Date(
+          requestedUtc,
+        ).getTime(),
+      )
+    ) {
+      throw new Error(
+        "The student's requested new time could not be read.",
+      );
+    }
+
+
+    newScheduledFor =
+      new Date(
+        requestedUtc,
+      ).toISOString();
+
+  } else {
+    const scheduledDate =
+      text(
+        formData,
+        "scheduledDate",
+        20,
+      );
+
+    const scheduledTime =
+      text(
+        formData,
+        "scheduledTime",
+        20,
+      );
+
+    const timeZone =
+      normalizeTimeZone(
+        text(
+          formData,
+          "timeZone",
+          120,
+        ) ||
+          session.tutor
+            .timezone,
+        DEFAULT_TIME_ZONE,
+      );
+
+
+    if (
+      !scheduledDate ||
+      !scheduledTime
+    ) {
+      throw new Error(
+        "Choose the new date and time.",
+      );
+    }
+
+
+    const converted =
+      zonedLocalDateTimeToUtc(
+        scheduledDate,
+        scheduledTime,
+        timeZone,
+      );
+
+
+    if (!converted.ok) {
+      throw new Error(
+        converted.error,
+      );
+    }
+
+
+    newScheduledFor =
+      converted.iso;
+  }
+
+
+  const proposedStart =
+    new Date(
+      newScheduledFor,
+    ).getTime();
+
+
+  if (
+    Number.isNaN(
+      proposedStart,
+    ) ||
+    proposedStart <
+      Date.now() - 60_000
+  ) {
+    throw new Error(
+      "The new session time must be in the future.",
+    );
+  }
+
+
+  const duration =
+    Number(
+      sessionRow.duration_minutes ||
+        60,
+    );
+
+  const proposedEnd =
+    proposedStart +
+    duration *
+      60_000;
+
+  const searchStart =
+    new Date(
+      proposedStart -
+        12 *
+          60 *
+          60 *
+          1000,
+    ).toISOString();
+
+  const searchEnd =
+    new Date(
+      proposedEnd +
+        12 *
+          60 *
+          60 *
+          1000,
+    ).toISOString();
+
+
+  /*
+   * Tutor calendar conflict.
+   */
+  const {
+    data:
+      nearbyTutorSessions,
+    error:
+      tutorConflictError,
+  } =
+    await supabase
+      .from(
+        "tutoring_sessions",
+      )
+      .select(
+        "id,topic,scheduled_for,duration_minutes",
+      )
+      .eq(
+        "tutor_id",
+        session.tutor.id,
+      )
+      .eq(
+        "status",
+        "planned",
+      )
+      .neq(
+        "id",
+        sessionId,
+      )
+      .gte(
+        "scheduled_for",
+        searchStart,
+      )
+      .lte(
+        "scheduled_for",
+        searchEnd,
+      );
+
+
+  if (tutorConflictError) {
+    throw new Error(
+      tutorConflictError.message,
+    );
+  }
+
+
+  const tutorConflict =
+    (
+      nearbyTutorSessions ||
+      []
+    ).find(
+      (
+        existing,
+      ) => {
+        if (
+          !existing
+            .scheduled_for
+        ) {
+          return false;
+        }
+
+        const existingStart =
+          new Date(
+            existing
+              .scheduled_for,
+          ).getTime();
+
+        const existingEnd =
+          existingStart +
+          Number(
+            existing
+              .duration_minutes ||
+              60,
+          ) *
+            60_000;
+
+        return (
+          proposedStart <
+            existingEnd &&
+          proposedEnd >
+            existingStart
+        );
+      },
+    );
+
+
+  if (tutorConflict) {
+    throw new Error(
+      `You already have "${tutorConflict.topic}" scheduled at that time.`,
+    );
+  }
+
+
+  /*
+   * MAT shared Zoom host conflict.
+   */
+  if (
+    sessionRow.zoom_meeting_id
+  ) {
+    const {
+      data:
+        managedSessions,
+      error:
+        zoomConflictError,
+    } =
+      await supabase
+        .from(
+          "tutoring_sessions",
+        )
+        .select(
+          "id,topic,scheduled_for,duration_minutes",
+        )
+        .eq(
+          "status",
+          "planned",
+        )
+        .not(
+          "zoom_meeting_id",
+          "is",
+          null,
+        )
+        .neq(
+          "id",
+          sessionId,
+        )
+        .gte(
+          "scheduled_for",
+          searchStart,
+        )
+        .lte(
+          "scheduled_for",
+          searchEnd,
+        );
+
+
+    if (zoomConflictError) {
+      throw new Error(
+        zoomConflictError.message,
+      );
+    }
+
+
+    const zoomConflict =
+      (
+        managedSessions ||
+        []
+      ).find(
+        (
+          existing,
+        ) => {
+          if (
+            !existing
+              .scheduled_for
+          ) {
+            return false;
+          }
+
+          const existingStart =
+            new Date(
+              existing
+                .scheduled_for,
+            ).getTime();
+
+          const existingEnd =
+            existingStart +
+            Number(
+              existing
+                .duration_minutes ||
+                60,
+            ) *
+              60_000;
+
+          return (
+            proposedStart <
+              existingEnd &&
+            proposedEnd >
+              existingStart
+          );
+        },
+      );
+
+
+    if (zoomConflict) {
+      throw new Error(
+        `The MAT Zoom host is already in use for "${zoomConflict.topic}" at that time.`,
+      );
+    }
+
+
+    await updateZoomMeeting(
+      sessionRow.zoom_meeting_id,
+      {
+        topic:
+          `My Academic Tutor — ${sessionRow.topic}`,
+
+        scheduledFor:
+          newScheduledFor,
+
+        durationMinutes:
+          duration,
+      },
+    );
+  }
+
+
+  const {
+    data: updated,
+    error: updateError,
+  } =
+    await supabase
+      .from(
+        "tutoring_sessions",
+      )
+      .update({
+        scheduled_for:
+          newScheduledFor,
+
+        zoom_synced_at:
+          sessionRow.zoom_meeting_id
+            ? now
+            : null,
+
+        updated_at:
+          now,
+      })
+      .eq(
+        "id",
+        sessionId,
+      )
+      .select(
+        "id,engagement_id,scheduled_for,status,topic,duration_minutes,meeting_url",
+      )
+      .single();
+
+
+  if (
+    updateError ||
+    !updated
+  ) {
+    throw new Error(
+      updateError?.message ||
+        "Could not reschedule the session.",
+    );
+  }
+
+
+  const resolutionText =
+    responseKind ===
+      "approve_reschedule"
+      ? `Tutor accepted requested reschedule for session ${sessionId}.`
+      : `Tutor proposed and scheduled a new time for session ${sessionId}.`;
+
+  const nextAdminNote =
+    request.admin_note
+      ? `${request.admin_note}\n${resolutionText}`
+      : resolutionText;
+
+
+  const {
+    error:
+      resolveError,
+  } =
+    await supabase
+      .from(
+        "student_support_requests",
+      )
+      .update({
+        status:
+          "resolved",
+
+        admin_note:
+          nextAdminNote,
+
+        resolved_at:
+          now,
+
+        updated_at:
+          now,
+      })
+      .eq(
+        "id",
+        requestId,
+      );
+
+
+  if (resolveError) {
+    throw new Error(
+      resolveError.message,
+    );
+  }
+
+
+  try {
+    const {
+      data: student,
+    } =
+      await supabase
+        .from(
+          "students",
+        )
+        .select(
+          "name,email",
+        )
+        .eq(
+          "id",
+          request.student_id,
+        )
+        .maybeSingle();
+
+
+    if (student?.email) {
+      const result =
+        await sendSessionNotification({
+          sessionId:
+            updated.id,
+
+          name:
+            student.name,
+
+          email:
+            student.email,
+
+          topic:
+            updated.topic,
+
+          status:
+            updated.status,
+
+          scheduledFor:
+            updated.scheduled_for,
+
+          durationMinutes:
+            updated.duration_minutes,
+
+          nextTopic:
+            null,
+
+          homeworkSummary:
+            null,
+
+          meetingUrl:
+            updated.meeting_url,
+        });
+
+
+      await recordStudentCommunication({
+        studentId:
+          request.student_id,
+
+        engagementId:
+          updated.engagement_id,
+
+        type:
+          "session_update",
+
+        recipient:
+          student.email,
+
+        subject:
+          `Tutoring session rescheduled: ${updated.topic}`,
+
+        result,
+
+        createdByEmail:
+          session.user.email ||
+          null,
+      });
+    }
+
+  } catch (
+    notificationError
+  ) {
+    console.error(
+      "Tutor rescheduled the session, but student notification failed:",
+      notificationError,
+    );
+  }
+
+
+  revalidatePath(
+    "/tutor",
+  );
+
+  revalidatePath(
+    "/tutor/sessions",
+  );
+
+  revalidatePath(
+    `/tutor/sessions/${sessionId}`,
+  );
+
+  revalidatePath(
+    "/admin/sessions",
+  );
+
+  revalidatePath(
+    "/admin/portals",
+  );
+
+
+  redirect(
+    "/tutor/sessions?change=rescheduled",
   );
 }
 

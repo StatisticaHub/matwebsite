@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import {
+  respondTutorSessionChangeRequest,
   scheduleTutorSessionFromPortal,
 } from "@/app/tutor/actions";
 
@@ -121,6 +122,76 @@ function requestSection(
       )
       .trim() || null
   );
+}
+
+
+
+function parseStudentSessionChangeRequest(
+  message: string,
+) {
+  const changeType =
+    requestLine(
+      message,
+      "Change type",
+    );
+
+  return {
+    changeType:
+      changeType ===
+        "Cancellation" ||
+      changeType ===
+        "Reschedule"
+        ? changeType
+        : null,
+
+    sessionId:
+      requestLine(
+        message,
+        "Session ID",
+      ),
+
+    currentScheduledUtc:
+      requestLine(
+        message,
+        "Current scheduled UTC",
+      ),
+
+    sessionTopic:
+      requestLine(
+        message,
+        "Session topic",
+      ),
+
+    requestedDate:
+      requestLine(
+        message,
+        "Requested local date",
+      ),
+
+    requestedTime:
+      requestLine(
+        message,
+        "Requested local time",
+      ),
+
+    studentTimeZone:
+      requestLine(
+        message,
+        "Student timezone",
+      ),
+
+    requestedUtc:
+      requestLine(
+        message,
+        "Requested UTC",
+      ),
+
+    reason:
+      requestSection(
+        message,
+        "Reason",
+      ),
+  };
 }
 
 
@@ -331,6 +402,7 @@ export default async function TutorSessionsPage() {
     );
 
   let requests: any[] = [];
+  let changeRequests: any[] = [];
 
   if (engagementIds.length) {
     const {
@@ -359,10 +431,6 @@ export default async function TutorSessionsPage() {
           "engagement_id",
           engagementIds,
         )
-        .like(
-          "message",
-          "SESSION REQUEST%",
-        )
         .order(
           "created_at",
           {
@@ -376,8 +444,24 @@ export default async function TutorSessionsPage() {
       );
     }
 
-    requests =
+    const openRequests =
       (requestData || []) as any[];
+
+    requests =
+      openRequests.filter(
+        (request) =>
+          request.message.startsWith(
+            "SESSION REQUEST",
+          ),
+      );
+
+    changeRequests =
+      openRequests.filter(
+        (request) =>
+          request.message.startsWith(
+            "SESSION CHANGE REQUEST",
+          ),
+      );
   }
 
   const engagementById =
@@ -476,6 +560,315 @@ export default async function TutorSessionsPage() {
           Update availability
         </Link>
       </header>
+
+
+      {/* =====================================================
+          SESSION CHANGE / CANCELLATION REQUESTS
+          ===================================================== */}
+
+      {changeRequests.length > 0 && (
+        <section className="tutor-panel tutor-session-section tutor-closeout-section">
+          <div className="tutor-panel-head">
+            <div>
+              <span className="tutor-eyebrow">
+                Student changes
+              </span>
+
+              <h2>
+                Cancellation & reschedule requests
+              </h2>
+
+              <p className="tutor-help">
+                Review requests from your students before changing an existing booking.
+              </p>
+            </div>
+
+            <span>
+              {changeRequests.length} waiting
+            </span>
+          </div>
+
+
+          <div className="tutor-session-cards">
+            {changeRequests.map(
+              (request) => {
+                const engagement =
+                  request.engagement_id
+                    ? engagementById[
+                        request.engagement_id
+                      ]
+                    : null;
+
+                const details =
+                  parseStudentSessionChangeRequest(
+                    request.message,
+                  );
+
+                const requestedTutorTime =
+                  details.requestedUtc
+                    ? fmt(
+                        details.requestedUtc,
+                      )
+                    : null;
+
+                return (
+                  <article
+                    className="tutor-session-card"
+                    key={request.id}
+                  >
+                    <div className="tutor-session-card-copy">
+
+                      <span className="tutor-eyebrow">
+                        {details.changeType ||
+                          "Session change"}
+                      </span>
+
+
+                      <h3>
+                        {details.sessionTopic ||
+                          engagement?.subject ||
+                          "Tutoring session"}
+                      </h3>
+
+
+                      <p>
+                        <strong>
+                          {engagement?.students?.name ||
+                            "Student"}
+                        </strong>
+
+                        {engagement?.subject
+                          ? ` · ${engagement.subject}`
+                          : ""}
+                      </p>
+
+
+                      <dl className="tutor-details">
+                        <div>
+                          <dt>
+                            Current booking
+                          </dt>
+
+                          <dd>
+                            {details.currentScheduledUtc
+                              ? fmt(
+                                  details.currentScheduledUtc,
+                                )
+                              : "Not available"}
+                          </dd>
+                        </div>
+
+
+                        {details.changeType ===
+                          "Reschedule" && (
+                          <>
+                            <div>
+                              <dt>
+                                Student requested
+                              </dt>
+
+                              <dd>
+                                {details.requestedDate &&
+                                details.requestedTime
+                                  ? `${details.requestedDate} at ${details.requestedTime}`
+                                  : "Not available"}
+                              </dd>
+                            </div>
+
+                            <div>
+                              <dt>
+                                Student timezone
+                              </dt>
+
+                              <dd>
+                                {details.studentTimeZone ||
+                                  "Not provided"}
+                              </dd>
+                            </div>
+
+                            <div>
+                              <dt>
+                                Your local time
+                              </dt>
+
+                              <dd>
+                                {requestedTutorTime ||
+                                  "Not available"}
+                              </dd>
+                            </div>
+                          </>
+                        )}
+                      </dl>
+
+
+                      {details.reason && (
+                        <div className="tutor-requirement">
+                          <strong>
+                            Student reason
+                          </strong>
+
+                          <p>
+                            {details.reason}
+                          </p>
+                        </div>
+                      )}
+
+
+                      {details.sessionId && (
+                        <Link
+                          href={`/tutor/sessions/${details.sessionId}`}
+                        >
+                          Open current session →
+                        </Link>
+                      )}
+                    </div>
+
+
+                    <div className="tutor-session-request-actions">
+
+                      {details.changeType ===
+                        "Cancellation" && (
+                        <form
+                          action={
+                            respondTutorSessionChangeRequest
+                          }
+                        >
+                          <input
+                            type="hidden"
+                            name="requestId"
+                            value={request.id}
+                          />
+
+                          <input
+                            type="hidden"
+                            name="responseKind"
+                            value="cancel"
+                          />
+
+                          <button
+                            className="tutor-primary-button"
+                            type="submit"
+                          >
+                            Approve cancellation
+                          </button>
+                        </form>
+                      )}
+
+
+                      {details.changeType ===
+                        "Reschedule" && (
+                        <>
+                          {details.requestedUtc && (
+                            <form
+                              action={
+                                respondTutorSessionChangeRequest
+                              }
+                            >
+                              <input
+                                type="hidden"
+                                name="requestId"
+                                value={request.id}
+                              />
+
+                              <input
+                                type="hidden"
+                                name="responseKind"
+                                value="approve_reschedule"
+                              />
+
+                              <button
+                                className="tutor-primary-button"
+                                type="submit"
+                              >
+                                Approve requested time
+                              </button>
+                            </form>
+                          )}
+
+
+                          <details className="tutor-scheduling-details">
+                            <summary className="tutor-secondary-button">
+                              Choose another time
+                            </summary>
+
+                            <form
+                              action={
+                                respondTutorSessionChangeRequest
+                              }
+                              className="tutor-form compact"
+                            >
+                              <input
+                                type="hidden"
+                                name="requestId"
+                                value={request.id}
+                              />
+
+                              <input
+                                type="hidden"
+                                name="responseKind"
+                                value="propose_reschedule"
+                              />
+
+                              <input
+                                type="hidden"
+                                name="timeZone"
+                                value={tutorTimeZone}
+                              />
+
+
+                              <label>
+                                <span>
+                                  New date
+                                </span>
+
+                                <input
+                                  type="date"
+                                  name="scheduledDate"
+                                  required
+                                />
+                              </label>
+
+
+                              <label>
+                                <span>
+                                  New time
+                                </span>
+
+                                <input
+                                  type="time"
+                                  name="scheduledTime"
+                                  required
+                                />
+                              </label>
+
+
+                              <p className="tutor-help">
+                                Time zone:{" "}
+                                <strong>
+                                  {tutorTimeZone}
+                                </strong>
+                              </p>
+
+
+                              <button
+                                className="tutor-primary-button"
+                                type="submit"
+                              >
+                                Schedule alternative time
+                              </button>
+                            </form>
+                          </details>
+                        </>
+                      )}
+
+                    </div>
+                  </article>
+                );
+              },
+            )}
+          </div>
+        </section>
+      )}
 
 
       {/* =====================================================
