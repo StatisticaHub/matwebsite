@@ -12696,3 +12696,49 @@ main {
 /* ============================================================
    END HOMEPAGE TRUST / SERVICE PROOF
    ============================================================ */
+
+
+/* ============================================================
+   LEAD FORM CONVERSION POLISH
+   ============================================================ */
+
+.lead-field-help {
+  display: block;
+  margin-top: 7px;
+  color: #77869a;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+
+.lead-form-optional > span small {
+  margin-left: 5px;
+  color: #8491a2;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+
+.lead-submit-note {
+  margin: 10px 0 0;
+  color: #748296;
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+
+@media (max-width: 680px) {
+
+  .lead-submit-note {
+    padding: 0 6px;
+  }
+
+}
+
+
+/* ============================================================
+   END LEAD FORM CONVERSION POLISH
+   ============================================================ */
