@@ -8,6 +8,12 @@ import {
   createAdminClient,
 } from "@/lib/supabase/admin";
 
+import {
+  DEFAULT_TIME_ZONE,
+  formatDateTimeInTimeZone,
+  normalizeTimeZone,
+} from "@/lib/time-zone";
+
 
 export const metadata = {
   title: "My students",
@@ -79,9 +85,7 @@ type EngagementRow = {
 
 type StudentGroup = {
   student: StudentInfo;
-
-  courses:
-    EngagementRow[];
+  courses: EngagementRow[];
 };
 
 
@@ -112,7 +116,7 @@ function formatDeadline(
     | null,
 ) {
   if (!value) {
-    return "—";
+    return "Not set";
   }
 
   const date =
@@ -138,6 +142,53 @@ function formatDeadline(
 }
 
 
+function deadlineTone(
+  value:
+    | string
+    | null,
+) {
+  if (!value) {
+    return "";
+  }
+
+  const deadline =
+    new Date(value);
+
+  if (
+    Number.isNaN(
+      deadline.getTime(),
+    )
+  ) {
+    return "";
+  }
+
+  const diff =
+    deadline.getTime() -
+    Date.now();
+
+  const days =
+    Math.ceil(
+      diff /
+        (
+          1000 *
+          60 *
+          60 *
+          24
+        ),
+    );
+
+  if (days < 0) {
+    return "is-overdue";
+  }
+
+  if (days <= 14) {
+    return "is-soon";
+  }
+
+  return "";
+}
+
+
 export default async function TutorStudentsPage() {
   const auth =
     await getTutorSession();
@@ -145,6 +196,13 @@ export default async function TutorStudentsPage() {
   if (!auth) {
     return null;
   }
+
+
+  const tutorTimeZone =
+    normalizeTimeZone(
+      auth.tutor.timezone,
+      DEFAULT_TIME_ZONE,
+    );
 
 
   const supabase =
@@ -171,7 +229,14 @@ export default async function TutorStudentsPage() {
         frequency,
         session_duration_minutes,
         upcoming_deadline,
-        students(id,name,academic_level,institution,programme)
+        students (
+          id,
+          name,
+          email,
+          academic_level,
+          institution,
+          programme
+        )
       `)
       .eq(
         "tutor_id",
@@ -201,18 +266,219 @@ export default async function TutorStudentsPage() {
       EngagementRow[];
 
 
-  /*
-   * Group engagements by actual student.
-   *
-   * One student can therefore have:
-   *
-   * Statistics
-   * Python
-   * Econometrics
-   *
-   * without appearing as three
-   * separate people.
-   */
+  const engagementIds =
+    rows.map(
+      (row) =>
+        row.id,
+    );
+
+
+  let sessionRows:
+    any[] = [];
+
+  let homeworkRows:
+    any[] = [];
+
+  let progressRows:
+    any[] = [];
+
+
+  if (
+    engagementIds.length
+  ) {
+    const [
+      sessionResult,
+      homeworkResult,
+      progressResult,
+    ] =
+      await Promise.all([
+
+        supabase
+          .from(
+            "tutoring_sessions",
+          )
+          .select(
+            "id,engagement_id,scheduled_for,duration_minutes,status,topic",
+          )
+          .eq(
+            "tutor_id",
+            auth.tutor.id,
+          )
+          .in(
+            "engagement_id",
+            engagementIds,
+          )
+          .eq(
+            "status",
+            "planned",
+          )
+          .gte(
+            "scheduled_for",
+            new Date()
+              .toISOString(),
+          )
+          .order(
+            "scheduled_for",
+            {
+              ascending:
+                true,
+            },
+          ),
+
+        supabase
+          .from(
+            "homework",
+          )
+          .select(
+            "id,engagement_id,title,due_date,status",
+          )
+          .in(
+            "engagement_id",
+            engagementIds,
+          )
+          .eq(
+            "status",
+            "submitted",
+          ),
+
+        supabase
+          .from(
+            "progress_reports",
+          )
+          .select(
+            "id,engagement_id,overall_score,attendance_rate,homework_completion_rate,period_end,student_visible",
+          )
+          .eq(
+            "tutor_id",
+            auth.tutor.id,
+          )
+          .in(
+            "engagement_id",
+            engagementIds,
+          )
+          .order(
+            "period_end",
+            {
+              ascending:
+                false,
+            },
+          ),
+      ]);
+
+
+    if (
+      sessionResult.error
+    ) {
+      throw new Error(
+        sessionResult.error.message,
+      );
+    }
+
+
+    if (
+      homeworkResult.error
+    ) {
+      throw new Error(
+        homeworkResult.error.message,
+      );
+    }
+
+
+    if (
+      progressResult.error
+    ) {
+      throw new Error(
+        progressResult.error.message,
+      );
+    }
+
+
+    sessionRows =
+      sessionResult.data ||
+      [];
+
+    homeworkRows =
+      homeworkResult.data ||
+      [];
+
+    progressRows =
+      progressResult.data ||
+      [];
+  }
+
+
+  const nextSessionByEngagement =
+    new Map<
+      string,
+      any
+    >();
+
+
+  for (
+    const session
+    of sessionRows
+  ) {
+    if (
+      !nextSessionByEngagement.has(
+        session.engagement_id,
+      )
+    ) {
+      nextSessionByEngagement.set(
+        session.engagement_id,
+        session,
+      );
+    }
+  }
+
+
+  const awaitingReviewByEngagement =
+    new Map<
+      string,
+      number
+    >();
+
+
+  for (
+    const homework
+    of homeworkRows
+  ) {
+    awaitingReviewByEngagement.set(
+      homework.engagement_id,
+      (
+        awaitingReviewByEngagement.get(
+          homework.engagement_id,
+        ) ||
+        0
+      ) +
+        1,
+    );
+  }
+
+
+  const latestProgressByEngagement =
+    new Map<
+      string,
+      any
+    >();
+
+
+  for (
+    const report
+    of progressRows
+  ) {
+    if (
+      !latestProgressByEngagement.has(
+        report.engagement_id,
+      )
+    ) {
+      latestProgressByEngagement.set(
+        report.engagement_id,
+        report,
+      );
+    }
+  }
+
+
   const grouped =
     new Map<
       string,
@@ -229,17 +495,14 @@ export default async function TutorStudentsPage() {
         row.students,
       );
 
-
     if (!student) {
       continue;
     }
-
 
     const existing =
       grouped.get(
         student.id,
       );
-
 
     if (existing) {
       existing.courses.push(
@@ -248,7 +511,6 @@ export default async function TutorStudentsPage() {
 
       continue;
     }
-
 
     grouped.set(
       student.id,
@@ -277,10 +539,14 @@ export default async function TutorStudentsPage() {
     ).length;
 
 
-  return (
-    <div className="tutor-page">
+  const awaitingReviewTotal =
+    homeworkRows.length;
 
-      <header className="tutor-page-head">
+
+  return (
+    <div className="tutor-page tutor-students-v2">
+
+      <header className="tutor-page-head tutor-students-v2-head">
 
         <div>
 
@@ -293,11 +559,7 @@ export default async function TutorStudentsPage() {
           </h1>
 
           <p>
-            Manage each student
-            once, with separate
-            course workspaces for
-            every subject you teach
-            them.
+            Your learners, courses and current teaching priorities in one place.
           </p>
 
         </div>
@@ -305,7 +567,7 @@ export default async function TutorStudentsPage() {
       </header>
 
 
-      <section className="tutor-metric-grid tutor-student-summary-metrics">
+      <section className="tutor-students-v2-metrics">
 
         <article>
 
@@ -319,20 +581,9 @@ export default async function TutorStudentsPage() {
             }
           </strong>
 
-        </article>
-
-
-        <article>
-
-          <span>
-            Course workspaces
-          </span>
-
-          <strong>
-            {
-              rows.length
-            }
-          </strong>
+          <small>
+            Learners assigned to you
+          </small>
 
         </article>
 
@@ -349,254 +600,391 @@ export default async function TutorStudentsPage() {
             }
           </strong>
 
+          <small>
+            Current teaching workspaces
+          </small>
+
+        </article>
+
+
+        <article>
+
+          <span>
+            Awaiting review
+          </span>
+
+          <strong>
+            {
+              awaitingReviewTotal
+            }
+          </strong>
+
+          <small>
+            Student submissions waiting
+          </small>
+
         </article>
 
       </section>
 
 
-      <div className="tutor-student-group-list">
+      <div className="tutor-students-v2-list">
 
         {students.map(
           ({
             student,
             courses,
-          }) => (
-            <article
-              className="tutor-panel tutor-student-group-card"
-              key={
-                student.id
-              }
-            >
+          }) => {
 
-              <header className="tutor-student-group-head">
+            const activeForStudent =
+              courses.filter(
+                (course) =>
+                  course.status ===
+                  "active",
+              ).length;
 
-                <div className="tutor-student-identity">
+            const initials =
+              student.name
+                .trim()
+                .split(/\s+/)
+                .slice(0, 2)
+                .map(
+                  (part) =>
+                    part
+                      .slice(0, 1)
+                      .toUpperCase(),
+                )
+                .join("");
 
-                  <div className="tutor-student-avatar">
-                    {student.name
-                      .trim()
-                      .slice(
-                        0,
-                        1,
-                      )
-                      .toUpperCase()}
-                  </div>
+            return (
+              <article
+                className="tutor-students-v2-card"
+                key={
+                  student.id
+                }
+              >
 
+                <header className="tutor-students-v2-student">
 
-                  <div>
+                  <div className="tutor-students-v2-identity">
 
-                    <span className="tutor-eyebrow">
-                      Student
-                    </span>
-
-                    <h2>
+                    <div className="tutor-students-v2-avatar">
                       {
-                        student.name
+                        initials ||
+                        "S"
                       }
-                    </h2>
-
-                    <p>
-                      {student.academic_level ||
-                        "Level not recorded"}
-
-                      {student.programme
-                        ? ` · ${student.programme}`
-                        : ""}
-
-                      {student.institution
-                        ? ` · ${student.institution}`
-                        : ""}
-                    </p>
-
-                  </div>
-
-                </div>
+                    </div>
 
 
-                <div className="tutor-student-group-meta">
+                    <div>
 
-                  <strong>
-                    {
-                      courses.length
-                    }{" "}
-                    course
-                    {courses.length ===
-                    1
-                      ? ""
-                      : "s"}
-                  </strong>
+                      <div className="tutor-students-v2-name-row">
 
-                  
-
-                </div>
-
-              </header>
-
-
-              <div className="tutor-student-course-list">
-
-                {courses.map(
-                  (
-                    course,
-                  ) => (
-                    <section
-                      className="tutor-student-course-card"
-                      key={
-                        course.id
-                      }
-                    >
-
-                      <div className="tutor-student-course-top">
-
-                        <div>
-
-                          <span className="tutor-eyebrow">
-                            Course workspace
-                          </span>
-
-                          <h3>
-                            {
-                              course.subject
-                            }
-                          </h3>
-
-                          <p>
-                            {course.module ||
-                              course.title}
-                          </p>
-
-                        </div>
-
-
-                        <span
-                          className={`tutor-status ${course.status}`}
-                        >
+                        <h2>
                           {
-                            course.status
+                            student.name
                           }
+                        </h2>
+
+                        <span className="tutor-students-v2-count">
+                          {
+                            activeForStudent
+                          }{" "}
+                          active{" "}
+                          {activeForStudent ===
+                          1
+                            ? "course"
+                            : "courses"}
                         </span>
 
                       </div>
 
 
-                      <dl className="tutor-course-facts">
+                      <p>
+                        {student.academic_level ||
+                          "Level not recorded"}
 
-                        <div>
+                        {student.programme
+                          ? ` · ${student.programme}`
+                          : ""}
 
-                          <dt>
-                            Current focus
-                          </dt>
+                        {student.institution
+                          ? ` · ${student.institution}`
+                          : ""}
+                      </p>
 
-                          <dd>
-                            {course.current_focus ||
-                              course.module ||
-                              "Not set"}
-                          </dd>
+                    </div>
 
-                        </div>
-
-
-                        <div>
-
-                          <dt>
-                            Frequency
-                          </dt>
-
-                          <dd>
-                            {course.frequency ||
-                              "Not set"}
-                          </dd>
-
-                        </div>
+                  </div>
 
 
-                        <div>
+                  <a
+                    className="tutor-students-v2-email"
+                    href={`mailto:${student.email}`}
+                  >
+                    Email student
+                  </a>
 
-                          <dt>
-                            Session
-                          </dt>
-
-                          <dd>
-                            {
-                              course.session_duration_minutes
-                            }{" "}
-                            min
-                          </dd>
-
-                        </div>
+                </header>
 
 
-                        <div>
+                <div className="tutor-students-v2-courses">
 
-                          <dt>
-                            Deadline
-                          </dt>
+                  {courses.map(
+                    (
+                      course,
+                    ) => {
 
-                          <dd>
-                            {formatDeadline(
-                              course.upcoming_deadline,
-                            )}
-                          </dd>
+                      const courseTitle =
+                        course.module ||
+                        course.title;
 
-                        </div>
+                      const focus =
+                        course.current_focus ||
+                        course.module ||
+                        course.title ||
+                        "Not set";
 
-                      </dl>
+                      const schedule =
+                        [
+                          course.frequency,
+                          course.session_duration_minutes
+                            ? `${course.session_duration_minutes} min`
+                            : null,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ");
 
-
-                      {(course.goal ||
-                        course.target) && (
-                        <div className="tutor-course-goal">
-
-                          <span>
-                            Learning goal
-                          </span>
-
-                          <p>
-                            {course.target ||
-                              course.goal}
-                          </p>
-
-                        </div>
-                      )}
+                      const goal =
+                        course.target ||
+                        course.goal;
 
 
-                      <div className="tutor-course-actions">
+                      const nextSession =
+                        nextSessionByEngagement.get(
+                          course.id,
+                        ) ||
+                        null;
 
-                        <Link
-                          className="tutor-primary-button"
-                          href={`/tutor/students/${course.id}`}
+
+                      const awaitingReview =
+                        awaitingReviewByEngagement.get(
+                          course.id,
+                        ) ||
+                        0;
+
+
+                      const latestProgress =
+                        latestProgressByEngagement.get(
+                          course.id,
+                        ) ||
+                        null;
+
+
+                      return (
+                        <section
+                          className="tutor-students-v2-course"
+                          key={
+                            course.id
+                          }
                         >
-                          Weekly workspace →
-                        </Link>
+
+                          <div className="tutor-students-v2-course-main">
+
+                            <div className="tutor-students-v2-course-heading">
+
+                              <div>
+
+                                <span className="tutor-students-v2-subject">
+                                  {
+                                    course.subject
+                                  }
+                                </span>
+
+                                <h3>
+                                  {
+                                    courseTitle
+                                  }
+                                </h3>
+
+                              </div>
 
 
-                        <Link
-                          className="tutor-secondary-button"
-                          href={`/tutor/progress/${course.id}`}
-                        >
-                          Progress
-                        </Link>
+                              <span
+                                className={`tutor-status ${course.status}`}
+                              >
+                                {
+                                  course.status
+                                }
+                              </span>
+
+                            </div>
 
 
-                        <Link
-                          className="tutor-course-text-link"
-                          href={`/tutor/materials?engagement=${encodeURIComponent(
-                            course.id,
-                          )}`}
-                        >
-                          Resources
-                        </Link>
+                            <div className="tutor-students-v2-focus">
 
-                      </div>
+                              <span>
+                                Current focus
+                              </span>
 
-                    </section>
-                  ),
-                )}
+                              <strong>
+                                {
+                                  focus
+                                }
+                              </strong>
 
-              </div>
+                            </div>
 
-            </article>
-          ),
+                          </div>
+
+
+                          <div className="tutor-students-v2-course-info">
+
+                            <div>
+
+                              <span>
+                                Schedule
+                              </span>
+
+                              <strong>
+                                {schedule ||
+                                  "Not set"}
+                              </strong>
+
+                            </div>
+
+
+                            <div>
+
+                              <span>
+                                Deadline
+                              </span>
+
+                              <strong
+                                className={deadlineTone(
+                                  course.upcoming_deadline,
+                                )}
+                              >
+                                {formatDeadline(
+                                  course.upcoming_deadline,
+                                )}
+                              </strong>
+
+                            </div>
+
+
+                            <div>
+
+                              <span>
+                                Learning goal
+                              </span>
+
+                              <strong>
+                                {goal ||
+                                  "Not set"}
+                              </strong>
+
+                            </div>
+
+
+                            <div>
+
+                              <span>
+                                Next lesson
+                              </span>
+
+                              <strong>
+                                {nextSession
+                                  ? formatDateTimeInTimeZone(
+                                      nextSession.scheduled_for,
+                                      tutorTimeZone,
+                                    )
+                                  : "Not scheduled"}
+                              </strong>
+
+                            </div>
+
+
+                            <div>
+
+                              <span>
+                                Homework
+                              </span>
+
+                              <strong
+                                className={
+                                  awaitingReview
+                                    ? "is-attention"
+                                    : undefined
+                                }
+                              >
+                                {awaitingReview
+                                  ? `${awaitingReview} awaiting review`
+                                  : "Nothing to review"}
+                              </strong>
+
+                            </div>
+
+
+                            <div>
+
+                              <span>
+                                Latest progress
+                              </span>
+
+                              <strong>
+                                {latestProgress?.overall_score ==
+                                null
+                                  ? "No report yet"
+                                  : `${Math.round(
+                                      latestProgress.overall_score,
+                                    )}% overall`}
+                              </strong>
+
+                            </div>
+
+                          </div>
+
+
+                          <div className="tutor-students-v2-actions">
+
+                            <Link
+                              className="tutor-primary-button"
+                              href={`/tutor/students/${course.id}`}
+                            >
+                              Open workspace →
+                            </Link>
+
+
+                            <Link
+                              className="tutor-secondary-button"
+                              href={`/tutor/progress/${course.id}`}
+                            >
+                              Progress
+                            </Link>
+
+
+                            <Link
+                              className="tutor-students-v2-resource-link"
+                              href={`/tutor/materials?engagement=${encodeURIComponent(
+                                course.id,
+                              )}`}
+                            >
+                              Resources
+                            </Link>
+
+                          </div>
+
+                        </section>
+                      );
+                    },
+                  )}
+
+                </div>
+
+              </article>
+            );
+          },
         )}
 
 
@@ -608,10 +996,7 @@ export default async function TutorStudentsPage() {
             </h2>
 
             <p>
-              Students will appear
-              here when an active
-              tutoring engagement
-              is assigned to you.
+              Students will appear here when an active tutoring engagement is assigned to you.
             </p>
 
           </section>
