@@ -719,6 +719,21 @@ export default async function TutorAssignmentsPage() {
                       />
                     </label>
 
+                    <label className="tutor-check-single tutor-assignment-notify">
+                      <input
+                        type="checkbox"
+                        name="notifyStudent"
+                        defaultChecked={
+                          item.status ===
+                          "submitted"
+                        }
+                      />
+
+                      <span>
+                        Email this review to the student
+                      </span>
+                    </label>
+
                     <button
                       className="tutor-primary-button"
                       type="submit"

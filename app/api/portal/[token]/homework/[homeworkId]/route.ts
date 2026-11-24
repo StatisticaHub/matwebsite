@@ -73,8 +73,18 @@ export async function POST(request: NextRequest, { params }: { params: Params })
 
   if (error) return NextResponse.json({ error: "Could not save submission." }, { status: 500 });
 
-  if (homework.status === "assigned") {
-    await supabase.from("homework").update({ status: "submitted", updated_at: now }).eq("id", homeworkId);
+  if (
+    ["assigned", "reviewed"].includes(
+      homework.status
+    )
+  ) {
+    await supabase
+      .from("homework")
+      .update({
+        status: "submitted",
+        updated_at: now,
+      })
+      .eq("id", homeworkId);
   }
 
   return NextResponse.json({ ok: true });

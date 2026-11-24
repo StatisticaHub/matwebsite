@@ -589,6 +589,47 @@ export default function StudentWeeklyLearningHub({
                                       )}
                                     </div>
 
+                                    {item.tutor_feedback && (
+                                      <div className="portal-feedback">
+                                        <span>
+                                          Tutor feedback
+                                        </span>
+
+                                        <p>
+                                          {item.tutor_feedback}
+                                        </p>
+                                      </div>
+                                    )}
+
+                                    {item.status === "reviewed" &&
+                                      item.tutor_feedback && (
+                                        <div className="portal-homework-next-step">
+                                          <strong>
+                                            Next step
+                                          </strong>
+
+                                          <p>
+                                            Review your tutor&apos;s feedback.
+                                            If changes were requested, revise
+                                            your work and submit it again.
+                                          </p>
+                                        </div>
+                                      )}
+
+                                    {item.status === "completed" && (
+                                      <div className="portal-homework-next-step is-complete">
+                                        <strong>
+                                          Complete
+                                        </strong>
+
+                                        <p>
+                                          Your tutor has marked this work
+                                          complete. No further action is
+                                          required.
+                                        </p>
+                                      </div>
+                                    )}
+
                                     {submission && (
                                       <div className="portal-week-submission">
                                         <span>
@@ -718,7 +759,48 @@ export default function StudentWeeklyLearningHub({
                             </span>
                           </div>
 
-                          {submission && (
+                          {item.tutor_feedback && (
+                                      <div className="portal-feedback">
+                                        <span>
+                                          Tutor feedback
+                                        </span>
+
+                                        <p>
+                                          {item.tutor_feedback}
+                                        </p>
+                                      </div>
+                                    )}
+
+                                    {item.status === "reviewed" &&
+                                      item.tutor_feedback && (
+                                        <div className="portal-homework-next-step">
+                                          <strong>
+                                            Next step
+                                          </strong>
+
+                                          <p>
+                                            Review your tutor&apos;s feedback.
+                                            If changes were requested, revise
+                                            your work and submit it again.
+                                          </p>
+                                        </div>
+                                      )}
+
+                                    {item.status === "completed" && (
+                                      <div className="portal-homework-next-step is-complete">
+                                        <strong>
+                                          Complete
+                                        </strong>
+
+                                        <p>
+                                          Your tutor has marked this work
+                                          complete. No further action is
+                                          required.
+                                        </p>
+                                      </div>
+                                    )}
+
+                                    {submission && (
                             <div className="portal-week-submission">
                               <span>
                                 Submitted{" "}

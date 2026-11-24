@@ -10269,3 +10269,37 @@ main {
     min-height: auto;
   }
 }
+
+
+
+/* MAT homework feedback next action */
+.portal-homework-next-step {
+  display: grid;
+  gap: 4px;
+  margin-top: 10px;
+  padding: 11px 12px;
+  border-left: 3px solid #315f93;
+  border-radius: 0 9px 9px 0;
+  background: #f5f8fc;
+}
+
+.portal-homework-next-step strong {
+  color: #173456;
+  font-size: 0.78rem;
+}
+
+.portal-homework-next-step p {
+  margin: 0;
+  color: #5e6f83;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.portal-homework-next-step.is-complete {
+  border-left-color: #2e7a52;
+  background: #f3f9f5;
+}
+
+.tutor-assignment-notify {
+  align-self: start;
+}

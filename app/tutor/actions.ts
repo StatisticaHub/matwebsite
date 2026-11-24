@@ -4,6 +4,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getTutorSession } from "@/lib/tutor-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  sendHomeworkNotification,
+  sendSessionNotification,
+} from "@/lib/email/student";
+import { recordStudentCommunication } from "@/lib/student-communications";
 import { sessionStatuses, type SessionStatus } from "@/lib/delivery-data";
 
 import {
@@ -11,8 +16,6 @@ import {
   normalizeTimeZone,
   zonedLocalDateTimeToUtc,
 } from "@/lib/time-zone";
-import { sendSessionNotification } from "@/lib/email/student";
-import { recordStudentCommunication } from "@/lib/student-communications";
 import {
   createZoomMeeting,
   deleteZoomMeeting,
@@ -461,12 +464,14 @@ export async function updateTutorAssignmentFromWorkspace(
   } =
     await tutorContext();
 
+
   const homeworkId =
     text(
       formData,
       "homeworkId",
       100,
     );
+
 
   const status =
     text(
@@ -475,12 +480,20 @@ export async function updateTutorAssignmentFromWorkspace(
       30,
     );
 
+
   const feedback =
     nullableText(
       formData,
       "feedback",
       5000,
     );
+
+
+  const notifyStudent =
+    formData.get(
+      "notifyStudent",
+    ) === "on";
+
 
   const validStatuses = [
     "assigned",
@@ -490,6 +503,7 @@ export async function updateTutorAssignmentFromWorkspace(
     "skipped",
   ];
 
+
   if (
     !homeworkId ||
     !validStatuses.includes(
@@ -498,6 +512,7 @@ export async function updateTutorAssignmentFromWorkspace(
   ) {
     return;
   }
+
 
   const {
     data: homework,
@@ -516,6 +531,7 @@ export async function updateTutorAssignmentFromWorkspace(
       )
       .maybeSingle();
 
+
   if (
     homeworkError ||
     !homework
@@ -526,6 +542,7 @@ export async function updateTutorAssignmentFromWorkspace(
     );
   }
 
+
   const {
     data: engagement,
     error: engagementError,
@@ -535,7 +552,7 @@ export async function updateTutorAssignmentFromWorkspace(
         "tutoring_engagements",
       )
       .select(
-        "id,tutor_id",
+        "id,tutor_id,student_id",
       )
       .eq(
         "id",
@@ -547,6 +564,7 @@ export async function updateTutorAssignmentFromWorkspace(
       )
       .maybeSingle();
 
+
   if (
     engagementError ||
     !engagement
@@ -556,7 +574,9 @@ export async function updateTutorAssignmentFromWorkspace(
     );
   }
 
+
   const {
+    data: updated,
     error: updateError,
   } =
     await supabase
@@ -565,21 +585,113 @@ export async function updateTutorAssignmentFromWorkspace(
       )
       .update({
         status,
+
         tutor_feedback:
           feedback,
+
         updated_at:
-          new Date().toISOString(),
+          new Date()
+            .toISOString(),
       })
       .eq(
         "id",
         homeworkId,
-      );
+      )
+      .select(
+        "id,engagement_id,title,description,due_date,status,tutor_feedback",
+      )
+      .single();
 
-  if (updateError) {
+
+  if (
+    updateError ||
+    !updated
+  ) {
     throw new Error(
-      updateError.message,
+      updateError?.message ||
+        "Could not update assignment.",
     );
   }
+
+
+  if (notifyStudent) {
+    const {
+      data: student,
+    } =
+      await supabase
+        .from(
+          "students",
+        )
+        .select(
+          "name,email",
+        )
+        .eq(
+          "id",
+          engagement.student_id,
+        )
+        .maybeSingle();
+
+
+    if (
+      student?.email
+    ) {
+      const result =
+        await sendHomeworkNotification({
+          homeworkId:
+            updated.id,
+
+          name:
+            student.name,
+
+          email:
+            student.email,
+
+          title:
+            updated.title,
+
+          description:
+            updated.description,
+
+          dueDate:
+            updated.due_date,
+
+          status:
+            updated.status,
+
+          feedback:
+            updated.tutor_feedback,
+        });
+
+
+      await recordStudentCommunication({
+        studentId:
+          engagement.student_id,
+
+        engagementId:
+          engagement.id,
+
+        type:
+          "homework_update",
+
+        recipient:
+          student.email,
+
+        subject:
+          `Homework update: ${updated.title}`,
+
+        result,
+
+        createdByEmail:
+          session.user.email ||
+          null,
+      });
+    }
+  }
+
+
+  revalidatePath(
+    "/tutor",
+  );
 
   revalidatePath(
     "/tutor/assignments",

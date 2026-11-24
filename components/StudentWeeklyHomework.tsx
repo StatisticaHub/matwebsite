@@ -438,6 +438,38 @@ export default async function StudentWeeklyHomework({
                   </div>
                 )}
 
+                {item.status ===
+                  "reviewed" &&
+                  item.tutor_feedback && (
+                    <div className="portal-homework-next-step">
+                      <strong>
+                        Next step
+                      </strong>
+
+                      <p>
+                        Review your tutor&apos;s feedback.
+                        If changes were requested, update
+                        your work and submit it again.
+                      </p>
+                    </div>
+                  )}
+
+                {item.status ===
+                  "completed" && (
+                    <div className="portal-homework-next-step is-complete">
+                      <strong>
+                        Complete
+                      </strong>
+
+                      <p>
+                        Your tutor has marked this work
+                        complete. No further action is
+                        required.
+                      </p>
+                    </div>
+                  )}
+
+
 
                 {submission && (
                   <small className="portal-week-homework-submitted">
