@@ -512,6 +512,10 @@ export async function updateTutorWeek(
       .eq(
         "id",
         weekId,
+      )
+      .eq(
+        "engagement_id",
+        week.engagement_id,
       );
 
   if (error) {
@@ -640,6 +644,10 @@ export async function changeTutorWeekStatus(
       .eq(
         "id",
         weekId,
+      )
+      .eq(
+        "engagement_id",
+        week.engagement_id,
       );
 
   if (error) {
@@ -2704,6 +2712,10 @@ export async function reviewTutorHomeworkInWeek(
       .eq(
         "id",
         homeworkId,
+      )
+      .eq(
+        "engagement_id",
+        engagement.id,
       )
       .select(
         "id,title,description,due_date,status,tutor_feedback",
