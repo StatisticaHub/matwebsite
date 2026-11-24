@@ -112,6 +112,7 @@ export async function loadSystemHealthReport(): Promise<SystemHealthReport> {
   const [
     notificationSettings,
     notificationFailures,
+    studentCommunicationFailures,
     nurtureSettings,
     nurtureFailures,
     ga4Failures,
@@ -125,6 +126,9 @@ export async function loadSystemHealthReport(): Promise<SystemHealthReport> {
     pastPlannedSessions,
     portalLinks,
     oldSupportRequests,
+    agedSessionRequests,
+    activeTutors,
+    upcomingSessionMeetings,
     expiredTestimonials,
     contentItems,
     latestPerformance,
@@ -132,6 +136,7 @@ export async function loadSystemHealthReport(): Promise<SystemHealthReport> {
   ] = await Promise.all([
     supabase.from("notification_settings").select("automation_enabled").eq("id", 1).maybeSingle(),
     supabase.from("notification_log").select("id", { count: "exact", head: true }).eq("status", "failed").gte("created_at", isoAgo(7 * DAY)),
+    supabase.from("student_communications").select("id", { count: "exact", head: true }).eq("status", "failed").gte("created_at", isoAgo(7 * DAY)),
     supabase.from("lead_nurture_settings").select("automation_enabled").eq("id", 1).maybeSingle(),
     supabase.from("lead_nurture_log").select("id", { count: "exact", head: true }).eq("status", "failed").gte("created_at", isoAgo(7 * DAY)),
     supabase.from("ga4_lifecycle_event_log").select("id", { count: "exact", head: true }).eq("status", "failed").gte("attempted_at", isoAgo(7 * DAY)),
@@ -139,12 +144,19 @@ export async function loadSystemHealthReport(): Promise<SystemHealthReport> {
     supabase.from("retention_settings").select("automation_enabled,last_scan_at,scan_interval_hours").eq("id", 1).maybeSingle(),
     supabase.from("tutoring_leads").select("id", { count: "exact", head: true }).not("status", "in", "(closed,lost)").lt("next_follow_up_at", new Date().toISOString()),
     supabase.from("tutoring_leads").select("id", { count: "exact", head: true }).in("status", ["new", "contacted", "matching", "tutor_assigned"]).lt("updated_at", isoAgo(3 * DAY)),
-    supabase.from("students").select("id").eq("status", "active"),
+    supabase.from("students").select("id,portal_enabled,auth_user_id").eq("status", "active"),
     supabase.from("tutoring_engagements").select("id,student_id,tutor_id,status").eq("status", "active"),
     supabase.from("tutoring_sessions").select("id", { count: "exact", head: true }).eq("status", "completed").is("lesson_notes", null).lt("completed_at", isoAgo(3 * HOUR)),
     supabase.from("tutoring_sessions").select("id", { count: "exact", head: true }).eq("status", "planned").lt("scheduled_for", isoAgo(2 * HOUR)),
     supabase.from("student_portal_links").select("student_id,expires_at,revoked_at"),
     supabase.from("student_support_requests").select("id", { count: "exact", head: true }).in("status", ["new", "in_progress"]).lt("created_at", isoAgo(2 * DAY)),
+    supabase.from("student_support_requests").select("id", { count: "exact", head: true }).eq("category", "session_request").in("status", ["new", "in_progress"]).lt("created_at", isoAgo(12 * HOUR)),
+    supabase.from("tutors").select("id,portal_enabled,auth_user_id").eq("status", "active"),
+    supabase.from("tutoring_sessions")
+      .select("id,scheduled_for,meeting_url,zoom_meeting_id,zoom_synced_at")
+      .eq("status", "planned")
+      .gte("scheduled_for", new Date().toISOString())
+      .lte("scheduled_for", new Date(Date.now() + 48 * HOUR).toISOString()),
     supabase.from("testimonials").select("id", { count: "exact", head: true }).eq("status", "requested").lt("request_expires_at", new Date().toISOString()),
     supabase.from("content_growth_items").select("id,stage,indexing_status,next_review_at"),
     supabase.from("content_performance_snapshots").select("period_end").order("period_end", { ascending: false }).limit(1).maybeSingle(),
@@ -165,6 +177,17 @@ export async function loadSystemHealthReport(): Promise<SystemHealthReport> {
     healthySummary: "No failed reminder emails in the last 7 days.",
     issueSummary: `${notificationFailures.count ?? 0} reminder email failure(s) need review.`,
     href: "/admin/notifications",
+    failure: true,
+  });
+
+  pushCountResult(checks, studentCommunicationFailures, {
+    id: "student-email-failures",
+    group: "CRM & delivery",
+    title: "Student email delivery",
+    healthySummary: "No direct student emails failed in the last 7 days.",
+    issueSummary: `${studentCommunicationFailures.count ?? 0} direct student email(s) failed in the last 7 days.`,
+    detail: "This includes operational emails sent from session, progress and student workflows.",
+    href: "/admin/students",
     failure: true,
   });
 
@@ -282,6 +305,127 @@ export async function loadSystemHealthReport(): Promise<SystemHealthReport> {
     id: "support-requests", group: "CRM & delivery", title: "Aged student support requests",
     healthySummary: "No unresolved support request is older than 48 hours.", issueSummary: `${oldSupportRequests.count ?? 0} unresolved support request(s) are older than 48 hours.`, href: "/admin/portals",
   });
+
+  pushCountResult(checks, agedSessionRequests, {
+    id: "aged-session-requests",
+    group: "CRM & delivery",
+    title: "Session requests waiting over 12 hours",
+    healthySummary: "No session, cancellation or reschedule request has been waiting more than 12 hours.",
+    issueSummary: `${agedSessionRequests.count ?? 0} session request(s) have been waiting more than 12 hours.`,
+    detail: "These are student scheduling, cancellation or reschedule requests that still need tutor/admin action.",
+    href: "/admin/sessions",
+  });
+
+  if (activeStudents.error) {
+    checks.push(
+      failedCheck(
+        "student-login-integrity",
+        "CRM & delivery",
+        "Student portal login integrity",
+        activeStudents.error.message,
+        "/admin/student-access",
+      ),
+    );
+  } else {
+    const brokenStudentAccess = (activeStudents.data ?? []).filter(
+      (row) => row.portal_enabled && !row.auth_user_id,
+    ).length;
+
+    checks.push(
+      countCheck({
+        id: "student-login-integrity",
+        group: "CRM & delivery",
+        title: "Student portal login integrity",
+        count: brokenStudentAccess,
+        healthySummary: "Enabled student portal accounts are correctly linked to authentication users.",
+        issueSummary: `${brokenStudentAccess} active student portal account(s) are enabled but not linked to an auth user.`,
+        detail: "Disabled portal accounts are not treated as errors because student access is invitation-only.",
+        href: "/admin/student-access",
+      }),
+    );
+  }
+
+  if (activeTutors.error) {
+    checks.push(
+      failedCheck(
+        "tutor-login-integrity",
+        "CRM & delivery",
+        "Tutor portal login integrity",
+        activeTutors.error.message,
+        "/admin/tutors",
+      ),
+    );
+  } else {
+    const brokenTutorAccess = (activeTutors.data ?? []).filter(
+      (row) => row.portal_enabled && !row.auth_user_id,
+    ).length;
+
+    checks.push(
+      countCheck({
+        id: "tutor-login-integrity",
+        group: "CRM & delivery",
+        title: "Tutor portal login integrity",
+        count: brokenTutorAccess,
+        healthySummary: "Enabled active tutor portals are correctly linked to authentication users.",
+        issueSummary: `${brokenTutorAccess} active tutor portal account(s) are enabled but not linked to an auth user.`,
+        href: "/admin/tutors",
+      }),
+    );
+  }
+
+  if (upcomingSessionMeetings.error) {
+    checks.push(
+      failedCheck(
+        "meeting-readiness",
+        "CRM & delivery",
+        "Upcoming session meeting readiness",
+        upcomingSessionMeetings.error.message,
+        "/admin/sessions",
+      ),
+    );
+  } else {
+    const rows = upcomingSessionMeetings.data ?? [];
+
+    const managedZoomBroken = rows.filter(
+      (row) =>
+        Boolean(row.zoom_meeting_id) &&
+        (!row.meeting_url || !row.zoom_synced_at),
+    );
+
+    const affected = rows.filter(
+      (row) =>
+        !row.meeting_url ||
+        (Boolean(row.zoom_meeting_id) && !row.zoom_synced_at),
+    );
+
+    const count = affected.length;
+
+    checks.push({
+      id: "meeting-readiness",
+      group: "CRM & delivery",
+      title: "Upcoming session meeting readiness",
+      status:
+        managedZoomBroken.length > 0
+          ? "failed"
+          : count > 0
+            ? "attention"
+            : "healthy",
+      count,
+      summary:
+        count === 0
+          ? "All sessions in the next 48 hours have usable meeting information."
+          : managedZoomBroken.length > 0
+            ? `${managedZoomBroken.length} managed Zoom session(s) have inconsistent meeting data.`
+            : `${count} session(s) in the next 48 hours do not have a meeting link.`,
+      detail:
+        rows.length === 0
+          ? "No planned sessions fall within the next 48 hours."
+          : `${rows.length} planned session(s) fall within the next 48 hours.`,
+      href: "/admin/sessions",
+      hrefLabel: "Review",
+    });
+  }
+
   pushCountResult(checks, expiredTestimonials, {
     id: "expired-testimonials", group: "CRM & delivery", title: "Expired testimonial requests",
     healthySummary: "No outstanding testimonial request has expired.", issueSummary: `${expiredTestimonials.count ?? 0} testimonial request(s) expired without submission.`, href: "/admin/testimonials",

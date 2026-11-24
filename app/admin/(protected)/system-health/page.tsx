@@ -22,6 +22,19 @@ function dateTime(value: string) {
 export default async function SystemHealthPage() {
   const report = await loadSystemHealthReport();
 
+  const actionChecks = report.checks
+    .filter((check) => check.status !== "healthy")
+    .sort((a, b) => {
+      const weight: Record<HealthStatus, number> = {
+        failed: 0,
+        attention: 1,
+        healthy: 2,
+      };
+
+      return weight[a.status] - weight[b.status];
+    })
+    .slice(0, 8);
+
   return (
     <div className="admin-page system-health-page">
       <header className="admin-page-head system-health-head">
@@ -50,6 +63,70 @@ export default async function SystemHealthPage() {
         <article className="attention"><span>Needs attention</span><strong>{report.totals.attention}</strong><small>Operational review recommended</small></article>
         <article className="failed"><span>Failed</span><strong>{report.totals.failed}</strong><small>Configuration or delivery failure</small></article>
       </section>
+
+      {actionChecks.length > 0 ? (
+        <section className="admin-panel system-health-group">
+          <div className="admin-card-header">
+            <div>
+              <span className="admin-eyebrow">Action required now</span>
+              <h2>What needs attention</h2>
+            </div>
+            <span className="admin-status">
+              {actionChecks.length} priority item{actionChecks.length === 1 ? "" : "s"}
+            </span>
+          </div>
+
+          <div className="system-health-check-list">
+            {actionChecks.map((check) => (
+              <article
+                className={`system-health-check ${check.status}`}
+                key={`priority-${check.id}`}
+              >
+                <div className="system-health-check-status">
+                  <span className="system-health-dot" aria-hidden="true" />
+                  <strong>{statusLabels[check.status]}</strong>
+                </div>
+
+                <div className="system-health-check-copy">
+                  <div className="system-health-check-title">
+                    <h3>{check.title}</h3>
+                    {typeof check.count === "number" ? (
+                      <span className="system-health-count">
+                        {check.count}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <p>{check.summary}</p>
+
+                  {check.detail ? (
+                    <small>{check.detail}</small>
+                  ) : null}
+                </div>
+
+                {check.href ? (
+                  <Link
+                    className="admin-secondary-button system-health-link"
+                    href={check.href}
+                  >
+                    {check.hrefLabel || "Review"}
+                  </Link>
+                ) : null}
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : (
+        <section className="admin-panel system-health-principle">
+          <div>
+            <span className="admin-eyebrow">Operations</span>
+            <h2>No action required</h2>
+          </div>
+          <p>
+            All monitored operational checks are currently healthy.
+          </p>
+        </section>
+      )}
 
       <section className="admin-panel system-health-principle">
         <div><span className="admin-eyebrow">How to read this</span><h2>Failures are different from queues</h2></div>
