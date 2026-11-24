@@ -18,10 +18,6 @@ type AuthenticatedPortalStudent = {
   };
 };
 
-function normalizedEmail(value: string | null | undefined) {
-  return String(value || "").trim().toLowerCase();
-}
-
 export async function getAuthenticatedPortalStudent(
   token: string
 ): Promise<AuthenticatedPortalStudent | null> {
@@ -38,7 +34,7 @@ export async function getAuthenticatedPortalStudent(
     error: userError,
   } = await supabase.auth.getUser();
 
-  if (userError || !user || !user.email) {
+  if (userError || !user) {
     return null;
   }
 
@@ -46,14 +42,16 @@ export async function getAuthenticatedPortalStudent(
 
   const { data: student, error: studentError } = await admin
     .from("students")
-    .select("id,name,email,status")
+    .select("id,name,email,status,auth_user_id,portal_enabled")
     .eq("id", link.student_id)
+    .eq("auth_user_id", user.id)
+    .eq("portal_enabled", true)
+    .eq("status", "active")
     .maybeSingle();
 
   if (
     studentError ||
-    !student ||
-    normalizedEmail(student.email) !== normalizedEmail(user.email)
+    !student
   ) {
     return null;
   }
