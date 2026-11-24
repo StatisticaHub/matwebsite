@@ -11,7 +11,6 @@ export default function TestimonialCard({ testimonial }: { testimonial: PublicTe
       <footer>
         <strong>{testimonial.display_name}</strong>
         {context ? <span>{context}</span> : null}
-        {testimonial.tutor_name ? <small>Tutoring with {testimonial.tutor_name}</small> : null}
       </footer>
     </article>
   );

@@ -12430,3 +12430,35 @@ main {
 
 /* ===== END TUTOR STUDENT SUPPORT WORKFLOW ===== */
 
+
+/* ===== ADMIN MANUAL TESTIMONIAL ENTRY ===== */
+
+.testimonial-manual-panel {
+  margin-top: 16px;
+}
+
+.testimonial-manual-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.testimonial-manual-form label {
+  display: grid;
+  gap: 5px;
+}
+
+.testimonial-manual-form label > span {
+  font-weight: 700;
+}
+
+.testimonial-manual-form label > small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.testimonial-manual-form textarea {
+  resize: vertical;
+}
+
+/* ===== END ADMIN MANUAL TESTIMONIAL ENTRY ===== */

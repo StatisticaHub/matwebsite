@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { moderateTestimonial, requestStudentTestimonial } from "@/app/admin/testimonial-actions";
+import { createManualTestimonial } from "@/app/admin/manual-testimonial-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +34,7 @@ export default async function TestimonialsAdminPage({ searchParams }: { searchPa
       {params.sent ? <div className="admin-alert success">Feedback request sent.</div> : null}
       {params.existing ? <div className="admin-alert">That engagement already has an active feedback request.</div> : null}
       {params.saved ? <div className="admin-alert success">Testimonial moderation saved.</div> : null}
+      {params.manual ? <div className="admin-alert success">Manual testimonial added to the moderation queue.</div> : null}
       {params.error ? <div className="admin-alert error">{String(params.error)}</div> : null}
 
       <section className="admin-metrics admin-metrics-4 testimonial-metrics">
@@ -53,6 +55,298 @@ export default async function TestimonialsAdminPage({ searchParams }: { searchPa
           <button className="admin-primary-button" type="submit">Send feedback request</button>
         </form>
       </section>
+
+      <section className="admin-panel admin-detail-card testimonial-manual-panel">
+
+        <div className="admin-card-head">
+
+          <div>
+
+            <span className="admin-eyebrow">
+              Existing feedback
+            </span>
+
+            <h2>
+              Add a testimonial manually
+            </h2>
+
+          </div>
+
+        </div>
+
+
+        <p className="admin-muted">
+          Use this for genuine feedback already received through WhatsApp,
+          email or another message. The original source and consent evidence
+          stay internal. The testimonial still goes through the normal
+          moderation process before anything is published.
+        </p>
+
+
+        <form
+          action={createManualTestimonial}
+          className="testimonial-manual-form"
+        >
+
+          <div className="admin-form-grid-2">
+
+            <label>
+
+              <span>
+                Student engagement
+              </span>
+
+              <select
+                name="engagementId"
+                required
+                defaultValue=""
+              >
+
+                <option
+                  value=""
+                  disabled
+                >
+                  Select a student…
+                </option>
+
+                {(engagements || []).map(
+                  (item: any) => {
+
+                    const student =
+                      one(
+                        item.students,
+                      );
+
+                    const tutor =
+                      one(
+                        item.tutors,
+                      );
+
+
+                    return (
+                      <option
+                        key={item.id}
+                        value={item.id}
+                      >
+                        {student?.name || "Student"} · {item.subject}
+                        {tutor?.name ? ` · ${tutor.name}` : ""}
+                      </option>
+                    );
+                  },
+                )}
+
+              </select>
+
+            </label>
+
+
+            <label>
+
+              <span>
+                Source
+              </span>
+
+              <select
+                name="source"
+                required
+                defaultValue="whatsapp"
+              >
+
+                <option value="whatsapp">
+                  WhatsApp
+                </option>
+
+                <option value="email">
+                  Email
+                </option>
+
+                <option value="dm">
+                  Direct message
+                </option>
+
+                <option value="other">
+                  Other
+                </option>
+
+              </select>
+
+            </label>
+
+          </div>
+
+
+          <div className="admin-form-grid-2">
+
+            <label>
+
+              <span>
+                Rating
+              </span>
+
+              <select
+                name="rating"
+                defaultValue="5"
+                required
+              >
+
+                <option value="5">
+                  5 stars
+                </option>
+
+                <option value="4">
+                  4 stars
+                </option>
+
+                <option value="3">
+                  3 stars
+                </option>
+
+                <option value="2">
+                  2 stars
+                </option>
+
+                <option value="1">
+                  1 star
+                </option>
+
+              </select>
+
+            </label>
+
+
+            <label>
+
+              <span>
+                Public attribution
+              </span>
+
+              <input
+                name="displayName"
+                maxLength={120}
+                placeholder="e.g. Postgraduate student"
+                required
+              />
+
+              <small>
+                Avoid the student's full name unless they specifically agreed
+                to public identification.
+              </small>
+
+            </label>
+
+          </div>
+
+
+          <label>
+
+            <span>
+              Public context
+            </span>
+
+            <input
+              name="displayContext"
+              maxLength={180}
+              placeholder="e.g. MSc Finance · Econometrics"
+            />
+
+            <small>
+              Optional. If blank, the student's recorded academic level and
+              subject are used.
+            </small>
+
+          </label>
+
+
+          <label>
+
+            <span>
+              Testimonial
+            </span>
+
+            <textarea
+              name="reviewText"
+              maxLength={5000}
+              rows={6}
+              placeholder="Paste the genuine student feedback here."
+              required
+            />
+
+          </label>
+
+
+          <label className="notification-toggle">
+
+            <input
+              type="checkbox"
+              name="consentToPublish"
+            />
+
+            <span>
+
+              <strong>
+                Student has given permission for this feedback to be published
+              </strong>
+
+              <small>
+                Leave this unchecked if you have the feedback but have not yet
+                received clear publication permission.
+              </small>
+
+            </span>
+
+          </label>
+
+
+          <label>
+
+            <span>
+              Consent evidence
+            </span>
+
+            <textarea
+              name="consentEvidence"
+              maxLength={1500}
+              rows={3}
+              placeholder='e.g. Student replied on WhatsApp: "Yes, you can use this as a testimonial."'
+            />
+
+            <small>
+              Internal only. Required if publication consent is checked.
+            </small>
+
+          </label>
+
+
+          <label>
+
+            <span>
+              Internal source note
+            </span>
+
+            <input
+              name="sourceNote"
+              maxLength={1500}
+              placeholder="e.g. Original WhatsApp message received 18 Nov 2026"
+            />
+
+          </label>
+
+
+          <div className="testimonial-action-row">
+
+            <button
+              className="admin-primary-button"
+              type="submit"
+            >
+              Add to moderation queue
+            </button>
+
+          </div>
+
+        </form>
+
+      </section>
+
 
       <section className="admin-panel admin-detail-card">
         <div className="admin-card-head"><div><span className="admin-eyebrow">Moderation queue</span><h2>Feedback history</h2></div><span>{rows.length} records</span></div>
