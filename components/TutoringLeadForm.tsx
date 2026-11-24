@@ -426,6 +426,19 @@ export default function TutoringLeadForm({
       <label className="consent-row">
         <input
           type="checkbox"
+          name="ageConfirmation"
+          value="yes"
+          required
+        />
+
+        <span>
+          I confirm that I am aged 18 or over.
+        </span>
+      </label>
+
+      <label className="consent-row">
+        <input
+          type="checkbox"
           name="consent"
           value="yes"
           required

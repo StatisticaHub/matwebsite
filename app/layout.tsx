@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   },
 
   description:
-    "Online learning, free educational resources and personalised one-to-one tutoring for school, university, Master's and research-level students across Mathematics, Statistics, Science, Data Science, Computer Science, Bioinformatics and Research Methods.",
+    "Online learning, free educational resources and personalised one-to-one tutoring for university, Master's, postgraduate and research-level adult learners across Mathematics, Statistics, Science, Data Science, Computer Science, Bioinformatics and Research Methods.",
 
   creator: "My Academic Tutor",
   publisher: "My Academic Tutor",
@@ -81,7 +81,7 @@ const organisationSchema = {
   logo: `${siteUrl}/logo.png`,
   email: "Contact@myacademictutor.com",
   description:
-    "Online learning, educational resources and personalised one-to-one tutoring for school, university, postgraduate and research-level learners.",
+    "Online learning, educational resources and personalised one-to-one tutoring for university, postgraduate and research-level adult learners.",
   areaServed: "Worldwide",
   knowsAbout: subjects.map((subject) => subject.name),
 };

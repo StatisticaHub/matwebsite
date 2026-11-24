@@ -332,9 +332,11 @@ export default function TermsPage() {
             </p>
 
             <p>
-              Additional safeguarding expectations may apply when tutoring
-              children or young people. Please see our{" "}
-              <Link href="/safeguarding">Safeguarding policy</Link>.
+              MAT currently accepts personalised tutoring arrangements only
+              where the student is aged 18 or over. Public educational
+              resources may cover school-level topics, but this does not mean
+              that under-18 tutoring is currently available. See our{" "}
+              <Link href="/safeguarding">Safeguarding and Age Eligibility policy</Link>.
             </p>
           </section>
 

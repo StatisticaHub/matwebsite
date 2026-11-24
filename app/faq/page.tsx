@@ -40,7 +40,7 @@ const faqs = [
   ],
   [
     "Do you support university and Master's students?",
-    "Yes. MAT supports learners from school through undergraduate, Master's, postgraduate and research-level study across the subjects listed on the website.",
+    "MAT currently accepts personalised tutoring enquiries from learners aged 18 and over, including undergraduate, Master's, postgraduate and research-level students. Public learning resources may also cover school-level topics.",
   ],
   [
     "Can you help with dissertations and research?",
@@ -61,6 +61,10 @@ const faqs = [
   [
     "Can I use the Learning Hub without booking tutoring?",
     "Yes. The Learning Hub is available for independent learning and can be used without booking a tutoring session.",
+  ],
+  [
+    "Do you currently tutor students under 18?",
+    "No. Personalised tutoring enquiries are currently limited to learners aged 18 and over. Some public Learning Hub resources may cover school-level topics, but under-18 tutoring is not currently being offered.",
   ],
   [
     "Are structured MAT courses available?",

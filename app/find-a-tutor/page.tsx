@@ -60,7 +60,7 @@ export default async function Page({
 
           <div className="trust-row">
             <span>No obligation</span>
-            <span>School to postgraduate</span>
+            <span>Tutoring enquiries for ages 18+</span>
             <span>Live 1:1 tutoring</span>
             <span>Online worldwide</span>
           </div>

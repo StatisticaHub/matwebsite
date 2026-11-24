@@ -116,6 +116,7 @@ export async function POST(request: NextRequest) {
     const subject = clean(raw.subject, 160);
     const supportType = clean(raw.supportType, 160);
     const consent = clean(raw.consent, 20);
+    const ageConfirmation = clean(raw.ageConfirmation, 20);
 
     const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "";
     const gaClientId =
@@ -131,9 +132,19 @@ export async function POST(request: NextRequest) {
             500,
           )
         : "");
-    if (!name || !email || !requirements || !country || !level || !subject || !supportType || consent !== "yes") {
+    if (!name || !email || !requirements || !country || !level || !subject || !supportType || consent !== "yes" || ageConfirmation !== "yes") {
       return NextResponse.json({ error: "Please complete all required fields." }, { status: 400 });
     }
+    if (ageConfirmation !== "yes") {
+      return NextResponse.json(
+        {
+          error:
+            "Tutoring enquiries are currently available only to learners aged 18 or over.",
+        },
+        { status: 400 },
+      );
+    }
+
     if (!validEmail(email)) {
       return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
     }
