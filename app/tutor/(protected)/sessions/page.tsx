@@ -1,5 +1,9 @@
 import Link from "next/link";
 
+import {
+  scheduleTutorSessionFromPortal,
+} from "@/app/tutor/actions";
+
 import { getTutorSession } from "@/lib/tutor-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
@@ -56,6 +60,155 @@ function londonDateKey(value: string | Date) {
   return `${map.year}-${map.month}-${map.day}`;
 }
 
+
+function requestLine(
+  message: string,
+  label: string,
+) {
+  const prefix = `${label}:`;
+
+  const line = message
+    .split(/\r?\n/)
+    .find((item) =>
+      item.trim().startsWith(prefix),
+    );
+
+  if (!line) return null;
+
+  return (
+    line
+      .trim()
+      .slice(prefix.length)
+      .trim() || null
+  );
+}
+
+
+function requestSection(
+  message: string,
+  startLabel: string,
+  endLabel?: string,
+) {
+  const startToken = `${startLabel}:`;
+  const start = message.indexOf(startToken);
+
+  if (start < 0) return null;
+
+  const contentStart =
+    start + startToken.length;
+
+  let contentEnd =
+    message.length;
+
+  if (endLabel) {
+    const endToken = `${endLabel}:`;
+    const found =
+      message.indexOf(
+        endToken,
+        contentStart,
+      );
+
+    if (found >= 0) {
+      contentEnd = found;
+    }
+  }
+
+  return (
+    message
+      .slice(
+        contentStart,
+        contentEnd,
+      )
+      .trim() || null
+  );
+}
+
+
+function parseStudentSessionRequest(
+  message: string,
+) {
+  const durationText =
+    requestLine(
+      message,
+      "Session length",
+    );
+
+  const durationMatch =
+    durationText?.match(
+      /(\d{1,3})/,
+    );
+
+  const durationMinutes =
+    durationMatch
+      ? Number(durationMatch[1])
+      : null;
+
+  return {
+    preferredDate:
+      requestLine(
+        message,
+        "Preferred local date",
+      ) ||
+      requestLine(
+        message,
+        "Preferred date",
+      ),
+
+    preferredTime:
+      requestLine(
+        message,
+        "Preferred local time",
+      ) ||
+      requestLine(
+        message,
+        "Preferred time",
+      ),
+
+    studentTimeZone:
+      requestLine(
+        message,
+        "Student timezone",
+      ) ||
+      requestLine(
+        message,
+        "Timezone",
+      ),
+
+    preferredUtc:
+      requestLine(
+        message,
+        "Preferred UTC",
+      ),
+
+    durationMinutes:
+      durationMinutes &&
+      durationMinutes >= 15 &&
+      durationMinutes <= 480
+        ? durationMinutes
+        : null,
+
+    urgency:
+      requestLine(
+        message,
+        "Urgency",
+      ),
+
+    topic:
+      requestSection(
+        message,
+        "Topic / goal",
+        "Additional notes",
+      ),
+
+    notes:
+      requestSection(
+        message,
+        "Additional notes",
+      ),
+  };
+}
+
+
 export default async function TutorSessionsPage() {
   const auth = await getTutorSession();
 
@@ -102,23 +255,141 @@ export default async function TutorSessionsPage() {
     );
 
 
-  const { data, error } = await createAdminClient()
-    .from("tutoring_sessions")
-    .select(
-      "id,scheduled_for,completed_at,duration_minutes,status,topic,meeting_url,zoom_ended_at,lesson_notes,understanding_rating,next_topic,tutoring_engagements(subject,students(name))"
-    )
-    .eq("tutor_id", auth.tutor.id)
-    .order("scheduled_for", {
-      ascending: false,
-      nullsFirst: false,
-    })
-    .limit(500);
+  const supabase =
+    createAdminClient();
 
-  if (error) {
-    throw new Error(error.message);
+  const [
+    sessionResult,
+    engagementResult,
+  ] =
+    await Promise.all([
+      supabase
+        .from(
+          "tutoring_sessions",
+        )
+        .select(
+          "id,scheduled_for,completed_at,duration_minutes,status,topic,meeting_url,zoom_ended_at,lesson_notes,understanding_rating,next_topic,tutoring_engagements(subject,students(name))",
+        )
+        .eq(
+          "tutor_id",
+          auth.tutor.id,
+        )
+        .order(
+          "scheduled_for",
+          {
+            ascending: false,
+            nullsFirst: false,
+          },
+        )
+        .limit(500),
+
+      supabase
+        .from(
+          "tutoring_engagements",
+        )
+        .select(
+          "id,student_id,subject,title,session_duration_minutes,students(name,academic_level)",
+        )
+        .eq(
+          "tutor_id",
+          auth.tutor.id,
+        )
+        .eq(
+          "status",
+          "active",
+        )
+        .order(
+          "created_at",
+          {
+            ascending: false,
+          },
+        ),
+    ]);
+
+  if (sessionResult.error) {
+    throw new Error(
+      sessionResult.error.message,
+    );
   }
 
-  const rows = (data || []) as any[];
+  if (engagementResult.error) {
+    throw new Error(
+      engagementResult.error.message,
+    );
+  }
+
+  const rows =
+    (sessionResult.data || []) as any[];
+
+  const engagements =
+    (engagementResult.data || []) as any[];
+
+  const engagementIds =
+    engagements.map(
+      (engagement) =>
+        engagement.id,
+    );
+
+  let requests: any[] = [];
+
+  if (engagementIds.length) {
+    const {
+      data: requestData,
+      error: requestError,
+    } =
+      await supabase
+        .from(
+          "student_support_requests",
+        )
+        .select(
+          "id,created_at,student_id,engagement_id,message,status",
+        )
+        .eq(
+          "category",
+          "session_request",
+        )
+        .in(
+          "status",
+          [
+            "new",
+            "in_progress",
+          ],
+        )
+        .in(
+          "engagement_id",
+          engagementIds,
+        )
+        .like(
+          "message",
+          "SESSION REQUEST%",
+        )
+        .order(
+          "created_at",
+          {
+            ascending: true,
+          },
+        );
+
+    if (requestError) {
+      throw new Error(
+        requestError.message,
+      );
+    }
+
+    requests =
+      (requestData || []) as any[];
+  }
+
+  const engagementById =
+    Object.fromEntries(
+      engagements.map(
+        (engagement) => [
+          engagement.id,
+          engagement,
+        ],
+      ),
+    );
+
   const now = new Date();
   const nowMs = now.getTime();
   const todayKey = dayKey(now);
@@ -205,6 +476,550 @@ export default async function TutorSessionsPage() {
           Update availability
         </Link>
       </header>
+
+
+      {/* =====================================================
+          STUDENT SESSION REQUESTS
+          ===================================================== */}
+
+      {requests.length > 0 && (
+        <section className="tutor-panel tutor-session-section">
+          <div className="tutor-panel-head">
+            <div>
+              <span className="tutor-eyebrow">
+                Student requests
+              </span>
+
+              <h2>
+                Sessions waiting for your response
+              </h2>
+
+              <p className="tutor-help">
+                Approve the student's preferred time or choose another suitable time.
+              </p>
+            </div>
+
+            <span>
+              {requests.length} waiting
+            </span>
+          </div>
+
+
+          <div className="tutor-session-cards">
+            {requests.map(
+              (request) => {
+                const engagement =
+                  request.engagement_id
+                    ? engagementById[
+                        request.engagement_id
+                      ]
+                    : null;
+
+                const details =
+                  parseStudentSessionRequest(
+                    request.message,
+                  );
+
+                const requestedTutorTime =
+                  details.preferredUtc
+                    ? fmt(
+                        details.preferredUtc,
+                      )
+                    : null;
+
+                return (
+                  <article
+                    className="tutor-session-card"
+                    key={request.id}
+                  >
+                    <div className="tutor-session-card-copy">
+                      <span className="tutor-eyebrow">
+                        {details.urgency ||
+                          "Session request"}
+                      </span>
+
+                      <h3>
+                        {details.topic ||
+                          engagement?.subject ||
+                          "Tutoring session"}
+                      </h3>
+
+                      <p>
+                        <strong>
+                          {engagement?.students?.name ||
+                            "Student"}
+                        </strong>
+                        {engagement?.subject
+                          ? ` · ${engagement.subject}`
+                          : ""}
+                      </p>
+
+                      <dl className="tutor-details">
+                        <div>
+                          <dt>
+                            Student requested
+                          </dt>
+
+                          <dd>
+                            {details.preferredDate &&
+                            details.preferredTime
+                              ? `${details.preferredDate} at ${details.preferredTime}`
+                              : "Time not available"}
+                          </dd>
+                        </div>
+
+                        <div>
+                          <dt>
+                            Student timezone
+                          </dt>
+
+                          <dd>
+                            {details.studentTimeZone ||
+                              "Not provided"}
+                          </dd>
+                        </div>
+
+                        <div>
+                          <dt>
+                            Your local time
+                          </dt>
+
+                          <dd>
+                            {requestedTutorTime ||
+                              "Not available"}
+                          </dd>
+                        </div>
+
+                        <div>
+                          <dt>
+                            Duration
+                          </dt>
+
+                          <dd>
+                            {details.durationMinutes ||
+                              engagement?.session_duration_minutes ||
+                              60}{" "}
+                            minutes
+                          </dd>
+                        </div>
+                      </dl>
+
+                      {details.notes &&
+                        details.notes !==
+                          "None" && (
+                          <div className="tutor-requirement">
+                            <strong>
+                              Student note
+                            </strong>
+
+                            <p>
+                              {details.notes}
+                            </p>
+                          </div>
+                        )}
+                    </div>
+
+
+                    <div className="tutor-session-request-actions">
+
+                      {details.preferredUtc && (
+                        <form
+                          action={
+                            scheduleTutorSessionFromPortal
+                          }
+                        >
+                          <input
+                            type="hidden"
+                            name="requestId"
+                            value={request.id}
+                          />
+
+                          <input
+                            type="hidden"
+                            name="engagementId"
+                            value={
+                              request.engagement_id ||
+                              ""
+                            }
+                          />
+
+                          <input
+                            type="hidden"
+                            name="useRequestedTime"
+                            value="yes"
+                          />
+
+                          <input
+                            type="hidden"
+                            name="topic"
+                            value={
+                              details.topic ||
+                              engagement?.subject ||
+                              "Tutoring session"
+                            }
+                          />
+
+                          <input
+                            type="hidden"
+                            name="durationMinutes"
+                            value={
+                              details.durationMinutes ||
+                              engagement?.session_duration_minutes ||
+                              60
+                            }
+                          />
+
+                          <button
+                            className="tutor-primary-button"
+                            type="submit"
+                          >
+                            Approve requested time
+                          </button>
+                        </form>
+                      )}
+
+
+                      <details className="tutor-scheduling-details">
+                        <summary className="tutor-secondary-button">
+                          Choose another time
+                        </summary>
+
+                        <form
+                          action={
+                            scheduleTutorSessionFromPortal
+                          }
+                          className="tutor-form compact"
+                        >
+                          <input
+                            type="hidden"
+                            name="requestId"
+                            value={request.id}
+                          />
+
+                          <input
+                            type="hidden"
+                            name="engagementId"
+                            value={
+                              request.engagement_id ||
+                              ""
+                            }
+                          />
+
+                          <input
+                            type="hidden"
+                            name="timeZone"
+                            value={tutorTimeZone}
+                          />
+
+                          <label>
+                            <span>
+                              Date
+                            </span>
+
+                            <input
+                              type="date"
+                              name="scheduledDate"
+                              required
+                            />
+                          </label>
+
+                          <label>
+                            <span>
+                              Time
+                            </span>
+
+                            <input
+                              type="time"
+                              name="scheduledTime"
+                              required
+                            />
+                          </label>
+
+                          <label>
+                            <span>
+                              Lesson topic
+                            </span>
+
+                            <input
+                              type="text"
+                              name="topic"
+                              defaultValue={
+                                details.topic ||
+                                engagement?.subject ||
+                                ""
+                              }
+                              maxLength={500}
+                              required
+                            />
+                          </label>
+
+                          <label>
+                            <span>
+                              Duration
+                            </span>
+
+                            <select
+                              name="durationMinutes"
+                              defaultValue={String(
+                                details.durationMinutes ||
+                                  engagement?.session_duration_minutes ||
+                                  60,
+                              )}
+                            >
+                              <option value="30">
+                                30 minutes
+                              </option>
+
+                              <option value="45">
+                                45 minutes
+                              </option>
+
+                              <option value="60">
+                                60 minutes
+                              </option>
+
+                              <option value="75">
+                                75 minutes
+                              </option>
+
+                              <option value="90">
+                                90 minutes
+                              </option>
+
+                              <option value="120">
+                                120 minutes
+                              </option>
+                            </select>
+                          </label>
+
+                          <label>
+                            <span>
+                              Meeting link
+                            </span>
+
+                            <input
+                              type="url"
+                              name="meetingUrl"
+                              placeholder="Optional Zoom / Teams / Meet link"
+                            />
+                          </label>
+
+                          <p className="tutor-help">
+                            Time shown here uses your tutor timezone:{" "}
+                            <strong>
+                              {tutorTimeZone}
+                            </strong>
+                          </p>
+
+                          <button
+                            className="tutor-primary-button"
+                            type="submit"
+                          >
+                            Schedule new time & notify student
+                          </button>
+                        </form>
+                      </details>
+                    </div>
+                  </article>
+                );
+              },
+            )}
+          </div>
+        </section>
+      )}
+
+
+      {/* =====================================================
+          TUTOR CREATES NEXT SESSION
+          ===================================================== */}
+
+      <section className="tutor-panel tutor-session-section">
+        <div className="tutor-panel-head">
+          <div>
+            <span className="tutor-eyebrow">
+              Next lesson
+            </span>
+
+            <h2>
+              Schedule a session with a student
+            </h2>
+
+            <p className="tutor-help">
+              Create the next lesson directly. It will appear in the student's portal and the MAT admin calendar.
+            </p>
+          </div>
+        </div>
+
+
+        {engagements.length ? (
+          <details className="tutor-scheduling-details">
+            <summary className="tutor-primary-button">
+              Schedule next session
+            </summary>
+
+            <form
+              action={
+                scheduleTutorSessionFromPortal
+              }
+              className="tutor-form"
+            >
+              <input
+                type="hidden"
+                name="timeZone"
+                value={tutorTimeZone}
+              />
+
+              <label>
+                <span>
+                  Student
+                </span>
+
+                <select
+                  name="engagementId"
+                  required
+                  defaultValue=""
+                >
+                  <option
+                    value=""
+                    disabled
+                  >
+                    Choose student
+                  </option>
+
+                  {engagements.map(
+                    (engagement) => (
+                      <option
+                        value={engagement.id}
+                        key={engagement.id}
+                      >
+                        {engagement.students?.name ||
+                          "Student"}
+                        {" — "}
+                        {engagement.subject ||
+                          engagement.title ||
+                          "Tutoring"}
+                      </option>
+                    ),
+                  )}
+                </select>
+              </label>
+
+
+              <div className="tutor-grid-2">
+                <label>
+                  <span>
+                    Date
+                  </span>
+
+                  <input
+                    type="date"
+                    name="scheduledDate"
+                    required
+                  />
+                </label>
+
+                <label>
+                  <span>
+                    Time
+                  </span>
+
+                  <input
+                    type="time"
+                    name="scheduledTime"
+                    required
+                  />
+                </label>
+              </div>
+
+
+              <div className="tutor-grid-2">
+                <label>
+                  <span>
+                    Lesson topic
+                  </span>
+
+                  <input
+                    type="text"
+                    name="topic"
+                    maxLength={500}
+                    placeholder="What will you cover?"
+                    required
+                  />
+                </label>
+
+                <label>
+                  <span>
+                    Duration
+                  </span>
+
+                  <select
+                    name="durationMinutes"
+                    defaultValue="60"
+                  >
+                    <option value="30">
+                      30 minutes
+                    </option>
+
+                    <option value="45">
+                      45 minutes
+                    </option>
+
+                    <option value="60">
+                      60 minutes
+                    </option>
+
+                    <option value="75">
+                      75 minutes
+                    </option>
+
+                    <option value="90">
+                      90 minutes
+                    </option>
+
+                    <option value="120">
+                      120 minutes
+                    </option>
+                  </select>
+                </label>
+              </div>
+
+
+              <label>
+                <span>
+                  Meeting link
+                </span>
+
+                <input
+                  type="url"
+                  name="meetingUrl"
+                  placeholder="Optional Zoom / Teams / Google Meet link"
+                />
+              </label>
+
+
+              <p className="tutor-help">
+                Scheduling timezone:{" "}
+                <strong>
+                  {tutorTimeZone}
+                </strong>
+              </p>
+
+
+              <button
+                className="tutor-primary-button"
+                type="submit"
+              >
+                Schedule session & notify student
+              </button>
+            </form>
+          </details>
+        ) : (
+          <div className="tutor-empty">
+            You do not currently have an active student engagement to schedule.
+          </div>
+        )}
+      </section>
+
 
       <section className="tutor-session-metrics">
         <article>
