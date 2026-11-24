@@ -2,10 +2,7 @@ import Link from "next/link";
 
 import { getTutorSession } from "@/lib/tutor-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import {
-  sessionStatusLabels,
-  type SessionStatus,
-} from "@/lib/delivery-data";
+
 import {
   DEFAULT_TIME_ZONE,
   dateKeyInTimeZone,
@@ -19,48 +16,22 @@ export const metadata = {
 
 export const dynamic = "force-dynamic";
 
-function fmt(value: string | null) {
-  if (!value) return "Not scheduled";
-
-  return new Intl.DateTimeFormat("en-GB", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "Europe/London",
-  }).format(new Date(value));
-}
-
-function londonDateKey(value: string | Date) {
-  const date =
-    value instanceof Date
-      ? value
-      : new Date(value);
-
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Europe/London",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(date);
-
-  const map = Object.fromEntries(
-    parts
-      .filter((part) => part.type !== "literal")
-      .map((part) => [part.type, part.value])
-  );
-
-  return `${map.year}-${map.month}-${map.day}`;
-}
 
 export default async function TutorDashboardPage() {
-  const auth = await getTutorSession();
+  const auth =
+    await getTutorSession();
 
-  if (!auth) return null;
+  if (!auth) {
+    return null;
+  }
+
 
   const tutorTimeZone =
     normalizeTimeZone(
       auth.tutor.timezone,
       DEFAULT_TIME_ZONE,
     );
+
 
   const fmt = (
     value: string | null,
@@ -79,16 +50,20 @@ export default async function TutorDashboardPage() {
       tutorTimeZone,
     );
 
+
   const timeOnly = (
     value: string | null,
   ) => {
-    if (!value) return "—";
+    if (!value) {
+      return "—";
+    }
 
     return new Intl.DateTimeFormat(
       "en-GB",
       {
         timeStyle: "short",
-        timeZone: tutorTimeZone,
+        timeZone:
+          tutorTimeZone,
       },
     ).format(
       new Date(value),
@@ -96,109 +71,508 @@ export default async function TutorDashboardPage() {
   };
 
 
-  const supabase = createAdminClient();
+  const dueLabel = (
+    value: string | null,
+  ) => {
+    if (!value) {
+      return "No due date";
+    }
 
+    const date =
+      new Date(
+        `${value}T12:00:00`,
+      );
+
+    if (
+      Number.isNaN(
+        date.getTime(),
+      )
+    ) {
+      return value;
+    }
+
+    return new Intl.DateTimeFormat(
+      "en-GB",
+      {
+        dateStyle:
+          "medium",
+        timeZone:
+          tutorTimeZone,
+      },
+    ).format(date);
+  };
+
+
+  const supabase =
+    createAdminClient();
+
+
+  /*
+   * Primary tutor-owned data.
+   *
+   * The dashboard never trusts a student or
+   * engagement identifier supplied by the browser.
+   */
   const [
     sessionResult,
     engagementResult,
-  ] = await Promise.all([
-    supabase
-      .from("tutoring_sessions")
-      .select(
-        "id,scheduled_for,completed_at,duration_minutes,status,topic,meeting_url,zoom_ended_at,lesson_notes,understanding_rating,next_topic,tutoring_engagements(id,subject,title,students(name))"
-      )
-      .eq("tutor_id", auth.tutor.id)
-      .order("scheduled_for", {
-        ascending: false,
-        nullsFirst: false,
-      })
-      .limit(300),
+  ] =
+    await Promise.all([
+      supabase
+        .from(
+          "tutoring_sessions",
+        )
+        .select(
+          `
+          id,
+          scheduled_for,
+          completed_at,
+          duration_minutes,
+          status,
+          topic,
+          meeting_url,
+          zoom_ended_at,
+          lesson_notes,
+          understanding_rating,
+          next_topic,
+          tutoring_engagements(
+            id,
+            subject,
+            title,
+            students(
+              id,
+              name
+            )
+          )
+        `,
+        )
+        .eq(
+          "tutor_id",
+          auth.tutor.id,
+        )
+        .order(
+          "scheduled_for",
+          {
+            ascending: false,
+            nullsFirst: false,
+          },
+        )
+        .limit(300),
 
-    supabase
-      .from("tutoring_engagements")
-      .select(
-        "id,status,subject,title,current_focus,upcoming_deadline,students(name,academic_level)"
-      )
-      .eq("tutor_id", auth.tutor.id)
-      .eq("status", "active")
-      .order("created_at", {
-        ascending: false,
-      }),
-  ]);
+      supabase
+        .from(
+          "tutoring_engagements",
+        )
+        .select(
+          `
+          id,
+          status,
+          subject,
+          title,
+          current_focus,
+          upcoming_deadline,
+          students(
+            id,
+            name,
+            academic_level
+          )
+        `,
+        )
+        .eq(
+          "tutor_id",
+          auth.tutor.id,
+        )
+        .eq(
+          "status",
+          "active",
+        )
+        .order(
+          "created_at",
+          {
+            ascending: false,
+          },
+        ),
+    ]);
+
 
   if (sessionResult.error) {
-    throw new Error(sessionResult.error.message);
+    throw new Error(
+      sessionResult.error.message,
+    );
   }
+
 
   if (engagementResult.error) {
-    throw new Error(engagementResult.error.message);
+    throw new Error(
+      engagementResult.error.message,
+    );
   }
 
+
   const sessions =
-    (sessionResult.data || []) as any[];
+    (
+      sessionResult.data ||
+      []
+    ) as any[];
+
 
   const engagements =
-    (engagementResult.data || []) as any[];
+    (
+      engagementResult.data ||
+      []
+    ) as any[];
 
-  const now = new Date();
-  const nowMs = now.getTime();
+
+  const engagementIds =
+    engagements.map(
+      (item) =>
+        item.id,
+    );
+
+
+  /*
+   * Secondary action queues.
+   *
+   * Both are restricted to engagement IDs that
+   * already belong to the authenticated tutor.
+   */
+  let awaitingReview:
+    any[] = [];
+
+  let openRequests:
+    any[] = [];
+
+
+  if (
+    engagementIds.length
+  ) {
+    const [
+      homeworkResult,
+      requestResult,
+    ] =
+      await Promise.all([
+        supabase
+          .from(
+            "homework",
+          )
+          .select(
+            "id,engagement_id,title,due_date,status,updated_at",
+          )
+          .in(
+            "engagement_id",
+            engagementIds,
+          )
+          .eq(
+            "status",
+            "submitted",
+          )
+          .order(
+            "updated_at",
+            {
+              ascending: false,
+            },
+          )
+          .limit(30),
+
+        supabase
+          .from(
+            "student_support_requests",
+          )
+          .select(
+            "id,student_id,engagement_id,category,message,status,created_at",
+          )
+          .in(
+            "engagement_id",
+            engagementIds,
+          )
+          .eq(
+            "category",
+            "session_request",
+          )
+          .in(
+            "status",
+            [
+              "new",
+              "in_progress",
+            ],
+          )
+          .order(
+            "created_at",
+            {
+              ascending: false,
+            },
+          )
+          .limit(30),
+      ]);
+
+
+    if (homeworkResult.error) {
+      throw new Error(
+        homeworkResult.error.message,
+      );
+    }
+
+
+    if (requestResult.error) {
+      throw new Error(
+        requestResult.error.message,
+      );
+    }
+
+
+    awaitingReview =
+      homeworkResult.data ||
+      [];
+
+    openRequests =
+      requestResult.data ||
+      [];
+  }
+
+
+  const engagementById =
+    new Map(
+      engagements.map(
+        (item) => [
+          item.id,
+          item,
+        ],
+      ),
+    );
+
+
+  const now =
+    new Date();
+
+  const nowMs =
+    now.getTime();
+
   const todayKey =
     dayKey(now);
 
-  const upcoming =
-    sessions
-      .filter(
-        (item) =>
-          item.status === "planned" &&
-          item.scheduled_for &&
-          new Date(item.scheduled_for).getTime() >= nowMs
-      )
-      .sort(
-        (a, b) =>
-          new Date(a.scheduled_for).getTime() -
-          new Date(b.scheduled_for).getTime()
-      );
 
-  const today =
-    upcoming.filter(
-      (item) =>
-        dayKey(new Date(item.scheduled_for)) === todayKey
-    );
-
+  /*
+   * Priority 1:
+   * lesson has happened but the tutor has
+   * not yet completed the teaching record.
+   */
   const needsCloseout =
     sessions
       .filter(
         (item) =>
-          item.status === "planned" &&
+          item.status ===
+            "planned" &&
           item.scheduled_for &&
           (
             item.zoom_ended_at ||
-            new Date(item.scheduled_for).getTime() < nowMs
-          )
+            new Date(
+              item.scheduled_for,
+            ).getTime() <
+              nowMs
+          ),
       )
       .sort(
         (a, b) =>
-          new Date(b.scheduled_for).getTime() -
-          new Date(a.scheduled_for).getTime()
+          new Date(
+            b.scheduled_for,
+          ).getTime() -
+          new Date(
+            a.scheduled_for,
+          ).getTime(),
       );
 
-  const recentCompleted =
+
+  /*
+   * Priority 2:
+   * future planned lessons.
+   */
+  const upcoming =
     sessions
       .filter(
         (item) =>
-          item.status === "completed"
+          item.status ===
+            "planned" &&
+          item.scheduled_for &&
+          new Date(
+            item.scheduled_for,
+          ).getTime() >=
+            nowMs,
       )
-      .slice(0, 5);
+      .sort(
+        (a, b) =>
+          new Date(
+            a.scheduled_for,
+          ).getTime() -
+          new Date(
+            b.scheduled_for,
+          ).getTime(),
+      );
+
+
+  const today =
+    upcoming.filter(
+      (item) =>
+        dayKey(
+          new Date(
+            item.scheduled_for,
+          ),
+        ) === todayKey,
+    );
+
 
   const todayMinutes =
     today.reduce(
-      (sum, item) =>
-        sum + Number(item.duration_minutes || 0),
-      0
+      (
+        sum,
+        item,
+      ) =>
+        sum +
+        Number(
+          item.duration_minutes ||
+            0,
+        ),
+      0,
     );
+
+
+  /*
+   * Priority 5:
+   * group active engagements by actual student,
+   * then flag students with no future lesson
+   * across any of their active courses.
+   */
+  const futureEngagementIds =
+    new Set(
+      upcoming
+        .map(
+          (item) =>
+            item
+              .tutoring_engagements
+              ?.id,
+        )
+        .filter(Boolean),
+    );
+
+
+  const studentGroups =
+    new Map<
+      string,
+      {
+        id: string;
+        name: string;
+        engagements: any[];
+        hasUpcoming: boolean;
+      }
+    >();
+
+
+  for (
+    const engagement
+    of engagements
+  ) {
+    const student =
+      engagement.students;
+
+    if (
+      !student?.id
+    ) {
+      continue;
+    }
+
+
+    const existing =
+      studentGroups.get(
+        student.id,
+      );
+
+
+    if (existing) {
+      existing.engagements.push(
+        engagement,
+      );
+
+      if (
+        futureEngagementIds.has(
+          engagement.id,
+        )
+      ) {
+        existing.hasUpcoming =
+          true;
+      }
+
+      continue;
+    }
+
+
+    studentGroups.set(
+      student.id,
+      {
+        id:
+          student.id,
+        name:
+          student.name ||
+          "Student",
+        engagements: [
+          engagement,
+        ],
+        hasUpcoming:
+          futureEngagementIds.has(
+            engagement.id,
+          ),
+      },
+    );
+  }
+
+
+  const studentsNeedingAttention =
+    Array.from(
+      studentGroups.values(),
+    ).filter(
+      (item) =>
+        !item.hasUpcoming,
+    );
+
+
+  const firstCloseout =
+    needsCloseout[0] ||
+    null;
+
+  const nextLesson =
+    upcoming[0] ||
+    null;
+
+  const firstReview =
+    awaitingReview[0] ||
+    null;
+
+  const firstRequest =
+    openRequests[0] ||
+    null;
+
+  const firstAttention =
+    studentsNeedingAttention[0] ||
+    null;
+
+
+  const reviewEngagement =
+    firstReview
+      ? engagementById.get(
+          firstReview.engagement_id,
+        )
+      : null;
+
+
+  const requestEngagement =
+    firstRequest
+      ? engagementById.get(
+          firstRequest.engagement_id,
+        )
+      : null;
+
 
   return (
     <div className="tutor-page tutor-dashboard-page">
+
       <header className="tutor-dashboard-hero">
         <div>
           <span className="tutor-eyebrow">
@@ -206,11 +580,14 @@ export default async function TutorDashboardPage() {
           </span>
 
           <h1>
-            Welcome back, {auth.tutor.name}.
+            Welcome back,{" "}
+            {auth.tutor.name}.
           </h1>
 
           <p>
-            Your sessions, students and lesson follow-up in one place.
+            See what needs your attention next,
+            then move straight into teaching,
+            feedback or student follow-up.
           </p>
         </div>
 
@@ -231,245 +608,486 @@ export default async function TutorDashboardPage() {
         </div>
       </header>
 
-      <section className="tutor-command-metrics">
-        <article>
-          <span>Today</span>
-          <strong>{today.length}</strong>
-          <small>{todayMinutes} teaching minutes</small>
-        </article>
 
-        <article className={needsCloseout.length ? "attention" : ""}>
-          <span>Needs close-out</span>
-          <strong>{needsCloseout.length}</strong>
+      <section className="tutor-command-metrics">
+        <article
+          className={
+            needsCloseout.length
+              ? "attention"
+              : ""
+          }
+        >
+          <span>
+            Needs close-out
+          </span>
+
+          <strong>
+            {needsCloseout.length}
+          </strong>
+
           <small>
             {needsCloseout.length
-              ? "Complete lesson records"
+              ? "Lesson records waiting"
+              : "Everything up to date"}
+          </small>
+        </article>
+
+
+        <article>
+          <span>
+            Upcoming lessons
+          </span>
+
+          <strong>
+            {upcoming.length}
+          </strong>
+
+          <small>
+            {today.length
+              ? `${today.length} today · ${todayMinutes} min`
+              : "No lessons today"}
+          </small>
+        </article>
+
+
+        <article
+          className={
+            awaitingReview.length
+              ? "attention"
+              : ""
+          }
+        >
+          <span>
+            Homework review
+          </span>
+
+          <strong>
+            {awaitingReview.length}
+          </strong>
+
+          <small>
+            {awaitingReview.length
+              ? "Submitted work waiting"
               : "Nothing waiting"}
           </small>
         </article>
 
-        <article>
-          <span>Active students</span>
-          <strong>{engagements.length}</strong>
-          <small>Current tutoring engagements</small>
-        </article>
 
-        <article>
-          <span>Next lesson</span>
+        <article
+          className={
+            openRequests.length
+              ? "attention"
+              : ""
+          }
+        >
+          <span>
+            Student requests
+          </span>
+
           <strong>
-            {upcoming[0]
-              ? fmt(upcoming[0].scheduled_for)
-              : "—"}
+            {openRequests.length}
           </strong>
+
           <small>
-            {upcoming[0]?.tutoring_engagements?.students?.name ||
-              "No lesson booked"}
+            {openRequests.length
+              ? "Open scheduling requests"
+              : "No open requests"}
           </small>
         </article>
       </section>
 
-      <div className="tutor-dashboard-grid">
-        <div className="tutor-dashboard-main">
-          <section className="tutor-panel tutor-dashboard-section">
-            <div className="tutor-panel-head">
-              <div>
-                <span className="tutor-eyebrow">
-                  Today
-                </span>
-                <h2>Teaching schedule</h2>
-              </div>
 
-              <Link href="/tutor/sessions">
-                View all →
-              </Link>
-            </div>
+      <section className="tutor-priority-board">
 
-            <div className="tutor-command-list">
-              {today.map((item) => (
-                <article key={item.id}>
-                  <div className="tutor-command-time">
-                    <strong>
-                      {timeOnly(item.scheduled_for)}
-                    </strong>
-                    <span>
-                      {item.duration_minutes} min
-                    </span>
-                  </div>
+        <div className="tutor-priority-head">
+          <div>
+            <span className="tutor-eyebrow">
+              Next actions
+            </span>
 
-                  <div className="tutor-command-copy">
-                    <span className="tutor-eyebrow">
-                      {item.tutoring_engagements?.subject ||
-                        "Tutoring"}
-                    </span>
-                    <strong>{item.topic}</strong>
-                    <small>
-                      {item.tutoring_engagements?.students?.name ||
-                        "Student"}
-                    </small>
-                  </div>
+            <h2>
+              What needs your attention
+            </h2>
 
-                  <div className="tutor-command-actions">
-                    {item.meeting_url && (
-                      <a
-                        className="tutor-secondary-button"
-                        href={item.meeting_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Join ↗
-                      </a>
-                    )}
+            <p>
+              Work through these in priority order.
+            </p>
+          </div>
 
-                    <Link
-                      className="tutor-primary-link"
-                      href={`/tutor/sessions/${item.id}`}
-                    >
-                      Open →
-                    </Link>
-                  </div>
-                </article>
-              ))}
+          <span>
+            Updated from live tutoring records
+          </span>
+        </div>
 
-              {!today.length && (
-                <div className="tutor-empty tutor-command-empty">
-                  No lessons scheduled for today.
-                </div>
-              )}
-            </div>
-          </section>
 
-          <section className="tutor-panel tutor-dashboard-section">
-            <div className="tutor-panel-head">
-              <div>
-                <span className="tutor-eyebrow">
-                  Follow-up
-                </span>
-                <h2>Needs close-out</h2>
-              </div>
+        <div className="tutor-priority-grid">
 
-              <span>
-                {needsCloseout.length} waiting
+          <article className="tutor-priority-card is-primary">
+            <div className="tutor-priority-card-top">
+              <span className="tutor-priority-number">
+                1
+              </span>
+
+              <span className="tutor-eyebrow">
+                Sessions needing close-out
               </span>
             </div>
 
-            <div className="tutor-command-list compact">
-              {needsCloseout.slice(0, 6).map((item) => (
-                <article key={item.id}>
-                  <div className="tutor-command-copy">
-                    <strong>{item.topic}</strong>
-                    <small>
-                      {item.tutoring_engagements?.students?.name ||
-                        "Student"}{" "}
-                      · {fmt(item.scheduled_for)}
-                    </small>
-                  </div>
+            <strong className="tutor-priority-count">
+              {needsCloseout.length}
+            </strong>
 
-                  <Link
-                    className="tutor-primary-button"
-                    href={`/tutor/sessions/${item.id}`}
-                  >
-                    Complete record
-                  </Link>
-                </article>
-              ))}
+            <h3>
+              {firstCloseout
+                ? firstCloseout.topic
+                : "All lesson records are complete"}
+            </h3>
 
-              {!needsCloseout.length && (
-                <div className="tutor-empty">
-                  All recent lessons are up to date.
-                </div>
+            <p>
+              {firstCloseout
+                ? `${
+                    firstCloseout
+                      .tutoring_engagements
+                      ?.students
+                      ?.name ||
+                    "Student"
+                  } · ${fmt(
+                    firstCloseout.scheduled_for,
+                  )}`
+                : "There are no completed or elapsed lessons waiting for notes and follow-up."}
+            </p>
+
+            <div className="tutor-priority-actions">
+              {firstCloseout ? (
+                <Link
+                  className="tutor-primary-button"
+                  href={`/tutor/sessions/${firstCloseout.id}`}
+                >
+                  Complete lesson record
+                </Link>
+              ) : (
+                <Link
+                  className="tutor-secondary-button"
+                  href="/tutor/sessions"
+                >
+                  View sessions
+                </Link>
               )}
             </div>
-          </section>
-        </div>
+          </article>
 
-        <aside className="tutor-dashboard-side">
-          <section className="tutor-panel tutor-dashboard-section">
-            <div className="tutor-panel-head">
-              <div>
-                <span className="tutor-eyebrow">
-                  Students
-                </span>
-                <h2>Current learners</h2>
-              </div>
 
-              <Link href="/tutor/students">
-                All →
+          <article className="tutor-priority-card">
+            <div className="tutor-priority-card-top">
+              <span className="tutor-priority-number">
+                2
+              </span>
+
+              <span className="tutor-eyebrow">
+                Upcoming lessons
+              </span>
+            </div>
+
+            <strong className="tutor-priority-count">
+              {upcoming.length}
+            </strong>
+
+            <h3>
+              {nextLesson
+                ? nextLesson.topic
+                : "No future lesson booked"}
+            </h3>
+
+            <p>
+              {nextLesson
+                ? `${
+                    nextLesson
+                      .tutoring_engagements
+                      ?.students
+                      ?.name ||
+                    "Student"
+                  } · ${fmt(
+                    nextLesson.scheduled_for,
+                  )}`
+                : "Future lessons will appear here once they are scheduled."}
+            </p>
+
+            <div className="tutor-priority-actions">
+              {nextLesson?.meeting_url && (
+                <a
+                  className="tutor-primary-button"
+                  href={
+                    nextLesson.meeting_url
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Join lesson ↗
+                </a>
+              )}
+
+              <Link
+                className="tutor-secondary-button"
+                href="/tutor/sessions"
+              >
+                View schedule
               </Link>
             </div>
+          </article>
 
-            <div className="tutor-learner-list">
-              {engagements.slice(0, 6).map((item) => (
+
+          <article className="tutor-priority-card">
+            <div className="tutor-priority-card-top">
+              <span className="tutor-priority-number">
+                3
+              </span>
+
+              <span className="tutor-eyebrow">
+                Homework awaiting review
+              </span>
+            </div>
+
+            <strong className="tutor-priority-count">
+              {awaitingReview.length}
+            </strong>
+
+            <h3>
+              {firstReview
+                ? firstReview.title
+                : "No submitted work waiting"}
+            </h3>
+
+            <p>
+              {firstReview
+                ? `${
+                    reviewEngagement
+                      ?.students
+                      ?.name ||
+                    "Student"
+                  } · ${
+                    reviewEngagement
+                      ?.subject ||
+                    "Tutoring"
+                  } · ${dueLabel(
+                    firstReview.due_date,
+                  )}`
+                : "Homework submitted by students will appear here for review and feedback."}
+            </p>
+
+            <div className="tutor-priority-actions">
+              <Link
+                className={
+                  firstReview
+                    ? "tutor-primary-button"
+                    : "tutor-secondary-button"
+                }
+                href="/tutor/assignments"
+              >
+                {firstReview
+                  ? "Review submitted work"
+                  : "View assignments"}
+              </Link>
+            </div>
+          </article>
+
+
+          <article className="tutor-priority-card">
+            <div className="tutor-priority-card-top">
+              <span className="tutor-priority-number">
+                4
+              </span>
+
+              <span className="tutor-eyebrow">
+                Student requests
+              </span>
+            </div>
+
+            <strong className="tutor-priority-count">
+              {openRequests.length}
+            </strong>
+
+            <h3>
+              {firstRequest
+                ? `${
+                    requestEngagement
+                      ?.students
+                      ?.name ||
+                    "Student"
+                  } needs a response`
+                : "No open session requests"}
+            </h3>
+
+            <p>
+              {firstRequest
+                ? firstRequest.message
+                : "New session, reschedule and cancellation requests will surface here."}
+            </p>
+
+            <div className="tutor-priority-actions">
+              <Link
+                className={
+                  firstRequest
+                    ? "tutor-primary-button"
+                    : "tutor-secondary-button"
+                }
+                href="/tutor/sessions"
+              >
+                {firstRequest
+                  ? "Review request"
+                  : "Open sessions"}
+              </Link>
+            </div>
+          </article>
+
+
+          <article className="tutor-priority-card is-attention">
+            <div className="tutor-priority-card-top">
+              <span className="tutor-priority-number">
+                5
+              </span>
+
+              <span className="tutor-eyebrow">
+                Students needing attention
+              </span>
+            </div>
+
+            <strong className="tutor-priority-count">
+              {studentsNeedingAttention.length}
+            </strong>
+
+            <h3>
+              {firstAttention
+                ? firstAttention.name
+                : "Every active student has a next lesson"}
+            </h3>
+
+            <p>
+              {firstAttention
+                ? `No future lesson is currently booked across ${
+                    firstAttention.engagements.length ===
+                    1
+                      ? "their active course"
+                      : `${firstAttention.engagements.length} active courses`
+                  }.`
+                : "There are no active students currently without a future lesson."}
+            </p>
+
+            <div className="tutor-priority-actions">
+              {firstAttention ? (
                 <Link
-                  key={item.id}
-                  href={`/tutor/progress/${item.id}`}
+                  className="tutor-primary-button"
+                  href={`/tutor/progress/${firstAttention.engagements[0].id}`}
                 >
+                  Open student
+                </Link>
+              ) : (
+                <Link
+                  className="tutor-secondary-button"
+                  href="/tutor/students"
+                >
+                  View students
+                </Link>
+              )}
+            </div>
+          </article>
+
+        </div>
+      </section>
+
+
+      <section className="tutor-panel tutor-dashboard-section">
+        <div className="tutor-panel-head">
+          <div>
+            <span className="tutor-eyebrow">
+              Today
+            </span>
+
+            <h2>
+              Teaching schedule
+            </h2>
+          </div>
+
+          <Link href="/tutor/sessions">
+            View all →
+          </Link>
+        </div>
+
+
+        <div className="tutor-command-list">
+          {today.map(
+            (item) => (
+              <article
+                key={item.id}
+              >
+                <div className="tutor-command-time">
                   <strong>
-                    {item.students?.name || "Student"}
+                    {timeOnly(
+                      item.scheduled_for,
+                    )}
                   </strong>
 
-                  <span>{item.subject}</span>
+                  <span>
+                    {
+                      item.duration_minutes
+                    }{" "}
+                    min
+                  </span>
+                </div>
+
+                <div className="tutor-command-copy">
+                  <span className="tutor-eyebrow">
+                    {item
+                      .tutoring_engagements
+                      ?.subject ||
+                      "Tutoring"}
+                  </span>
+
+                  <strong>
+                    {item.topic}
+                  </strong>
 
                   <small>
-                    {item.current_focus ||
-                      item.title ||
-                      "Learning plan"}
+                    {item
+                      .tutoring_engagements
+                      ?.students
+                      ?.name ||
+                      "Student"}
                   </small>
-                </Link>
-              ))}
-
-              {!engagements.length && (
-                <div className="tutor-empty">
-                  No active students assigned.
                 </div>
-              )}
-            </div>
-          </section>
 
-          <section className="tutor-panel tutor-dashboard-section">
-            <div className="tutor-panel-head">
-              <div>
-                <span className="tutor-eyebrow">
-                  Recently delivered
-                </span>
-                <h2>Completed lessons</h2>
-              </div>
-            </div>
+                <div className="tutor-command-actions">
+                  {item.meeting_url && (
+                    <a
+                      className="tutor-secondary-button"
+                      href={
+                        item.meeting_url
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Join ↗
+                    </a>
+                  )}
 
-            <div className="tutor-recent-list">
-              {recentCompleted.map((item) => (
-                <Link
-                  href={`/tutor/sessions/${item.id}`}
-                  key={item.id}
-                >
-                  <div>
-                    <strong>{item.topic}</strong>
-                    <small>
-                      {item.tutoring_engagements?.students?.name ||
-                        "Student"}
-                    </small>
-                  </div>
-
-                  <span
-                    className={`tutor-status ${
-                      item.status
-                    }`}
+                  <Link
+                    className="tutor-primary-link"
+                    href={`/tutor/sessions/${item.id}`}
                   >
-                    {sessionStatusLabels[
-                      item.status as SessionStatus
-                    ] || item.status}
-                  </span>
-                </Link>
-              ))}
-
-              {!recentCompleted.length && (
-                <div className="tutor-empty">
-                  Completed lessons will appear here.
+                    Open →
+                  </Link>
                 </div>
-              )}
+              </article>
+            ),
+          )}
+
+          {!today.length && (
+            <div className="tutor-empty tutor-command-empty">
+              No lessons scheduled for today.
             </div>
-          </section>
-        </aside>
-      </div>
+          )}
+        </div>
+      </section>
+
     </div>
   );
 }

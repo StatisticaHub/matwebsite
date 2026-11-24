@@ -10121,3 +10121,151 @@ main {
     gap:8px;
   }
 }
+
+
+/* MAT tutor next-actions dashboard */
+.tutor-priority-board {
+  display: grid;
+  gap: 16px;
+}
+
+.tutor-priority-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.tutor-priority-head h2 {
+  margin: 5px 0 4px;
+  color: #173456;
+  font-size: 1.45rem;
+}
+
+.tutor-priority-head p {
+  margin: 0;
+  color: #66758a;
+}
+
+.tutor-priority-head > span {
+  max-width: 220px;
+  color: #8290a2;
+  font-size: 0.75rem;
+  text-align: right;
+}
+
+.tutor-priority-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.tutor-priority-card {
+  display: flex;
+  min-height: 220px;
+  flex-direction: column;
+  padding: 20px;
+  border: 1px solid
+    rgba(15, 23, 42, 0.09);
+  border-radius: 16px;
+  background: #fff;
+}
+
+.tutor-priority-card.is-primary {
+  grid-column: 1 / -1;
+  min-height: 205px;
+  border-color:
+    rgba(180, 83, 9, 0.2);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 247, 237, 0.9),
+      #fff 60%
+    );
+}
+
+.tutor-priority-card.is-attention {
+  background:
+    rgba(248, 250, 252, 0.75);
+}
+
+.tutor-priority-card-top {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.tutor-priority-number {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  place-items: center;
+  border-radius: 999px;
+  background: #edf3fb;
+  color: #285b96;
+  font-size: 0.75rem;
+  font-weight: 850;
+}
+
+.tutor-priority-card.is-primary
+.tutor-priority-number {
+  background: #a64b08;
+  color: #fff;
+}
+
+.tutor-priority-count {
+  margin-top: 18px;
+  color: #163354;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.tutor-priority-card h3 {
+  margin: 10px 0 7px;
+  color: #173456;
+  font-size: 1.1rem;
+}
+
+.tutor-priority-card p {
+  max-width: 720px;
+  margin: 0;
+  color: #66758a;
+  line-height: 1.55;
+}
+
+.tutor-priority-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 18px;
+}
+
+@media (max-width: 900px) {
+  .tutor-priority-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tutor-priority-card.is-primary {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .tutor-priority-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .tutor-priority-head > span {
+    max-width: none;
+    text-align: left;
+  }
+
+  .tutor-priority-card {
+    min-height: auto;
+  }
+}
