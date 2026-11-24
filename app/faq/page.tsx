@@ -1,40 +1,34 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+
 export const metadata: Metadata = {
   title: "FAQs",
   description:
-    "Questions about My Academic Tutor, free learning resources, upcoming courses and programmes, and personalised online tutoring.",
+    "Questions about personalised online tutoring, tutor matching, pricing, academic integrity, the MAT Learning Hub and student learning portal.",
 };
+
 
 const faqs = [
   [
     "What does My Academic Tutor provide?",
-    "My Academic Tutor is an online learning and tutoring platform. Free educational resources and personalised one-to-one tutoring are available now. Structured courses, programmes and self-paced learning are also being developed for future launch.",
-  ],
-  [
-    "Are MAT courses available now?",
-    "Not yet. Structured programmes and self-paced courses are currently being developed. We will only describe a course as available once students can actually enrol and access the learning materials.",
-  ],
-  [
-    "What will MAT courses include?",
-    "The planned course experience includes structured modules and lessons, learning resources, practice activities and individual progress tracking. Some programmes may include live teaching, while others will be designed for independent self-paced study.",
-  ],
-  [
-    "Will prerecorded self-paced courses be available?",
-    "Yes. MAT is being designed to support self-paced courses that students can work through independently, including recorded teaching, lesson materials, exercises and progress tracking.",
-  ],
-  [
-    "How is a course different from one-to-one tutoring?",
-    "A course follows a shared structured curriculum that enrolled students can work through. One-to-one tutoring is personalised around an individual student's course, questions, goals and current difficulties.",
-  ],
-  [
-    "Can I use free learning resources without booking tutoring?",
-    "Yes. The Learning Hub is designed for independent learning and can be used without booking a tutoring session.",
+    "My Academic Tutor provides free educational resources and personalised one-to-one online tutoring. Tutoring can support individual topics, exams, university modules, technical software, statistics, research methods and ongoing study.",
   ],
   [
     "How do I start tutoring?",
-    "Tell us your subject, academic level, topic, goal and availability. We review the academic context and arrange suitable one-to-one support before you decide whether to proceed.",
+    "Tell us your subject, academic level, topic, goal and any useful availability. We review the academic context and arrange suitable one-to-one support before you decide whether to proceed.",
+  ],
+  [
+    "How do you choose a tutor?",
+    "We review the subject, academic level, specific topic, teaching need and practical fit before arranging suitable tutoring. You do not need to search through a public tutor directory.",
+  ],
+  [
+    "How much does tutoring cost?",
+    "One-to-one tutoring starts from £20 an hour. The exact rate depends on the subject, academic level and specialist requirements, and is confirmed before you decide whether to book.",
+  ],
+  [
+    "Can I book only one session?",
+    "Yes. Tutoring can be used for one focused session, a short series of lessons or regular ongoing support. You do not need to commit to a long-term package before speaking to us.",
   ],
   [
     "Can I get regular weekly lessons?",
@@ -60,31 +54,50 @@ const faqs = [
     "Will a tutor do my assignment for me?",
     "No. MAT supports learning and academic development. Tutors can explain, demonstrate, review and guide, but assessed work must remain the student's own.",
   ],
+  [
+    "What is the student learning portal?",
+    "Active tutoring students can use a private MAT learning space for sessions, homework, learning files, progress records and support.",
+  ],
+  [
+    "Can I use the Learning Hub without booking tutoring?",
+    "Yes. The Learning Hub is available for independent learning and can be used without booking a tutoring session.",
+  ],
+  [
+    "Are structured MAT courses available?",
+    "Structured courses and programmes are not currently offered for enrolment. Current services are free educational resources and personalised one-to-one tutoring.",
+  ],
 ];
+
 
 export default function Page() {
   return (
     <>
       <section className="page-hero compact-hero">
+
         <div className="shell narrow">
+
           <div className="eyebrow">
             FREQUENTLY ASKED QUESTIONS
           </div>
 
           <h1>
-            Questions about learning, courses and personalised
-            tutoring.
+            Questions about learning and personalised tutoring.
           </h1>
 
           <p className="page-lead">
-            What is available today, what MAT is building next and
-            how different learning routes fit together.
+            How tutoring works, what it costs, what support is available and
+            what to expect before you book.
           </p>
+
         </div>
+
       </section>
 
+
       <section className="section">
+
         <div className="shell narrow faq-list">
+
           {faqs.map(([q, a]) => (
             <details key={q}>
               <summary>{q}</summary>
@@ -92,7 +105,9 @@ export default function Page() {
             </details>
           ))}
 
+
           <div className="center-cta">
+
             <Link
               className="button button-primary"
               href="/learn"
@@ -106,8 +121,11 @@ export default function Page() {
             >
               Request personalised tutoring
             </Link>
+
           </div>
+
         </div>
+
       </section>
     </>
   );
