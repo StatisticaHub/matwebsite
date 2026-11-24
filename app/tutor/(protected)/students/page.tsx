@@ -1,3 +1,4 @@
+import TutorStudentRecency from "@/components/TutorStudentRecency";
 import Link from "next/link";
 
 import {
@@ -626,6 +627,9 @@ export default async function TutorStudentsPage() {
         </article>
 
       </section>
+
+
+      <TutorStudentRecency />
 
 
       <div className="tutor-students-v2-list">

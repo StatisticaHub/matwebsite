@@ -11763,3 +11763,172 @@ main {
 
 /* ===== END TUTOR COURSE ACTIVITY TIMELINE ===== */
 
+
+/* ===== TUTOR STUDENT RECENCY ===== */
+
+.tutor-student-recency {
+  margin: 16px 0;
+}
+
+.tutor-student-recency .tutor-panel-head p {
+  margin: 5px 0 0;
+  color: #718095;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.tutor-student-recency-metrics {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.tutor-student-recency-metrics > div {
+  padding: 10px 11px;
+  border: 1px solid #e5eaf0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.tutor-student-recency-metrics span,
+.tutor-student-recency-metrics strong,
+.tutor-student-recency-metrics small {
+  display: block;
+}
+
+.tutor-student-recency-metrics span {
+  color: #8290a1;
+  font-size: 7.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.tutor-student-recency-metrics strong {
+  margin-top: 3px;
+  color: #344b65;
+  font-size: 16px;
+}
+
+.tutor-student-recency-metrics small {
+  margin-top: 2px;
+  color: #9aa4af;
+  font-size: 7px;
+}
+
+.tutor-student-recency-list {
+  display: grid;
+  margin-top: 13px;
+}
+
+.tutor-student-recency-row {
+  display: grid;
+  grid-template-columns:
+    minmax(130px, .8fr)
+    minmax(180px, 1.6fr)
+    auto;
+  gap: 14px;
+  align-items: center;
+  padding: 12px 0;
+  border-top: 1px solid #edf0f3;
+}
+
+.tutor-student-recency-row:first-child {
+  border-top: 0;
+}
+
+.tutor-student-recency-person strong,
+.tutor-student-recency-person span {
+  display: block;
+}
+
+.tutor-student-recency-person strong {
+  color: #344b65;
+  font-size: 10px;
+}
+
+.tutor-student-recency-person span {
+  margin-top: 3px;
+  color: #8793a1;
+  font-size: 8px;
+}
+
+.tutor-student-recency-signals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+}
+
+.tutor-student-recency-signals > span {
+  padding: 4px 6px;
+  border-radius: 999px;
+  background: #edf4fb;
+  color: #42698e;
+  font-size: 7px;
+  font-weight: 800;
+}
+
+.tutor-student-recency-signals > span.is-risk {
+  background: #fff0f0;
+  color: #994545;
+}
+
+.tutor-student-recency-signals small {
+  flex-basis: 100%;
+  color: #919ca8;
+  font-size: 7.5px;
+}
+
+.tutor-student-recency-action {
+  display: grid;
+  justify-items: end;
+  gap: 5px;
+}
+
+.tutor-student-recency-action > span {
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: #eef2f6;
+  color: #68778a;
+  font-size: 7px;
+  font-weight: 850;
+}
+
+.tutor-student-recency-action > span.is-attention {
+  background: #fff5e7;
+  color: #956424;
+}
+
+.tutor-student-recency-action > span.is-high {
+  background: #fff0f0;
+  color: #984545;
+}
+
+.tutor-student-recency-action a {
+  color: #315f99;
+  font-size: 7.5px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+@media (max-width: 760px) {
+
+  .tutor-student-recency-metrics {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .tutor-student-recency-row {
+    grid-template-columns:
+      1fr;
+  }
+
+  .tutor-student-recency-action {
+    justify-items: start;
+  }
+}
+
+/* ===== END TUTOR STUDENT RECENCY ===== */
+
