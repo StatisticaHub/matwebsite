@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import ConversionProofBar from "@/components/ConversionProofBar";
 import TutoringLeadForm from "@/components/TutoringLeadForm";
@@ -50,7 +51,10 @@ export default async function Page({
             <p>
               The exact rate depends on your subject, course level and any specialist
               requirements. Tell us what you need help with and we’ll confirm
-              the price before you book.
+              the price before you book.{" "}
+              <Link href="/pricing">
+                See how pricing works.
+              </Link>
             </p>
           </div>
 
