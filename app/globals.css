@@ -8639,3 +8639,192 @@ body {
     font-size: 26px;
   }
 }
+
+
+/* ==========================================================================
+   TUTOR PORTAL — FINAL SIDEBAR OVERRIDE
+   ========================================================================== */
+
+/*
+ * Higher-specificity selectors intentionally override the older
+ * tutor workspace rules still present earlier in globals.css.
+ */
+
+.tutor-app > .tutor-sidebar {
+  background: #10213b !important;
+  background-image:
+    linear-gradient(
+      180deg,
+      #10213b 0%,
+      #142f50 100%
+    ) !important;
+  border-right: 1px solid #203d5d !important;
+  color: #fff !important;
+}
+
+
+/* Brand */
+
+.tutor-app > .tutor-sidebar .tutor-sidebar-brand {
+  border-color: rgba(255,255,255,.12) !important;
+}
+
+.tutor-app > .tutor-sidebar .tutor-brand,
+.tutor-app > .tutor-sidebar .tutor-brand strong {
+  color: #fff !important;
+}
+
+.tutor-app > .tutor-sidebar .tutor-brand span {
+  color: #a9bed4 !important;
+}
+
+.tutor-app > .tutor-sidebar .tutor-sidebar-brand > small {
+  color: #8fa8c1 !important;
+}
+
+
+/* Navigation */
+
+.tutor-app > .tutor-sidebar .tutor-sidebar-nav {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 6px !important;
+}
+
+.tutor-app > .tutor-sidebar .tutor-sidebar-nav a {
+  min-height: 42px !important;
+  border: 1px solid transparent !important;
+  border-radius: 9px !important;
+  padding: 0 13px !important;
+  background: transparent !important;
+  color: #c7d6e6 !important;
+  box-shadow: none !important;
+  font-weight: 700 !important;
+}
+
+.tutor-app > .tutor-sidebar .tutor-sidebar-nav a:hover {
+  border-color: rgba(255,255,255,.08) !important;
+  background: rgba(255,255,255,.07) !important;
+  color: #fff !important;
+}
+
+
+/* Active page */
+
+.tutor-app > .tutor-sidebar .tutor-sidebar-nav a.is-active {
+  border-color: #4f7da8 !important;
+  background: #315f8f !important;
+  color: #fff !important;
+  box-shadow:
+    0 6px 18px rgba(0,0,0,.16) !important;
+}
+
+.tutor-app > .tutor-sidebar .tutor-sidebar-nav a.is-active::before {
+  background: #9bc1e5 !important;
+}
+
+
+/* Section labels */
+
+.tutor-app > .tutor-sidebar .tutor-nav-label {
+  color: #7795b3 !important;
+}
+
+.tutor-app > .tutor-sidebar .tutor-sidebar-nav-divider {
+  background: rgba(255,255,255,.10) !important;
+}
+
+
+/* Account area */
+
+.tutor-app > .tutor-sidebar .tutor-sidebar-footer {
+  border-color: rgba(255,255,255,.12) !important;
+}
+
+.tutor-app > .tutor-sidebar .tutor-sidebar-footer span {
+  color: #fff !important;
+}
+
+.tutor-app > .tutor-sidebar .tutor-sidebar-footer small {
+  color: #94abc2 !important;
+}
+
+.tutor-app > .tutor-sidebar .tutor-signout {
+  border-color: rgba(255,255,255,.15) !important;
+  background: rgba(255,255,255,.04) !important;
+  color: #dce7f2 !important;
+}
+
+
+/* ==========================================================================
+   TABLET / MOBILE
+   ========================================================================== */
+
+@media (max-width: 900px) {
+
+  .tutor-app > .tutor-sidebar {
+    padding: 16px 18px 12px !important;
+  }
+
+  /*
+   * This selector is deliberately more specific than the old:
+   * .tutor-sidebar nav { display:grid ... }
+   */
+  .tutor-app > .tutor-sidebar .tutor-sidebar-nav {
+    display: flex !important;
+    grid-template-columns: none !important;
+    gap: 7px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    margin-top: 12px !important;
+    padding: 0 0 4px !important;
+    flex-wrap: nowrap !important;
+    scrollbar-width: none;
+  }
+
+  .tutor-app > .tutor-sidebar .tutor-sidebar-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tutor-app > .tutor-sidebar .tutor-sidebar-nav a {
+    width: auto !important;
+    min-width: max-content !important;
+    min-height: 36px !important;
+    flex: 0 0 auto !important;
+    padding: 0 13px !important;
+  }
+
+  .tutor-app > .tutor-sidebar .tutor-sidebar-nav a.is-active::before {
+    display: none !important;
+  }
+
+  .tutor-app > .tutor-sidebar .tutor-nav-label,
+  .tutor-app > .tutor-sidebar .tutor-sidebar-nav-divider,
+  .tutor-app > .tutor-sidebar .tutor-sidebar-footer {
+    display: none !important;
+  }
+}
+
+
+@media (max-width: 560px) {
+
+  .tutor-app > .tutor-sidebar {
+    padding: 13px 15px 10px !important;
+  }
+
+  .tutor-app > .tutor-sidebar .tutor-sidebar-brand {
+    padding-bottom: 9px !important;
+  }
+
+  .tutor-app > .tutor-sidebar .tutor-sidebar-nav {
+    margin-right: -15px !important;
+    margin-left: -15px !important;
+    padding-right: 15px !important;
+    padding-left: 15px !important;
+  }
+
+  .tutor-app > .tutor-sidebar .tutor-sidebar-nav a {
+    min-height: 35px !important;
+    font-size: 10.5px !important;
+  }
+}
