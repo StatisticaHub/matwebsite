@@ -25,6 +25,7 @@ export default async function Page({
 }) {
   const params = await searchParams;
   const defaultSubject = firstParam(params.subject);
+  const defaultLevel = firstParam(params.level);
   const defaultSupportType = firstParam(params.support);
 
   return (

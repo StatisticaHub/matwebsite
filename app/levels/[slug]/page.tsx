@@ -369,7 +369,7 @@ export default async function Page({
             <div className="button-row">
               <Link
                 className="button button-primary button-large"
-                href="/find-a-tutor"
+                href={`/find-a-tutor?level=${encodeURIComponent(level.name)}`}
               >
                 Request tutoring
               </Link>
@@ -632,6 +632,7 @@ export default async function Page({
           <div className="card form-card">
             <TutoringLeadForm
               compact
+              defaultLevel={level.name}
               defaultSupportType={
                 supportTypeForLevel(
                   level.slug

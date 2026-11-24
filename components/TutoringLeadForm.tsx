@@ -14,6 +14,7 @@ import {
 type Props = {
   compact?: boolean;
   defaultSubject?: string;
+  defaultLevel?: string;
   defaultSupportType?: string;
   submitLabel?: string;
 };
@@ -28,12 +29,18 @@ type Status = {
 export default function TutoringLeadForm({
   compact = false,
   defaultSubject = "",
+  defaultLevel = "",
   defaultSupportType = "",
   submitLabel,
 }: Props) {
   const subjectExists = useMemo(
     () => subjects.some((subject) => subject.name === defaultSubject),
     [defaultSubject]
+  );
+
+  const levelExists = useMemo(
+    () => levels.includes(defaultLevel),
+    [defaultLevel]
   );
 
   const supportTypeExists = useMemo(
@@ -264,7 +271,11 @@ export default function TutoringLeadForm({
 
             <label>
               <span>Academic level</span>
-              <select name="level" required defaultValue="">
+              <select
+                name="level"
+                required
+                defaultValue={levelExists ? defaultLevel : ""}
+              >
                 <option value="" disabled>
                   Choose your academic level
                 </option>
