@@ -7,6 +7,10 @@ import {
   createAdminClient,
 } from "@/lib/supabase/admin";
 
+import {
+  getStudentSession,
+} from "@/lib/student-auth";
+
 import type {
   Homework,
   LearningPlanItem,
@@ -366,6 +370,31 @@ export async function resolvePortalLink(
     )
   ) {
     return null;
+  }
+
+
+  /*
+   * Admin-created portal links remain bearer links.
+   *
+   * Short-lived authenticated_session links are different:
+   * possessing the URL alone must not be enough. The browser
+   * must also have a valid Supabase student session belonging
+   * to the same student as this portal link.
+   */
+  if (
+    link.access_kind ===
+    "authenticated_session"
+  ) {
+    const session =
+      await getStudentSession();
+
+    if (
+      !session ||
+      session.student.id !==
+        link.student_id
+    ) {
+      return null;
+    }
   }
 
 
