@@ -1,20 +1,10 @@
 "use server";
 
-import {
-  revalidatePath,
-} from "next/cache";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
-import {
-  redirect,
-} from "next/navigation";
-
-import {
-  getAdminSession,
-} from "@/lib/admin-auth";
-
-import {
-  createAdminClient,
-} from "@/lib/supabase/admin";
+import { getAdminSession } from "@/lib/admin-auth";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 
 function text(
@@ -22,33 +12,17 @@ function text(
   key: string,
   max = 5000,
 ) {
-  return String(
-    formData.get(key) ||
-    "",
-  )
+  return String(formData.get(key) || "")
     .trim()
-    .slice(
-      0,
-      max,
-    );
+    .slice(0, max);
 }
 
 
-function relationOne<T>(
-  value:
-    | T
-    | T[]
-    | null,
-) {
-  if (
-    Array.isArray(
-      value,
-    )
-  ) {
-    return (
-      value[0] ||
-      null
-    );
+function one<T>(
+  value: T | T[] | null,
+): T | null {
+  if (Array.isArray(value)) {
+    return value[0] || null;
   }
 
   return value;
@@ -58,100 +32,84 @@ function relationOne<T>(
 export async function createManualTestimonial(
   formData: FormData,
 ) {
-
-  const session =
-    await getAdminSession();
-
+  const session = await getAdminSession();
 
   if (!session) {
-    redirect(
-      "/admin/login",
-    );
+    redirect("/admin/login");
   }
 
 
-  const engagementId =
-    text(
-      formData,
-      "engagementId",
-      100,
-    );
+  const engagementId = text(
+    formData,
+    "engagementId",
+    100,
+  );
 
+  const reviewText = text(
+    formData,
+    "reviewText",
+    5000,
+  );
 
-  const reviewText =
-    text(
-      formData,
-      "reviewText",
-      5000,
-    );
+  const displayName = text(
+    formData,
+    "displayName",
+    120,
+  );
 
+  const displayContext = text(
+    formData,
+    "displayContext",
+    180,
+  );
 
-  const displayName =
-    text(
-      formData,
-      "displayName",
-      120,
-    );
+  const legacySubject = text(
+    formData,
+    "legacySubject",
+    180,
+  );
 
+  const legacyInstitution = text(
+    formData,
+    "legacyInstitution",
+    180,
+  );
 
-  const displayContext =
-    text(
-      formData,
-      "displayContext",
-      180,
-    );
+  const source = text(
+    formData,
+    "source",
+    40,
+  );
 
+  const consentEvidence = text(
+    formData,
+    "consentEvidence",
+    1500,
+  );
 
-  const source =
-    text(
-      formData,
-      "source",
-      40,
-    );
-
-
-  const consentEvidence =
-    text(
-      formData,
-      "consentEvidence",
-      1500,
-    );
-
-
-  const sourceNote =
-    text(
-      formData,
-      "sourceNote",
-      1500,
-    );
-
+  const sourceNote = text(
+    formData,
+    "sourceNote",
+    1500,
+  );
 
   const consentToPublish =
-    formData.get(
-      "consentToPublish",
-    ) === "on";
+    formData.get("consentToPublish") === "on";
 
-
-  const rating =
-    Number(
-      formData.get(
-        "rating",
-      ),
-    );
+  const rating = Number(
+    formData.get("rating"),
+  );
 
 
   if (
-    !engagementId ||
     !reviewText ||
     !displayName ||
-    !Number.isFinite(
-      rating,
-    ) ||
+    !Number.isFinite(rating) ||
     rating < 1 ||
     rating > 5
   ) {
     redirect(
-      "/admin/testimonials?error=Complete+the+student,+rating,+testimonial+and+public+attribution",
+      "/admin/testimonials?error=Complete+the+rating,+testimonial+and+student+name",
     );
   }
 
@@ -162,9 +120,7 @@ export async function createManualTestimonial(
       "email",
       "dm",
       "other",
-    ].includes(
-      source,
-    )
+    ].includes(source)
   ) {
     redirect(
       "/admin/testimonials?error=Choose+a+valid+feedback+source",
@@ -177,7 +133,7 @@ export async function createManualTestimonial(
     !consentEvidence
   ) {
     redirect(
-      "/admin/testimonials?error=Record+how+the+student+gave+permission+before+marking+publication+consent",
+      "/admin/testimonials?error=Record+how+the+student+gave+publication+permission",
     );
   }
 
@@ -186,96 +142,123 @@ export async function createManualTestimonial(
     createAdminClient();
 
 
-  const {
-    data:
-      engagementData,
-    error:
-      engagementError,
-  } =
-    await supabase
-      .from(
-        "tutoring_engagements",
-      )
-      .select(`
-        id,
-        student_id,
-        tutor_id,
-        subject,
-        students (
-          academic_level
-        )
-      `)
-      .eq(
-        "id",
-        engagementId,
-      )
-      .maybeSingle();
+  let studentId: string | null =
+    null;
+
+  let tutorId: string | null =
+    null;
+
+  let resolvedEngagementId:
+    string | null =
+      null;
+
+  let subject: string | null =
+    legacySubject ||
+    null;
+
+  let academicLevel:
+    string | null =
+      legacyInstitution ||
+      null;
 
 
-  if (
-    engagementError ||
-    !engagementData
-  ) {
-    redirect(
-      `/admin/testimonials?error=${encodeURIComponent(
-        engagementError?.message ||
-        "Student engagement not found",
-      )}`,
-    );
+  /*
+   * Current MAT students may be linked to an engagement.
+   * Legacy testimonials intentionally have no CRM foreign keys.
+   */
+  if (engagementId) {
+    const {
+      data: engagementData,
+      error: engagementError,
+    } =
+      await supabase
+        .from("tutoring_engagements")
+        .select(`
+          id,
+          student_id,
+          tutor_id,
+          subject,
+          students (
+            academic_level
+          )
+        `)
+        .eq("id", engagementId)
+        .maybeSingle();
+
+
+    if (
+      engagementError ||
+      !engagementData
+    ) {
+      redirect(
+        `/admin/testimonials?error=${encodeURIComponent(
+          engagementError?.message ||
+          "Student engagement not found",
+        )}`,
+      );
+    }
+
+
+    const engagement =
+      engagementData as any;
+
+    const student =
+      one<any>(
+        engagement.students,
+      );
+
+
+    resolvedEngagementId =
+      engagement.id;
+
+    studentId =
+      engagement.student_id;
+
+    tutorId =
+      engagement.tutor_id ||
+      null;
+
+    subject =
+      engagement.subject ||
+      legacySubject ||
+      null;
+
+    academicLevel =
+      student?.academic_level ||
+      legacyInstitution ||
+      null;
   }
 
 
-  const engagement =
-    engagementData as any;
-
-
-  const student =
-    relationOne<any>(
-      engagement.students,
-    );
-
-
-  const academicLevel =
-    student?.academic_level ||
-    null;
-
-
   const now =
-    new Date()
-      .toISOString();
-
+    new Date().toISOString();
 
   const actor =
     session.user.email ||
     "admin";
 
 
-  const sourceLabel:
+  const sourceLabels:
     Record<string, string> = {
-      whatsapp:
-        "WhatsApp",
-
-      email:
-        "Email",
-
-      dm:
-        "Direct message",
-
-      other:
-        "Other",
+      whatsapp: "WhatsApp",
+      email: "Email",
+      dm: "Direct message",
+      other: "Other",
     };
 
 
   const internalLines = [
     `[Manual testimonial import · ${now}]`,
-
     `Imported by: ${actor}`,
-
+    `Record type: ${
+      engagementId
+        ? "Current MAT student"
+        : "Legacy / previous student"
+    }`,
     `Source: ${
-      sourceLabel[source] ||
+      sourceLabels[source] ||
       source
     }`,
-
     `Publication consent recorded: ${
       consentToPublish
         ? "Yes"
@@ -284,18 +267,14 @@ export async function createManualTestimonial(
   ];
 
 
-  if (
-    consentEvidence
-  ) {
+  if (consentEvidence) {
     internalLines.push(
       `Consent evidence: ${consentEvidence}`,
     );
   }
 
 
-  if (
-    sourceNote
-  ) {
+  if (sourceNote) {
     internalLines.push(
       `Source note: ${sourceNote}`,
     );
@@ -304,37 +283,30 @@ export async function createManualTestimonial(
 
   const fallbackContext =
     [
-      academicLevel,
-      engagement.subject,
+      legacyInstitution ||
+        academicLevel,
+      subject,
     ]
       .filter(Boolean)
-      .join(
-        " · ",
-      );
+      .join(" · ");
 
 
   const {
-    error:
-      insertError,
+    error: insertError,
   } =
     await supabase
-      .from(
-        "testimonials",
-      )
+      .from("testimonials")
       .insert({
         student_id:
-          engagement.student_id,
+          studentId,
 
         engagement_id:
-          engagement.id,
+          resolvedEngagementId,
 
         tutor_id:
-          engagement.tutor_id ||
-          null,
+          tutorId,
 
-        subject:
-          engagement.subject ||
-          null,
+        subject,
 
         academic_level:
           academicLevel,
@@ -343,9 +315,7 @@ export async function createManualTestimonial(
           "submitted",
 
         rating:
-          Math.round(
-            rating,
-          ),
+          Math.round(rating),
 
         review_text:
           reviewText,
@@ -368,18 +338,14 @@ export async function createManualTestimonial(
           now,
 
         admin_note:
-          internalLines.join(
-            "\n",
-          ),
+          internalLines.join("\n"),
 
         updated_at:
           now,
       });
 
 
-  if (
-    insertError
-  ) {
+  if (insertError) {
     redirect(
       `/admin/testimonials?error=${encodeURIComponent(
         insertError.message,

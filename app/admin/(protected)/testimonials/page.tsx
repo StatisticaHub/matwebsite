@@ -93,20 +93,16 @@ export default async function TestimonialsAdminPage({ searchParams }: { searchPa
             <label>
 
               <span>
-                Student engagement
+                Student record
               </span>
 
               <select
                 name="engagementId"
-                required
                 defaultValue=""
               >
 
-                <option
-                  value=""
-                  disabled
-                >
-                  Select a student…
+                <option value="">
+                  Legacy / previous student — no CRM record
                 </option>
 
                 {(engagements || []).map(
@@ -217,20 +213,59 @@ export default async function TestimonialsAdminPage({ searchParams }: { searchPa
             <label>
 
               <span>
-                Public attribution
+                Student name / public attribution
               </span>
 
               <input
                 name="displayName"
                 maxLength={120}
-                placeholder="e.g. Postgraduate student"
+                placeholder="e.g. Ansh Sharma"
                 required
               />
 
               <small>
-                Avoid the student's full name unless they specifically agreed
-                to public identification.
+                For a legacy testimonial, enter the student's name here.
+                Use an anonymous label instead if that is the approved
+                public attribution.
               </small>
+
+            </label>
+
+          </div>
+
+
+          <div className="admin-form-grid-2">
+
+            <label>
+
+              <span>
+                Legacy subject / topic
+              </span>
+
+              <input
+                name="legacySubject"
+                maxLength={180}
+                placeholder="e.g. Probability & Statistics"
+              />
+
+              <small>
+                Use this when the student is not in the current CRM.
+              </small>
+
+            </label>
+
+
+            <label>
+
+              <span>
+                Legacy institution / level
+              </span>
+
+              <input
+                name="legacyInstitution"
+                maxLength={180}
+                placeholder="e.g. BITS Goa"
+              />
 
             </label>
 
