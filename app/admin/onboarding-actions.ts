@@ -26,7 +26,7 @@ export async function saveOnboardingReview(formData: FormData) {
   const status = text(formData, "status", 30) as OnboardingStatus;
   if (!studentId || !onboardingStatuses.includes(status)) return;
 
-  if (status === "complete") {
+  if (status === "ready" || status === "complete") {
     const [
       studentResult,
       onboardingResult,
@@ -126,14 +126,23 @@ export async function saveOnboardingReview(formData: FormData) {
         );
     }
 
+    const canBeReady =
+      hasIntake &&
+      hasTutor &&
+      hasStudentLogin;
+
+    if (!canBeReady) {
+      redirect(
+        `/admin/onboarding?student=${encodeURIComponent(studentId)}&blocked=ready`,
+      );
+    }
+
     if (
-      !hasIntake ||
-      !hasTutor ||
-      !hasStudentLogin ||
+      status === "complete" &&
       !hasFirstSession
     ) {
       redirect(
-        `/admin/onboarding?student=${encodeURIComponent(studentId)}&blocked=1`,
+        `/admin/onboarding?student=${encodeURIComponent(studentId)}&blocked=complete`,
       );
     }
   }
@@ -172,7 +181,74 @@ export async function applyIntakeToEngagement(formData: FormData) {
   const { error } = await supabase.from("tutoring_engagements").update(update).eq("id", engagementId).eq("student_id", studentId);
   if (error) throw new Error(error.message);
 
-  await supabase.from("student_onboarding").update({ status: "ready", reviewed_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("student_id", studentId);
+  const [
+    studentResult,
+    engagementResult,
+  ] = await Promise.all([
+    supabase
+      .from("students")
+      .select("auth_user_id,portal_enabled")
+      .eq("id", studentId)
+      .maybeSingle(),
+
+    supabase
+      .from("tutoring_engagements")
+      .select("tutor_id,status")
+      .eq("id", engagementId)
+      .eq("student_id", studentId)
+      .maybeSingle(),
+  ]);
+
+  if (studentResult.error) {
+    throw new Error(
+      studentResult.error.message,
+    );
+  }
+
+  if (engagementResult.error) {
+    throw new Error(
+      engagementResult.error.message,
+    );
+  }
+
+  const canBeReady =
+    Boolean(
+      onboarding.intake_completed_at &&
+      engagementResult.data?.tutor_id &&
+      studentResult.data?.portal_enabled &&
+      studentResult.data?.auth_user_id
+    );
+
+  const nextStatus: OnboardingStatus =
+    onboarding.status === "complete"
+      ? "complete"
+      : canBeReady
+        ? "ready"
+        : "review";
+
+  const now =
+    new Date().toISOString();
+
+  const {
+    error: onboardingUpdateError,
+  } = await supabase
+    .from("student_onboarding")
+    .update({
+      status: nextStatus,
+      reviewed_at:
+        nextStatus === "ready" ||
+        nextStatus === "complete"
+          ? now
+          : null,
+      updated_at: now,
+    })
+    .eq("student_id", studentId);
+
+  if (onboardingUpdateError) {
+    throw new Error(
+      onboardingUpdateError.message,
+    );
+  }
   revalidatePath("/admin/onboarding");
   revalidatePath(`/admin/students/${studentId}`);
 }

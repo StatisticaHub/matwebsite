@@ -77,10 +77,17 @@ export default async function OnboardingPage({ searchParams }: { searchParams: S
         </div>
       </header>
 
-      {params.blocked === "1" && (
+      {params.blocked === "ready" && (
         <div className="admin-inline-message warning">
-          Onboarding cannot be marked complete until intake, tutor assignment,
-          Student Portal login and a planned or completed first session are all ready.
+          Ready to start requires a submitted intake, tutor assignment and
+          an enabled Student Portal login.
+        </div>
+      )}
+
+      {params.blocked === "complete" && (
+        <div className="admin-inline-message warning">
+          Onboarding cannot be marked complete until a planned or completed
+          first session is also in place.
         </div>
       )}
 
@@ -114,10 +121,13 @@ export default async function OnboardingPage({ searchParams }: { searchParams: S
           );
           const hasIntake = Boolean(onboarding?.intake_completed_at);
           const status = onboarding?.status || "awaiting_intake";
-          const canComplete =
+          const canReady =
             hasIntake &&
             hasTutor &&
-            hasPortal &&
+            hasPortal;
+
+          const canComplete =
+            canReady &&
             hasFirstSession;
           return (
             <article key={student.id} className={student.id === params.student ? "is-focus" : ""}>
@@ -162,9 +172,16 @@ export default async function OnboardingPage({ searchParams }: { searchParams: S
                         key={item}
                         value={item}
                         disabled={
-                          item === "complete" &&
-                          !canComplete &&
-                          status !== "complete"
+                          (
+                            item === "ready" &&
+                            !canReady &&
+                            status !== "ready"
+                          ) ||
+                          (
+                            item === "complete" &&
+                            !canComplete &&
+                            status !== "complete"
+                          )
                         }
                       >
                         {onboardingStatusLabels[item]}
