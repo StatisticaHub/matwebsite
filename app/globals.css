@@ -8268,3 +8268,23 @@ body {
   outline: 3px solid rgba(49, 95, 143, .32);
   outline-offset: 3px;
 }
+
+
+/* ==========================================================================
+   PUBLIC HEADER LOGO
+   ========================================================================== */
+
+.mat-public-brand-logo {
+  display: block;
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+
+@media (max-width: 680px) {
+  .mat-public-brand-logo {
+    width: 39px;
+    height: 39px;
+  }
+}

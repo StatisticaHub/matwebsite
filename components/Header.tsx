@@ -34,7 +34,11 @@ export default function Header() {
           className="mat-public-brand"
           aria-label="My Academic Tutor home"
         >
-          <span className="mat-public-brand-mark">MAT</span>
+          <img
+            src="/logo.png"
+            alt="My Academic Tutor"
+            className="mat-public-brand-logo"
+          />
 
           <span className="mat-public-brand-copy">
             <strong>My Academic Tutor</strong>
