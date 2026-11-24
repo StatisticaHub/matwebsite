@@ -38,6 +38,7 @@ import {
 } from "@/lib/delivery-data";
 
 import {
+  isNewProgressReport,
   masteryLabel,
   riskLabel,
   topicMastery,
@@ -675,6 +676,15 @@ const openHomework =
     null;
 
 
+  const latestProgressIsNew =
+    Boolean(
+      latestProgressReport &&
+      isNewProgressReport(
+        latestProgressReport,
+      ),
+    );
+
+
   /* ==========================================================================
      PAGE
      ========================================================================== */
@@ -1093,6 +1103,37 @@ const openHomework =
                 )}
 
               </div>
+
+
+              {latestProgressIsNew && (
+                <div className="portal-new-progress-report">
+
+                  <div>
+
+                    <span>
+                      New progress report
+                    </span>
+
+                    <strong>
+                      Your latest progress report is ready.
+                    </strong>
+
+                    <small>
+                      Open it to review your tutor feedback,
+                      progress summary and next focus.
+                    </small>
+
+                  </div>
+
+
+                  <a
+                    href={`/portal/${token}/progress/${latestProgressReport?.id}`}
+                  >
+                    Open report →
+                  </a>
+
+                </div>
+              )}
 
 
               {latestProgressReport ? (

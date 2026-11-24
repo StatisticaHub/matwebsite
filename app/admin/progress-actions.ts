@@ -58,6 +58,17 @@ export async function generateAdminProgressReport(formData: FormData) {
 
   const metrics = await calculateProgressMetrics(supabase, engagementId, periodStart, periodEnd);
   const title = nullable(formData, "title", 300) || `${engagement.subject} progress report`;
+  const studentVisible =
+    formData.get("studentVisible") === "on";
+
+  const emailStudent =
+    studentVisible &&
+    formData.get("emailStudent") === "on";
+
+  const publishedAt =
+    studentVisible
+      ? new Date().toISOString()
+      : null;
   const payload = {
     student_id: engagement.student_id,
     engagement_id: engagement.id,
@@ -79,7 +90,8 @@ export async function generateAdminProgressReport(formData: FormData) {
     areas_for_improvement: nullable(formData, "areasForImprovement"),
     next_focus: nullable(formData, "nextFocus"),
     tutor_comment: nullable(formData, "tutorComment"),
-    student_visible: formData.get("studentVisible") === "on",
+    student_visible: studentVisible,
+    published_at: publishedAt,
     created_by: "admin",
     updated_at: new Date().toISOString(),
   };
@@ -90,7 +102,7 @@ export async function generateAdminProgressReport(formData: FormData) {
   if (reportError || !report) throw new Error(reportError?.message || "Could not save progress report.");
 
   const student = (engagement as any).students;
-  if (formData.get("emailStudent") === "on" && student?.email) {
+  if (emailStudent && student?.email) {
     const result = await sendProgressReportEmail({
       reportId: report.id,
       name: student.name,
@@ -115,6 +127,29 @@ export async function generateAdminProgressReport(formData: FormData) {
       result,
       createdByEmail: session.user.email || null,
     });
+
+    if (result.ok) {
+      const {
+        error: notificationTimestampError,
+      } =
+        await supabase
+          .from("progress_reports")
+          .update({
+            student_notified_at:
+              new Date().toISOString(),
+          })
+          .eq(
+            "id",
+            report.id,
+          );
+
+      if (notificationTimestampError) {
+        console.error(
+          "Could not record progress report notification:",
+          notificationTimestampError.message,
+        );
+      }
+    }
   }
 
   revalidatePath("/admin/progress");

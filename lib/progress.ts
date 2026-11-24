@@ -30,6 +30,11 @@ export type ProgressReport = {
   next_focus: string | null;
   tutor_comment: string | null;
   student_visible: boolean;
+  published_at: string | null;
+  student_notified_at: string | null;
+  first_viewed_at: string | null;
+  last_viewed_at: string | null;
+  view_count: number;
   created_by: "admin" | "tutor";
 };
 
@@ -253,6 +258,121 @@ export async function calculateProgressMetrics(
     riskReasons,
   };
 }
+
+
+export function progressDeliveryLabel(
+  report: Pick<
+    ProgressReport,
+    | "student_visible"
+    | "student_notified_at"
+    | "first_viewed_at"
+  >,
+) {
+  if (!report.student_visible) {
+    return "Draft";
+  }
+
+  if (report.first_viewed_at) {
+    return "Viewed";
+  }
+
+  if (report.student_notified_at) {
+    return "Email sent";
+  }
+
+  return "Published";
+}
+
+
+function deliveryDate(
+  value: string | null,
+) {
+  if (!value) {
+    return null;
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  return new Intl.DateTimeFormat(
+    "en-GB",
+    {
+      dateStyle: "medium",
+      timeStyle: "short",
+      timeZone: "Europe/London",
+    },
+  ).format(date);
+}
+
+
+export function progressDeliverySummary(
+  report: Pick<
+    ProgressReport,
+    | "student_visible"
+    | "published_at"
+    | "student_notified_at"
+    | "first_viewed_at"
+  >,
+) {
+  if (!report.student_visible) {
+    return "Draft · not visible to student";
+  }
+
+  const parts: string[] = [];
+
+  const published =
+    deliveryDate(report.published_at);
+
+  const notified =
+    deliveryDate(
+      report.student_notified_at,
+    );
+
+  const viewed =
+    deliveryDate(
+      report.first_viewed_at,
+    );
+
+  parts.push(
+    published
+      ? `Published ${published}`
+      : "Published",
+  );
+
+  if (notified) {
+    parts.push(
+      `Email sent ${notified}`,
+    );
+  }
+
+  if (viewed) {
+    parts.push(
+      `Viewed ${viewed}`,
+    );
+  }
+
+  return parts.join(" · ");
+}
+
+
+export function isNewProgressReport(
+  report: Pick<
+    ProgressReport,
+    | "student_visible"
+    | "published_at"
+    | "first_viewed_at"
+  >,
+) {
+  return Boolean(
+    report.student_visible &&
+      report.published_at &&
+      !report.first_viewed_at,
+  );
+}
+
 
 export function currentMonthRange(now = new Date()) {
   const year = now.getUTCFullYear();

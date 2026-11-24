@@ -61,6 +61,17 @@ export async function generateTutorProgressReport(formData: FormData) {
       session.tutor.timezone,
     );
   const title = nullable(formData, "title", 300) || `${engagement.subject} progress report`;
+  const studentVisible =
+    formData.get("studentVisible") === "on";
+
+  const emailStudent =
+    studentVisible &&
+    formData.get("emailStudent") === "on";
+
+  const publishedAt =
+    studentVisible
+      ? new Date().toISOString()
+      : null;
 
   const nextFocus =
     nullable(
@@ -89,7 +100,8 @@ export async function generateTutorProgressReport(formData: FormData) {
     areas_for_improvement: nullable(formData, "areasForImprovement"),
     next_focus: nextFocus,
     tutor_comment: nullable(formData, "tutorComment"),
-    student_visible: formData.get("studentVisible") === "on",
+    student_visible: studentVisible,
+    published_at: publishedAt,
     created_by: "tutor",
     updated_at: new Date().toISOString(),
   };
@@ -131,7 +143,7 @@ export async function generateTutorProgressReport(formData: FormData) {
   }
 
   const student = engagement.students;
-  if (formData.get("emailStudent") === "on" && student?.email) {
+  if (emailStudent && student?.email) {
     const result = await sendProgressReportEmail({
       reportId: report.id,
       name: student.name,
@@ -156,6 +168,29 @@ export async function generateTutorProgressReport(formData: FormData) {
       result,
       createdByEmail: session.user.email || null,
     });
+
+    if (result.ok) {
+      const {
+        error: notificationTimestampError,
+      } =
+        await supabase
+          .from("progress_reports")
+          .update({
+            student_notified_at:
+              new Date().toISOString(),
+          })
+          .eq(
+            "id",
+            report.id,
+          );
+
+      if (notificationTimestampError) {
+        console.error(
+          "Could not record progress report notification:",
+          notificationTimestampError.message,
+        );
+      }
+    }
   }
 
   revalidatePath("/tutor");
