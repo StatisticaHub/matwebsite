@@ -499,10 +499,35 @@ export async function loadSystemHealthReport(): Promise<SystemHealthReport> {
   } else {
     const rows = contentItems.data ?? [];
     const today = new Date().toISOString().slice(0, 10);
-    const indexingBacklog = rows.filter((row) => row.stage === "published" && ["unknown", "not_indexed"].includes(row.indexing_status)).length;
-    const reviewBacklog = rows.filter((row) => row.next_review_at && row.next_review_at < today).length;
-    const totalBacklog = indexingBacklog + reviewBacklog;
-    checks.push(countCheck({ id: "content-ops", group: "Growth & analytics", title: "Content indexing / refresh backlog", count: totalBacklog, healthySummary: "No content indexing or refresh backlog is currently flagged.", issueSummary: `${totalBacklog} content item flag(s): ${indexingBacklog} indexing · ${reviewBacklog} refresh.`, href: "/admin/content-growth" }));
+    const indexingBacklog = rows.filter(
+      (row) =>
+        row.stage === "published" &&
+        ["not_indexed", "blocked"].includes(row.indexing_status),
+    ).length;
+
+    const reviewBacklog = rows.filter(
+      (row) =>
+        row.next_review_at &&
+        row.next_review_at < today,
+    ).length;
+
+    const totalBacklog =
+      indexingBacklog + reviewBacklog;
+
+    checks.push(
+      countCheck({
+        id: "content-ops",
+        group: "Growth & analytics",
+        title: "Content indexing / refresh backlog",
+        count: totalBacklog,
+        healthySummary:
+          "No confirmed indexing problems or overdue content reviews are currently flagged.",
+        issueSummary: `${totalBacklog} content item flag(s): ${indexingBacklog} indexing · ${reviewBacklog} refresh.`,
+        detail:
+          "URLs with unknown indexing status remain in Content Growth for review but do not count as a system-health incident until they are confirmed as not indexed or blocked.",
+        href: "/admin/content-growth",
+      }),
+    );
   }
 
   if (latestPerformance.error) {
