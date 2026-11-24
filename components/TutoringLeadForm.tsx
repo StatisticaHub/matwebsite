@@ -368,6 +368,26 @@ export default function TutoringLeadForm({
         </section>
       </div>
 
+      <div
+        className="lead-submit-reassurance"
+        aria-label="What happens when you send this request"
+      >
+        <div>
+          <strong>Reviewed by the MAT team</strong>
+          <span>We read the academic context before deciding the next step.</span>
+        </div>
+
+        <div>
+          <strong>Price confirmed before booking</strong>
+          <span>You can review the proposed support and price before deciding.</span>
+        </div>
+
+        <div>
+          <strong>No lesson is booked by submitting</strong>
+          <span>This is an enquiry, not a commitment to ongoing tutoring.</span>
+        </div>
+      </div>
+
       <label className="consent-row">
         <input
           type="checkbox"
@@ -402,10 +422,6 @@ export default function TutoringLeadForm({
         </p>
       )}
 
-      <p className="form-note">
-        No obligation. Submitting this form does not book a lesson or commit you
-        to ongoing tutoring.
-      </p>
     </form>
   );
 }

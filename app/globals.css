@@ -10098,3 +10098,50 @@ main {
     width:100%;
   }
 }
+
+
+/* MAT tutoring submit reassurance */
+.lead-submit-reassurance{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+  margin-top:22px;
+}
+
+.lead-submit-reassurance>div{
+  padding:13px 14px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#f8fafc;
+  display:grid;
+  gap:4px;
+}
+
+.lead-submit-reassurance strong{
+  color:#18304d;
+  font-size:10.5px;
+  line-height:1.4;
+}
+
+.lead-submit-reassurance span{
+  color:#748296;
+  font-size:9.5px;
+  line-height:1.5;
+}
+
+.lead-form-compact .lead-submit-reassurance{
+  grid-template-columns:1fr;
+  gap:7px;
+  margin-top:16px;
+}
+
+.lead-form-compact .lead-submit-reassurance>div{
+  padding:10px 11px;
+}
+
+@media(max-width:680px){
+  .lead-submit-reassurance{
+    grid-template-columns:1fr;
+    gap:8px;
+  }
+}
