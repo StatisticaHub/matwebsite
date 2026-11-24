@@ -8288,3 +8288,349 @@ body {
     height: 39px;
   }
 }
+
+
+/* ==========================================================================
+   TUTOR PORTAL — NAVIGATION + COLOUR REFINEMENT
+   ========================================================================== */
+
+.tutor-app {
+  background: #f5f7fa;
+}
+
+.tutor-sidebar {
+  background:
+    linear-gradient(
+      180deg,
+      #10213b 0%,
+      #132c4c 100%
+    );
+  border-right: 1px solid rgba(255,255,255,.06);
+  color: #fff;
+}
+
+
+/* Brand */
+
+.tutor-sidebar-brand {
+  padding-bottom: 22px;
+  border-bottom: 1px solid rgba(255,255,255,.10);
+}
+
+.tutor-brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  margin: 0;
+  color: #fff;
+  text-decoration: none;
+}
+
+.tutor-brand strong {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 850;
+  letter-spacing: -.025em;
+}
+
+.tutor-brand span {
+  color: #9fb5cc;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.tutor-sidebar-brand > small {
+  display: block;
+  margin-top: 5px;
+  color: #839bb4;
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: .035em;
+}
+
+
+/* Main tutor navigation */
+
+.tutor-sidebar-nav {
+  display: grid;
+  gap: 6px;
+  margin-top: 21px;
+}
+
+.tutor-sidebar-nav a {
+  position: relative;
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  padding: 0 13px;
+  color: #becddd;
+  background: transparent;
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    background .15s ease,
+    color .15s ease,
+    border-color .15s ease,
+    transform .15s ease;
+}
+
+.tutor-sidebar-nav a:hover {
+  border-color: rgba(255,255,255,.08);
+  background: rgba(255,255,255,.07);
+  color: #fff;
+}
+
+
+/* Clear selected tab */
+
+.tutor-sidebar-nav a.is-active {
+  border-color: #dce6f0;
+  background: #fff;
+  color: #173f70;
+  box-shadow:
+    0 5px 16px rgba(3, 18, 38, .15);
+  font-weight: 800;
+}
+
+.tutor-sidebar-nav a.is-active::before {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: -7px;
+  width: 3px;
+  border-radius: 99px;
+  background: #6e9cc7;
+  content: "";
+}
+
+
+/* Navigation grouping */
+
+.tutor-nav-label {
+  display: block;
+  margin: 22px 12px 7px;
+  color: #718ba7;
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+.tutor-nav-label-secondary {
+  margin-top: 16px;
+}
+
+.tutor-sidebar-nav-divider {
+  height: 1px;
+  margin: 12px 3px;
+  background: rgba(255,255,255,.09);
+}
+
+
+/* Tutor identity / logout */
+
+.tutor-sidebar-footer {
+  margin-top: auto;
+  border-top: 1px solid rgba(255,255,255,.10);
+  padding-top: 18px;
+}
+
+.tutor-sidebar-footer span {
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 780;
+}
+
+.tutor-sidebar-footer small {
+  color: #8ea5bd;
+  font-size: 9.5px;
+}
+
+.tutor-sidebar-footer .tutor-signout {
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.04);
+  color: #d6e0eb;
+}
+
+.tutor-sidebar-footer .tutor-signout:hover {
+  background: rgba(255,255,255,.09);
+  color: #fff;
+}
+
+
+/* ==========================================================================
+   TUTOR CONTENT COLOUR SYSTEM
+   ========================================================================== */
+
+.tutor-main {
+  background: #f5f7fa;
+}
+
+.tutor-page h1 {
+  color: #10213b;
+}
+
+.tutor-eyebrow {
+  color: #426b95;
+}
+
+.tutor-panel,
+.tutor-student-card,
+.tutor-metrics > div {
+  border-color: #dfe5ec;
+  background: #fff;
+  box-shadow:
+    0 1px 2px rgba(18, 39, 66, .02);
+}
+
+.tutor-panel h2,
+.tutor-student-card h2 {
+  color: #193451;
+}
+
+.tutor-panel-head a,
+.tutor-table a,
+.tutor-breadcrumb a {
+  color: #315f8f;
+}
+
+.tutor-primary-button,
+.tutor-primary-link {
+  background: #214f7d;
+  color: #fff;
+}
+
+.tutor-primary-button:hover,
+.tutor-primary-link:hover {
+  background: #173f70;
+}
+
+.tutor-secondary-button {
+  background: #edf3f8;
+  color: #315f8f;
+}
+
+
+/* Metric cards */
+
+.tutor-metrics > div {
+  border-radius: 13px;
+}
+
+.tutor-metrics span {
+  color: #74859a;
+}
+
+.tutor-metrics strong {
+  color: #173753;
+}
+
+
+/* ==========================================================================
+   TABLET — TURN SIDEBAR INTO CLEAN TOP WORKSPACE
+   ========================================================================== */
+
+@media (max-width: 900px) {
+
+  .tutor-app {
+    display: block;
+  }
+
+  .tutor-sidebar {
+    position: relative;
+    top: auto;
+    height: auto;
+    padding: 18px 20px 14px;
+  }
+
+  .tutor-sidebar-brand {
+    padding-bottom: 13px;
+  }
+
+  .tutor-sidebar-nav {
+    display: flex;
+    gap: 6px;
+    margin-top: 13px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  .tutor-sidebar-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tutor-sidebar-nav a {
+    min-width: max-content;
+    min-height: 37px;
+    flex: 0 0 auto;
+    border-radius: 8px;
+    padding: 0 13px;
+    font-size: 10.5px;
+  }
+
+  .tutor-sidebar-nav a.is-active::before {
+    display: none;
+  }
+
+  .tutor-nav-label,
+  .tutor-sidebar-nav-divider {
+    display: none;
+  }
+
+  .tutor-sidebar-footer {
+    display: none;
+  }
+
+  .tutor-main {
+    min-height: calc(100vh - 120px);
+  }
+}
+
+
+/* ==========================================================================
+   MOBILE
+   ========================================================================== */
+
+@media (max-width: 560px) {
+
+  .tutor-sidebar {
+    padding: 14px 15px 11px;
+  }
+
+  .tutor-sidebar-brand {
+    display: flex;
+    padding-bottom: 10px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .tutor-sidebar-brand > small {
+    margin: 0;
+  }
+
+  .tutor-sidebar-nav {
+    margin-right: -15px;
+    margin-left: -15px;
+    padding-right: 15px;
+    padding-left: 15px;
+  }
+
+  .tutor-sidebar-nav a {
+    min-height: 35px;
+    padding: 0 12px;
+    font-size: 10px;
+  }
+
+  .tutor-page {
+    padding: 18px 15px 28px;
+  }
+
+  .tutor-page-head h1 {
+    font-size: 26px;
+  }
+}
