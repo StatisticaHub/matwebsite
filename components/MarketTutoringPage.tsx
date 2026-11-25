@@ -213,6 +213,12 @@ export default async function MarketTutoringPage({
               Explore the statistics subject guide →
             </Link>
 
+            <Link
+              href={`/${config.slug}/r-spss-data-analysis`}
+            >
+              R, SPSS, Stata & data analysis →
+            </Link>
+
             <Link href="/subjects">
               View all subjects →
             </Link>

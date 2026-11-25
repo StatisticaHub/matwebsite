@@ -487,6 +487,10 @@ export default async function MarketStatisticsPage({
               Statistics subject guide
             </Link>
 
+            <Link href={`/${market}/r-spss-data-analysis`}>
+              R, SPSS, Stata & data analysis
+            </Link>
+
             <Link href="/learn">
               Free Learning Hub
             </Link>

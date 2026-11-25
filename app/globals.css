@@ -13357,3 +13357,58 @@ main {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ===== MAT DATA ANALYSIS MARKET PAGES ===== */
+
+.data-analysis-market-hero {
+  background:
+    radial-gradient(
+      circle at 86% 12%,
+      rgba(53, 108, 165, 0.13),
+      transparent 35%
+    ),
+    linear-gradient(
+      180deg,
+      #f7fbff 0%,
+      #ffffff 100%
+    );
+}
+
+.data-analysis-software-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.data-analysis-software-grid article {
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: #fff;
+}
+
+.data-analysis-software-grid article > span {
+  display: inline-flex;
+  margin-bottom: 13px;
+  padding: 7px 11px;
+  border-radius: 7px;
+  background: #edf4fb;
+  color: #245b93;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.data-analysis-software-grid article p {
+  margin: 0;
+  color: #627287;
+  font-size: 0.87rem;
+  line-height: 1.65;
+}
+
+@media (max-width: 680px) {
+  .data-analysis-software-grid {
+    grid-template-columns: 1fr;
+  }
+}
