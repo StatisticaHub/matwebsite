@@ -785,161 +785,103 @@ const openHomework =
       >
 
         {courses.length > 1 && (
-          <section className="portal-course-hub">
+          <section
+            className="portal-course-switchbar"
+            aria-label="Your courses"
+          >
+            <div className="portal-course-switchbar-context">
+              <span className="portal-kicker">
+                Courses
+              </span>
 
-            <div className="portal-course-hub-head">
+              <strong>
+                {engagement?.subject ||
+                  "Choose a learning space"}
+              </strong>
 
-              <div>
-
-                <span className="portal-kicker">
-                  Your courses
-                </span>
-
-                <h2>
-                  Your learning spaces
-                </h2>
-
-                <p>
-                  Choose a course to see its lessons, assignments,
-                  progress and learning materials.
-                </p>
-
-              </div>
-
-
-              <span className="portal-course-hub-count">
+              <small>
                 {courses.length} active{" "}
                 {courses.length === 1
                   ? "course"
                   : "courses"}
-              </span>
-
+              </small>
             </div>
 
 
-            <div className="portal-course-hub-grid">
-
+            <div
+              className="portal-course-switchbar-list"
+              role="list"
+            >
               {courses.map(
                 (course) => {
-
                   const selected =
                     engagement?.id ===
                     course.id;
 
-
-                  const initials =
-                    course.subject
-                      .trim()
-                      .split(/\s+/)
-                      .slice(0, 2)
-                      .map(
-                        (word) =>
-                          word
-                            .slice(0, 1)
-                            .toUpperCase(),
-                      )
-                      .join("");
-
-
                   return (
                     <a
-                      className={`portal-course-hub-card${
-                        selected
-                          ? " is-active"
-                          : ""
-                      }`}
-                      href={`/portal/${encodeURIComponent(
-                        token,
-                      )}?course=${encodeURIComponent(
-                        course.id,
-                      )}`}
-                      key={
-                        course.id
-                      }
+                      key={course.id}
+                      role="listitem"
                       aria-current={
                         selected
                           ? "page"
                           : undefined
                       }
+                      className={
+                        selected
+                          ? "portal-course-switchbar-item is-active"
+                          : "portal-course-switchbar-item"
+                      }
+                      href={`/portal/${encodeURIComponent(
+                        token,
+                      )}?view=${encodeURIComponent(
+                        portalView,
+                      )}&course=${encodeURIComponent(
+                        course.id,
+                      )}`}
                     >
+                      <span
+                        className="portal-course-switchbar-icon"
+                        aria-hidden="true"
+                      >
+                        {course.subject
+                          .trim()
+                          .slice(0, 2)
+                          .toUpperCase()}
+                      </span>
 
-                      <div className="portal-course-hub-card-top">
-
-                        <div className="portal-course-hub-icon">
-                          {
-                            initials ||
-                            "C"
-                          }
-                        </div>
-
-
-                        <div className="portal-course-hub-title">
-
-                          <span>
-                            {
-                              course.subject
-                            }
-                          </span>
-
-                          <strong>
-                            {course.module ||
-                              course.title}
-                          </strong>
-
-                        </div>
-
-
-                        {selected && (
-                          <span className="portal-course-hub-current">
-                            Current
-                          </span>
-                        )}
-
-                      </div>
-
-
-                      <div className="portal-course-hub-tutor">
-
-                        <span>
-                          Tutor
-                        </span>
-
+                      <span className="portal-course-switchbar-copy">
                         <strong>
-                          {course.tutorName ||
-                            "Being arranged"}
+                          {course.subject}
                         </strong>
 
-                      </div>
+                        <small>
+                          {course.tutorName
+                            ? `Tutor: ${course.tutorName}`
+                            : "Tutor being arranged"}
+                        </small>
+                      </span>
 
-
-                      <div className="portal-course-hub-action">
-
-                        <span>
-                          {selected
-                            ? "Currently viewing"
-                            : "Switch to course"}
+                      {selected ? (
+                        <span className="portal-course-switchbar-status">
+                          Current
                         </span>
-
-                        <b aria-hidden="true">
+                      ) : (
+                        <span
+                          className="portal-course-switchbar-arrow"
+                          aria-hidden="true"
+                        >
                           →
-                        </b>
-
-                      </div>
-
+                        </span>
+                      )}
                     </a>
                   );
                 },
               )}
-
             </div>
-
           </section>
         )}
 
-
-        {/* ==================================================================
-            WELCOME
-           ================================================================== */}
 
         <section className="portal-learning-header">
 
