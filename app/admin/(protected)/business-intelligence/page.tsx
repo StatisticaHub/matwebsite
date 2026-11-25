@@ -136,6 +136,85 @@ export default async function BusinessIntelligencePage({ searchParams }: { searc
         <article><span>Gross contribution</span><strong className="bi-money">{moneyTotals(total.grossContribution)}</strong><small>Recorded student rate − tutor rate</small></article>
       </section>
 
+      <section className="admin-panel bi-note bi-wide">
+        <h2>Actual finance</h2>
+
+        <p>
+          Cash figures below come from recorded student payments
+          and tutor payouts for completed sessions in this lead
+          cohort.
+        </p>
+
+        <div className="bi-metrics">
+          <article>
+            <span>Actual revenue received</span>
+            <strong className="bi-money">
+              {moneyTotals(total.actualRevenue)}
+            </strong>
+            <small>
+              {total.paidSessions} paid session
+              {total.paidSessions === 1 ? "" : "s"}
+            </small>
+          </article>
+
+          <article>
+            <span>Tutor payouts made</span>
+            <strong className="bi-money">
+              {moneyTotals(total.actualTutorPayouts)}
+            </strong>
+            <small>
+              {total.tutorPaidSessions} paid tutor session
+              {total.tutorPaidSessions === 1 ? "" : "s"}
+            </small>
+          </article>
+
+          <article>
+            <span>Net cash retained</span>
+            <strong className="bi-money">
+              {moneyTotals(total.actualCashMargin)}
+            </strong>
+            <small>
+              Revenue received − tutor payouts made
+            </small>
+          </article>
+
+          <article>
+            <span>Student payments outstanding</span>
+            <strong className="bi-money">
+              {moneyTotals(total.outstandingValue)}
+            </strong>
+            <small>
+              {total.unpaidSessions} unpaid session
+              {total.unpaidSessions === 1 ? "" : "s"}
+            </small>
+          </article>
+
+          <article>
+            <span>Tutor payouts outstanding</span>
+            <strong className="bi-money">
+              {moneyTotals(total.outstandingTutorPayouts)}
+            </strong>
+            <small>
+              {total.tutorUnpaidSessions} unpaid tutor session
+              {total.tutorUnpaidSessions === 1 ? "" : "s"}
+            </small>
+          </article>
+
+          <article>
+            <span>Finance records to review</span>
+            <strong>
+              {total.untrackedPaymentSessions +
+                total.tutorUntrackedSessions}
+            </strong>
+            <small>
+              {total.untrackedPaymentSessions} student ·{" "}
+              {total.tutorUntrackedSessions} tutor
+            </small>
+          </article>
+        </div>
+      </section>
+
+
       <section className="bi-layout">
         <article className="admin-panel bi-card">
           <div className="bi-card-head"><div><span>Funnel</span><h2>Lead cohort progression</h2></div></div>
@@ -161,7 +240,7 @@ export default async function BusinessIntelligencePage({ searchParams }: { searc
 
       <section className="admin-panel bi-note bi-wide">
         <h2>How to read the money figures</h2>
-        <p>These are operational estimates, not payment records. “Recorded teaching value” multiplies each completed session&apos;s stored student hourly rate by its duration. “Gross contribution” subtracts the recorded tutor hourly rate. Currencies are kept separate and are never converted or summed together.</p>
+        <p>“Recorded teaching value” and “Gross contribution” are operational estimates based on stored hourly rates and completed-session duration. The Actual finance section uses recorded payment data: revenue comes from amounts recorded as received on paid student sessions, while tutor payouts come from amounts recorded as paid to tutors. “Net cash retained” is actual revenue received minus actual tutor payouts made. Outstanding student and tutor amounts are expected balances based on recorded rates for sessions currently marked unpaid. Currencies are kept separate and are never converted or summed together.</p>
         <p>The attribution source is the source/referrer/UTM data stored when the tutoring request was submitted. It is therefore submission attribution, not a cross-device or multi-touch advertising model.</p>
       </section>
     </div>
