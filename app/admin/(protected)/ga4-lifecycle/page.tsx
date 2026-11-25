@@ -1,5 +1,9 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ga4LifecycleConfigStatus } from "@/lib/analytics/ga4-lifecycle";
+import {
+  ga4ReportingConfigStatus,
+  getGa4TutoringFunnel,
+} from "@/lib/analytics/ga4-reporting";
 
 export const metadata = { title: "GA4 lifecycle sync" };
 export const dynamic = "force-dynamic";
@@ -26,13 +30,21 @@ function formatDate(value: string) {
 export default async function Ga4LifecyclePage() {
   const supabase = createAdminClient();
   const config = ga4LifecycleConfigStatus();
+  const reportingConfig = ga4ReportingConfigStatus();
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-  const [totalLeads, capturedLeads, recentLogsResult, logs30Result] = await Promise.all([
+  const [
+    totalLeads,
+    capturedLeads,
+    recentLogsResult,
+    logs30Result,
+    tutoringFunnel,
+  ] = await Promise.all([
     supabase.from("tutoring_leads").select("id", { count: "exact", head: true }),
     supabase.from("tutoring_leads").select("id", { count: "exact", head: true }).not("ga_client_id", "is", null),
     supabase.from("ga4_lifecycle_event_log").select("id,attempted_at,event_name,status,source_action,response_status,error,client_id_present").order("attempted_at", { ascending: false }).limit(100),
     supabase.from("ga4_lifecycle_event_log").select("status,event_name").gte("attempted_at", since),
+    getGa4TutoringFunnel(30),
   ]);
 
   const logs = (recentLogsResult.data || []) as LogRow[];
@@ -43,6 +55,22 @@ export default async function Ga4LifecyclePage() {
   const total = totalLeads.count || 0;
   const captured = capturedLeads.count || 0;
   const captureRate = total ? Math.round((captured / total) * 100) : 0;
+
+  const funnelStages = tutoringFunnel.stages;
+  const funnelViews = funnelStages[0]?.users || 0;
+  const successfulLeads =
+    funnelStages.find(
+      (stage) =>
+        stage.eventName === "generate_lead"
+    )?.users || 0;
+
+  const overallFormConversion =
+    funnelViews
+      ? Math.round(
+          (successfulLeads / funnelViews) *
+            100,
+        )
+      : 0;
 
   return (
     <div className="admin-page ga4-sync-page">
@@ -75,6 +103,208 @@ export default async function Ga4LifecyclePage() {
           <strong>{sent} sent</strong>
           <small>{failed} failed · {skipped} skipped</small>
         </article>
+      </section>
+
+      <section className="admin-panel ga4-funnel-panel">
+        <div className="admin-card-head ga4-funnel-head">
+          <div>
+            <span className="admin-eyebrow">
+              Website conversion
+            </span>
+
+            <h2>
+              Tutoring enquiry funnel
+            </h2>
+
+            <p>
+              Unique GA4 users progressing through the tutoring
+              request form during the last 30 days.
+            </p>
+          </div>
+
+          {tutoringFunnel.configured &&
+            !tutoringFunnel.error && (
+              <div className="ga4-funnel-overall">
+                <strong>
+                  {overallFormConversion}%
+                </strong>
+
+                <span>
+                  view → lead
+                </span>
+              </div>
+            )}
+        </div>
+
+        {!tutoringFunnel.configured ? (
+          <div className="ga4-reporting-state">
+            <strong>
+              GA4 reporting is not configured yet
+            </strong>
+
+            <p>
+              Browser funnel events are being sent to GA4, but MAT
+              needs read-only GA4 Data API credentials before it can
+              display those counts here.
+            </p>
+
+            <div className="ga4-reporting-config">
+              <span>
+                <b>GA4_PROPERTY_ID</b>
+                {reportingConfig.propertyConfigured
+                  ? "Configured"
+                  : "Missing"}
+              </span>
+
+              <span>
+                <b>GA4_SERVICE_ACCOUNT_EMAIL</b>
+                {reportingConfig.serviceAccountConfigured
+                  ? "Configured"
+                  : "Missing"}
+              </span>
+
+              <span>
+                <b>GA4_SERVICE_ACCOUNT_PRIVATE_KEY</b>
+                {reportingConfig.serviceAccountConfigured
+                  ? "Configured"
+                  : "Missing"}
+              </span>
+            </div>
+          </div>
+        ) : tutoringFunnel.error ? (
+          <div className="ga4-reporting-state ga4-reporting-error">
+            <strong>
+              GA4 reporting could not be loaded
+            </strong>
+
+            <p>
+              {tutoringFunnel.error}
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="ga4-funnel-list">
+              {funnelStages.map(
+                (stage, index) => {
+                  const previous =
+                    index > 0
+                      ? funnelStages[
+                          index - 1
+                        ]?.users || 0
+                      : stage.users;
+
+                  const stageRate =
+                    index === 0
+                      ? null
+                      : previous
+                        ? Math.round(
+                            (stage.users /
+                              previous) *
+                              100,
+                          )
+                        : 0;
+
+                  const width =
+                    funnelViews
+                      ? Math.min(
+                          100,
+                          Math.round(
+                            (stage.users /
+                              funnelViews) *
+                              100,
+                          ),
+                        )
+                      : 0;
+
+                  return (
+                    <article
+                      key={
+                        stage.eventName
+                      }
+                      className="ga4-funnel-stage"
+                    >
+                      <div className="ga4-funnel-stage-copy">
+                        <div>
+                          <strong>
+                            {stage.label}
+                          </strong>
+
+                          <code>
+                            {
+                              stage.eventName
+                            }
+                          </code>
+                        </div>
+
+                        <div className="ga4-funnel-stage-number">
+                          <strong>
+                            {stage.users}
+                          </strong>
+
+                          <span>
+                            {index === 0
+                              ? "users"
+                              : `${stageRate}% from previous`}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="ga4-funnel-track">
+                        <i
+                          style={{
+                            width:
+                              `${width}%`,
+                          }}
+                        />
+                      </div>
+
+                      <small>
+                        {stage.events} event
+                        {stage.events === 1
+                          ? ""
+                          : "s"}
+                      </small>
+                    </article>
+                  );
+                },
+              )}
+            </div>
+
+            <div className="ga4-funnel-error-summary">
+              <div>
+                <span>
+                  Submit errors
+                </span>
+
+                <strong>
+                  {
+                    tutoringFunnel
+                      .submitErrors.users
+                  }
+                </strong>
+
+                <small>
+                  {
+                    tutoringFunnel
+                      .submitErrors.events
+                  }{" "}
+                  error event
+                  {tutoringFunnel
+                    .submitErrors.events ===
+                  1
+                    ? ""
+                    : "s"}
+                </small>
+              </div>
+
+              <p>
+                Submit errors are shown separately because they
+                represent technical friction rather than a normal
+                funnel stage.
+              </p>
+            </div>
+          </>
+        )}
       </section>
 
       <section className="admin-panel ga4-sync-explainer">
