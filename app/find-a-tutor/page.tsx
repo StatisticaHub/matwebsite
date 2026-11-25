@@ -29,6 +29,14 @@ export default async function Page({
   const defaultLevel = firstParam(params.level);
   const defaultTopic = firstParam(params.topic);
   const defaultSupportType = firstParam(params.support);
+  const attributionSource = firstParam(params.utm_source);
+
+  const hasLearningHubContext =
+    attributionSource === "learning_hub" &&
+    Boolean(
+      defaultSubject ||
+      defaultTopic
+    );
 
   return (
     <>
@@ -106,6 +114,53 @@ export default async function Page({
                 <span>Your assessed work stays yours</span>
               </div>
             </div>
+
+            {hasLearningHubContext && (
+              <div
+                className="conversion-prefill-context"
+                aria-label="Learning Hub tutoring context"
+              >
+                <div className="conversion-prefill-copy">
+                  <span>
+                    CONTINUING FROM THE LEARNING HUB
+                  </span>
+
+                  <strong>
+                    {defaultTopic ||
+                      defaultSubject}
+                  </strong>
+
+                  <p>
+                    We have carried the useful study context into this
+                    request so you do not need to enter it again. You can
+                    still change anything below.
+                  </p>
+                </div>
+
+                <div
+                  className="conversion-prefill-tags"
+                  aria-label="Prefilled tutoring details"
+                >
+                  {defaultSubject && (
+                    <span>
+                      Subject · {defaultSubject}
+                    </span>
+                  )}
+
+                  {defaultTopic && (
+                    <span>
+                      Topic · {defaultTopic}
+                    </span>
+                  )}
+
+                  {defaultLevel && (
+                    <span>
+                      Level · {defaultLevel}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
 
             <TutoringLeadForm
               defaultSubject={defaultSubject || undefined}

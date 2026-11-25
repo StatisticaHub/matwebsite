@@ -115,7 +115,7 @@ function tutoringHref({
     );
   }
 
-  return `/find-a-tutor?${params.toString()}`;
+  return `/find-a-tutor?${params.toString()}#tutoring-enquiry`;
 }
 
 export function learningHubIndexTutoringHref() {

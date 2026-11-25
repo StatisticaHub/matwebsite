@@ -301,7 +301,10 @@ export default function TutoringLeadForm({
             </label>
 
             <label className="form-span-2">
-              <span>Topic or course area</span>
+              <span>
+                Topic or course area{" "}
+                <small>(optional)</small>
+              </span>
               <input
                 name="topic"
                 type="text"
@@ -376,26 +379,63 @@ export default function TutoringLeadForm({
               />
             </label>
 
-            <label>
-              <span>Preferred availability <small>(optional)</small></span>
-              <input
-                name="availability"
-                type="text"
-                maxLength={500}
-                placeholder="e.g. Tuesday and Thursday evenings"
-              />
-            </label>
+            <details className="lead-form-optional-details form-span-2">
+              <summary>
+                <span>
+                  Add timing preferences
+                </span>
 
-            <label>
-              <span>How soon would you like to start? <small>(optional)</small></span>
-              <select name="urgency" defaultValue="">
-                <option value="">No preference</option>
-                <option value="As soon as possible">As soon as possible</option>
-                <option value="Within 1 week">Within 1 week</option>
-                <option value="Within 2–4 weeks">Within 2–4 weeks</option>
-                <option value="Flexible">Flexible</option>
-              </select>
-            </label>
+                <small>
+                  Optional
+                </small>
+              </summary>
+
+              <div className="lead-form-optional-grid">
+                <label>
+                  <span>
+                    Preferred availability
+                  </span>
+
+                  <input
+                    name="availability"
+                    type="text"
+                    maxLength={500}
+                    placeholder="e.g. Tuesday and Thursday evenings"
+                  />
+                </label>
+
+                <label>
+                  <span>
+                    How soon would you like to start?
+                  </span>
+
+                  <select
+                    name="urgency"
+                    defaultValue=""
+                  >
+                    <option value="">
+                      No preference
+                    </option>
+
+                    <option value="As soon as possible">
+                      As soon as possible
+                    </option>
+
+                    <option value="Within 1 week">
+                      Within 1 week
+                    </option>
+
+                    <option value="Within 2–4 weeks">
+                      Within 2–4 weeks
+                    </option>
+
+                    <option value="Flexible">
+                      Flexible
+                    </option>
+                  </select>
+                </label>
+              </div>
+            </details>
           </div>
         </section>
 

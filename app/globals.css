@@ -13412,3 +13412,150 @@ main {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* MAT_FIND_TUTOR_CONTEXTUAL_FLOW */
+
+.conversion-prefill-context{
+  margin:0 0 28px;
+  padding:18px 20px;
+  border:1px solid #cbdced;
+  border-radius:14px;
+  background:#f4f8fd;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:20px;
+  align-items:center;
+}
+
+.conversion-prefill-copy{
+  display:grid;
+  gap:5px;
+}
+
+.conversion-prefill-copy>span{
+  color:#426b99;
+  font-size:9px;
+  font-weight:850;
+  letter-spacing:.09em;
+}
+
+.conversion-prefill-copy>strong{
+  color:var(--navy);
+  font-family:var(--font-serif);
+  font-size:22px;
+  font-weight:600;
+  line-height:1.25;
+}
+
+.conversion-prefill-copy p{
+  margin:2px 0 0;
+  max-width:650px;
+  color:#617187;
+  font-size:11.5px;
+  line-height:1.55;
+}
+
+.conversion-prefill-tags{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+.conversion-prefill-tags span{
+  padding:6px 9px;
+  border:1px solid #ccd9e8;
+  border-radius:999px;
+  background:#fff;
+  color:#365877;
+  font-size:9px;
+  font-weight:750;
+  white-space:nowrap;
+}
+
+.lead-form-optional-details{
+  border:1px solid #dce4ee;
+  border-radius:11px;
+  background:#fafbfd;
+  overflow:hidden;
+}
+
+.lead-form-optional-details summary{
+  list-style:none;
+  cursor:pointer;
+  min-height:48px;
+  padding:13px 15px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  color:#445a73;
+}
+
+.lead-form-optional-details summary::-webkit-details-marker{
+  display:none;
+}
+
+.lead-form-optional-details summary>span{
+  font-size:12px;
+  font-weight:750;
+}
+
+.lead-form-optional-details summary>small{
+  padding:4px 7px;
+  border-radius:999px;
+  background:#eef3f8;
+  color:#77869a;
+  font-size:8.5px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+
+.lead-form-optional-details summary:after{
+  content:"+";
+  color:#527195;
+  font-size:18px;
+  line-height:1;
+}
+
+.lead-form-optional-details[open] summary:after{
+  content:"−";
+}
+
+.lead-form-optional-details[open] summary{
+  border-bottom:1px solid #e3e9f0;
+}
+
+.lead-form-optional-grid{
+  padding:15px;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+
+.lead-form-optional-grid label{
+  min-width:0;
+}
+
+@media(max-width:700px){
+  .conversion-prefill-context{
+    grid-template-columns:1fr;
+    gap:14px;
+    padding:16px;
+    margin-bottom:22px;
+  }
+
+  .conversion-prefill-tags{
+    justify-content:flex-start;
+  }
+
+  .conversion-prefill-tags span{
+    white-space:normal;
+  }
+
+  .lead-form-optional-grid{
+    grid-template-columns:1fr;
+  }
+}
