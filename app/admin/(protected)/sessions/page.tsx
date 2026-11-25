@@ -447,6 +447,14 @@ type PaymentSessionRow = SessionRow & {
   currency: string;
   payment_status: SessionPaymentStatus;
   paid_at: string | null;
+  tutor_rate: number | null;
+  tutor_payout_status:
+    | "untracked"
+    | "unpaid"
+    | "paid"
+    | "not_applicable";
+  tutor_payout_amount: number | null;
+  tutor_paid_at: string | null;
 };
 
 function sessionPaymentValue(
@@ -466,6 +474,36 @@ function sessionPaymentValue(
     (session.duration_minutes / 60)
   );
 }
+
+function tutorPayoutValue(
+  session: PaymentSessionRow
+) {
+  if (
+    session.tutor_payout_amount !== null &&
+    Number.isFinite(
+      Number(session.tutor_payout_amount)
+    )
+  ) {
+    return Number(
+      session.tutor_payout_amount
+    );
+  }
+
+  if (
+    session.tutor_rate === null ||
+    !Number.isFinite(
+      Number(session.tutor_rate)
+    )
+  ) {
+    return null;
+  }
+
+  return (
+    Number(session.tutor_rate) *
+    (session.duration_minutes / 60)
+  );
+}
+
 
 function formatPaymentAmount(
   value: number | null,
@@ -558,7 +596,7 @@ export default async function SessionsPage() {
         "tutoring_sessions"
       )
       .select(
-        "id,scheduled_for,completed_at,duration_minutes,status,topic,understanding_rating,zoom_meeting_id,zoom_started_at,zoom_ended_at,engagement_id,tutor_id,student_rate,currency,payment_status,paid_at,session_tutor:tutors(name),tutoring_engagements(student_id,subject,title,students(name),tutors(name))"
+        "id,scheduled_for,completed_at,duration_minutes,status,topic,understanding_rating,zoom_meeting_id,zoom_started_at,zoom_ended_at,engagement_id,tutor_id,student_rate,currency,payment_status,paid_at,tutor_rate,tutor_payout_status,tutor_payout_amount,tutor_paid_at,session_tutor:tutors(name),tutoring_engagements(student_id,subject,title,students(name),tutors(name))"
       )
       .order(
         "scheduled_for",
@@ -858,6 +896,43 @@ export default async function SessionsPage() {
     }
   );
 
+  const tutorPayoutReview =
+    completed
+      .filter(
+        (item) =>
+          item.tutor_payout_status ===
+            "unpaid" ||
+          item.tutor_payout_status ===
+            "untracked"
+      )
+      .sort(
+        (a, b) => {
+          if (
+            a.tutor_payout_status !==
+            b.tutor_payout_status
+          ) {
+            return a.tutor_payout_status ===
+              "unpaid"
+              ? -1
+              : 1;
+          }
+
+          return (
+            new Date(
+              b.completed_at ||
+                b.scheduled_for ||
+                0
+            ).getTime() -
+            new Date(
+              a.completed_at ||
+                a.scheduled_for ||
+                0
+            ).getTime()
+          );
+        }
+      );
+
+
   const outstandingByCurrency =
     new Map<string, number>();
 
@@ -1136,6 +1211,113 @@ export default async function SessionsPage() {
                       </strong>
 
                       <span>
+                        {item
+                          .tutoring_engagements
+                          ?.subject ||
+                          "Tutoring"}
+                      </span>
+                    </div>
+
+                    <div>
+                      <strong>
+                        {item.topic}
+                      </strong>
+
+                      <span>
+                        Completed{" "}
+                        <ViewerLocalDateTime
+                          value={
+                            item.completed_at ||
+                            item.scheduled_for
+                          }
+                        />
+                      </span>
+                    </div>
+
+                    <b>
+                      {formatPaymentAmount(
+                        amount,
+                        item.currency
+                      )}{" "}
+                      · {statusLabel} →
+                    </b>
+                  </Link>
+                );
+              }
+            )}
+          </div>
+        </section>
+      )}
+
+
+      {tutorPayoutReview.length > 0 && (
+        <section
+          className="admin-panel admin-detail-card"
+          id="tutor-payouts-due"
+        >
+          <div className="admin-card-head">
+            <div>
+              <span className="admin-eyebrow">
+                Finance
+              </span>
+
+              <h2>
+                Tutor payouts due
+              </h2>
+            </div>
+
+            <span>
+              {tutorPayoutReview.length} session
+              {tutorPayoutReview.length === 1
+                ? ""
+                : "s"}
+            </span>
+          </div>
+
+          <p className="admin-help">
+            Unpaid tutor payouts are confirmed
+            amounts still owed for completed
+            teaching. Untracked payouts are
+            older or unclassified records that
+            should be reviewed.
+          </p>
+
+          <div className="admin-session-queue">
+            {tutorPayoutReview.map(
+              (item) => {
+                const amount =
+                  tutorPayoutValue(item);
+
+                const statusLabel =
+                  item.tutor_payout_status ===
+                  "unpaid"
+                    ? "Unpaid"
+                    : "Untracked";
+
+                const tutorName =
+                  item.session_tutor
+                    ?.name ||
+                  item
+                    .tutoring_engagements
+                    ?.tutors?.name ||
+                  "Tutor not assigned";
+
+                return (
+                  <Link
+                    key={item.id}
+                    href={`/admin/sessions/${item.id}#tutor-payout`}
+                  >
+                    <div>
+                      <strong>
+                        {tutorName}
+                      </strong>
+
+                      <span>
+                        {item
+                          .tutoring_engagements
+                          ?.students?.name ||
+                          "Student"}{" "}
+                        ·{" "}
                         {item
                           .tutoring_engagements
                           ?.subject ||
