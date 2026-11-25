@@ -205,8 +205,12 @@ export default async function MarketTutoringPage({
           </div>
 
           <div className="market-inline-links">
+            <Link href={`/${config.slug}/statistics`}>
+              Statistics tutoring in {config.country} →
+            </Link>
+
             <Link href="/subjects/statistics">
-              Explore statistics tutoring →
+              Explore the statistics subject guide →
             </Link>
 
             <Link href="/subjects">

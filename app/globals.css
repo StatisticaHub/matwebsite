@@ -13235,3 +13235,125 @@ main {
     gap: 28px;
   }
 }
+
+
+/* ===== MAT STATISTICS MARKET PAGES ===== */
+
+.statistics-market-hero {
+  background:
+    radial-gradient(
+      circle at 84% 12%,
+      rgba(41, 102, 160, 0.14),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 15% 88%,
+      rgba(93, 138, 181, 0.07),
+      transparent 30%
+    ),
+    linear-gradient(
+      180deg,
+      #f7fbff 0%,
+      #ffffff 100%
+    );
+}
+
+.statistics-hero-panel {
+  border-top: 4px solid #315f93;
+}
+
+.statistics-hero-list {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.statistics-hero-list li {
+  position: relative;
+  padding-left: 16px;
+  color: #40566f;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.statistics-hero-list li::before {
+  position: absolute;
+  top: 0.58em;
+  left: 2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: #315f93;
+  content: "";
+}
+
+.statistics-topic-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 11px;
+}
+
+.statistics-topic-grid article {
+  display: flex;
+  min-height: 72px;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 17px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: #fff;
+}
+
+.statistics-topic-grid article span {
+  display: grid;
+  width: 29px;
+  height: 29px;
+  flex: 0 0 29px;
+  place-items: center;
+  border-radius: 8px;
+  background: #edf4fb;
+  color: #245b93;
+  font-family: Georgia, serif;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.statistics-topic-grid article strong {
+  color: #1b3858;
+  font-size: 0.86rem;
+}
+
+.statistics-software-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 18px 0;
+}
+
+.statistics-software-list strong {
+  padding: 8px 11px;
+  border: 1px solid #d9e3ed;
+  border-radius: 999px;
+  background: #f7fafc;
+  color: #294e74;
+  font-size: 0.76rem;
+}
+
+@media (max-width: 920px) {
+  .statistics-topic-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .statistics-topic-grid,
+  .statistics-hero-list {
+    grid-template-columns: 1fr;
+  }
+}
