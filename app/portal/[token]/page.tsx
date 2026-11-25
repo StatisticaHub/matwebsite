@@ -1412,142 +1412,332 @@ const openHomework =
 
 
                 {/* ==========================================================
-                    CALENDAR
+                    SESSION WORKSPACE
                    ========================================================== */}
 
                 <section
-                  className="portal-panel portal-lms-calendar lms-section lms-calendar"
+                  className="portal-session-workspace lms-section lms-calendar"
                   id="calendar"
                 >
-                  <div className="portal-panel-head">
+                  <div className="portal-session-workspace-head">
                     <div>
                       <span className="portal-kicker">
-                        Calendar
+                        Sessions
                       </span>
 
                       <h2>
-                        Upcoming lessons
+                        Your next lesson
                       </h2>
+
+                      <p>
+                        Prepare, join and manage your tutoring sessions
+                        from one place.
+                      </p>
                     </div>
 
-                    <span>
-                      {upcomingSessions.length} booked
+                    <span className="portal-session-workspace-count">
+                      {upcomingSessions.length}{" "}
+                      {upcomingSessions.length === 1
+                        ? "session booked"
+                        : "sessions booked"}
                     </span>
                   </div>
 
-                  <div className="portal-lms-calendar-list">
-                    {upcomingSessions.map((item) => {
-                      const meetingUrl =
-                        safeExternalUrl(
-                          item.meeting_url
-                        );
 
-                      return (
-                        <article key={item.id}>
-                          <div>
-                            <strong>
-                              {studentFormatDateTime(
-                                item.scheduled_for
-                              )}
-                            </strong>
+                  {nextSession ? (
+                    <article className="portal-session-next-card">
 
-                            <span>
-                              {item.duration_minutes} min
-                            </span>
-                          </div>
+                      <div className="portal-session-next-main">
 
-                          <div>
-                            <strong>
-                              {item.topic}
-                            </strong>
+                        <span className="portal-session-next-label">
+                          Next lesson
+                        </span>
 
-                            <span>
-                              {tutor?.name
-                                ? `Tutor: ${tutor.name}`
-                                : "Tutor"}
-                            </span>
-                          </div>
+                        <h3>
+                          {nextSession.topic}
+                        </h3>
 
-                          <div className="portal-lms-calendar-actions">
-                            {meetingUrl && (
-                              <a
-                                className="button button-primary"
-                                href={meetingUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                Join lesson
-                              </a>
-                            )}
-                          </div>
-                        </article>
-                      );
-                    })}
+                        <strong>
+                          {studentFormatDateTime(
+                            nextSession.scheduled_for
+                          )}
+                        </strong>
 
-                    {!upcomingSessions.length && (
-                      <div className="portal-empty">
-                        No upcoming lessons are booked for this course.
+                        <div className="portal-session-next-meta">
+
+                          <span>
+                            {nextSession.duration_minutes} minutes
+                          </span>
+
+                          <span>
+                            {tutor?.name
+                              ? `Tutor: ${tutor.name}`
+                              : "Your MAT tutor"}
+                          </span>
+
+                        </div>
+
                       </div>
-                    )}
-                  </div>
-                </section>
 
 
-                {/* ==========================================================
-                    SESSION CHANGE REQUEST
-                   ========================================================== */}
+                      <div className="portal-session-next-actions">
 
-                {upcomingSessions.length > 0 && (
-                  <section
-                    className="portal-panel portal-help-card lms-section lms-calendar"
-                    id="session-change"
-                  >
-                    <span className="portal-kicker">
-                      Existing booking
-                    </span>
+                        {nextMeetingUrl && (
+                          <a
+                            className="button button-primary"
+                            href={nextMeetingUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Join lesson
+                          </a>
+                        )}
 
-                    <h2>
-                      Need to change a
-                      session?
-                    </h2>
+                        <a
+                          className="button button-secondary"
+                          href="#session-change"
+                        >
+                          Manage booking
+                        </a>
 
-                    <p>
-                      Request a new time
-                      or ask to cancel an
-                      upcoming lesson.
-                      Your current
-                      booking stays in
-                      place until your
-                      tutoring team
-                      confirms the
-                      change.
-                    </p>
+                      </div>
 
-                    <SessionChangeRequestForm
-                      token={token}
-                      initialTimeZone={
-                        savedStudentTimeZone
-                      }
-                      engagementId={
-                        engagement.id
-                      }
-                      defaultSessionId={
-                        nextSession?.id
-                      }
-                      sessions={upcomingSessions.map(
-                        (item) => ({
-                          id: item.id,
-                          scheduledFor:
-                            item.scheduled_for as string,
-                          topic:
-                            item.topic,
-                          durationMinutes:
-                            item.duration_minutes,
-                        })
+                    </article>
+                  ) : (
+                    <div className="portal-session-no-booking">
+
+                      <div>
+                        <span className="portal-kicker">
+                          Next lesson
+                        </span>
+
+                        <h3>
+                          No lesson is currently booked
+                        </h3>
+
+                        <p>
+                          When you are ready to continue, send your
+                          preferred date, time and lesson topic to your
+                          tutoring team.
+                        </p>
+                      </div>
+
+                      <a
+                        className="button button-primary"
+                        href="#session-request"
+                      >
+                        Request next lesson
+                      </a>
+
+                    </div>
+                  )}
+
+
+                  <div className="portal-session-preparation-grid">
+
+                    <article>
+                      <span>
+                        Current learning focus
+                      </span>
+
+                      <strong>
+                        {engagement.current_focus ||
+                          completedSessions[0]?.next_topic ||
+                          nextSession?.topic ||
+                          engagement.subject}
+                      </strong>
+
+                      <p>
+                        This is the teaching priority currently connected
+                        to your learning record.
+                      </p>
+
+                      {engagement.confidence != null && (
+                        <small>
+                          Current confidence:{" "}
+                          {engagement.confidence}/5
+                        </small>
                       )}
-                    />
-                  </section>
-                )}
+                    </article>
+
+
+                    <article>
+                      <span>
+                        Before your lesson
+                      </span>
+
+                      <strong>
+                        Prepare for the next session
+                      </strong>
+
+                      <p>
+                        {completedSessions[0]?.homework_summary ||
+                          "Review your recent lesson notes, complete any open practice and bring questions you want to discuss."}
+                      </p>
+
+                      <a
+                        href={`/portal/${encodeURIComponent(
+                          token
+                        )}?view=assignments&course=${encodeURIComponent(
+                          engagement.id
+                        )}`}
+                      >
+                        Check assignments →
+                      </a>
+                    </article>
+
+
+                    <article>
+                      <span>
+                        Recent learning
+                      </span>
+
+                      <strong>
+                        {completedSessions[0]
+                          ? completedSessions[0].topic
+                          : "Your lesson history will build here"}
+                      </strong>
+
+                      <p>
+                        {completedSessions[0]?.lesson_notes ||
+                          "After each completed lesson, tutor notes, understanding, practice and next steps stay attached to your record."}
+                      </p>
+
+                      <a href="#lesson-history">
+                        Review lesson history →
+                      </a>
+                    </article>
+
+                  </div>
+
+
+                  {upcomingSessions.length > 1 && (
+                    <section className="portal-session-later">
+
+                      <div className="portal-session-later-head">
+                        <div>
+                          <span className="portal-kicker">
+                            Coming up
+                          </span>
+
+                          <h3>
+                            Later sessions
+                          </h3>
+                        </div>
+
+                        <span>
+                          {upcomingSessions.length - 1} more booked
+                        </span>
+                      </div>
+
+
+                      <div className="portal-session-later-list">
+
+                        {upcomingSessions
+                          .slice(1)
+                          .map((item) => {
+                            const meetingUrl =
+                              safeExternalUrl(
+                                item.meeting_url
+                              );
+
+                            return (
+                              <article key={item.id}>
+
+                                <div className="portal-session-later-date">
+                                  <strong>
+                                    {studentFormatDateTime(
+                                      item.scheduled_for
+                                    )}
+                                  </strong>
+
+                                  <small>
+                                    {item.duration_minutes} min
+                                  </small>
+                                </div>
+
+                                <div className="portal-session-later-topic">
+                                  <strong>
+                                    {item.topic}
+                                  </strong>
+
+                                  <small>
+                                    {tutor?.name
+                                      ? `Tutor: ${tutor.name}`
+                                      : "MAT tutoring session"}
+                                  </small>
+                                </div>
+
+                                {meetingUrl && (
+                                  <a
+                                    href={meetingUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    Join ↗
+                                  </a>
+                                )}
+
+                              </article>
+                            );
+                          })}
+
+                      </div>
+
+                    </section>
+                  )}
+
+
+                  {upcomingSessions.length > 0 && (
+                    <div
+                      className="portal-session-manage"
+                      id="session-change"
+                    >
+                      <div className="portal-session-manage-copy">
+                        <span className="portal-kicker">
+                          Manage booking
+                        </span>
+
+                        <strong>
+                          Need to change a session?
+                        </strong>
+
+                        <p>
+                          Request another time or ask to cancel.
+                          Your existing booking stays confirmed until
+                          your tutoring team approves the change.
+                        </p>
+                      </div>
+
+                      <div className="portal-session-manage-form">
+                        <SessionChangeRequestForm
+                          token={token}
+                          initialTimeZone={
+                            savedStudentTimeZone
+                          }
+                          engagementId={
+                            engagement.id
+                          }
+                          defaultSessionId={
+                            nextSession?.id
+                          }
+                          sessions={upcomingSessions.map(
+                            (item) => ({
+                              id: item.id,
+                              scheduledFor:
+                                item.scheduled_for as string,
+                              topic:
+                                item.topic,
+                              durationMinutes:
+                                item.duration_minutes,
+                            })
+                          )}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                </section>
 
 
                 {/* ==========================================================
@@ -1843,7 +2033,10 @@ const openHomework =
                     SESSION HISTORY
                    ========================================================== */}
 
-                <section className="portal-panel portal-lesson-history-panel lms-section lms-lessons">
+                <section
+                  className="portal-panel portal-lesson-history-panel lms-section lms-lessons"
+                  id="lesson-history"
+                >
                   <div className="portal-panel-head">
                     <div>
                       <span className="portal-kicker">
