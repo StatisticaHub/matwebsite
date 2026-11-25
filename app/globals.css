@@ -15151,7 +15151,7 @@ details > summary {
   content: "";
   animation:
     portalWelcomeProgress
-    .43s
+    .70s
     ease-out
     infinite;
 }
@@ -15165,7 +15165,7 @@ details > summary {
 .portal-welcome-greeting-text {
   animation:
     portalWelcomeWord
-    .32s
+    .45s
     ease-out;
 }
 

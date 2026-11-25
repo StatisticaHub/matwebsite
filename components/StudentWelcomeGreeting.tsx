@@ -145,7 +145,7 @@ export default function StudentWelcomeGreeting({
               current,
             );
           },
-          430,
+          700,
         );
 
 
