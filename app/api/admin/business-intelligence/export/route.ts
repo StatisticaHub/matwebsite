@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
   const range: AttributionRange = requested === "30" || requested === "all" ? requested : "90";
   const data = await loadBusinessIntelligence(range);
   const header = [
-    "reference", "lead_created_at", "source", "landing_page", "campaign", "subject", "level", "support_type", "lead_status", "trial_scheduled", "trial_completed", "student_converted", "student_created_at", "active_engagement", "completed_sessions", "teaching_hours", "student_paid_sessions", "student_unpaid_sessions", "student_waived_sessions", "student_untracked_sessions", "student_collection_rate", "actual_revenue_received", "student_outstanding_expected_value", "tutor_paid_sessions", "tutor_unpaid_sessions", "tutor_not_applicable_sessions", "tutor_untracked_sessions", "tutor_payout_completion_rate", "actual_tutor_payouts", "tutor_outstanding_expected_value", "net_cash_retained", "recorded_teaching_value", "gross_contribution",
+    "reference", "lead_created_at", "source", "landing_page", "campaign", "subject", "level", "support_type", "lead_status", "trial_scheduled", "trial_completed", "student_converted", "student_created_at", "active_engagement", "completed_sessions", "teaching_hours", "student_paid_sessions", "student_unpaid_sessions", "student_waived_sessions", "student_untracked_sessions", "student_collection_rate", "actual_revenue_received", "student_outstanding_expected_value", "tutor_paid_sessions", "tutor_unpaid_sessions", "tutor_not_applicable_sessions", "tutor_untracked_sessions", "tutor_payout_completion_rate", "actual_tutor_payouts", "tutor_outstanding_expected_value", "net_cash_retained", "chargeable_teaching_value", "waived_teaching_value", "gross_contribution",
   ];
   const rows = data.facts.map((fact) => [
     fact.reference,
@@ -99,6 +99,10 @@ export async function GET(request: NextRequest) {
 
     moneyText(
       fact.studentValue
+    ),
+
+    moneyText(
+      fact.waivedValue
     ),
 
     moneyText(

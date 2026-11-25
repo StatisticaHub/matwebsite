@@ -47,7 +47,7 @@ function AttributionTable({ title, eyebrow, rows }: { title: string; eyebrow: st
           <table className="bi-table">
             <thead>
               <tr>
-                <th>Dimension</th><th>Leads</th><th>Trials</th><th>Students</th><th>Lead → student</th><th>Active</th><th>Sessions</th><th>Teaching</th><th>Recorded value</th><th>Gross contribution</th>
+                <th>Dimension</th><th>Leads</th><th>Trials</th><th>Students</th><th>Lead → student</th><th>Active</th><th>Sessions</th><th>Teaching</th><th>Chargeable value</th><th>Gross contribution</th>
               </tr>
             </thead>
             <tbody>
@@ -132,8 +132,9 @@ export default async function BusinessIntelligencePage({ searchParams }: { searc
         <article><span>Trial → student</span><strong>{percent(convertedAfterTrial, educationalTrials)}</strong><small>{convertedAfterTrial} of {educationalTrials} completed trials</small></article>
         <article><span>Active engagements</span><strong>{total.activeEngagements}</strong><small>{data.activeStudents} active student records</small></article>
         <article><span>Completed sessions</span><strong>{total.completedSessions}</strong><small>{hours(total.teachingMinutes)} teaching delivered</small></article>
-        <article><span>Recorded teaching value</span><strong className="bi-money">{moneyTotals(total.studentValue)}</strong><small>Rates × completed-session duration</small></article>
-        <article><span>Gross contribution</span><strong className="bi-money">{moneyTotals(total.grossContribution)}</strong><small>Recorded student rate − tutor rate</small></article>
+        <article><span>Chargeable teaching value</span><strong className="bi-money">{moneyTotals(total.studentValue)}</strong><small>Non-waived rates × completed-session duration</small></article>
+        <article><span>Gross contribution</span><strong className="bi-money">{moneyTotals(total.grossContribution)}</strong><small>Estimated margin on chargeable sessions</small></article>
+        <article><span>Waived teaching value</span><strong className="bi-money">{moneyTotals(total.waivedValue)}</strong><small>{total.waivedSessions} waived session{total.waivedSessions === 1 ? "" : "s"}</small></article>
       </section>
 
       <section className="admin-panel bi-note bi-wide">
@@ -240,7 +241,7 @@ export default async function BusinessIntelligencePage({ searchParams }: { searc
 
       <section className="admin-panel bi-note bi-wide">
         <h2>How to read the money figures</h2>
-        <p>“Recorded teaching value” and “Gross contribution” are operational estimates based on stored hourly rates and completed-session duration. The Actual finance section uses recorded payment data: revenue comes from amounts recorded as received on paid student sessions, while tutor payouts come from amounts recorded as paid to tutors. “Net cash retained” is actual revenue received minus actual tutor payouts made. Outstanding student and tutor amounts are expected balances based on recorded rates for sessions currently marked unpaid. Currencies are kept separate and are never converted or summed together.</p>
+        <p>“Chargeable teaching value” estimates the value of completed sessions that are not marked waived, using the stored student hourly rate and session duration. “Waived teaching value” shows the equivalent value of completed sessions explicitly marked waived, so test, complimentary or otherwise non-chargeable delivery does not inflate the commercial headline. “Gross contribution” is the recorded student rate minus tutor rate for chargeable sessions only. The Actual finance section remains based on recorded payment and tutor-payout transactions. Currencies are kept separate and are never converted or summed together.</p>
         <p>The attribution source is the source/referrer/UTM data stored when the tutoring request was submitted. It is therefore submission attribution, not a cross-device or multi-touch advertising model.</p>
       </section>
     </div>

@@ -86,6 +86,7 @@ export type LeadAttributionFact = {
   completedSessions: number;
   teachingMinutes: number;
   studentValue: CurrencyTotals;
+  waivedValue: CurrencyTotals;
   tutorCost: CurrencyTotals;
   grossContribution: CurrencyTotals;
 
@@ -117,6 +118,7 @@ export type AttributionGroup = {
   completedSessions: number;
   teachingMinutes: number;
   studentValue: CurrencyTotals;
+  waivedValue: CurrencyTotals;
   grossContribution: CurrencyTotals;
 
   actualRevenue: CurrencyTotals;
@@ -221,6 +223,7 @@ function emptyGroup(label: string): AttributionGroup {
     completedSessions: 0,
     teachingMinutes: 0,
     studentValue: {},
+    waivedValue: {},
     grossContribution: {},
 
     actualRevenue: {},
@@ -256,6 +259,7 @@ function groupFacts(facts: LeadAttributionFact[], getter: (fact: LeadAttribution
     group.completedSessions += fact.completedSessions;
     group.teachingMinutes += fact.teachingMinutes;
     mergeMoney(group.studentValue, fact.studentValue);
+    mergeMoney(group.waivedValue, fact.waivedValue);
     mergeMoney(group.grossContribution, fact.grossContribution);
 
     mergeMoney(group.actualRevenue, fact.actualRevenue);
@@ -313,6 +317,7 @@ function allTotals(facts: LeadAttributionFact[]) {
     total.completedSessions += fact.completedSessions;
     total.teachingMinutes += fact.teachingMinutes;
     mergeMoney(total.studentValue, fact.studentValue);
+    mergeMoney(total.waivedValue, fact.waivedValue);
     mergeMoney(total.grossContribution, fact.grossContribution);
 
     mergeMoney(total.actualRevenue, fact.actualRevenue);
@@ -428,6 +433,7 @@ export async function loadBusinessIntelligence(range: AttributionRange = "90"): 
     const leadEngagements = engagementsByLead.get(lead.id) || [];
     const leadSessions = (sessionsByLead.get(lead.id) || []).filter((session) => session.status === "completed");
     const studentValue: CurrencyTotals = {};
+    const waivedValue: CurrencyTotals = {};
     const tutorCost: CurrencyTotals = {};
     const grossContribution: CurrencyTotals = {};
 
@@ -455,20 +461,58 @@ export async function loadBusinessIntelligence(range: AttributionRange = "90"): 
       const minutes = Math.max(0, Number(session.duration_minutes) || 0);
       teachingMinutes += minutes;
       const hours = minutes / 60;
-      const studentRate = session.student_rate === null ? null : Number(session.student_rate);
-      const tutorRate = session.tutor_rate === null ? null : Number(session.tutor_rate);
-      if (studentRate !== null && Number.isFinite(studentRate)) addMoney(studentValue, session.currency, studentRate * hours);
-      if (tutorRate !== null && Number.isFinite(tutorRate)) addMoney(tutorCost, session.currency, tutorRate * hours);
-      if (
+      const studentRate =
+        session.student_rate === null
+          ? null
+          : Number(session.student_rate);
+
+      const tutorRate =
+        session.tutor_rate === null
+          ? null
+          : Number(session.tutor_rate);
+
+      const hasStudentRate =
         studentRate !== null &&
+        Number.isFinite(studentRate);
+
+      const hasTutorRate =
         tutorRate !== null &&
-        Number.isFinite(studentRate) &&
-        Number.isFinite(tutorRate)
-      ) {
+        Number.isFinite(tutorRate);
+
+      if (session.payment_status === "waived") {
+        if (hasStudentRate) {
+          addMoney(
+            waivedValue,
+            session.currency,
+            studentRate * hours
+          );
+        }
+      } else {
+        if (hasStudentRate) {
+          addMoney(
+            studentValue,
+            session.currency,
+            studentRate * hours
+          );
+        }
+
+        if (
+          hasStudentRate &&
+          hasTutorRate
+        ) {
+          addMoney(
+            grossContribution,
+            session.currency,
+            (studentRate - tutorRate) * hours
+          );
+        }
+      }
+
+      if (hasTutorRate) {
         addMoney(
-          grossContribution,
+          tutorCost,
           session.currency,
-          (studentRate - tutorRate) * hours
+          tutorRate * hours
         );
       }
 
@@ -584,6 +628,7 @@ export async function loadBusinessIntelligence(range: AttributionRange = "90"): 
       completedSessions: leadSessions.length,
       teachingMinutes,
       studentValue,
+      waivedValue,
       tutorCost,
       grossContribution,
 
