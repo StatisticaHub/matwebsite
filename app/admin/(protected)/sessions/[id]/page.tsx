@@ -4,7 +4,15 @@ import { notFound } from "next/navigation";
 import PostSessionHomeworkFields from "@/components/PostSessionHomeworkFields";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sessionStatusLabels, sessionStatuses, type SessionStatus } from "@/lib/delivery-data";
-import { attachZoomMeetingToSession, cancelTutoringSession, completeTutoringSession, markTutoringSessionNoShow, sendTutoringSessionReminder, updateTutoringSession } from "@/app/admin/session-management-actions";
+import {
+  attachZoomMeetingToSession,
+  cancelTutoringSession,
+  completeTutoringSession,
+  markTutoringSessionNoShow,
+  sendTutoringSessionReminder,
+  updateTutoringSession,
+  updateTutoringSessionPayment,
+} from "@/app/admin/session-management-actions";
 
 import { getAdminTimeZone } from "@/lib/admin-time-zone";
 import {
@@ -14,6 +22,19 @@ import {
 } from "@/lib/time-zone";
 export const dynamic = "force-dynamic";
 type Params = Promise<{ id: string }>;
+
+type PaymentStatus =
+  | "untracked"
+  | "unpaid"
+  | "paid"
+  | "waived";
+
+const paymentStatusLabels: Record<PaymentStatus, string> = {
+  untracked: "Untracked",
+  unpaid: "Unpaid",
+  paid: "Paid",
+  waived: "Waived",
+};
 
 type SessionDetail = {
   id: string;
@@ -40,6 +61,11 @@ type SessionDetail = {
   student_rate: number | null;
   tutor_rate: number | null;
   currency: string;
+  payment_status: PaymentStatus;
+  paid_at: string | null;
+  payment_method: string | null;
+  payment_reference: string | null;
+  payment_note: string | null;
   engagement_id: string;
   tutoring_engagements: {
     student_id: string;
@@ -99,7 +125,7 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
   const [{ data, error }, { data: tutorData }] = await Promise.all([
     supabase
       .from("tutoring_sessions")
-      .select("id,created_at,scheduled_for,completed_at,duration_minutes,status,topic,lesson_notes,understanding_rating,next_topic,homework_summary,meeting_url,zoom_meeting_id,zoom_meeting_uuid,zoom_host_user_id,zoom_synced_at,zoom_started_at,zoom_ended_at,zoom_last_event_at,tutor_id,session_tutor:tutors(name),student_rate,tutor_rate,currency,engagement_id,tutoring_engagements(student_id,subject,title,students(name,email),tutors(name))")
+      .select("id,created_at,scheduled_for,completed_at,duration_minutes,status,topic,lesson_notes,understanding_rating,next_topic,homework_summary,meeting_url,zoom_meeting_id,zoom_meeting_uuid,zoom_host_user_id,zoom_synced_at,zoom_started_at,zoom_ended_at,zoom_last_event_at,tutor_id,session_tutor:tutors(name),student_rate,tutor_rate,currency,payment_status,paid_at,payment_method,payment_reference,payment_note,engagement_id,tutoring_engagements(student_id,subject,title,students(name,email),tutors(name))")
       .eq("id", id)
       .single(),
     supabase.from("tutors").select("id,name,status").order("name"),
@@ -121,6 +147,12 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
     session.status === "planned" &&
     !session.scheduled_for &&
     !session.zoom_meeting_id;
+
+  const recordedSessionValue =
+    session.student_rate === null
+      ? null
+      : Number(session.student_rate) *
+        (session.duration_minutes / 60);
 
   return (
     <div className="admin-page">
@@ -417,6 +449,136 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
             <p className="admin-help">{student?.name || "Student"}<br />{session.tutoring_engagements?.title || "Tutoring engagement"}</p>
             {studentId && <Link className="admin-contact-button" href={`/admin/students/${studentId}`}>Open student →</Link>}
           </section>
+
+          {session.status === "completed" && (
+            <section className="admin-panel admin-action-card">
+              <div className="admin-card-head">
+                <div>
+                  <span className="admin-eyebrow">Finance</span>
+                  <h2>Student payment</h2>
+                </div>
+
+                <span>
+                  {paymentStatusLabels[session.payment_status]}
+                </span>
+              </div>
+
+              <p className="admin-help">
+                Recorded session value:{" "}
+                <strong>
+                  {money(recordedSessionValue, session.currency)}
+                </strong>
+                . Payment tracking is internal and does not charge the
+                student automatically.
+              </p>
+
+              <form
+                action={updateTutoringSessionPayment}
+                className="admin-compact-form"
+              >
+                <input
+                  type="hidden"
+                  name="sessionId"
+                  value={session.id}
+                />
+
+                <label>
+                  <span>Payment status</span>
+                  <select
+                    name="paymentStatus"
+                    defaultValue={session.payment_status}
+                  >
+                    <option value="untracked">
+                      Untracked
+                    </option>
+                    <option value="unpaid">
+                      Unpaid
+                    </option>
+                    <option value="paid">
+                      Paid
+                    </option>
+                    <option value="waived">
+                      Waived
+                    </option>
+                  </select>
+                </label>
+
+                <div className="admin-form-grid-2">
+                  <label>
+                    <span>Payment method</span>
+                    <select
+                      name="paymentMethod"
+                      defaultValue={session.payment_method || ""}
+                    >
+                      <option value="">
+                        Not recorded
+                      </option>
+                      <option value="bank_transfer">
+                        Bank transfer
+                      </option>
+                      <option value="card">
+                        Card
+                      </option>
+                      <option value="cash">
+                        Cash
+                      </option>
+                      <option value="paypal">
+                        PayPal
+                      </option>
+                      <option value="other">
+                        Other
+                      </option>
+                    </select>
+                  </label>
+
+                  <label>
+                    <span>Paid on</span>
+                    <input
+                      type="date"
+                      name="paidAt"
+                      defaultValue={
+                        session.paid_at
+                          ? session.paid_at.slice(0, 10)
+                          : ""
+                      }
+                    />
+                  </label>
+                </div>
+
+                <label>
+                  <span>Payment reference</span>
+                  <input
+                    name="paymentReference"
+                    defaultValue={session.payment_reference || ""}
+                    placeholder="Optional transfer / payment reference"
+                  />
+                </label>
+
+                <label>
+                  <span>Internal note</span>
+                  <textarea
+                    name="paymentNote"
+                    defaultValue={session.payment_note || ""}
+                    placeholder="Optional note about this payment"
+                  />
+                </label>
+
+                {session.paid_at && (
+                  <p className="admin-muted">
+                    Recorded paid date:{" "}
+                    {formatDateTime(session.paid_at)}
+                  </p>
+                )}
+
+                <button
+                  className="admin-primary-button"
+                  type="submit"
+                >
+                  Save payment
+                </button>
+              </form>
+            </section>
+          )}
 
 
           {!session.zoom_meeting_id &&

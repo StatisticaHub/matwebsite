@@ -2276,3 +2276,160 @@ export async function sendTutoringSessionReminder(
   revalidatePath(`/admin/sessions/${sessionId}`);
   revalidatePath(`/admin/students/${relation.student_id}`);
 }
+
+export async function updateTutoringSessionPayment(
+  formData: FormData
+) {
+  const { supabase } = await adminContext();
+
+  const sessionId = text(
+    formData,
+    "sessionId",
+    100
+  );
+
+  const paymentStatus = text(
+    formData,
+    "paymentStatus",
+    30
+  );
+
+  const allowedStatuses = new Set([
+    "untracked",
+    "unpaid",
+    "paid",
+    "waived",
+  ]);
+
+  if (
+    !sessionId ||
+    !allowedStatuses.has(paymentStatus)
+  ) {
+    throw new Error(
+      "Invalid session payment update."
+    );
+  }
+
+  const {
+    data: sessionRow,
+    error: sessionError,
+  } = await supabase
+    .from("tutoring_sessions")
+    .select("id,status")
+    .eq("id", sessionId)
+    .single();
+
+  if (
+    sessionError ||
+    !sessionRow
+  ) {
+    throw new Error(
+      sessionError?.message ||
+        "Session not found."
+    );
+  }
+
+  if (sessionRow.status !== "completed") {
+    throw new Error(
+      "Payment can only be recorded for completed sessions."
+    );
+  }
+
+  const paidAtInput = text(
+    formData,
+    "paidAt",
+    10
+  );
+
+  let paidAt: string | null = null;
+
+  if (paymentStatus === "paid") {
+    if (
+      /^\d{4}-\d{2}-\d{2}$/.test(
+        paidAtInput
+      )
+    ) {
+      const parsed = new Date(
+        `${paidAtInput}T12:00:00.000Z`
+      );
+
+      if (
+        !Number.isNaN(
+          parsed.getTime()
+        )
+      ) {
+        paidAt =
+          parsed.toISOString();
+      }
+    }
+
+    if (!paidAt) {
+      paidAt =
+        new Date().toISOString();
+    }
+  }
+
+  const update = {
+    payment_status:
+      paymentStatus,
+
+    paid_at:
+      paidAt,
+
+    payment_method:
+      paymentStatus === "paid"
+        ? nullableText(
+            formData,
+            "paymentMethod",
+            80
+          )
+        : null,
+
+    payment_reference:
+      paymentStatus === "paid"
+        ? nullableText(
+            formData,
+            "paymentReference",
+            200
+          )
+        : null,
+
+    payment_note:
+      nullableText(
+        formData,
+        "paymentNote",
+        1000
+      ),
+  };
+
+  const {
+    error,
+  } = await supabase
+    .from("tutoring_sessions")
+    .update(update)
+    .eq("id", sessionId);
+
+  if (error) {
+    throw new Error(
+      error.message ||
+        "Could not update session payment."
+    );
+  }
+
+  revalidatePath(
+    "/admin/sessions"
+  );
+
+  revalidatePath(
+    `/admin/sessions/${sessionId}`
+  );
+
+  revalidatePath(
+    "/admin/analytics"
+  );
+
+  revalidatePath(
+    "/admin/business-intelligence"
+  );
+}
+
