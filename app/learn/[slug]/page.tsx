@@ -296,17 +296,39 @@ function ResourcePage({ slug }: { slug: string }) {
 
           <div className="learning-tutoring-links">
             <div>
-              <div className="eyebrow">CONTINUE WITH A TUTOR</div>
-              <h2>Work through this topic in the context of your own course.</h2>
-              <p>One-to-one tutoring can adapt the same idea to your notation, dataset, software, exam style or research question.</p>
+              <div className="eyebrow">
+                NEED HELP APPLYING THIS?
+              </div>
+
+              <h2>
+                Work through {resource.title} with a tutor.
+              </h2>
+
+              <p>
+                If the concept makes sense in the guide but becomes
+                difficult in your own course, dataset, software or
+                problem set, one-to-one tutoring can work through the
+                reasoning with you and help you use the method
+                independently.
+              </p>
             </div>
+
             <div className="learning-tutoring-link-list">
+              <TrackedLink
+                href={learningHubResourceTutoringHref(resource)}
+                className="button button-primary"
+                trackingId={`learn_${resource.slug}_topic_help`}
+                contentType="learning_hub_cta"
+              >
+                Get help with this topic
+              </TrackedLink>
+
               {resource.tutoringLinks.map((link, index) => (
                 <TrackedLink
                   key={link.href}
                   href={link.href}
-                  className={index === 0 ? "button button-primary" : "button button-secondary"}
-                  trackingId={`learn_${resource.slug}_${index + 1}`}
+                  className="button button-secondary"
+                  trackingId={`learn_${resource.slug}_support_${index + 1}`}
                   contentType="learning_hub_cta"
                 >
                   {link.label}

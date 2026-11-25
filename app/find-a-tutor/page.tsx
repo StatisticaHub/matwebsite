@@ -27,6 +27,7 @@ export default async function Page({
   const params = await searchParams;
   const defaultSubject = firstParam(params.subject);
   const defaultLevel = firstParam(params.level);
+  const defaultTopic = firstParam(params.topic);
   const defaultSupportType = firstParam(params.support);
 
   return (
@@ -108,6 +109,8 @@ export default async function Page({
 
             <TutoringLeadForm
               defaultSubject={defaultSubject || undefined}
+              defaultLevel={defaultLevel || undefined}
+              defaultTopic={defaultTopic || undefined}
               defaultSupportType={defaultSupportType || undefined}
             />
           </div>

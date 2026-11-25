@@ -15,6 +15,7 @@ type Props = {
   compact?: boolean;
   defaultSubject?: string;
   defaultLevel?: string;
+  defaultTopic?: string;
   defaultSupportType?: string;
   submitLabel?: string;
   defaultCountry?: string;
@@ -33,6 +34,7 @@ export default function TutoringLeadForm({
   compact = false,
   defaultSubject = "",
   defaultLevel = "",
+  defaultTopic = "",
   defaultSupportType = "",
   submitLabel,
   defaultCountry = "",
@@ -296,6 +298,17 @@ export default function TutoringLeadForm({
                   </option>
                 ))}
               </select>
+            </label>
+
+            <label className="form-span-2">
+              <span>Topic or course area</span>
+              <input
+                name="topic"
+                type="text"
+                maxLength={240}
+                defaultValue={defaultTopic}
+                placeholder="e.g. Confidence intervals, regression, Python debugging"
+              />
             </label>
 
             <label className="form-span-2">
