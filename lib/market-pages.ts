@@ -5,6 +5,7 @@ export type MarketSlug = "uk" | "us" | "ca";
 export type MarketPage = {
   slug: MarketSlug;
   country: string;
+  currency: "GBP" | "USD" | "CAD";
   flag: string;
   eyebrow: string;
   metaTitle: string;
@@ -29,6 +30,7 @@ export const marketPages: Record<MarketSlug, MarketPage> = {
   uk: {
     slug: "uk",
     country: "United Kingdom",
+    currency: "GBP",
     flag: "🇬🇧",
     eyebrow: "UK ONLINE TUTORING",
     metaTitle: "Online Tutoring for UK University Students",
@@ -66,6 +68,7 @@ export const marketPages: Record<MarketSlug, MarketPage> = {
   us: {
     slug: "us",
     country: "United States",
+    currency: "USD",
     flag: "🇺🇸",
     eyebrow: "US ONLINE TUTORING",
     metaTitle: "Online Statistics & University Tutoring for US Students",
@@ -77,9 +80,9 @@ export const marketPages: Record<MarketSlug, MarketPage> = {
       "Work one-to-one on statistics, quantitative courses, data analysis, research methods and technical software with teaching adapted to your course and current level.",
     audienceLabel:
       "For adult learners aged 18+ in college, university, graduate or research-level study.",
-    priceTitle: "Price confirmed before booking",
+    priceTitle: "Tutoring quoted in US dollars",
     priceCopy:
-      "Tell us your course, level and topic. We review the academic requirement and confirm the exact tutoring rate before you decide whether to proceed.",
+      "Tell us your course, level and topic. We review the academic requirement and confirm the exact tutoring rate in USD before you decide whether to proceed.",
     timingTitle: "Sessions that work across US time zones",
     timingCopy:
       "Online sessions can be arranged for students across Eastern, Central, Mountain and Pacific time zones, subject to tutor availability.",
@@ -103,6 +106,7 @@ export const marketPages: Record<MarketSlug, MarketPage> = {
   ca: {
     slug: "ca",
     country: "Canada",
+    currency: "CAD",
     flag: "🇨🇦",
     eyebrow: "CANADA ONLINE TUTORING",
     metaTitle: "Online Statistics & University Tutoring for Canadian Students",
@@ -114,9 +118,9 @@ export const marketPages: Record<MarketSlug, MarketPage> = {
       "Get structured support for statistics, quantitative modules, data analysis, research methods and technical software without relying on generic one-size-fits-all lessons.",
     audienceLabel:
       "For adult learners aged 18+ in university, college, postgraduate or research-level study.",
-    priceTitle: "Price confirmed before booking",
+    priceTitle: "Tutoring quoted in Canadian dollars",
     priceCopy:
-      "Send us the course and academic context first. We confirm the proposed support and exact rate before you make any booking commitment.",
+      "Send us the course and academic context first. We confirm the proposed support and exact rate in CAD before you make any booking commitment.",
     timingTitle: "Online support across Canadian time zones",
     timingCopy:
       "Sessions can be arranged across Canadian time zones, including Atlantic, Eastern, Central, Mountain and Pacific schedules, subject to availability.",

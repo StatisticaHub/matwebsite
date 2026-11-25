@@ -7,6 +7,7 @@ type LeadEmailData = {
   email: string;
   phone: string | null;
   country: string;
+  currency: string;
   level: string;
   subject: string;
   support_type: string;
@@ -85,6 +86,7 @@ export async function sendNewLeadNotification(lead: LeadEmailData): Promise<Emai
       <tr><td>Email</td><td>${escapeHtml(lead.email)}</td></tr>
       ${lead.phone ? `<tr><td>Phone / WhatsApp</td><td>${escapeHtml(lead.phone)}</td></tr>` : ""}
       <tr><td>Country</td><td>${escapeHtml(lead.country)}</td></tr>
+      <tr><td>Quote currency</td><td>${escapeHtml(lead.currency)}</td></tr>
       <tr><td>Academic level</td><td>${escapeHtml(lead.level)}</td></tr>
       <tr><td>Subject</td><td>${escapeHtml(lead.subject)}</td></tr>
       ${lead.topic ? `<tr><td>Topic</td><td>${escapeHtml(lead.topic)}</td></tr>` : ""}
@@ -102,7 +104,7 @@ export async function sendNewLeadNotification(lead: LeadEmailData): Promise<Emai
     </div><div class="footer">This is an internal lead notification from My Academic Tutor. Replying to this email will reply to the student.</div>
   </div></div></body></html>`;
 
-  const text = `NEW TUTORING LEAD\n\nReference: ${lead.reference}\nStudent: ${lead.name}\nEmail: ${lead.email}\nPhone: ${value(lead.phone)}\nCountry: ${lead.country}\nLevel: ${lead.level}\nSubject: ${lead.subject}\nTopic: ${value(lead.topic)}\nCurriculum / university: ${value(lead.curriculum)}\nSupport type: ${lead.support_type}\nUrgency: ${value(lead.urgency)}\nAvailability: ${value(lead.availability)}\n\nRequirement:\n${lead.requirements}\n\nAdmin: ${adminUrl}`;
+  const text = `NEW TUTORING LEAD\n\nReference: ${lead.reference}\nStudent: ${lead.name}\nEmail: ${lead.email}\nPhone: ${value(lead.phone)}\nCountry: ${lead.country}\nCurrency: ${lead.currency}\nLevel: ${lead.level}\nSubject: ${lead.subject}\nTopic: ${value(lead.topic)}\nCurriculum / university: ${value(lead.curriculum)}\nSupport type: ${lead.support_type}\nUrgency: ${value(lead.urgency)}\nAvailability: ${value(lead.availability)}\n\nRequirement:\n${lead.requirements}\n\nAdmin: ${adminUrl}`;
 
   try {
     const { data, error } = await resendClient().emails.send(

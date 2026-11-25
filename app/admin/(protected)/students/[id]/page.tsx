@@ -439,6 +439,7 @@ export default async function StudentDetailPage({
                 >
                   <option>GBP</option>
                   <option>USD</option>
+                  <option>CAD</option>
                   <option>EUR</option>
                   <option>INR</option>
                 </select>
@@ -566,7 +567,7 @@ export default async function StudentDetailPage({
                 <label><span>Learning preference</span><input name="learningStyle" defaultValue={engagement.preferred_learning_style || ""} /></label>
                 <label><span>Academic assessment</span><textarea name="assessmentSummary" defaultValue={engagement.assessment_summary || ""} /></label>
                 <div className="admin-form-grid-2"><label><span>Frequency</span><input name="frequency" defaultValue={engagement.frequency || ""} /></label><label><span>Session minutes</span><input name="sessionDuration" type="number" min="15" max="480" defaultValue={engagement.session_duration_minutes} /></label></div>
-                <div className="admin-form-grid-3"><label><span>Currency</span><select name="currency" defaultValue={engagement.currency}><option>GBP</option><option>USD</option><option>EUR</option><option>INR</option></select></label><label><span>Student rate</span><input name="studentRate" type="number" min="0" step="0.01" defaultValue={engagement.student_rate ?? ""} /></label><label><span>Tutor rate</span><input name="tutorRate" type="number" min="0" step="0.01" defaultValue={engagement.tutor_rate ?? ""} /></label></div>
+                <div className="admin-form-grid-3"><label><span>Currency</span><select name="currency" defaultValue={engagement.currency}><option>GBP</option><option>USD</option><option>CAD</option><option>EUR</option><option>INR</option></select></label><label><span>Student rate</span><input name="studentRate" type="number" min="0" step="0.01" defaultValue={engagement.student_rate ?? ""} /></label><label><span>Tutor rate</span><input name="tutorRate" type="number" min="0" step="0.01" defaultValue={engagement.tutor_rate ?? ""} /></label></div>
                 <label><span>Internal notes</span><textarea name="notes" defaultValue={engagement.notes || ""} /></label>
                 <button className="admin-primary-button" type="submit">Save engagement</button>
               </form>

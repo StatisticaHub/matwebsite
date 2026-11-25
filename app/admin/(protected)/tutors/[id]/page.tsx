@@ -187,7 +187,7 @@ export default async function TutorDetailPage({
 
             <div className="admin-form-grid-2">
               <label><span>Status</span><select name="status" defaultValue={tutor.status}><option value="active">Active</option><option value="inactive">Inactive</option><option value="pending">Pending</option></select></label>
-              <label><span>Internal hourly rate</span><div className="admin-rate-row"><select name="currency" defaultValue={tutor.currency || "GBP"}><option>GBP</option><option>USD</option><option>EUR</option><option>INR</option></select><input name="hourlyRate" type="number" min="0" step="0.01" defaultValue={tutor.hourly_rate ?? ""} /></div></label>
+              <label><span>Internal hourly rate</span><div className="admin-rate-row"><select name="currency" defaultValue={tutor.currency || "GBP"}><option>GBP</option><option>USD</option><option>CAD</option><option>EUR</option><option>INR</option></select><input name="hourlyRate" type="number" min="0" step="0.01" defaultValue={tutor.hourly_rate ?? ""} /></div></label>
             </div>
 
             <label>

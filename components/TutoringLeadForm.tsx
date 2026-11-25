@@ -17,6 +17,9 @@ type Props = {
   defaultLevel?: string;
   defaultSupportType?: string;
   submitLabel?: string;
+  defaultCountry?: string;
+  defaultCurrency?: "GBP" | "USD" | "CAD";
+  defaultSource?: string;
 };
 
 type Status = {
@@ -32,6 +35,9 @@ export default function TutoringLeadForm({
   defaultLevel = "",
   defaultSupportType = "",
   submitLabel,
+  defaultCountry = "",
+  defaultCurrency = "GBP",
+  defaultSource = "website",
 }: Props) {
   const subjectExists = useMemo(
     () => subjects.some((subject) => subject.name === defaultSubject),
@@ -77,6 +83,8 @@ export default function TutoringLeadForm({
     payload.utmCampaign = params.get("utm_campaign") || "";
     payload.utmTerm = params.get("utm_term") || "";
     payload.utmContent = params.get("utm_content") || "";
+    payload.source = defaultSource || "website";
+    payload.currency = defaultCurrency || "GBP";
 
     try {
       const response = await fetch("/api/tutoring-lead", {
@@ -289,7 +297,15 @@ export default function TutoringLeadForm({
 
             <label className="form-span-2">
               <span>Country / region</span>
-              <select name="country" required defaultValue="">
+              <select
+                name="country"
+                required
+                defaultValue={
+                  countries.includes(defaultCountry)
+                    ? defaultCountry
+                    : ""
+                }
+              >
                 <option value="" disabled>
                   Choose your country / region
                 </option>

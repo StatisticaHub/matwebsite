@@ -131,7 +131,7 @@ export default async function TutorsAdminPage({ searchParams }: { searchParams: 
             <fieldset className="admin-match-fieldset"><legend>Teaching periods</legend><div className="admin-check-grid compact">{["Morning","Afternoon","Evening"].map((period) => <label className="admin-check" key={period}><input type="checkbox" name="availabilityPeriods" value={period.toLowerCase()} /><span>{period}</span></label>)}</div></fieldset>
             <div className="admin-form-grid-2"><label><span>Weekly capacity (hours)</span><input name="weeklyCapacityHours" type="number" min="0" max="80" step="0.5" placeholder="10" /></label><label><span>Max active students</span><input name="maxActiveStudents" type="number" min="0" max="100" placeholder="8" /></label></div>
             <label className="admin-check"><input type="checkbox" name="acceptsTrials" value="yes" defaultChecked /><span>Accepting trial sessions</span></label>
-            <label><span>Internal hourly rate</span><div className="admin-rate-row"><select name="currency" defaultValue="GBP"><option>GBP</option><option>USD</option><option>EUR</option><option>INR</option></select><input name="hourlyRate" type="number" min="0" step="0.01" /></div></label>
+            <label><span>Internal hourly rate</span><div className="admin-rate-row"><select name="currency" defaultValue="GBP"><option>GBP</option><option>USD</option><option>CAD</option><option>EUR</option><option>INR</option></select><input name="hourlyRate" type="number" min="0" step="0.01" /></div></label>
             <p className="admin-help">
               New tutor records start as <strong>Pending</strong>. Review the tutor profile,
               record verification and activate them from their tutor record.

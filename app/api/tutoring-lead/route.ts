@@ -197,7 +197,11 @@ export async function POST(request: NextRequest) {
       utm_term: clean(raw.utmTerm, 240) || null,
       utm_content: clean(raw.utmContent, 240) || null,
       status: "new",
-      currency: "GBP",
+      currency: ["GBP", "USD", "CAD"].includes(
+        clean(raw.currency, 3).toUpperCase(),
+      )
+        ? clean(raw.currency, 3).toUpperCase()
+        : "GBP",
       ga_client_id: gaClientId || null,
       ga_session_id: gaSessionId || null,
       ga_captured_at: gaClientId ? new Date().toISOString() : null,
