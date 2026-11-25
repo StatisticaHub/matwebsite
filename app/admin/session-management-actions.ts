@@ -2341,6 +2341,33 @@ export async function updateTutoringSessionPayment(
     10
   );
 
+  const rawAmountPaid =
+    nullableNumber(
+      formData,
+      "amountPaid"
+    );
+
+  let amountPaid:
+    | number
+    | null = null;
+
+  if (paymentStatus === "paid") {
+    if (
+      rawAmountPaid === null ||
+      rawAmountPaid < 0 ||
+      rawAmountPaid > 99999999.99
+    ) {
+      throw new Error(
+        "Enter a valid amount received before marking the session paid."
+      );
+    }
+
+    amountPaid =
+      Math.round(
+        rawAmountPaid * 100
+      ) / 100;
+  }
+
   let paidAt: string | null = null;
 
   if (paymentStatus === "paid") {
@@ -2375,6 +2402,11 @@ export async function updateTutoringSessionPayment(
 
     paid_at:
       paidAt,
+
+    amount_paid:
+      paymentStatus === "paid"
+        ? amountPaid
+        : null,
 
     payment_method:
       paymentStatus === "paid"

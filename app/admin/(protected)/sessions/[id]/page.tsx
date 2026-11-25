@@ -66,6 +66,7 @@ type SessionDetail = {
   payment_method: string | null;
   payment_reference: string | null;
   payment_note: string | null;
+  amount_paid: number | null;
   engagement_id: string;
   tutoring_engagements: {
     student_id: string;
@@ -125,7 +126,7 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
   const [{ data, error }, { data: tutorData }] = await Promise.all([
     supabase
       .from("tutoring_sessions")
-      .select("id,created_at,scheduled_for,completed_at,duration_minutes,status,topic,lesson_notes,understanding_rating,next_topic,homework_summary,meeting_url,zoom_meeting_id,zoom_meeting_uuid,zoom_host_user_id,zoom_synced_at,zoom_started_at,zoom_ended_at,zoom_last_event_at,tutor_id,session_tutor:tutors(name),student_rate,tutor_rate,currency,payment_status,paid_at,payment_method,payment_reference,payment_note,engagement_id,tutoring_engagements(student_id,subject,title,students(name,email),tutors(name))")
+      .select("id,created_at,scheduled_for,completed_at,duration_minutes,status,topic,lesson_notes,understanding_rating,next_topic,homework_summary,meeting_url,zoom_meeting_id,zoom_meeting_uuid,zoom_host_user_id,zoom_synced_at,zoom_started_at,zoom_ended_at,zoom_last_event_at,tutor_id,session_tutor:tutors(name),student_rate,tutor_rate,currency,payment_status,paid_at,payment_method,payment_reference,payment_note,amount_paid,engagement_id,tutoring_engagements(student_id,subject,title,students(name,email),tutors(name))")
       .eq("id", id)
       .single(),
     supabase.from("tutors").select("id,name,status").order("name"),
@@ -467,12 +468,13 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
               </div>
 
               <p className="admin-help">
-                Recorded session value:{" "}
+                Expected session value:{" "}
                 <strong>
                   {money(recordedSessionValue, session.currency)}
                 </strong>
-                . Payment tracking is internal and does not charge the
-                student automatically.
+                . Record the actual amount received below. Payment
+                tracking is internal and does not charge the student
+                automatically.
               </p>
 
               <form
@@ -547,6 +549,33 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
                     />
                   </label>
                 </div>
+
+                <label>
+                  <span>
+                    Actual amount received
+                  </span>
+
+                  <input
+                    name="amountPaid"
+                    type="number"
+                    min="0"
+                    max="99999999.99"
+                    step="0.01"
+                    inputMode="decimal"
+                    defaultValue={
+                      session.amount_paid ??
+                      recordedSessionValue ??
+                      ""
+                    }
+                    placeholder="0.00"
+                  />
+
+                  <small>
+                    Used when the payment status is Paid.
+                    Enter the amount actually received, even if it
+                    differs from the expected session value.
+                  </small>
+                </label>
 
                 <label>
                   <span>Payment reference</span>
