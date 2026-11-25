@@ -158,7 +158,7 @@ export default async function LeadDetailPage({ params }: { params: Params }) {
             <form action={updateLeadAssignment}>
               <input type="hidden" name="leadId" value={lead.id} />
               <label><span>Tutor</span><select name="tutorId" defaultValue={lead.assigned_tutor_id || ""}><option value="">Not assigned</option>{tutors.map((tutor) => <option key={tutor.id} value={tutor.id}>{tutor.name} — {tutor.subjects.slice(0,2).join(", ") || "General"}</option>)}</select></label>
-              <label><span>Quoted hourly rate</span><div className="admin-rate-row"><select name="currency" defaultValue={lead.currency || "GBP"}><option>GBP</option><option>USD</option><option>EUR</option><option>INR</option></select><input name="quotedRate" type="number" min="0" step="0.01" defaultValue={lead.quoted_rate ?? ""} placeholder="45" /></div></label>
+              <label><span>Quoted hourly rate</span><div className="admin-rate-row"><select name="currency" defaultValue={lead.currency || "GBP"}><option>GBP</option><option>USD</option><option>CAD</option><option>EUR</option><option>INR</option></select><input name="quotedRate" type="number" min="0" step="0.01" defaultValue={lead.quoted_rate ?? ""} placeholder="45" /></div></label>
               <button type="submit" className="admin-primary-button">Save match</button>
             </form>
             {assignedTutor && <p className="admin-help">Currently assigned to <strong>{assignedTutor.name}</strong>.</p>}
