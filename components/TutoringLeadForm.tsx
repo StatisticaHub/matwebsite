@@ -83,6 +83,9 @@ export default function TutoringLeadForm({
     payload.utmCampaign = params.get("utm_campaign") || "";
     payload.utmTerm = params.get("utm_term") || "";
     payload.utmContent = params.get("utm_content") || "";
+
+    payload.referralCode =
+      params.get("ref") || "";
     payload.source = defaultSource || "website";
     payload.currency = defaultCurrency || "GBP";
 
