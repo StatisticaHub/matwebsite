@@ -524,6 +524,17 @@ export async function createTutoringSessionFromAdmin(formData: FormData) {
         status === "completed"
           ? now
           : null,
+      payment_status:
+        status === "completed"
+          ? "unpaid"
+          : "untracked",
+      tutor_payout_status:
+        status === "completed"
+          ? engagement.tutor_rate !== null &&
+            Number(engagement.tutor_rate) > 0
+            ? "unpaid"
+            : "not_applicable"
+          : "untracked",
       duration_minutes: finalDuration,
       status,
       topic,
@@ -683,7 +694,7 @@ export async function updateTutoringSession(formData: FormData) {
   const { data: current, error: currentError } = await supabase
     .from("tutoring_sessions")
     .select(
-      "id,engagement_id,completed_at,scheduled_for,status,topic,duration_minutes,meeting_url,zoom_meeting_id,zoom_meeting_uuid,zoom_host_user_id,tutoring_engagements(student_id)"
+      "id,engagement_id,completed_at,scheduled_for,status,payment_status,tutor_payout_status,tutor_rate,topic,duration_minutes,meeting_url,zoom_meeting_id,zoom_meeting_uuid,zoom_host_user_id,tutoring_engagements(student_id)"
     )
     .eq("id", sessionId)
     .single();
@@ -710,6 +721,29 @@ export async function updateTutoringSession(formData: FormData) {
     status === "completed"
       ? current.completed_at || new Date().toISOString()
       : null;
+
+  const nextPaymentStatus =
+    status === "completed"
+      ? ["paid", "waived"].includes(
+          current.payment_status || ""
+        )
+        ? current.payment_status
+        : "unpaid"
+      : current.payment_status ||
+        "untracked";
+
+  const nextTutorPayoutStatus =
+    status === "completed"
+      ? ["paid", "not_applicable"].includes(
+          current.tutor_payout_status || ""
+        )
+        ? current.tutor_payout_status
+        : current.tutor_rate !== null &&
+            Number(current.tutor_rate) > 0
+          ? "unpaid"
+          : "not_applicable"
+      : current.tutor_payout_status ||
+        "untracked";
 
   let meetingUrl = safeUrl(
     nullableText(formData, "meetingUrl", 1000)
@@ -781,6 +815,9 @@ export async function updateTutoringSession(formData: FormData) {
     tutor_id: nullableText(formData, "tutorId", 100),
     scheduled_for: scheduledFor,
     completed_at: completedAt,
+    payment_status: nextPaymentStatus,
+    tutor_payout_status:
+      nextTutorPayoutStatus,
     duration_minutes: finalDuration,
     status,
     topic,
@@ -1170,7 +1207,7 @@ export async function completeTutoringSession(
   } = await supabase
     .from("tutoring_sessions")
     .select(
-      "id,engagement_id,status,duration_minutes,meeting_url,tutoring_engagements(student_id)"
+      "id,engagement_id,status,payment_status,tutor_payout_status,tutor_rate,duration_minutes,meeting_url,tutoring_engagements(student_id)"
     )
     .eq("id", sessionId)
     .single();
@@ -1271,6 +1308,24 @@ export async function completeTutoringSession(
     .update({
       status: "completed",
       completed_at: now,
+
+      payment_status:
+        ["paid", "waived"].includes(
+          current.payment_status || ""
+        )
+          ? current.payment_status
+          : "unpaid",
+
+      tutor_payout_status:
+        ["paid", "not_applicable"].includes(
+          current.tutor_payout_status || ""
+        )
+          ? current.tutor_payout_status
+          : current.tutor_rate !== null &&
+              Number(current.tutor_rate) > 0
+            ? "unpaid"
+            : "not_applicable",
+
       duration_minutes:
         finalDuration,
       lesson_notes:

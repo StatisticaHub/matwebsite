@@ -353,11 +353,31 @@ export async function addTutoringSession(formData: FormData) {
         )
       : null;
 
+  const initialTutorRate =
+    nullableNumber(
+      formData,
+      "tutorRate"
+    );
+
   const { data: created, error } = await supabase.from("tutoring_sessions").insert({
     engagement_id: engagementId,
     tutor_id: nullableText(formData, "tutorId", 100),
     scheduled_for: scheduledFor,
     completed_at: completedAt,
+
+    payment_status:
+      status === "completed"
+        ? "unpaid"
+        : "untracked",
+
+    tutor_payout_status:
+      status === "completed"
+        ? initialTutorRate !== null &&
+          initialTutorRate > 0
+          ? "unpaid"
+          : "not_applicable"
+        : "untracked",
+
     duration_minutes: duration && duration >= 15 && duration <= 480 ? Math.round(duration) : 60,
     status,
     topic,
@@ -401,9 +421,71 @@ export async function updateTutoringSessionStatus(formData: FormData) {
   const status = text(formData, "status", 30) as SessionStatus;
   if (!sessionId || !studentId || !sessionStatuses.includes(status)) return;
 
-  const update: Record<string, string | null> = { status, updated_at: new Date().toISOString() };
-  if (status === "completed") update.completed_at = new Date().toISOString();
-  const { data: updated, error } = await supabase.from("tutoring_sessions").update(update).eq("id", sessionId).select("id,engagement_id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary").single();
+  const {
+    data: currentFinance,
+    error: currentFinanceError,
+  } = await supabase
+    .from("tutoring_sessions")
+    .select(
+      "payment_status,tutor_payout_status,tutor_rate"
+    )
+    .eq("id", sessionId)
+    .single();
+
+  if (
+    currentFinanceError ||
+    !currentFinance
+  ) {
+    throw new Error(
+      currentFinanceError?.message ||
+        "Session finance state could not be loaded."
+    );
+  }
+
+  const update: Record<
+    string,
+    string | null
+  > = {
+    status,
+    updated_at:
+      new Date().toISOString(),
+  };
+
+  if (status === "completed") {
+    update.completed_at =
+      new Date().toISOString();
+
+    update.payment_status =
+      ["paid", "waived"].includes(
+        currentFinance.payment_status ||
+          ""
+      )
+        ? currentFinance.payment_status
+        : "unpaid";
+
+    update.tutor_payout_status =
+      ["paid", "not_applicable"].includes(
+        currentFinance.tutor_payout_status ||
+          ""
+      )
+        ? currentFinance.tutor_payout_status
+        : currentFinance.tutor_rate !== null &&
+            Number(
+              currentFinance.tutor_rate
+            ) > 0
+          ? "unpaid"
+          : "not_applicable";
+  }
+
+  const { data: updated, error } =
+    await supabase
+      .from("tutoring_sessions")
+      .update(update)
+      .eq("id", sessionId)
+      .select(
+        "id,engagement_id,scheduled_for,status,topic,duration_minutes,next_topic,homework_summary"
+      )
+      .single();
   if (error || !updated) throw new Error(error?.message || "Could not update session.");
 
   if (formData.get("notifyStudent") === "on") {
