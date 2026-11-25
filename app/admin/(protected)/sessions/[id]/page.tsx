@@ -12,6 +12,7 @@ import {
   sendTutoringSessionReminder,
   updateTutoringSession,
   updateTutoringSessionPayment,
+  updateTutorSessionPayout,
 } from "@/app/admin/session-management-actions";
 
 import { getAdminTimeZone } from "@/lib/admin-time-zone";
@@ -34,6 +35,22 @@ const paymentStatusLabels: Record<PaymentStatus, string> = {
   unpaid: "Unpaid",
   paid: "Paid",
   waived: "Waived",
+};
+
+type TutorPayoutStatus =
+  | "untracked"
+  | "unpaid"
+  | "paid"
+  | "not_applicable";
+
+const tutorPayoutStatusLabels: Record<
+  TutorPayoutStatus,
+  string
+> = {
+  untracked: "Untracked",
+  unpaid: "Unpaid",
+  paid: "Paid",
+  not_applicable: "Not applicable",
 };
 
 type SessionDetail = {
@@ -67,6 +84,12 @@ type SessionDetail = {
   payment_reference: string | null;
   payment_note: string | null;
   amount_paid: number | null;
+  tutor_payout_status: TutorPayoutStatus;
+  tutor_payout_amount: number | null;
+  tutor_paid_at: string | null;
+  tutor_payment_method: string | null;
+  tutor_payment_reference: string | null;
+  tutor_payment_note: string | null;
   engagement_id: string;
   tutoring_engagements: {
     student_id: string;
@@ -126,7 +149,7 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
   const [{ data, error }, { data: tutorData }] = await Promise.all([
     supabase
       .from("tutoring_sessions")
-      .select("id,created_at,scheduled_for,completed_at,duration_minutes,status,topic,lesson_notes,understanding_rating,next_topic,homework_summary,meeting_url,zoom_meeting_id,zoom_meeting_uuid,zoom_host_user_id,zoom_synced_at,zoom_started_at,zoom_ended_at,zoom_last_event_at,tutor_id,session_tutor:tutors(name),student_rate,tutor_rate,currency,payment_status,paid_at,payment_method,payment_reference,payment_note,amount_paid,engagement_id,tutoring_engagements(student_id,subject,title,students(name,email),tutors(name))")
+      .select("id,created_at,scheduled_for,completed_at,duration_minutes,status,topic,lesson_notes,understanding_rating,next_topic,homework_summary,meeting_url,zoom_meeting_id,zoom_meeting_uuid,zoom_host_user_id,zoom_synced_at,zoom_started_at,zoom_ended_at,zoom_last_event_at,tutor_id,session_tutor:tutors(name),student_rate,tutor_rate,currency,payment_status,paid_at,payment_method,payment_reference,payment_note,amount_paid,tutor_payout_status,tutor_payout_amount,tutor_paid_at,tutor_payment_method,tutor_payment_reference,tutor_payment_note,engagement_id,tutoring_engagements(student_id,subject,title,students(name,email),tutors(name))")
       .eq("id", id)
       .single(),
     supabase.from("tutors").select("id,name,status").order("name"),
@@ -153,6 +176,12 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
     session.student_rate === null
       ? null
       : Number(session.student_rate) *
+        (session.duration_minutes / 60);
+
+  const expectedTutorPayout =
+    session.tutor_rate === null
+      ? null
+      : Number(session.tutor_rate) *
         (session.duration_minutes / 60);
 
   return (
@@ -607,6 +636,215 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
                   type="submit"
                 >
                   Save payment
+                </button>
+              </form>
+            </section>
+          )}
+
+
+          {session.status === "completed" && (
+            <section
+              className="admin-panel admin-action-card"
+              id="tutor-payout"
+            >
+              <div className="admin-card-head">
+                <div>
+                  <span className="admin-eyebrow">
+                    Tutor finance
+                  </span>
+
+                  <h2>
+                    Tutor payout
+                  </h2>
+                </div>
+
+                <span>
+                  {
+                    tutorPayoutStatusLabels[
+                      session.tutor_payout_status
+                    ]
+                  }
+                </span>
+              </div>
+
+              <p className="admin-help">
+                Tutor:{" "}
+                <strong>
+                  {session.session_tutor?.name ||
+                    session.tutoring_engagements
+                      ?.tutors?.name ||
+                    "Not assigned"}
+                </strong>
+                <br />
+                Expected payout:{" "}
+                <strong>
+                  {money(
+                    expectedTutorPayout,
+                    session.currency
+                  )}
+                </strong>
+                . Record the actual tutor payout below.
+              </p>
+
+              <form
+                action={updateTutorSessionPayout}
+                className="admin-compact-form"
+              >
+                <input
+                  type="hidden"
+                  name="sessionId"
+                  value={session.id}
+                />
+
+                <label>
+                  <span>Payout status</span>
+
+                  <select
+                    name="tutorPayoutStatus"
+                    defaultValue={
+                      session.tutor_payout_status
+                    }
+                  >
+                    <option value="untracked">
+                      Untracked
+                    </option>
+
+                    <option value="unpaid">
+                      Unpaid
+                    </option>
+
+                    <option value="paid">
+                      Paid
+                    </option>
+
+                    <option value="not_applicable">
+                      Not applicable
+                    </option>
+                  </select>
+                </label>
+
+                <label>
+                  <span>
+                    Actual payout amount
+                  </span>
+
+                  <input
+                    name="tutorPayoutAmount"
+                    type="number"
+                    min="0"
+                    max="99999999.99"
+                    step="0.01"
+                    inputMode="decimal"
+                    defaultValue={
+                      session.tutor_payout_amount ??
+                      expectedTutorPayout ??
+                      ""
+                    }
+                    placeholder="0.00"
+                  />
+
+                  <small>
+                    Used when payout status is Paid.
+                    Enter the amount actually paid to
+                    the tutor.
+                  </small>
+                </label>
+
+                <div className="admin-form-grid-2">
+                  <label>
+                    <span>Payout method</span>
+
+                    <select
+                      name="tutorPaymentMethod"
+                      defaultValue={
+                        session.tutor_payment_method ||
+                        ""
+                      }
+                    >
+                      <option value="">
+                        Not recorded
+                      </option>
+
+                      <option value="bank_transfer">
+                        Bank transfer
+                      </option>
+
+                      <option value="paypal">
+                        PayPal
+                      </option>
+
+                      <option value="cash">
+                        Cash
+                      </option>
+
+                      <option value="other">
+                        Other
+                      </option>
+                    </select>
+                  </label>
+
+                  <label>
+                    <span>Paid on</span>
+
+                    <input
+                      type="date"
+                      name="tutorPaidAt"
+                      defaultValue={
+                        session.tutor_paid_at
+                          ? session.tutor_paid_at.slice(
+                              0,
+                              10
+                            )
+                          : ""
+                      }
+                    />
+                  </label>
+                </div>
+
+                <label>
+                  <span>
+                    Payout reference
+                  </span>
+
+                  <input
+                    name="tutorPaymentReference"
+                    defaultValue={
+                      session.tutor_payment_reference ||
+                      ""
+                    }
+                    placeholder="Optional transfer / payment reference"
+                  />
+                </label>
+
+                <label>
+                  <span>
+                    Internal payout note
+                  </span>
+
+                  <textarea
+                    name="tutorPaymentNote"
+                    defaultValue={
+                      session.tutor_payment_note ||
+                      ""
+                    }
+                    placeholder="Optional internal note about this tutor payout"
+                  />
+                </label>
+
+                {session.tutor_paid_at && (
+                  <p className="admin-muted">
+                    Recorded payout date:{" "}
+                    {formatDateTime(
+                      session.tutor_paid_at
+                    )}
+                  </p>
+                )}
+
+                <button
+                  className="admin-primary-button"
+                  type="submit"
+                >
+                  Save tutor payout
                 </button>
               </form>
             </section>

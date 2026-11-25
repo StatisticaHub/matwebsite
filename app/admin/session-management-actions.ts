@@ -2465,3 +2465,195 @@ export async function updateTutoringSessionPayment(
   );
 }
 
+export async function updateTutorSessionPayout(
+  formData: FormData
+) {
+  const { supabase } =
+    await adminContext();
+
+  const sessionId = text(
+    formData,
+    "sessionId",
+    100
+  );
+
+  const payoutStatus = text(
+    formData,
+    "tutorPayoutStatus",
+    30
+  );
+
+  const allowedStatuses =
+    new Set([
+      "untracked",
+      "unpaid",
+      "paid",
+      "not_applicable",
+    ]);
+
+  if (
+    !sessionId ||
+    !allowedStatuses.has(
+      payoutStatus
+    )
+  ) {
+    throw new Error(
+      "Invalid tutor payout update."
+    );
+  }
+
+  const {
+    data: sessionRow,
+    error: sessionError,
+  } = await supabase
+    .from("tutoring_sessions")
+    .select("id,status")
+    .eq("id", sessionId)
+    .single();
+
+  if (
+    sessionError ||
+    !sessionRow
+  ) {
+    throw new Error(
+      sessionError?.message ||
+        "Session not found."
+    );
+  }
+
+  if (
+    sessionRow.status !==
+    "completed"
+  ) {
+    throw new Error(
+      "Tutor payout can only be recorded for completed sessions."
+    );
+  }
+
+  const rawAmount =
+    nullableNumber(
+      formData,
+      "tutorPayoutAmount"
+    );
+
+  let payoutAmount:
+    | number
+    | null = null;
+
+  if (payoutStatus === "paid") {
+    if (
+      rawAmount === null ||
+      rawAmount < 0 ||
+      rawAmount > 99999999.99
+    ) {
+      throw new Error(
+        "Enter a valid tutor payout amount before marking the payout paid."
+      );
+    }
+
+    payoutAmount =
+      Math.round(
+        rawAmount * 100
+      ) / 100;
+  }
+
+  const paidAtInput = text(
+    formData,
+    "tutorPaidAt",
+    10
+  );
+
+  let tutorPaidAt:
+    | string
+    | null = null;
+
+  if (payoutStatus === "paid") {
+    if (
+      /^\d{4}-\d{2}-\d{2}$/.test(
+        paidAtInput
+      )
+    ) {
+      const parsed =
+        new Date(
+          `${paidAtInput}T12:00:00.000Z`
+        );
+
+      if (
+        !Number.isNaN(
+          parsed.getTime()
+        )
+      ) {
+        tutorPaidAt =
+          parsed.toISOString();
+      }
+    }
+
+    if (!tutorPaidAt) {
+      tutorPaidAt =
+        new Date().toISOString();
+    }
+  }
+
+  const {
+    error,
+  } = await supabase
+    .from("tutoring_sessions")
+    .update({
+      tutor_payout_status:
+        payoutStatus,
+
+      tutor_payout_amount:
+        payoutStatus === "paid"
+          ? payoutAmount
+          : null,
+
+      tutor_paid_at:
+        tutorPaidAt,
+
+      tutor_payment_method:
+        payoutStatus === "paid"
+          ? nullableText(
+              formData,
+              "tutorPaymentMethod",
+              80
+            )
+          : null,
+
+      tutor_payment_reference:
+        payoutStatus === "paid"
+          ? nullableText(
+              formData,
+              "tutorPaymentReference",
+              200
+            )
+          : null,
+
+      tutor_payment_note:
+        nullableText(
+          formData,
+          "tutorPaymentNote",
+          1000
+        ),
+    })
+    .eq("id", sessionId);
+
+  if (error) {
+    throw new Error(
+      error.message ||
+        "Could not update tutor payout."
+    );
+  }
+
+  revalidatePath(
+    "/admin/sessions"
+  );
+
+  revalidatePath(
+    `/admin/sessions/${sessionId}`
+  );
+
+  revalidatePath(
+    "/admin/business-intelligence"
+  );
+}
+
