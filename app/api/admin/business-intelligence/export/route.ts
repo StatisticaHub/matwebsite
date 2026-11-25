@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
   const range: AttributionRange = requested === "30" || requested === "all" ? requested : "90";
   const data = await loadBusinessIntelligence(range);
   const header = [
-    "reference", "lead_created_at", "source", "landing_page", "campaign", "subject", "level", "support_type", "lead_status", "trial_scheduled", "trial_completed", "student_converted", "student_created_at", "active_engagement", "completed_sessions", "teaching_hours", "recorded_teaching_value", "gross_contribution",
+    "reference", "lead_created_at", "source", "landing_page", "campaign", "subject", "level", "support_type", "lead_status", "trial_scheduled", "trial_completed", "student_converted", "student_created_at", "active_engagement", "completed_sessions", "teaching_hours", "student_paid_sessions", "student_unpaid_sessions", "student_waived_sessions", "student_untracked_sessions", "student_collection_rate", "actual_revenue_received", "student_outstanding_expected_value", "tutor_paid_sessions", "tutor_unpaid_sessions", "tutor_not_applicable_sessions", "tutor_untracked_sessions", "tutor_payout_completion_rate", "actual_tutor_payouts", "tutor_outstanding_expected_value", "net_cash_retained", "recorded_teaching_value", "gross_contribution",
   ];
   const rows = data.facts.map((fact) => [
     fact.reference,
@@ -44,8 +44,66 @@ export async function GET(request: NextRequest) {
     fact.activeEngagement,
     fact.completedSessions,
     (fact.teachingMinutes / 60).toFixed(2),
-    moneyText(fact.studentValue),
-    moneyText(fact.grossContribution),
+
+    fact.paidSessions,
+    fact.unpaidSessions,
+    fact.waivedSessions,
+    fact.untrackedPaymentSessions,
+
+    fact.paidSessions +
+      fact.unpaidSessions
+      ? (
+          fact.paidSessions /
+          (
+            fact.paidSessions +
+            fact.unpaidSessions
+          )
+        ).toFixed(4)
+      : "0.0000",
+
+    moneyText(
+      fact.actualRevenue
+    ),
+
+    moneyText(
+      fact.outstandingValue
+    ),
+
+    fact.tutorPaidSessions,
+    fact.tutorUnpaidSessions,
+    fact.tutorNotApplicableSessions,
+    fact.tutorUntrackedSessions,
+
+    fact.tutorPaidSessions +
+      fact.tutorUnpaidSessions
+      ? (
+          fact.tutorPaidSessions /
+          (
+            fact.tutorPaidSessions +
+            fact.tutorUnpaidSessions
+          )
+        ).toFixed(4)
+      : "0.0000",
+
+    moneyText(
+      fact.actualTutorPayouts
+    ),
+
+    moneyText(
+      fact.outstandingTutorPayouts
+    ),
+
+    moneyText(
+      fact.actualCashMargin
+    ),
+
+    moneyText(
+      fact.studentValue
+    ),
+
+    moneyText(
+      fact.grossContribution
+    ),
   ]);
   const csv = [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\n");
   const stamp = new Date().toISOString().slice(0, 10);
