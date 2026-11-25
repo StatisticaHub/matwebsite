@@ -2,7 +2,14 @@
 
 import TurnstileWidget, { resetTurnstile } from "@/components/TurnstileWidget";
 
-import { FormEvent, useMemo, useState } from "react";
+import {
+  FocusEvent,
+  FormEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { sendGAEvent } from "@next/third-parties/google";
 import {
   countries,
@@ -114,6 +121,267 @@ export default function TutoringLeadForm({
     type: "idle",
   });
 
+  const formRef =
+    useRef<HTMLFormElement | null>(
+      null
+    );
+
+  const analyticsMilestones = useRef({
+    viewed: false,
+    started: false,
+    supportSelected: false,
+    requirementsStarted: false,
+    contactReached: false,
+  });
+
+  function analyticsContext(
+    extra: Record<
+      string,
+      string | number
+    > = {},
+  ) {
+    if (typeof window === "undefined") {
+      return extra;
+    }
+
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    return {
+      form_name:
+        "tutoring_enquiry",
+      form_variant:
+        compact
+          ? "compact"
+          : "full",
+      lead_source:
+        params.get("utm_source") ||
+        defaultSource ||
+        "website",
+      utm_campaign:
+        params.get("utm_campaign") ||
+        "none",
+      landing_page:
+        window.location.pathname,
+      learning_hub:
+        params.get("utm_source") ===
+        "learning_hub"
+          ? "yes"
+          : "no",
+      subject:
+        defaultSubject ||
+        "not_prefilled",
+      ...extra,
+    };
+  }
+
+  function trackFunnelEvent(
+    eventName: string,
+    extra: Record<
+      string,
+      string | number
+    > = {},
+  ) {
+    try {
+      sendGAEvent(
+        "event",
+        eventName,
+        analyticsContext(extra),
+      );
+    } catch (analyticsError) {
+      console.warn(
+        "Analytics event could not be sent:",
+        analyticsError,
+      );
+    }
+  }
+
+  function markFormStarted() {
+    if (
+      analyticsMilestones.current
+        .started
+    ) {
+      return;
+    }
+
+    analyticsMilestones.current.started =
+      true;
+
+    trackFunnelEvent(
+      "tutoring_form_start",
+    );
+  }
+
+  function handleFormFocus(
+    event: FocusEvent<HTMLFormElement>,
+  ) {
+    markFormStarted();
+
+    const target = event.target;
+
+    if (
+      !(
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement
+      )
+    ) {
+      return;
+    }
+
+    if (
+      (
+        target.name === "name" ||
+        target.name === "email"
+      ) &&
+      !analyticsMilestones.current
+        .contactReached
+    ) {
+      analyticsMilestones.current.contactReached =
+        true;
+
+      trackFunnelEvent(
+        "tutoring_contact_reached",
+      );
+    }
+  }
+
+  function handleFormChange(
+    event: FormEvent<HTMLFormElement>,
+  ) {
+    markFormStarted();
+
+    const target = event.target;
+
+    if (
+      !(
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLSelectElement
+      )
+    ) {
+      return;
+    }
+
+    if (
+      target.name ===
+        "supportType" &&
+      target.value &&
+      !analyticsMilestones.current
+        .supportSelected
+    ) {
+      analyticsMilestones.current.supportSelected =
+        true;
+
+      trackFunnelEvent(
+        "tutoring_support_selected",
+        {
+          support_type:
+            target.value,
+        },
+      );
+    }
+  }
+
+  function handleFormInput(
+    event: FormEvent<HTMLFormElement>,
+  ) {
+    markFormStarted();
+
+    const target = event.target;
+
+    if (
+      !(
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement
+      )
+    ) {
+      return;
+    }
+
+    if (
+      target.name ===
+        "requirements" &&
+      target.value.trim().length >
+        0 &&
+      !analyticsMilestones.current
+        .requirementsStarted
+    ) {
+      analyticsMilestones.current.requirementsStarted =
+        true;
+
+      trackFunnelEvent(
+        "tutoring_requirements_started",
+      );
+    }
+  }
+
+  useEffect(() => {
+    const form =
+      formRef.current;
+
+    if (!form) {
+      return;
+    }
+
+    function markViewed() {
+      if (
+        analyticsMilestones.current
+          .viewed
+      ) {
+        return;
+      }
+
+      analyticsMilestones.current.viewed =
+        true;
+
+      trackFunnelEvent(
+        "tutoring_form_view",
+      );
+    }
+
+    if (
+      typeof IntersectionObserver ===
+      "undefined"
+    ) {
+      markViewed();
+      return;
+    }
+
+    const observer =
+      new IntersectionObserver(
+        (entries) => {
+          const visible =
+            entries.some(
+              (entry) =>
+                entry.isIntersecting &&
+                entry.intersectionRatio >=
+                  0.25,
+            );
+
+          if (visible) {
+            markViewed();
+            observer.disconnect();
+          }
+        },
+        {
+          threshold: [0.25],
+        },
+      );
+
+    observer.observe(form);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [
+    compact,
+    defaultSource,
+    defaultSubject,
+  ]);
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -127,6 +395,25 @@ export default function TutoringLeadForm({
 
     const payload: Record<string, FormDataEntryValue | string> =
       Object.fromEntries(formData.entries());
+
+    trackFunnelEvent(
+      "tutoring_submit_attempt",
+      {
+        subject:
+          String(
+            payload.subject || "",
+          ),
+        academic_level:
+          String(
+            payload.level || "",
+          ),
+        support_type:
+          String(
+            payload.supportType ||
+              "",
+          ),
+      },
+    );
 
     const params = new URLSearchParams(window.location.search);
 
@@ -207,6 +494,14 @@ export default function TutoringLeadForm({
       });
     } catch (error) {
       console.error("Tutoring request error:", error);
+
+      trackFunnelEvent(
+        "tutoring_submit_error",
+        {
+          error_stage:
+            "submission",
+        },
+      );
 
       setStatus({
         type: "error",
@@ -291,9 +586,13 @@ export default function TutoringLeadForm({
 
   return (
     <form
+      ref={formRef}
       id="tutoring-enquiry-form"
       name="tutoring_enquiry"
       className={`lead-form ${compact ? "lead-form-compact" : ""}`}
+      onFocusCapture={handleFormFocus}
+      onChangeCapture={handleFormChange}
+      onInputCapture={handleFormInput}
       onSubmit={submit}
     >
       <input
