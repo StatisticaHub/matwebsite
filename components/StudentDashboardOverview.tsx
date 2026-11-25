@@ -57,9 +57,7 @@ function formatDate(
       year: "numeric",
       timeZone,
     },
-  ).format(
-    new Date(dateValue),
-  );
+  ).format(new Date(dateValue));
 }
 
 function formatDateTime(
@@ -78,17 +76,14 @@ function formatDateTime(
       minute: "2-digit",
       timeZone,
     },
-  ).format(
-    new Date(value),
-  );
+  ).format(new Date(value));
 }
 
 function shortText(
   value: string | null | undefined,
-  max = 180,
+  max = 170,
 ) {
-  const clean =
-    String(value || "").trim();
+  const clean = String(value || "").trim();
 
   if (!clean) return null;
 
@@ -104,18 +99,21 @@ export default function StudentDashboardOverview({
   courseId,
   subject,
   currentFocus,
+  nextDeadline,
+  confidence,
   nextSession,
   nextMeetingUrl,
   nextHomework,
   recentSession,
+  averageProgress,
+  mastered,
+  planCount,
   timeZone = "Europe/London",
 }: Props) {
-  const searchParams =
-    useSearchParams();
+  const searchParams = useSearchParams();
 
   const activeView =
-    searchParams.get("view") ||
-    "dashboard";
+    searchParams.get("view") || "dashboard";
 
   if (activeView !== "dashboard") {
     return null;
@@ -128,67 +126,78 @@ export default function StudentDashboardOverview({
     encodeURIComponent(courseId);
 
   const latestFeedback =
-    shortText(
-      recentSession?.lesson_notes,
-    );
+    shortText(recentSession?.lesson_notes);
 
   const nextTopic =
-    recentSession?.next_topic ||
+    recentSession?.next_topic || null;
+
+  const focusTitle =
     currentFocus ||
-    null;
+    nextTopic ||
+    subject;
+
+  const progressDetail =
+    planCount > 0
+      ? `${mastered} of ${planCount} plan topics mastered`
+      : "Your learning plan will build as your tutoring progresses.";
 
   return (
-    <section className="portal-next-actions">
-      <div className="portal-next-actions-head">
+    <section
+      className="portal-home-command"
+      aria-labelledby="portal-home-command-title"
+    >
+      <div className="portal-home-command-head">
         <div>
           <span className="portal-kicker">
-            Next actions
+            Your learning dashboard
           </span>
 
-          <h2>
-            What to do next
+          <h2 id="portal-home-command-title">
+            What needs your attention now
           </h2>
 
           <p>
-            Your most useful next steps for{" "}
-            {subject}.
+            Start with your next lesson or assignment,
+            then keep track of where your learning is heading.
           </p>
         </div>
 
-        <span className="portal-next-actions-note">
+        <span className="portal-home-live-note">
           Updated from your tutoring record
         </span>
       </div>
 
-      <div className="portal-next-actions-grid">
-
-        <article className="portal-next-action-card is-primary">
-          <div className="portal-next-action-top">
-            <span className="portal-next-action-number">
-              1
-            </span>
-
-            <span className="portal-kicker">
-              Upcoming session
-            </span>
+      <div className="portal-home-priority-grid">
+        <article className="portal-home-priority-card is-session">
+          <div className="portal-home-card-label">
+            <span>01</span>
+            <strong>Next lesson</strong>
           </div>
 
-          <h3>
-            {nextSession
-              ? nextSession.topic
-              : "No lesson booked"}
-          </h3>
+          <div className="portal-home-priority-copy">
+            <h3>
+              {nextSession
+                ? nextSession.topic
+                : "No lesson booked"}
+            </h3>
 
-          <p>
-            {nextSession
-              ? formatDateTime(
-                  nextSession.scheduled_for,
-                  timeZone,
-                )
-              : "There is no upcoming lesson scheduled yet."}
-          </p>
+            <p>
+              {nextSession
+                ? formatDateTime(
+                    nextSession.scheduled_for,
+                    timeZone,
+                  )
+                : "Your next scheduled lesson will appear here."}
+            </p>
 
-          <div className="portal-next-action-buttons">
+            {nextSession && (
+              <small>
+                {nextSession.duration_minutes} minute session
+              </small>
+            )}
+          </div>
+
+          <div className="portal-home-priority-actions">
             {nextMeetingUrl && (
               <a
                 className="button button-primary"
@@ -206,159 +215,212 @@ export default function StudentDashboardOverview({
             >
               {nextSession
                 ? "View session"
-                : "View calendar"}
+                : "Open sessions"}
             </a>
           </div>
         </article>
 
-
-        <article className="portal-next-action-card">
-          <div className="portal-next-action-top">
-            <span className="portal-next-action-number">
-              2
-            </span>
-
-            <span className="portal-kicker">
-              Outstanding homework
-            </span>
+        <article
+          className={`portal-home-priority-card ${
+            nextHomework
+              ? "is-homework"
+              : "is-clear"
+          }`}
+        >
+          <div className="portal-home-card-label">
+            <span>02</span>
+            <strong>Homework</strong>
           </div>
 
-          <h3>
-            {nextHomework
-              ? nextHomework.title
-              : "Nothing currently due"}
-          </h3>
+          <div className="portal-home-priority-copy">
+            <h3>
+              {nextHomework
+                ? nextHomework.title
+                : "Nothing currently due"}
+            </h3>
 
-          <p>
-            {nextHomework
-              ? nextHomework.due_date
-                ? `Due ${formatDate(
-                    nextHomework.due_date,
-                    timeZone,
-                  )}`
-                : "This assignment does not have a due date."
-              : "You have no open assignments at the moment."}
-          </p>
+            <p>
+              {nextHomework
+                ? nextHomework.due_date
+                  ? `Due ${formatDate(
+                      nextHomework.due_date,
+                      timeZone,
+                    )}`
+                  : "No due date has been set."
+                : "You have no open assignments at the moment."}
+            </p>
 
-          <div className="portal-next-action-buttons">
+            {!nextHomework && (
+              <small>
+                You are clear for now.
+              </small>
+            )}
+          </div>
+
+          <div className="portal-home-priority-actions">
             <a
               className="button button-secondary"
               href={`${base}?view=assignments&course=${course}`}
             >
-              View assignments
+              Open assignments
             </a>
           </div>
         </article>
+      </div>
 
-
-        <article className="portal-next-action-card">
-          <div className="portal-next-action-top">
-            <span className="portal-next-action-number">
-              3
-            </span>
-
-            <span className="portal-kicker">
-              Latest tutor feedback
-            </span>
-          </div>
+      <div className="portal-home-continuity-head">
+        <div>
+          <span className="portal-kicker">
+            Learning continuity
+          </span>
 
           <h3>
+            Keep the thread between lessons
+          </h3>
+        </div>
+
+        <p>
+          Your focus, tutor feedback and learning-plan
+          progress stay together here.
+        </p>
+      </div>
+
+      <div className="portal-home-continuity-grid">
+        <article className="portal-home-continuity-card">
+          <span>Current focus</span>
+
+          <strong>
+            {focusTitle}
+          </strong>
+
+          <p>
+            {nextTopic &&
+            nextTopic !== currentFocus
+              ? `Next: ${nextTopic}`
+              : "Your current teaching priority."}
+          </p>
+
+          <div className="portal-home-continuity-meta">
+            {nextDeadline && (
+              <small>
+                Deadline{" "}
+                {formatDate(
+                  nextDeadline,
+                  timeZone,
+                )}
+              </small>
+            )}
+
+            {confidence !== null && (
+              <small>
+                Confidence {confidence}/5
+              </small>
+            )}
+          </div>
+
+          <a
+            href={`${base}?view=progress&course=${course}`}
+          >
+            View learning plan →
+          </a>
+        </article>
+
+        <article className="portal-home-continuity-card">
+          <span>Latest tutor feedback</span>
+
+          <strong>
             {recentSession
               ? recentSession.topic
-              : "No completed lesson yet"}
-          </h3>
+              : "Your feedback will build here"}
+          </strong>
 
           <p>
             {latestFeedback ||
-              (
-                recentSession
-                  ? "Your tutor has not added detailed lesson notes yet."
-                  : "Tutor feedback will appear here after your first completed lesson."
-              )}
+              (recentSession
+                ? "Your tutor has not added detailed lesson notes yet."
+                : "Feedback will appear after your first completed lesson.")}
           </p>
 
-          {recentSession?.understanding_rating && (
-            <small className="portal-next-action-meta">
-              Understanding recorded:{" "}
-              {recentSession.understanding_rating}/5
+          <div className="portal-home-continuity-meta">
+            {recentSession?.understanding_rating && (
+              <small>
+                Understanding{" "}
+                {recentSession.understanding_rating}/5
+              </small>
+            )}
+          </div>
+
+          <a
+            href={`${base}?view=lessons&course=${course}`}
+          >
+            Open lesson record →
+          </a>
+        </article>
+
+        <article className="portal-home-continuity-card is-progress">
+          <span>Your progress</span>
+
+          <div className="portal-home-progress-value">
+            <strong>
+              {averageProgress}%
+            </strong>
+
+            <small>
+              overall plan progress
             </small>
-          )}
-
-          <div className="portal-next-action-buttons">
-            <a
-              className="button button-secondary"
-              href={`${base}?view=lessons&course=${course}`}
-            >
-              View lesson record
-            </a>
-          </div>
-        </article>
-
-
-        <article className="portal-next-action-card">
-          <div className="portal-next-action-top">
-            <span className="portal-next-action-number">
-              4
-            </span>
-
-            <span className="portal-kicker">
-              Next topic
-            </span>
           </div>
 
-          <h3>
-            {nextTopic ||
-              "Next focus not set yet"}
-          </h3>
+          <div
+            className="portal-home-progress-track"
+            aria-label={`${averageProgress}% overall learning plan progress`}
+          >
+            <i
+              style={{
+                width: `${Math.max(
+                  0,
+                  Math.min(
+                    100,
+                    averageProgress,
+                  ),
+                )}%`,
+              }}
+            />
+          </div>
 
           <p>
-            {nextTopic
-              ? "This is the next teaching focus currently recorded for your course."
-              : "Your tutor will add the next focus as your learning plan develops."}
+            {progressDetail}
           </p>
 
-          <div className="portal-next-action-buttons">
-            <a
-              className="button button-secondary"
-              href={`${base}?view=progress&course=${course}`}
-            >
-              View learning progress
-            </a>
-          </div>
+          <a
+            href={`${base}?view=progress&course=${course}`}
+          >
+            View full progress →
+          </a>
         </article>
+      </div>
 
+      <div className="portal-home-help-strip">
+        <div>
+          <span className="portal-kicker">
+            Need support?
+          </span>
 
-        <article className="portal-next-action-card is-support">
-          <div className="portal-next-action-top">
-            <span className="portal-next-action-number">
-              5
-            </span>
-
-            <span className="portal-kicker">
-              Need help?
-            </span>
-          </div>
-
-          <h3>
-            Ask your tutoring team
-          </h3>
+          <strong>
+            Your tutoring team is available between lessons.
+          </strong>
 
           <p>
-            Ask about a lesson, homework,
-            scheduling, learning resources or
-            a technical problem.
+            Ask about a topic, homework, scheduling,
+            resources or a technical problem.
           </p>
+        </div>
 
-          <div className="portal-next-action-buttons">
-            <a
-              className="button button-secondary"
-              href={`${base}?view=help&course=${course}`}
-            >
-              Ask for support
-            </a>
-          </div>
-        </article>
-
+        <a
+          className="button button-secondary"
+          href={`${base}?view=help&course=${course}`}
+        >
+          Get help
+        </a>
       </div>
     </section>
   );
