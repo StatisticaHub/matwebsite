@@ -941,46 +941,63 @@ const openHomework =
             WELCOME
            ================================================================== */}
 
-        <section className="portal-welcome">
+        <section className="portal-learning-header">
 
-          <div>
+          <div className="portal-learning-header-main">
 
             <span className="portal-kicker">
-              Learning portal
+              Current learning space
             </span>
 
-            <h1>
-              Welcome back,{" "}
-              {
-                student.name.split(
-                  " "
-                )[0]
-              }.
-            </h1>
+            <div className="portal-learning-header-title-row">
+
+              <h1>
+                Welcome back,{" "}
+                {
+                  student.name.split(
+                    " "
+                  )[0]
+                }.
+              </h1>
+
+              {engagement && (
+                <span className="portal-learning-course-pill">
+                  {engagement.subject}
+                </span>
+              )}
+
+            </div>
 
             <p>
               {engagement
-                ? `${engagement.subject} tutoring`
+                ? `Your ${engagement.subject} tutoring workspace.`
                 : "Your tutoring team is preparing your learning record."}
             </p>
 
           </div>
 
 
+          <div className="portal-learning-header-tools">
 
+            <div className="portal-learning-timezone-copy">
+              <span>
+                Your local time
+              </span>
+
+              <small>
+                Session times use your saved timezone.
+              </small>
+            </div>
+
+            <PortalTimeZoneControl
+              token={token}
+              initialTimeZone={studentTimeZone}
+            />
+
+          </div>
 
         </section>
 
-        <div className="portal-lms-settings-row">
-          <PortalTimeZoneControl
-            token={token}
-            initialTimeZone={studentTimeZone}
-          />
-
-          <span>
-            Times in this learning space use your saved timezone.
-          </span>
-        </div>
 
         {engagement && (
           <>
