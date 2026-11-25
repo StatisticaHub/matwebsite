@@ -265,28 +265,31 @@ export default async function StudentRecordingsPage({
 
         <nav
           className="portal-upgrade-nav"
-          aria-label="Portal sections"
+          aria-label="Student portal"
         >
           <Link
             href={`/portal/${encodeURIComponent(
               token
-            )}?view=dashboard&course=${selectedEngagement.id}`}
+            )}?view=dashboard&course=${encodeURIComponent(
+              selectedEngagement.id
+            )}`}
           >
-            Dashboard
+            Home
           </Link>
+
+          <span
+            className="portal-nav-current"
+            aria-current="page"
+          >
+            Sessions
+          </span>
 
           <Link
             href={`/portal/${encodeURIComponent(
               token
-            )}?view=timetable&course=${selectedEngagement.id}`}
-          >
-            Timetable
-          </Link>
-
-          <Link
-            href={`/portal/${encodeURIComponent(
-              token
-            )}?view=assignments&course=${selectedEngagement.id}`}
+            )}?view=assignments&course=${encodeURIComponent(
+              selectedEngagement.id
+            )}`}
           >
             Assignments
           </Link>
@@ -294,7 +297,9 @@ export default async function StudentRecordingsPage({
           <Link
             href={`/portal/${encodeURIComponent(
               token
-            )}?view=progress&course=${selectedEngagement.id}`}
+            )}?view=progress&course=${encodeURIComponent(
+              selectedEngagement.id
+            )}`}
           >
             Progress
           </Link>
@@ -302,27 +307,25 @@ export default async function StudentRecordingsPage({
           <Link
             href={`/portal/${encodeURIComponent(
               token
-            )}?view=files&course=${selectedEngagement.id}`}
+            )}?view=help&course=${encodeURIComponent(
+              selectedEngagement.id
+            )}`}
           >
-            Files
-          </Link>
-
-          <span className="portal-nav-current">
-            Recordings
-          </span>
-
-          <Link
-            href={`/portal/${encodeURIComponent(
-              token
-            )}?view=support&course=${selectedEngagement.id}`}
-          >
-            Support
+            Help
           </Link>
         </nav>
+
 
         <div className="portal-topbar-meta">
           <span>Private learning record</span>
           <strong>{student.name}</strong>
+
+          <Link
+            href="/portal/logout"
+            className="portal-signout"
+          >
+            Sign out
+          </Link>
         </div>
       </header>
 
@@ -331,23 +334,26 @@ export default async function StudentRecordingsPage({
           <Link
             href={`/portal/${encodeURIComponent(
               token
-            )}?view=dashboard&course=${selectedEngagement.id}`}
+            )}?view=calendar&course=${encodeURIComponent(
+              selectedEngagement.id
+            )}`}
           >
-            ← Back to dashboard
+            ← Back to Sessions
           </Link>
         </div>
 
         <section className="portal-recordings-hero">
           <div>
             <span className="portal-kicker">
-              Lesson library
+              Session archive
             </span>
 
-            <h1>Recordings</h1>
+            <h1>Recordings & transcripts</h1>
 
             <p>
-              Revisit completed lessons, listen back to explanations,
-              and review what to work on next.
+              Recordings stay connected to completed lessons in
+              Sessions. Use this archive when you want to browse all
+              available lesson media together.
             </p>
           </div>
 
@@ -409,7 +415,7 @@ export default async function StudentRecordingsPage({
               </span>
 
               <h2>
-                {selectedEngagement.subject} recordings
+                {selectedEngagement.subject} lesson media
               </h2>
             </div>
 

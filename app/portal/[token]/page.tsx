@@ -1435,12 +1435,27 @@ const openHomework =
                       </p>
                     </div>
 
-                    <span className="portal-session-workspace-count">
-                      {upcomingSessions.length}{" "}
-                      {upcomingSessions.length === 1
-                        ? "session booked"
-                        : "sessions booked"}
-                    </span>
+                    <div className="portal-session-workspace-tools">
+
+                      <span className="portal-session-workspace-count">
+                        {upcomingSessions.length}{" "}
+                        {upcomingSessions.length === 1
+                          ? "session booked"
+                          : "sessions booked"}
+                      </span>
+
+                      <a
+                        className="portal-session-workspace-archive"
+                        href={`/portal/${encodeURIComponent(
+                          token
+                        )}/recordings?course=${encodeURIComponent(
+                          engagement.id
+                        )}`}
+                      >
+                        Recording archive →
+                      </a>
+
+                    </div>
                   </div>
 
 
@@ -2318,27 +2333,27 @@ const openHomework =
                   <div className="portal-panel-head compact">
                     <div>
                       <span className="portal-kicker">
-                        Lesson media
+                        Lesson media archive
                       </span>
 
                       <h2>
-                        Recordings & transcripts
+                        Recording archive
                       </h2>
                     </div>
                   </div>
 
                   <p>
-                    Recordings also appear inside each completed lesson record.
-                    Open the full media library when you want to browse them together.
+                    Recordings stay attached to completed lesson records in Sessions.
+                    Use the archive when you want to browse every recording and transcript for this course.
                   </p>
 
                   <a
                     className="button button-secondary"
-                    href={`/portal/${token}/recordings?course=${encodeURIComponent(
+                    href={`/portal/${encodeURIComponent(token)}/recordings?course=${encodeURIComponent(
                       engagement.id
                     )}`}
                   >
-                    Open recording library →
+                    Browse recording archive →
                   </a>
                 </section>
 

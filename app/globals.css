@@ -15066,3 +15066,37 @@ details > summary {
 }
 
 /* ===== END STUDENT PORTAL SESSION WORKSPACE V2 ===== */
+
+
+/* ===== STUDENT PORTAL SESSION RECORDING ARCHIVE LINK ===== */
+
+.student-portal-shell .portal-session-workspace-tools {
+  flex: 0 0 auto;
+  display: grid;
+  justify-items: end;
+  gap: 7px;
+}
+
+.student-portal-shell
+.portal-session-workspace-archive {
+  color: #245b91;
+  font-size: 9.5px;
+  font-weight: 850;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.student-portal-shell
+.portal-session-workspace-archive:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 700px) {
+  .student-portal-shell
+  .portal-session-workspace-tools {
+    justify-items: start;
+  }
+}
+
+/* ===== END STUDENT PORTAL SESSION RECORDING ARCHIVE LINK ===== */
