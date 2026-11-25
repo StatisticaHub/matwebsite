@@ -72,9 +72,8 @@ export default function PricingPage() {
               </h3>
 
               <p>
-                School-level tutoring, undergraduate modules and advanced
-                postgraduate or research topics may require different levels of
-                specialist expertise.
+                Undergraduate modules, postgraduate study and advanced research
+                topics may require different levels of specialist expertise.
               </p>
             </article>
 
