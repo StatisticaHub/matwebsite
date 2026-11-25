@@ -92,8 +92,10 @@ export async function sendNewLeadNotification(lead: LeadEmailData): Promise<Emai
       <tr><td>Support type</td><td>${escapeHtml(lead.support_type)}</td></tr>
       ${lead.urgency ? `<tr><td>Urgency</td><td>${escapeHtml(lead.urgency)}</td></tr>` : ""}
       ${lead.availability ? `<tr><td>Availability</td><td>${escapeHtml(lead.availability)}</td></tr>` : ""}
-      <tr><td>Source</td><td>${escapeHtml(value(lead.utm_source || lead.source))}</td></tr>
+      <tr><td>Lead source</td><td>${escapeHtml(value(lead.source))}</td></tr>
+      ${lead.utm_source ? `<tr><td>UTM source</td><td>${escapeHtml(lead.utm_source)}</td></tr>` : ""}
       ${lead.utm_campaign ? `<tr><td>Campaign</td><td>${escapeHtml(lead.utm_campaign)}</td></tr>` : ""}
+      ${lead.landing_page ? `<tr><td>Landing page</td><td>${escapeHtml(lead.landing_page)}</td></tr>` : ""}
     </table>
     <div class="box"><strong>What the student needs help with</strong><br>${escapeHtml(lead.requirements).replaceAll("\n", "<br>")}</div>
     ${adminUrl.startsWith("http") ? `<p><a href="${escapeHtml(adminUrl)}">Open this lead in the MAT admin dashboard →</a></p>` : ""}
@@ -122,46 +124,216 @@ export async function sendNewLeadNotification(lead: LeadEmailData): Promise<Emai
 }
 
 export async function sendStudentAcknowledgement(lead: LeadEmailData): Promise<EmailResult> {
-  if (!configured()) return { ok: false, skipped: true, error: "Resend email configuration is incomplete." };
+  if (!configured()) {
+    return {
+      ok: false,
+      skipped: true,
+      error: "Resend email configuration is incomplete.",
+    };
+  }
 
   const from = process.env.MAT_EMAIL_FROM!;
-  const replyTo = process.env.MAT_REPLY_TO_EMAIL?.trim() || process.env.MAT_LEADS_TO_EMAIL!;
-  const firstName = lead.name.trim().split(/\s+/)[0] || lead.name;
+  const replyTo =
+    process.env.MAT_REPLY_TO_EMAIL?.trim() ||
+    process.env.MAT_LEADS_TO_EMAIL!;
 
-  const html = `<!doctype html><html><head><meta charset="utf-8"><style>${baseStyles()}</style></head><body><div class="wrap"><div class="card">
-    <div class="top"><strong>My Academic Tutor</strong><div style="margin-top:5px;font-size:13px;opacity:.78">Tutoring request received</div></div>
-    <div class="body"><span class="ref">${escapeHtml(lead.reference)}</span><h1>Thank you, ${escapeHtml(firstName)}.</h1>
-    <p>We’ve received your request for <strong>${escapeHtml(lead.subject)}</strong> support. Our team will review your academic needs and arrange suitable one-to-one support.</p>
-    <table class="grid">
-      <tr><td>Academic level</td><td>${escapeHtml(lead.level)}</td></tr>
-      <tr><td>Subject</td><td>${escapeHtml(lead.subject)}</td></tr>
-      ${lead.topic ? `<tr><td>Topic</td><td>${escapeHtml(lead.topic)}</td></tr>` : ""}
-      <tr><td>Support</td><td>${escapeHtml(lead.support_type)}</td></tr>
-    </table>
-    <div class="box"><strong>What happens next</strong><br>1. We review your learning requirements.<br>2. We match your request with a suitable tutor.<br>3. We contact you with the next-step details for starting tutoring.</div>
-    <p>Please keep your reference <strong>${escapeHtml(lead.reference)}</strong> if you contact us about this request.</p>
-    <p>If you need to add anything, simply reply to this email.</p>
-    <p>Kind regards,<br><strong>My Academic Tutor</strong></p>
-    </div><div class="footer">One-to-one online tutoring for adult learners from undergraduate to research-level study.</div>
-  </div></div></body></html>`;
+  const firstName =
+    lead.name.trim().split(/\s+/)[0] ||
+    lead.name;
 
-  const text = `Hi ${firstName},\n\nThank you for your tutoring request.\n\nReference: ${lead.reference}\nSubject: ${lead.subject}\nLevel: ${lead.level}\nTopic: ${value(lead.topic)}\n\nWhat happens next:\n1. We review your learning requirements.\n2. We match your request with a suitable tutor.\n3. We contact you with the next-step details for starting tutoring.\n\nIf you need to add anything, reply to this email.\n\nKind regards,\nMy Academic Tutor`;
+  const html = `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>${baseStyles()}</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+
+      <div class="top">
+        <strong>My Academic Tutor</strong>
+        <div style="margin-top:5px;font-size:13px;opacity:.78">
+          Tutoring request received
+        </div>
+      </div>
+
+      <div class="body">
+
+        <span class="ref">
+          ${escapeHtml(lead.reference)}
+        </span>
+
+        <h1>
+          We have your request, ${escapeHtml(firstName)}.
+        </h1>
+
+        <p>
+          Thank you for telling us what you need help with.
+          We have received your request for
+          <strong>${escapeHtml(lead.subject)}</strong>
+          tutoring and will review the academic context before suggesting
+          the most suitable next step.
+        </p>
+
+        <table class="grid">
+          <tr>
+            <td>Academic level</td>
+            <td>${escapeHtml(lead.level)}</td>
+          </tr>
+
+          <tr>
+            <td>Subject</td>
+            <td>${escapeHtml(lead.subject)}</td>
+          </tr>
+
+          ${
+            lead.topic
+              ? `<tr>
+                   <td>Topic</td>
+                   <td>${escapeHtml(lead.topic)}</td>
+                 </tr>`
+              : ""
+          }
+
+          <tr>
+            <td>Support requested</td>
+            <td>${escapeHtml(lead.support_type)}</td>
+          </tr>
+
+          ${
+            lead.availability
+              ? `<tr>
+                   <td>Availability</td>
+                   <td>${escapeHtml(lead.availability)}</td>
+                 </tr>`
+              : ""
+          }
+        </table>
+
+        <div class="box">
+          <strong>What happens next</strong><br><br>
+
+          <strong>1. We review the request</strong><br>
+          We look at your level, subject, topic, goals and any timing or
+          availability you provided.<br><br>
+
+          <strong>2. We identify suitable support</strong><br>
+          We determine the appropriate tutoring arrangement and tutor for
+          the academic need.<br><br>
+
+          <strong>3. You review the proposal</strong><br>
+          We contact you with the proposed next step and exact price.
+          You decide whether you would like to proceed.
+        </div>
+
+        <p>
+          <strong>
+            Sending this enquiry has not booked a lesson and no payment
+            has been taken.
+          </strong>
+        </p>
+
+        <p>
+          Personalised tutoring enquiries are currently available to
+          learners aged 18 or over.
+        </p>
+
+        <p>
+          Please keep your reference
+          <strong>${escapeHtml(lead.reference)}</strong>
+          if you contact us about this request.
+        </p>
+
+        <p>
+          If you would like to add course material, a deadline or any
+          other useful information, simply reply to this email.
+        </p>
+
+        <p>
+          Kind regards,<br>
+          <strong>My Academic Tutor</strong>
+        </p>
+
+      </div>
+
+      <div class="footer">
+        One-to-one online tutoring for adult learners from undergraduate
+        to research-level study.
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>`;
+
+  const text = `Hi ${firstName},
+
+Thank you for your tutoring request.
+
+Reference: ${lead.reference}
+Subject: ${lead.subject}
+Level: ${lead.level}
+Topic: ${value(lead.topic)}
+Support requested: ${lead.support_type}
+
+What happens next:
+
+1. We review the request
+We look at your level, subject, topic, goals and any timing or availability you provided.
+
+2. We identify suitable support
+We determine the appropriate tutoring arrangement and tutor for the academic need.
+
+3. You review the proposal
+We contact you with the proposed next step and exact price. You decide whether you would like to proceed.
+
+Sending this enquiry has not booked a lesson and no payment has been taken.
+
+Personalised tutoring enquiries are currently available to learners aged 18 or over.
+
+If you would like to add course material, a deadline or any other useful information, reply to this email.
+
+Kind regards,
+My Academic Tutor`;
 
   try {
-    const { data, error } = await resendClient().emails.send(
-      {
-        from,
-        to: [lead.email],
-        replyTo,
-        subject: `We received your tutoring request · ${lead.reference}`,
-        html,
-        text,
-      },
-      { idempotencyKey: `mat-student-ack/${lead.id}` },
-    );
-    if (error) return { ok: false, error: error.message };
-    return { ok: true, id: data?.id };
+    const { data, error } =
+      await resendClient().emails.send(
+        {
+          from,
+          to: [lead.email],
+          replyTo,
+          subject:
+            `Tutoring request received · ${lead.reference}`,
+          html,
+          text,
+        },
+        {
+          idempotencyKey:
+            `mat-student-ack/${lead.id}`,
+        },
+      );
+
+    if (error) {
+      return {
+        ok: false,
+        error: error.message,
+      };
+    }
+
+    return {
+      ok: true,
+      id: data?.id,
+    };
   } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : "Unknown Resend error" };
+    return {
+      ok: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Unknown Resend error",
+    };
   }
 }
+

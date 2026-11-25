@@ -291,7 +291,7 @@ export async function POST(request: NextRequest) {
       ok: true,
       reference: data.reference,
       mode: "live",
-      message: "Your tutoring request has been received. Our team will review the academic context and arrange suitable one-to-one support.",
+      message: "Your tutoring request has been received. We will review the academic context and contact you with the proposed support and price before anything is booked.",
     });
   } catch (error) {
     console.error("[MAT LEAD ROUTE ERROR]", error);

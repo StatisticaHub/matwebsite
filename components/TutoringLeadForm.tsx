@@ -192,7 +192,7 @@ export default function TutoringLeadForm({
 
               <div>
                 <span>3</span>
-                <p>We contact you with the proposed next step and price before you book.</p>
+                <p>We contact you with the proposed support and exact price. Nothing is booked and no payment is taken until you decide to proceed.</p>
               </div>
             </div>
           </div>
