@@ -1,3 +1,7 @@
+import {
+  learningHubCategoryTutoringHref,
+  learningHubResourceTutoringHref,
+} from "@/lib/learning-hub-conversion";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -183,7 +187,7 @@ function CategoryPage({ slug }: { slug: string }) {
                 {category.tutoringLabel ?? "Get tutoring"}
               </TrackedLink>
             ) : (
-              <TrackedLink href="/find-a-tutor" className="button button-primary" trackingId={`learn_category_${category.slug}_bottom`} contentType="learning_hub_cta">Get tutoring</TrackedLink>
+              <TrackedLink href={learningHubCategoryTutoringHref(category.slug, category.name)} className="button button-primary" trackingId={`learn_category_${category.slug}_bottom`} contentType="learning_hub_cta">Get tutoring</TrackedLink>
             )}
           </div>
         </div>

@@ -23,7 +23,13 @@ export const dynamic = "force-dynamic";
 
 type Search = Promise<Record<string, string | string[] | undefined>>;
 
-type LeadPath = { landing_page: string | null; created_at: string };
+type LeadPath = {
+  landing_page: string | null;
+  created_at: string;
+  utm_source: string | null;
+  utm_campaign: string | null;
+  utm_content: string | null;
+};
 
 function percent(value: number) {
   return `${(value * 100).toFixed(value * 100 < 10 ? 1 : 0)}%`;
@@ -58,7 +64,16 @@ export default async function ContentGrowthPage({ searchParams }: { searchParams
   const [itemResult, snapshotResult, leadResult] = await Promise.all([
     supabase.from("content_growth_items").select("*").order("priority", { ascending: false }).order("updated_at", { ascending: false }).limit(500),
     supabase.from("content_performance_snapshots").select("*").order("period_end", { ascending: false }).limit(3000),
-    supabase.from("tutoring_leads").select("landing_page,created_at").gte("created_at", thirtyDaysAgo).limit(5000),
+    supabase
+      .from("tutoring_leads")
+      .select(
+        "landing_page,created_at,utm_source,utm_campaign,utm_content",
+      )
+      .gte(
+        "created_at",
+        thirtyDaysAgo,
+      )
+      .limit(5000),
   ]);
 
   if (itemResult.error) {
@@ -76,10 +91,82 @@ export default async function ContentGrowthPage({ searchParams }: { searchParams
     if (!latestByItem.has(snapshot.content_item_id)) latestByItem.set(snapshot.content_item_id, snapshot);
   }
 
-  const leadsByPath = new Map<string, number>();
+  const leadsByPath =
+    new Map<string, number>();
+
   for (const lead of leads) {
-    const path = normaliseLandingPage(lead.landing_page);
-    if (path) leadsByPath.set(path, (leadsByPath.get(path) || 0) + 1);
+    let path =
+      normaliseLandingPage(
+        lead.landing_page,
+      );
+
+    if (
+      lead.utm_source
+        ?.trim()
+        .toLowerCase() ===
+      "learning_hub"
+    ) {
+      const content =
+        lead.utm_content
+          ?.trim() || "";
+
+      if (content === "hub") {
+        path = "/learn";
+      }
+
+      if (
+        content.startsWith(
+          "resource:",
+        )
+      ) {
+        const slug =
+          content
+            .slice(
+              "resource:".length,
+            )
+            .replace(
+              /[^a-z0-9-]/gi,
+              "",
+            );
+
+        if (slug) {
+          path =
+            `/learn/${slug}`;
+        }
+      }
+
+      if (
+        content.startsWith(
+          "category:",
+        )
+      ) {
+        const slug =
+          content
+            .slice(
+              "category:".length,
+            )
+            .replace(
+              /[^a-z0-9-]/gi,
+              "",
+            );
+
+        if (slug) {
+          path =
+            `/learn/${slug}`;
+        }
+      }
+    }
+
+    if (path) {
+      leadsByPath.set(
+        path,
+        (
+          leadsByPath.get(
+            path,
+          ) || 0
+        ) + 1,
+      );
+    }
   }
 
   const today = new Date().toISOString().slice(0, 10);

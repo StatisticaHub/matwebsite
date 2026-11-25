@@ -1,3 +1,4 @@
+import { learningHubIndexTutoringHref } from "@/lib/learning-hub-conversion";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -71,7 +72,7 @@ export default function Page() {
               <a className="button button-primary button-large" href="#all-guides">Browse all guides</a>
               <TrackedLink
                 className="button button-secondary button-large"
-                href="/find-a-tutor"
+                href={learningHubIndexTutoringHref()}
                 trackingId="learning_hub_hero_tutoring"
                 contentType="learning_hub_cta"
               >
@@ -157,7 +158,7 @@ export default function Page() {
           </div>
           <TrackedLink
             className="button button-light button-large"
-            href="/find-a-tutor"
+            href={learningHubIndexTutoringHref()}
             trackingId="learning_hub_bottom_tutoring"
             contentType="learning_hub_cta"
           >
