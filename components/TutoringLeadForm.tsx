@@ -23,6 +23,60 @@ type Props = {
   defaultSource?: string;
 };
 
+const supportTypePresentation: Record<
+  string,
+  {
+    label: string;
+    description: string;
+  }
+> = {
+  "Regular 1:1 tutoring": {
+    label: "Regular tutoring",
+    description:
+      "Ongoing one-to-one teaching that follows your course and progress.",
+  },
+  "One-off topic session": {
+    label: "One-off topic",
+    description:
+      "Work through one difficult concept, method or problem area.",
+  },
+  "Exam preparation": {
+    label: "Exam preparation",
+    description:
+      "Revision, guided practice and exam-style problem solving.",
+  },
+  "University module support": {
+    label: "University module",
+    description:
+      "Support alongside lectures, problem sheets and course material.",
+  },
+  "Master’s support": {
+    label: "Master’s study",
+    description:
+      "Advanced methods, quantitative modules and postgraduate learning.",
+  },
+  "Statistics & data analysis tutoring": {
+    label: "Statistics & data analysis",
+    description:
+      "Statistical methods, interpretation and applied analytical reasoning.",
+  },
+  "Research / dissertation support": {
+    label: "Research & dissertation",
+    description:
+      "Methods, analysis planning and defensible interpretation.",
+  },
+  "Software / coding support": {
+    label: "Software & coding",
+    description:
+      "Guided work in R, Python, SPSS, Stata and analytical workflows.",
+  },
+  "Not sure yet": {
+    label: "Not sure yet",
+    description:
+      "Tell us what you are studying and we will help identify the right support.",
+  },
+};
+
 type Status = {
   type: "idle" | "loading" | "success" | "error";
   message?: string;
@@ -350,23 +404,89 @@ export default function TutoringLeadForm({
           )}
 
           <div className="form-grid">
-            <label className="form-span-2">
-              <span>Type of support</span>
-              <select
-                name="supportType"
-                required
-                defaultValue={supportTypeExists ? defaultSupportType : ""}
-              >
-                <option value="" disabled>
-                  Choose the type of support
-                </option>
-                {supportTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
+            {compact ? (
+              <label className="form-span-2">
+                <span>Type of support</span>
+
+                <select
+                  name="supportType"
+                  required
+                  defaultValue={
+                    supportTypeExists
+                      ? defaultSupportType
+                      : ""
+                  }
+                >
+                  <option value="" disabled>
+                    Choose the type of support
                   </option>
-                ))}
-              </select>
-            </label>
+
+                  {supportTypes.map((type) => (
+                    <option
+                      key={type}
+                      value={type}
+                    >
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : (
+              <fieldset className="lead-support-choice-fieldset form-span-2">
+                <legend>
+                  What kind of help are you looking for?
+                </legend>
+
+                <p className="lead-support-choice-intro">
+                  Choose the closest option. You can explain the details
+                  in your own words below.
+                </p>
+
+                <div className="lead-support-choice-grid">
+                  {supportTypes.map((type) => {
+                    const presentation =
+                      supportTypePresentation[
+                        type
+                      ];
+
+                    return (
+                      <label
+                        className="lead-support-choice"
+                        key={type}
+                      >
+                        <input
+                          type="radio"
+                          name="supportType"
+                          value={type}
+                          required
+                          defaultChecked={
+                            supportTypeExists &&
+                            defaultSupportType ===
+                              type
+                          }
+                        />
+
+                        <span className="lead-support-choice-card">
+                          <strong>
+                            {presentation?.label ||
+                              type}
+                          </strong>
+
+                          <small>
+                            {presentation?.description ||
+                              "Tell us what kind of tutoring support you need."}
+                          </small>
+
+                          <i aria-hidden="true">
+                            ✓
+                          </i>
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </fieldset>
+            )}
 
             <label className="form-span-2">
               <span>What do you want help understanding?</span>
