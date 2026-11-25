@@ -5,6 +5,7 @@ import { getStudentSession } from "@/lib/student-auth";
 import LearningMaterialUploadForm from "@/components/LearningMaterialUploadForm";
 
 import StudentDashboardOverview from "@/components/StudentDashboardOverview";
+import StudentReferralCard from "@/components/StudentReferralCard";
 
 import LearningMaterialsList, {
   type LearningMaterialListItem,
@@ -30,6 +31,11 @@ import {
   getPortalCourseContext,
   safeExternalUrl,
 } from "@/lib/student-portal";
+
+import {
+  referralCodeForStudentId,
+  referralUrlForStudentId,
+} from "@/lib/referrals";
 
 import {
   homeworkStatusLabels,
@@ -993,6 +999,15 @@ const openHomework =
               mastered={mastered}
               planCount={plan.length}
               timeZone={studentTimeZone}
+            />
+
+            <StudentReferralCard
+              referralCode={referralCodeForStudentId(
+                student.id,
+              )}
+              referralUrl={referralUrlForStudentId(
+                student.id,
+              )}
             />
           </>
         )}
