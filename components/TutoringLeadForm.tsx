@@ -488,15 +488,55 @@ export default function TutoringLeadForm({
               </fieldset>
             )}
 
-            <label className="form-span-2">
-              <span>What do you want help understanding?</span>
+            <label className="form-span-2 lead-requirements-field">
+              <span>
+                Tell us where you&apos;re stuck
+              </span>
+
+              {!compact && (
+                <div className="lead-requirements-prompts">
+                  <div>
+                    <strong>1</strong>
+                    <span>
+                      What are you trying to understand or do?
+                    </span>
+                  </div>
+
+                  <div>
+                    <strong>2</strong>
+                    <span>
+                      Which part currently feels difficult?
+                    </span>
+                  </div>
+
+                  <div>
+                    <strong>3</strong>
+                    <span>
+                      Add any useful course, software or deadline context.
+                    </span>
+                  </div>
+                </div>
+              )}
+
               <textarea
                 name="requirements"
                 required
                 minLength={20}
+                maxLength={5000}
                 rows={4}
-                placeholder="For example: I am studying MSc Finance and need help understanding regression, hypothesis testing and econometrics before my next assessment."
+                placeholder={
+                  defaultTopic
+                    ? `For example: I am studying ${defaultTopic} and understand the basic idea, but I am getting stuck when I try to apply it in my own questions. I would like help working through the reasoning step by step.`
+                    : "For example: I understand some of the material, but I am getting stuck when I try to apply it independently. I would like help working through the difficult parts and practising similar problems."
+                }
               />
+
+              {!compact && (
+                <small className="lead-requirements-note">
+                  Two to four sentences is usually enough. You do not
+                  need to prepare a detailed brief.
+                </small>
+              )}
             </label>
 
             <details className="lead-form-optional-details form-span-2">
