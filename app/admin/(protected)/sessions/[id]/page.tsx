@@ -451,7 +451,10 @@ export default async function SessionDetailPage({ params }: { params: Params }) 
           </section>
 
           {session.status === "completed" && (
-            <section className="admin-panel admin-action-card">
+            <section
+              className="admin-panel admin-action-card"
+              id="payment"
+            >
               <div className="admin-card-head">
                 <div>
                   <span className="admin-eyebrow">Finance</span>

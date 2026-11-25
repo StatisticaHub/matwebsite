@@ -435,6 +435,82 @@ function requestStatusLabel(
   return "New";
 }
 
+type SessionPaymentStatus =
+  | "untracked"
+  | "unpaid"
+  | "paid"
+  | "waived";
+
+type PaymentSessionRow = SessionRow & {
+  completed_at: string | null;
+  student_rate: number | null;
+  currency: string;
+  payment_status: SessionPaymentStatus;
+  paid_at: string | null;
+};
+
+function sessionPaymentValue(
+  session: PaymentSessionRow
+) {
+  if (
+    session.student_rate === null ||
+    !Number.isFinite(
+      Number(session.student_rate)
+    )
+  ) {
+    return null;
+  }
+
+  return (
+    Number(session.student_rate) *
+    (session.duration_minutes / 60)
+  );
+}
+
+function formatPaymentAmount(
+  value: number | null,
+  currency: string
+) {
+  if (value === null) {
+    return "Rate not recorded";
+  }
+
+  try {
+    return new Intl.NumberFormat(
+      "en-GB",
+      {
+        style: "currency",
+        currency:
+          (currency || "GBP").toUpperCase(),
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }
+    ).format(value);
+  } catch {
+    return `${currency || "GBP"} ${value.toFixed(2)}`;
+  }
+}
+
+function formatPaymentTotals(
+  totals: Map<string, number>
+) {
+  if (!totals.size) {
+    return "—";
+  }
+
+  return [...totals.entries()]
+    .sort(([a], [b]) =>
+      a.localeCompare(b)
+    )
+    .map(([currency, value]) =>
+      formatPaymentAmount(
+        value,
+        currency
+      )
+    )
+    .join(" · ");
+}
+
 export default async function SessionsPage() {
   const adminTimeZone =
     await getAdminTimeZone();
@@ -482,7 +558,7 @@ export default async function SessionsPage() {
         "tutoring_sessions"
       )
       .select(
-        "id,scheduled_for,duration_minutes,status,topic,understanding_rating,zoom_meeting_id,zoom_started_at,zoom_ended_at,engagement_id,tutor_id,session_tutor:tutors(name),tutoring_engagements(student_id,subject,title,students(name),tutors(name))"
+        "id,scheduled_for,completed_at,duration_minutes,status,topic,understanding_rating,zoom_meeting_id,zoom_started_at,zoom_ended_at,engagement_id,tutor_id,student_rate,currency,payment_status,paid_at,session_tutor:tutors(name),tutoring_engagements(student_id,subject,title,students(name),tutors(name))"
       )
       .order(
         "scheduled_for",
@@ -557,7 +633,7 @@ export default async function SessionsPage() {
   }
 
   const sessions =
-    (data || []) as unknown as SessionRow[];
+    (data || []) as unknown as PaymentSessionRow[];
 
   const engagements =
     (engagementData ||
@@ -694,6 +770,126 @@ export default async function SessionsPage() {
         sum +
         item.duration_minutes,
       0
+    );
+
+  const unpaidPayments =
+    completed
+      .filter(
+        (item) =>
+          item.payment_status ===
+          "unpaid"
+      )
+      .sort(
+        (a, b) =>
+          new Date(
+            b.completed_at ||
+              b.scheduled_for ||
+              0
+          ).getTime() -
+          new Date(
+            a.completed_at ||
+              a.scheduled_for ||
+              0
+          ).getTime()
+      );
+
+  const untrackedPayments =
+    completed
+      .filter(
+        (item) =>
+          item.payment_status ===
+          "untracked"
+      )
+      .sort(
+        (a, b) =>
+          new Date(
+            b.completed_at ||
+              b.scheduled_for ||
+              0
+          ).getTime() -
+          new Date(
+            a.completed_at ||
+              a.scheduled_for ||
+              0
+          ).getTime()
+      );
+
+  const paidPayments =
+    completed.filter(
+      (item) =>
+        item.payment_status ===
+        "paid"
+    );
+
+  const waivedPayments =
+    completed.filter(
+      (item) =>
+        item.payment_status ===
+        "waived"
+    );
+
+  const paymentReview = [
+    ...unpaidPayments,
+    ...untrackedPayments,
+  ].sort(
+    (a, b) => {
+      if (
+        a.payment_status !==
+        b.payment_status
+      ) {
+        return a.payment_status ===
+          "unpaid"
+          ? -1
+          : 1;
+      }
+
+      return (
+        new Date(
+          b.completed_at ||
+            b.scheduled_for ||
+            0
+        ).getTime() -
+        new Date(
+          a.completed_at ||
+            a.scheduled_for ||
+            0
+        ).getTime()
+      );
+    }
+  );
+
+  const outstandingByCurrency =
+    new Map<string, number>();
+
+  for (
+    const item of unpaidPayments
+  ) {
+    const value =
+      sessionPaymentValue(item);
+
+    if (value === null) {
+      continue;
+    }
+
+    const currency =
+      (
+        item.currency ||
+        "GBP"
+      ).toUpperCase();
+
+    outstandingByCurrency.set(
+      currency,
+      (
+        outstandingByCurrency.get(
+          currency
+        ) || 0
+      ) + value
+    );
+  }
+
+  const outstandingValue =
+    formatPaymentTotals(
+      outstandingByCurrency
     );
 
   const noShows =
@@ -835,6 +1031,148 @@ export default async function SessionsPage() {
           </strong>
         </div>
       </section>
+
+
+      <section className="admin-metrics admin-metrics-4">
+        <div>
+          <span>
+            Unpaid sessions
+          </span>
+
+          <strong>
+            {unpaidPayments.length}
+          </strong>
+        </div>
+
+        <div>
+          <span>
+            Outstanding value
+          </span>
+
+          <strong>
+            {outstandingValue}
+          </strong>
+        </div>
+
+        <div>
+          <span>
+            Untracked payments
+          </span>
+
+          <strong>
+            {untrackedPayments.length}
+          </strong>
+        </div>
+
+        <div>
+          <span>
+            Paid / waived
+          </span>
+
+          <strong>
+            {paidPayments.length} /{" "}
+            {waivedPayments.length}
+          </strong>
+        </div>
+      </section>
+
+
+      {paymentReview.length > 0 && (
+        <section
+          className="admin-panel admin-detail-card"
+          id="payments-due"
+        >
+          <div className="admin-card-head">
+            <div>
+              <span className="admin-eyebrow">
+                Finance
+              </span>
+
+              <h2>
+                Payments to review
+              </h2>
+            </div>
+
+            <span>
+              {paymentReview.length} session
+              {paymentReview.length === 1
+                ? ""
+                : "s"}
+            </span>
+          </div>
+
+          <p className="admin-help">
+            Unpaid sessions are confirmed amounts still due.
+            Untracked sessions are older or unclassified records
+            that need review. Only explicitly unpaid sessions are
+            included in the outstanding-value total.
+          </p>
+
+          <div className="admin-session-queue">
+            {paymentReview.map(
+              (item) => {
+                const amount =
+                  sessionPaymentValue(
+                    item
+                  );
+
+                const statusLabel =
+                  item.payment_status ===
+                  "unpaid"
+                    ? "Unpaid"
+                    : "Untracked";
+
+                return (
+                  <Link
+                    key={item.id}
+                    href={`/admin/sessions/${item.id}#payment`}
+                  >
+                    <div>
+                      <strong>
+                        {item
+                          .tutoring_engagements
+                          ?.students?.name ||
+                          "Student"}
+                      </strong>
+
+                      <span>
+                        {item
+                          .tutoring_engagements
+                          ?.subject ||
+                          "Tutoring"}
+                      </span>
+                    </div>
+
+                    <div>
+                      <strong>
+                        {item.topic}
+                      </strong>
+
+                      <span>
+                        Completed{" "}
+                        <ViewerLocalDateTime
+                          value={
+                            item.completed_at ||
+                            item.scheduled_for
+                          }
+                        />
+                      </span>
+                    </div>
+
+                    <b>
+                      {formatPaymentAmount(
+                        amount,
+                        item.currency
+                      )}{" "}
+                      · {statusLabel} →
+                    </b>
+                  </Link>
+                );
+              }
+            )}
+          </div>
+        </section>
+      )}
 
 
       {needsCloseOut.length > 0 && (
