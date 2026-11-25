@@ -15100,3 +15100,132 @@ details > summary {
 }
 
 /* ===== END STUDENT PORTAL SESSION RECORDING ARCHIVE LINK ===== */
+
+
+/* ===== STUDENT PORTAL MULTILINGUAL WELCOME V3 ===== */
+
+.student-portal-shell
+.portal-welcome-greeting {
+  min-width: 0;
+}
+
+.student-portal-shell
+.portal-welcome-language {
+  display: flex;
+  width: 78px;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 5px;
+}
+
+.student-portal-shell
+.portal-welcome-language span {
+  flex: 0 0 auto;
+  color: #8391a2;
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: .13em;
+}
+
+.student-portal-shell
+.portal-welcome-language i {
+  width: 100%;
+  height: 1px;
+  overflow: hidden;
+  background: #e1e7ed;
+}
+
+.student-portal-shell
+.portal-welcome-greeting.is-transitioning
+.portal-welcome-language i {
+  position: relative;
+}
+
+.student-portal-shell
+.portal-welcome-greeting.is-transitioning
+.portal-welcome-language i::after {
+  position: absolute;
+  inset: 0;
+  width: 42%;
+  background: #315f8f;
+  content: "";
+  animation:
+    portalWelcomeProgress
+    .43s
+    ease-out
+    infinite;
+}
+
+.student-portal-shell
+.portal-welcome-greeting-text {
+  min-height: 37px;
+}
+
+.student-portal-shell
+.portal-welcome-greeting-text {
+  animation:
+    portalWelcomeWord
+    .32s
+    ease-out;
+}
+
+.student-portal-shell
+.portal-welcome-greeting-text > span {
+  color: #315f8f;
+}
+
+.student-portal-shell
+.portal-welcome-greeting-caption {
+  margin: 5px 0 0 !important;
+  color: #718095;
+  font-size: 10px !important;
+  line-height: 1.4;
+}
+
+@keyframes portalWelcomeWord {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+    filter: blur(2px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes portalWelcomeProgress {
+  from {
+    transform: translateX(-110%);
+  }
+
+  to {
+    transform: translateX(250%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .student-portal-shell
+  .portal-welcome-greeting-text,
+  .student-portal-shell
+  .portal-welcome-greeting.is-transitioning
+  .portal-welcome-language i::after {
+    animation: none !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .student-portal-shell
+  .portal-welcome-greeting-text {
+    min-height: 32px;
+  }
+
+  .student-portal-shell
+  .portal-welcome-greeting-caption {
+    font-size: 9px !important;
+  }
+}
+
+/* ===== END STUDENT PORTAL MULTILINGUAL WELCOME V3 ===== */

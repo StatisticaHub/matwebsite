@@ -19,6 +19,7 @@ import SessionRequestForm from "@/components/SessionRequestForm";
 import SessionChangeRequestForm from "@/components/SessionChangeRequestForm";
 import StudentSupportForm from "@/components/StudentSupportForm";
 import PortalTimeZoneControl from "@/components/PortalTimeZoneControl";
+import StudentWelcomeGreeting from "@/components/StudentWelcomeGreeting";
 import StudentLessonContinuityRecord from "@/components/StudentLessonContinuityRecord";
 import StudentWeeklyJourney from "@/components/StudentWeeklyJourney";
 import {
@@ -893,14 +894,10 @@ const openHomework =
 
             <div className="portal-learning-header-title-row">
 
-              <h1>
-                Welcome back,{" "}
-                {
-                  student.name.split(
-                    " "
-                  )[0]
-                }.
-              </h1>
+              <StudentWelcomeGreeting
+                name={student.name}
+                animate={portalView === "dashboard"}
+              />
 
               {engagement && (
                 <span className="portal-learning-course-pill">
