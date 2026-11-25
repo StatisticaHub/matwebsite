@@ -34,7 +34,6 @@ import {
 } from "@/lib/student-portal";
 
 import {
-  referralCodeForStudentId,
   referralUrlForStudentId,
 } from "@/lib/referrals";
 
@@ -957,14 +956,13 @@ const openHomework =
               timeZone={studentTimeZone}
             />
 
-            <StudentReferralCard
-              referralCode={referralCodeForStudentId(
-                student.id,
-              )}
-              referralUrl={referralUrlForStudentId(
-                student.id,
-              )}
-            />
+            {portalView === "dashboard" && (
+              <StudentReferralCard
+                referralUrl={referralUrlForStudentId(
+                  student.id,
+                )}
+              />
+            )}
           </>
         )}
 

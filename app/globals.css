@@ -15229,3 +15229,109 @@ details > summary {
 }
 
 /* ===== END STUDENT PORTAL MULTILINGUAL WELCOME V3 ===== */
+
+
+/* ===== STUDENT HOME COMPACT REFERRAL ===== */
+
+.student-portal-shell
+.portal-referral-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  margin-top: 22px;
+  padding: 13px 15px;
+  border-top: 1px solid #e4eaf0;
+  border-bottom: 1px solid #e4eaf0;
+  background: transparent;
+}
+
+.student-portal-shell
+.portal-referral-compact-copy {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.student-portal-shell
+.portal-referral-compact-copy > span {
+  flex: 0 0 auto;
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: #eef3f8;
+  color: #62758a;
+  font-size: 7.5px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.student-portal-shell
+.portal-referral-compact-copy > div {
+  min-width: 0;
+}
+
+.student-portal-shell
+.portal-referral-compact-copy strong {
+  display: block;
+  color: #30435a;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.student-portal-shell
+.portal-referral-compact-copy p {
+  margin: 2px 0 0;
+  color: #8290a1;
+  font-size: 9.5px;
+  line-height: 1.4;
+}
+
+.student-portal-shell
+.portal-referral-compact-button {
+  flex: 0 0 auto;
+  min-width: 82px;
+  min-height: 32px;
+  border: 1px solid #ccd7e2;
+  border-radius: 8px;
+  padding: 6px 11px;
+  background: #fff;
+  color: #315f8f;
+  cursor: pointer;
+  font: inherit;
+  font-size: 9px;
+  font-weight: 850;
+  transition:
+    border-color .15s ease,
+    background .15s ease;
+}
+
+.student-portal-shell
+.portal-referral-compact-button:hover {
+  border-color: #9fb4c9;
+  background: #f7f9fc;
+}
+
+@media (max-width: 620px) {
+  .student-portal-shell
+  .portal-referral-compact {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 11px;
+  }
+
+  .student-portal-shell
+  .portal-referral-compact-copy {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .student-portal-shell
+  .portal-referral-compact-button {
+    width: 100%;
+  }
+}
+
+/* ===== END STUDENT HOME COMPACT REFERRAL ===== */
