@@ -51,6 +51,18 @@ type SessionRow = {
   student_rate: number | null;
   tutor_rate: number | null;
   currency: string;
+  payment_status:
+    | "untracked"
+    | "unpaid"
+    | "paid"
+    | "waived";
+  amount_paid: number | null;
+  tutor_payout_status:
+    | "untracked"
+    | "unpaid"
+    | "paid"
+    | "not_applicable";
+  tutor_payout_amount: number | null;
 };
 
 export type CurrencyTotals = Record<string, number>;
@@ -76,6 +88,24 @@ export type LeadAttributionFact = {
   studentValue: CurrencyTotals;
   tutorCost: CurrencyTotals;
   grossContribution: CurrencyTotals;
+
+  actualRevenue: CurrencyTotals;
+  outstandingValue: CurrencyTotals;
+
+  actualTutorPayouts: CurrencyTotals;
+  outstandingTutorPayouts: CurrencyTotals;
+
+  actualCashMargin: CurrencyTotals;
+
+  paidSessions: number;
+  unpaidSessions: number;
+  waivedSessions: number;
+  untrackedPaymentSessions: number;
+
+  tutorPaidSessions: number;
+  tutorUnpaidSessions: number;
+  tutorNotApplicableSessions: number;
+  tutorUntrackedSessions: number;
 };
 
 export type AttributionGroup = {
@@ -88,6 +118,24 @@ export type AttributionGroup = {
   teachingMinutes: number;
   studentValue: CurrencyTotals;
   grossContribution: CurrencyTotals;
+
+  actualRevenue: CurrencyTotals;
+  outstandingValue: CurrencyTotals;
+
+  actualTutorPayouts: CurrencyTotals;
+  outstandingTutorPayouts: CurrencyTotals;
+
+  actualCashMargin: CurrencyTotals;
+
+  paidSessions: number;
+  unpaidSessions: number;
+  waivedSessions: number;
+  untrackedPaymentSessions: number;
+
+  tutorPaidSessions: number;
+  tutorUnpaidSessions: number;
+  tutorNotApplicableSessions: number;
+  tutorUntrackedSessions: number;
 };
 
 export type BusinessIntelligence = {
@@ -174,6 +222,24 @@ function emptyGroup(label: string): AttributionGroup {
     teachingMinutes: 0,
     studentValue: {},
     grossContribution: {},
+
+    actualRevenue: {},
+    outstandingValue: {},
+
+    actualTutorPayouts: {},
+    outstandingTutorPayouts: {},
+
+    actualCashMargin: {},
+
+    paidSessions: 0,
+    unpaidSessions: 0,
+    waivedSessions: 0,
+    untrackedPaymentSessions: 0,
+
+    tutorPaidSessions: 0,
+    tutorUnpaidSessions: 0,
+    tutorNotApplicableSessions: 0,
+    tutorUntrackedSessions: 0,
   };
 }
 
@@ -191,6 +257,44 @@ function groupFacts(facts: LeadAttributionFact[], getter: (fact: LeadAttribution
     group.teachingMinutes += fact.teachingMinutes;
     mergeMoney(group.studentValue, fact.studentValue);
     mergeMoney(group.grossContribution, fact.grossContribution);
+
+    mergeMoney(group.actualRevenue, fact.actualRevenue);
+    mergeMoney(group.outstandingValue, fact.outstandingValue);
+
+    mergeMoney(
+      group.actualTutorPayouts,
+      fact.actualTutorPayouts
+    );
+
+    mergeMoney(
+      group.outstandingTutorPayouts,
+      fact.outstandingTutorPayouts
+    );
+
+    mergeMoney(
+      group.actualCashMargin,
+      fact.actualCashMargin
+    );
+
+    group.paidSessions += fact.paidSessions;
+    group.unpaidSessions += fact.unpaidSessions;
+    group.waivedSessions += fact.waivedSessions;
+
+    group.untrackedPaymentSessions +=
+      fact.untrackedPaymentSessions;
+
+    group.tutorPaidSessions +=
+      fact.tutorPaidSessions;
+
+    group.tutorUnpaidSessions +=
+      fact.tutorUnpaidSessions;
+
+    group.tutorNotApplicableSessions +=
+      fact.tutorNotApplicableSessions;
+
+    group.tutorUntrackedSessions +=
+      fact.tutorUntrackedSessions;
+
     map.set(label, group);
   }
 
@@ -210,7 +314,45 @@ function allTotals(facts: LeadAttributionFact[]) {
     total.teachingMinutes += fact.teachingMinutes;
     mergeMoney(total.studentValue, fact.studentValue);
     mergeMoney(total.grossContribution, fact.grossContribution);
+
+    mergeMoney(total.actualRevenue, fact.actualRevenue);
+    mergeMoney(total.outstandingValue, fact.outstandingValue);
+
+    mergeMoney(
+      total.actualTutorPayouts,
+      fact.actualTutorPayouts
+    );
+
+    mergeMoney(
+      total.outstandingTutorPayouts,
+      fact.outstandingTutorPayouts
+    );
+
+    mergeMoney(
+      total.actualCashMargin,
+      fact.actualCashMargin
+    );
+
+    total.paidSessions += fact.paidSessions;
+    total.unpaidSessions += fact.unpaidSessions;
+    total.waivedSessions += fact.waivedSessions;
+
+    total.untrackedPaymentSessions +=
+      fact.untrackedPaymentSessions;
+
+    total.tutorPaidSessions +=
+      fact.tutorPaidSessions;
+
+    total.tutorUnpaidSessions +=
+      fact.tutorUnpaidSessions;
+
+    total.tutorNotApplicableSessions +=
+      fact.tutorNotApplicableSessions;
+
+    total.tutorUntrackedSessions +=
+      fact.tutorUntrackedSessions;
   }
+
   return total;
 }
 
@@ -235,7 +377,7 @@ export async function loadBusinessIntelligence(range: AttributionRange = "90"): 
       .limit(10000),
     supabase
       .from("tutoring_sessions")
-      .select("id,engagement_id,status,scheduled_for,completed_at,duration_minutes,student_rate,tutor_rate,currency")
+      .select("id,engagement_id,status,scheduled_for,completed_at,duration_minutes,student_rate,tutor_rate,currency,payment_status,amount_paid,tutor_payout_status,tutor_payout_amount")
       .order("scheduled_for", { ascending: false })
       .limit(20000),
   ]);
@@ -288,6 +430,25 @@ export async function loadBusinessIntelligence(range: AttributionRange = "90"): 
     const studentValue: CurrencyTotals = {};
     const tutorCost: CurrencyTotals = {};
     const grossContribution: CurrencyTotals = {};
+
+    const actualRevenue: CurrencyTotals = {};
+    const outstandingValue: CurrencyTotals = {};
+
+    const actualTutorPayouts: CurrencyTotals = {};
+    const outstandingTutorPayouts: CurrencyTotals = {};
+
+    const actualCashMargin: CurrencyTotals = {};
+
+    let paidSessions = 0;
+    let unpaidSessions = 0;
+    let waivedSessions = 0;
+    let untrackedPaymentSessions = 0;
+
+    let tutorPaidSessions = 0;
+    let tutorUnpaidSessions = 0;
+    let tutorNotApplicableSessions = 0;
+    let tutorUntrackedSessions = 0;
+
     let teachingMinutes = 0;
 
     for (const session of leadSessions) {
@@ -298,8 +459,109 @@ export async function loadBusinessIntelligence(range: AttributionRange = "90"): 
       const tutorRate = session.tutor_rate === null ? null : Number(session.tutor_rate);
       if (studentRate !== null && Number.isFinite(studentRate)) addMoney(studentValue, session.currency, studentRate * hours);
       if (tutorRate !== null && Number.isFinite(tutorRate)) addMoney(tutorCost, session.currency, tutorRate * hours);
-      if (studentRate !== null && tutorRate !== null && Number.isFinite(studentRate) && Number.isFinite(tutorRate)) {
-        addMoney(grossContribution, session.currency, (studentRate - tutorRate) * hours);
+      if (
+        studentRate !== null &&
+        tutorRate !== null &&
+        Number.isFinite(studentRate) &&
+        Number.isFinite(tutorRate)
+      ) {
+        addMoney(
+          grossContribution,
+          session.currency,
+          (studentRate - tutorRate) * hours
+        );
+      }
+
+      if (session.payment_status === "paid") {
+        paidSessions += 1;
+
+        const received =
+          session.amount_paid === null
+            ? null
+            : Number(session.amount_paid);
+
+        if (
+          received !== null &&
+          Number.isFinite(received) &&
+          received >= 0
+        ) {
+          addMoney(
+            actualRevenue,
+            session.currency,
+            received
+          );
+
+          addMoney(
+            actualCashMargin,
+            session.currency,
+            received
+          );
+        }
+      } else if (session.payment_status === "unpaid") {
+        unpaidSessions += 1;
+
+        if (
+          studentRate !== null &&
+          Number.isFinite(studentRate)
+        ) {
+          addMoney(
+            outstandingValue,
+            session.currency,
+            studentRate * hours
+          );
+        }
+      } else if (session.payment_status === "waived") {
+        waivedSessions += 1;
+      } else {
+        untrackedPaymentSessions += 1;
+      }
+
+      if (session.tutor_payout_status === "paid") {
+        tutorPaidSessions += 1;
+
+        const paidToTutor =
+          session.tutor_payout_amount === null
+            ? null
+            : Number(session.tutor_payout_amount);
+
+        if (
+          paidToTutor !== null &&
+          Number.isFinite(paidToTutor) &&
+          paidToTutor >= 0
+        ) {
+          addMoney(
+            actualTutorPayouts,
+            session.currency,
+            paidToTutor
+          );
+
+          addMoney(
+            actualCashMargin,
+            session.currency,
+            -paidToTutor
+          );
+        }
+      } else if (
+        session.tutor_payout_status === "unpaid"
+      ) {
+        tutorUnpaidSessions += 1;
+
+        if (
+          tutorRate !== null &&
+          Number.isFinite(tutorRate)
+        ) {
+          addMoney(
+            outstandingTutorPayouts,
+            session.currency,
+            tutorRate * hours
+          );
+        }
+      } else if (
+        session.tutor_payout_status === "not_applicable"
+      ) {
+        tutorNotApplicableSessions += 1;
+      } else {
+        tutorUntrackedSessions += 1;
       }
     }
 
@@ -324,6 +586,24 @@ export async function loadBusinessIntelligence(range: AttributionRange = "90"): 
       studentValue,
       tutorCost,
       grossContribution,
+
+      actualRevenue,
+      outstandingValue,
+
+      actualTutorPayouts,
+      outstandingTutorPayouts,
+
+      actualCashMargin,
+
+      paidSessions,
+      unpaidSessions,
+      waivedSessions,
+      untrackedPaymentSessions,
+
+      tutorPaidSessions,
+      tutorUnpaidSessions,
+      tutorNotApplicableSessions,
+      tutorUntrackedSessions,
     };
   });
 
