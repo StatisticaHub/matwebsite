@@ -599,108 +599,143 @@ export default function TutoringLeadForm({
           </div>
         </section>
 
-        <section className="lead-form-group">
+        <section className="lead-form-group lead-final-step-group">
           {!compact && (
             <div className="lead-form-group-head">
               <span>03</span>
+
               <div>
-                <strong>Contact details</strong>
-                <small>We will use these only to respond to your tutoring request.</small>
+                <strong>Finish your request</strong>
+
+                <small>
+                  Add your contact details, check the two confirmations
+                  and send your enquiry.
+                </small>
               </div>
             </div>
           )}
 
-          <div className="form-grid">
-            <label>
-              <span>Your name</span>
-              <input
-                name="name"
-                required
-                autoComplete="name"
-                placeholder="Your name"
-              />
-            </label>
+          <div className="lead-final-step">
+            <div className="form-grid">
+              <label>
+                <span>Your name</span>
 
-            <label>
-              <span>Email</span>
-              <input
-                type="email"
-                name="email"
-                required
-                autoComplete="email"
-                placeholder="you@example.com"
-              />
-            </label>
+                <input
+                  name="name"
+                  required
+                  autoComplete="name"
+                  placeholder="Your name"
+                />
+              </label>
+
+              <label>
+                <span>Email</span>
+
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  autoComplete="email"
+                  placeholder="you@example.com"
+                />
+              </label>
+            </div>
+
+            {!compact && (
+              <div
+                className="lead-final-reassurance"
+                aria-label="Before you send your tutoring request"
+              >
+                <div>
+                  <strong>No payment now</strong>
+                  <span>
+                    Sending this form does not charge you.
+                  </span>
+                </div>
+
+                <div>
+                  <strong>Nothing is booked yet</strong>
+                  <span>
+                    You decide after seeing the proposed support
+                    and price.
+                  </span>
+                </div>
+
+                <div>
+                  <strong>Reviewed by MAT</strong>
+                  <span>
+                    We read your academic context before suggesting
+                    the next step.
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <div className="lead-final-consents">
+              <label className="consent-row">
+                <input
+                  type="checkbox"
+                  name="ageConfirmation"
+                  value="yes"
+                  required
+                />
+
+                <span>
+                  I confirm that I am aged 18 or over.
+                </span>
+              </label>
+
+              <label className="consent-row">
+                <input
+                  type="checkbox"
+                  name="consent"
+                  value="yes"
+                  required
+                />
+
+                <span>
+                  I agree that My Academic Tutor may contact me
+                  about this request.
+                </span>
+              </label>
+            </div>
+
+            <TurnstileWidget action="tutoring_enquiry" />
+
+            <div className="lead-final-submit">
+              <button
+                className="button button-primary submit-button"
+                disabled={status.type === "loading"}
+                type="submit"
+              >
+                {status.type === "loading"
+                  ? "Submitting…"
+                  : submitLabel ||
+                    (compact
+                      ? "Request tutoring"
+                      : "Send tutoring request")}
+              </button>
+
+              {!compact && (
+                <small>
+                  Your details are used to respond to this tutoring
+                  enquiry. No lesson or payment is created by
+                  submitting this form.
+                </small>
+              )}
+            </div>
+
+            {status.type === "error" && (
+              <p
+                className="form-error"
+                role="alert"
+              >
+                {status.message}
+              </p>
+            )}
           </div>
         </section>
       </div>
-
-      <div
-        className="lead-submit-reassurance"
-        aria-label="What happens when you send this request"
-      >
-        <div>
-          <strong>Reviewed by the MAT team</strong>
-          <span>We read the academic context before deciding the next step.</span>
-        </div>
-
-        <div>
-          <strong>Price confirmed before booking</strong>
-          <span>You can review the proposed support and price before deciding.</span>
-        </div>
-
-        <div>
-          <strong>No lesson is booked by submitting</strong>
-          <span>This is an enquiry, not a commitment to ongoing tutoring.</span>
-        </div>
-      </div>
-
-      <label className="consent-row">
-        <input
-          type="checkbox"
-          name="ageConfirmation"
-          value="yes"
-          required
-        />
-
-        <span>
-          I confirm that I am aged 18 or over.
-        </span>
-      </label>
-
-      <label className="consent-row">
-        <input
-          type="checkbox"
-          name="consent"
-          value="yes"
-          required
-        />
-
-        <span>
-          I agree that My Academic Tutor may contact me about this request.
-        </span>
-      </label>
-
-      <TurnstileWidget action="tutoring_enquiry" />
-
-      <button
-        className="button button-primary submit-button"
-        disabled={status.type === "loading"}
-        type="submit"
-      >
-        {status.type === "loading"
-          ? "Submitting…"
-          : submitLabel || "Request tutoring"}
-      </button>
-
-      {status.type === "error" && (
-        <p
-          className="form-error"
-          role="alert"
-        >
-          {status.message}
-        </p>
-      )}
 
     </form>
   );
