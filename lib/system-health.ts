@@ -1,7 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export type HealthStatus = "healthy" | "attention" | "failed";
-export type HealthGroup = "Infrastructure" | "Automation" | "CRM & delivery" | "Growth & analytics";
+export type HealthGroup = "Infrastructure" | "Automation" | "CRM & delivery" | "Finance integrity" | "Growth & analytics";
 
 export type SystemHealthCheck = {
   id: string;
@@ -128,6 +128,7 @@ export async function loadSystemHealthReport(): Promise<SystemHealthReport> {
     oldSupportRequests,
     agedSessionRequests,
     activeTutors,
+    financeSessions,
     upcomingSessionMeetings,
     expiredTestimonials,
     contentItems,
@@ -163,6 +164,14 @@ export async function loadSystemHealthReport(): Promise<SystemHealthReport> {
     supabase.from("student_support_requests").select("id", { count: "exact", head: true }).in("status", ["new", "in_progress"]).lt("created_at", isoAgo(2 * DAY)),
     supabase.from("student_support_requests").select("id", { count: "exact", head: true }).eq("category", "session_request").in("status", ["new", "in_progress"]).lt("created_at", isoAgo(12 * HOUR)),
     supabase.from("tutors").select("id,portal_enabled,auth_user_id").eq("status", "active"),
+
+    supabase
+      .from("tutoring_sessions")
+      .select(
+        "id,status,student_rate,tutor_rate,payment_status,amount_paid,tutor_payout_status,tutor_payout_amount"
+      )
+      .eq("status", "completed"),
+
     supabase.from("tutoring_sessions")
       .select("id,scheduled_for,meeting_url,zoom_meeting_id,zoom_synced_at")
       .eq("status", "planned")
@@ -426,6 +435,211 @@ export async function loadSystemHealthReport(): Promise<SystemHealthReport> {
         healthySummary: "Enabled active tutor portals are correctly linked to authentication users.",
         issueSummary: `${brokenTutorAccess} active tutor portal account(s) are enabled but not linked to an auth user.`,
         href: "/admin/tutors",
+      }),
+    );
+  }
+
+
+  if (financeSessions.error) {
+    checks.push(
+      failedCheck(
+        "finance-integrity",
+        "Finance integrity",
+        "Session finance integrity",
+        financeSessions.error.message,
+        "/admin/sessions",
+      ),
+    );
+  } else {
+    const rows = financeSessions.data ?? [];
+
+    const missingStudentAmount = rows.filter(
+      (row) =>
+        row.payment_status === "paid" &&
+        (
+          row.amount_paid === null ||
+          !Number.isFinite(Number(row.amount_paid)) ||
+          Number(row.amount_paid) < 0
+        ),
+    ).length;
+
+    const missingTutorAmount = rows.filter(
+      (row) =>
+        row.tutor_payout_status === "paid" &&
+        (
+          row.tutor_payout_amount === null ||
+          !Number.isFinite(Number(row.tutor_payout_amount)) ||
+          Number(row.tutor_payout_amount) < 0
+        ),
+    ).length;
+
+    const untrackedStudentFinance = rows.filter(
+      (row) =>
+        row.payment_status === "untracked",
+    ).length;
+
+    const untrackedTutorFinance = rows.filter(
+      (row) =>
+        row.tutor_payout_status === "untracked",
+    ).length;
+
+    const unpaidWithoutStudentRate = rows.filter(
+      (row) =>
+        row.payment_status === "unpaid" &&
+        (
+          row.student_rate === null ||
+          !Number.isFinite(Number(row.student_rate)) ||
+          Number(row.student_rate) <= 0
+        ),
+    ).length;
+
+    const unpaidWithoutTutorRate = rows.filter(
+      (row) =>
+        row.tutor_payout_status === "unpaid" &&
+        (
+          row.tutor_rate === null ||
+          !Number.isFinite(Number(row.tutor_rate)) ||
+          Number(row.tutor_rate) <= 0
+        ),
+    ).length;
+
+    const waivedWithAmount = rows.filter(
+      (row) =>
+        row.payment_status === "waived" &&
+        row.amount_paid !== null,
+    ).length;
+
+    const notApplicableWithPayout = rows.filter(
+      (row) =>
+        row.tutor_payout_status === "not_applicable" &&
+        row.tutor_payout_amount !== null,
+    ).length;
+
+    checks.push(
+      countCheck({
+        id: "finance-student-untracked",
+        group: "Finance integrity",
+        title: "Completed sessions with untracked student payment",
+        count: untrackedStudentFinance,
+        healthySummary:
+          "Every completed session has a classified student payment state.",
+        issueSummary:
+          `${untrackedStudentFinance} completed session(s) still have untracked student payment status.`,
+        detail:
+          "Classify each as paid, unpaid or waived so revenue and outstanding balances remain trustworthy.",
+        href: "/admin/sessions",
+      }),
+    );
+
+    checks.push(
+      countCheck({
+        id: "finance-tutor-untracked",
+        group: "Finance integrity",
+        title: "Completed sessions with untracked tutor payout",
+        count: untrackedTutorFinance,
+        healthySummary:
+          "Every completed session has a classified tutor payout state.",
+        issueSummary:
+          `${untrackedTutorFinance} completed session(s) still have untracked tutor payout status.`,
+        detail:
+          "Classify each as paid, unpaid or not applicable.",
+        href: "/admin/sessions",
+      }),
+    );
+
+    checks.push(
+      countCheck({
+        id: "finance-student-paid-amount",
+        group: "Finance integrity",
+        title: "Paid student sessions missing a valid received amount",
+        count: missingStudentAmount,
+        healthySummary:
+          "Every paid student session has a valid recorded amount received.",
+        issueSummary:
+          `${missingStudentAmount} paid student session(s) are missing a valid received amount.`,
+        detail:
+          "Paid sessions require a non-negative amount_paid value for actual-revenue reporting.",
+        href: "/admin/sessions",
+      }),
+    );
+
+    checks.push(
+      countCheck({
+        id: "finance-tutor-paid-amount",
+        group: "Finance integrity",
+        title: "Paid tutor payouts missing a valid payout amount",
+        count: missingTutorAmount,
+        healthySummary:
+          "Every paid tutor payout has a valid recorded payout amount.",
+        issueSummary:
+          `${missingTutorAmount} paid tutor payout(s) are missing a valid payout amount.`,
+        detail:
+          "Paid tutor records require a non-negative tutor_payout_amount for actual cash-margin reporting.",
+        href: "/admin/sessions",
+      }),
+    );
+
+    checks.push(
+      countCheck({
+        id: "finance-student-unpaid-rate",
+        group: "Finance integrity",
+        title: "Unpaid student sessions missing a rate",
+        count: unpaidWithoutStudentRate,
+        healthySummary:
+          "Every unpaid student session has a valid student rate.",
+        issueSummary:
+          `${unpaidWithoutStudentRate} unpaid student session(s) do not have a valid positive student rate.`,
+        detail:
+          "Without a rate, the expected outstanding student balance cannot be calculated.",
+        href: "/admin/sessions",
+      }),
+    );
+
+    checks.push(
+      countCheck({
+        id: "finance-tutor-unpaid-rate",
+        group: "Finance integrity",
+        title: "Unpaid tutor payouts missing a rate",
+        count: unpaidWithoutTutorRate,
+        healthySummary:
+          "Every unpaid tutor payout has a valid tutor rate.",
+        issueSummary:
+          `${unpaidWithoutTutorRate} unpaid tutor payout(s) do not have a valid positive tutor rate.`,
+        detail:
+          "Without a tutor rate, the expected payout liability cannot be calculated.",
+        href: "/admin/sessions",
+      }),
+    );
+
+    checks.push(
+      countCheck({
+        id: "finance-waived-with-amount",
+        group: "Finance integrity",
+        title: "Waived sessions carrying received amounts",
+        count: waivedWithAmount,
+        healthySummary:
+          "Waived sessions do not contain recorded student payments.",
+        issueSummary:
+          `${waivedWithAmount} waived session(s) still contain an amount received.`,
+        detail:
+          "A waived session should not simultaneously carry an actual student payment amount.",
+        href: "/admin/sessions",
+      }),
+    );
+
+    checks.push(
+      countCheck({
+        id: "finance-not-applicable-with-payout",
+        group: "Finance integrity",
+        title: "Non-payable tutor records carrying payout amounts",
+        count: notApplicableWithPayout,
+        healthySummary:
+          "Tutor payouts marked not applicable contain no payout amount.",
+        issueSummary:
+          `${notApplicableWithPayout} tutor payout record(s) marked not applicable still contain a payout amount.`,
+        detail:
+          "Either remove the payout amount or classify the tutor payout with the correct paid/unpaid state.",
+        href: "/admin/sessions",
       }),
     );
   }

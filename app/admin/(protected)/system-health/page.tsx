@@ -4,7 +4,7 @@ import { loadSystemHealthReport, type HealthGroup, type HealthStatus } from "@/l
 export const metadata = { title: "System Health" };
 export const dynamic = "force-dynamic";
 
-const groupOrder: HealthGroup[] = ["Infrastructure", "Automation", "CRM & delivery", "Growth & analytics"];
+const groupOrder: HealthGroup[] = ["Infrastructure", "Automation", "CRM & delivery", "Finance integrity", "Growth & analytics"];
 const statusLabels: Record<HealthStatus, string> = {
   healthy: "Healthy",
   attention: "Needs attention",
