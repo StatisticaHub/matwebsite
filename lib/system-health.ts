@@ -144,6 +144,7 @@ export async function loadSystemHealthReport(): Promise<SystemHealthReport> {
     supabase
       .from("tutoring_leads")
       .select("id,ga_client_id,created_at")
+      .eq("is_test", false)
       .gte(
         "created_at",
         new Date(
@@ -154,8 +155,8 @@ export async function loadSystemHealthReport(): Promise<SystemHealthReport> {
         ).toISOString(),
       ),
     supabase.from("retention_settings").select("automation_enabled,last_scan_at,scan_interval_hours").eq("id", 1).maybeSingle(),
-    supabase.from("tutoring_leads").select("id", { count: "exact", head: true }).not("status", "in", "(closed,lost)").lt("next_follow_up_at", new Date().toISOString()),
-    supabase.from("tutoring_leads").select("id", { count: "exact", head: true }).in("status", ["new", "contacted", "matching", "tutor_assigned"]).lt("updated_at", isoAgo(3 * DAY)),
+    supabase.from("tutoring_leads").select("id", { count: "exact", head: true }).eq("is_test", false).not("status", "in", "(closed,lost)").lt("next_follow_up_at", new Date().toISOString()),
+    supabase.from("tutoring_leads").select("id", { count: "exact", head: true }).eq("is_test", false).in("status", ["new", "contacted", "matching", "tutor_assigned"]).lt("updated_at", isoAgo(3 * DAY)),
     supabase.from("students").select("id,portal_enabled,auth_user_id").eq("status", "active"),
     supabase.from("tutoring_engagements").select("id,student_id,tutor_id,status").eq("status", "active"),
     supabase.from("tutoring_sessions").select("id", { count: "exact", head: true }).eq("status", "completed").is("lesson_notes", null).lt("completed_at", isoAgo(3 * HOUR)),

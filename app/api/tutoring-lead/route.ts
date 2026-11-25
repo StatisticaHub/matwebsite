@@ -57,6 +57,15 @@ function gaSessionCookieName(measurementId: string) {
   return `_ga_${measurementId.replace(/^G-/, "").replace(/-/g, "_")}`;
 }
 
+function isTestSubmission(request: NextRequest) {
+  const hostname = request.nextUrl.hostname.toLowerCase();
+
+  return ![
+    "myacademictutor.com",
+    "www.myacademictutor.com",
+  ].includes(hostname);
+}
+
 export async function POST(request: NextRequest) {
   try {
     if (!sameOrigin(request)) {
@@ -205,6 +214,7 @@ export async function POST(request: NextRequest) {
       ga_client_id: gaClientId || null,
       ga_session_id: gaSessionId || null,
       ga_captured_at: gaClientId ? new Date().toISOString() : null,
+      is_test: isTestSubmission(request),
     };
 
     if (!hasServerSupabaseConfig()) {

@@ -368,6 +368,7 @@ export async function loadBusinessIntelligence(range: AttributionRange = "90"): 
     supabase
       .from("tutoring_leads")
       .select("id,reference,created_at,status,subject,level,support_type,source,landing_page,referrer,utm_source,utm_medium,utm_campaign,trial_status,trial_scheduled_for,trial_completed_at,currency,quoted_rate")
+      .eq("is_test", false)
       .order("created_at", { ascending: false })
       .limit(10000),
     supabase
