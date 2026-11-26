@@ -14,9 +14,9 @@ const routes: Record<string, Array<{ href: string; title: string; copy: string }
     { href: "/tutoring/coding-software", title: "Coding & Software Support", copy: "Guided coding, debugging and analytical workflows." },
   ],
   "research-methods": [
-    { href: "/tutoring/dissertation-statistics-support", title: "Dissertation Statistics Support", copy: "Method selection, analysis planning and defensible interpretation." },
-    { href: "/tutoring/research-methods-tutor", title: "Research Methods Tutor", copy: "Study design, research questions and methodological reasoning." },
-    { href: "/tutoring/dissertation-research", title: "Dissertation & Research Support", copy: "Structured research guidance without outsourcing assessed work." },
+    { href: "/tutoring/dissertation-statistics-support", title: "Dissertation Statistics Support", copy: "Quantitative method choice, statistical analysis planning, software and interpretation." },
+    { href: "/tutoring/research-methods-tutor", title: "Research Methods Tutor", copy: "Study design, sampling, bias, methodology and methodological reasoning." },
+    { href: "/tutoring/dissertation-research", title: "Dissertation & Research Project Support", copy: "Guidance across the project lifecycle from research question through analysis and interpretation." },
   ],
   bioinformatics: [
     { href: "/tutoring/data-science-tutor", title: "Data Science Tutor", copy: "Programming, modelling and reproducible data workflows." },

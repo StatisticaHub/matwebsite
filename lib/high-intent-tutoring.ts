@@ -203,7 +203,7 @@ export const highIntentTutoringPages: HighIntentTutoringPage[] = [
     ],
     relatedLinks: [
       { label: "Statistics tutoring", href: "/subjects/statistics" },
-      { label: "Dissertation & research methods", href: "/tutoring/dissertation-research" },
+      { label: "Dissertation & research project support", href: "/tutoring/dissertation-research" },
       { label: "Coding & software tutoring", href: "/tutoring/coding-software" },
     ],
   },
@@ -347,7 +347,7 @@ export const highIntentTutoringPages: HighIntentTutoringPage[] = [
     ],
     relatedLinks: [
       { label: "Research Methods subject", href: "/subjects/research-methods" },
-      { label: "Dissertation & research methods", href: "/tutoring/dissertation-research" },
+      { label: "Dissertation & research project support", href: "/tutoring/dissertation-research" },
       { label: "PhD & research tutoring", href: "/levels/phd-research" },
     ],
   },

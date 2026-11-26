@@ -118,8 +118,8 @@ export const tutoringServices: TutoringService[] = [
 
   {
     slug: "masters-support",
-    title: "Master's Tutoring",
-    short: "One-to-one help with advanced methods, quantitative modules, coding and research preparation.",
+    title: "Master's Academic Support",
+    short: "Ongoing one-to-one support for Master's modules, advanced methods, coding, quantitative work and research preparation.",
     hero: "Master's courses often assume several earlier ideas at once and move quickly into advanced methods. We can slow down the difficult part, reconnect it to the foundations and help you use it correctly in calculations, software or analysis.",
     bestFor: [
       "Students on statistics, data science, finance, economics, health, science or computing programmes",
@@ -188,9 +188,9 @@ export const tutoringServices: TutoringService[] = [
 
   {
     slug: "dissertation-research",
-    title: "Dissertation & Research Methods",
-    short: "Get help understanding research design, methodology, analysis choices and interpretation while keeping the research your own.",
-    hero: "Use one-to-one sessions to think through research questions, study design, methodological choices and analysis. We can help you understand and defend the approach without writing or completing assessed research for you.",
+    title: "Dissertation & Research Project Support",
+    short: "Structured one-to-one support for planning, methodology, analysis choices and interpretation across a dissertation or research project.",
+    hero: "Bring the stage of your dissertation or research project that is causing difficulty. Sessions can help you clarify the question, plan the methodology, think through the analysis and interpret the results while the research and assessed work remain your own.",
     bestFor: [
       "Undergraduate and Master's dissertations",
       "PhD students learning research or analytical methods",
