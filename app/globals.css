@@ -14284,9 +14284,9 @@ main {
 /* ===== STUDENT PORTAL COMPACT LEARNING HEADER V2 ===== */
 
 .student-portal-shell .portal-learning-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
   gap: 32px;
   margin-bottom: 28px;
   padding: 18px 20px;
@@ -14297,8 +14297,7 @@ main {
 }
 
 .student-portal-shell .portal-learning-header-main {
-  flex: 1 1 auto;
-  width: 100%;
+  width: auto;
   min-width: 0;
 }
 
@@ -14396,8 +14395,8 @@ details > summary {
 
 @media (max-width: 820px) {
   .student-portal-shell .portal-learning-header {
+    grid-template-columns: minmax(0, 1fr);
     align-items: flex-start;
-    flex-direction: column;
     gap: 15px;
   }
 
@@ -15636,8 +15635,8 @@ details > summary {
 
   .student-portal-shell
   .portal-learning-header {
+    grid-template-columns: minmax(0, 1fr);
     align-items: stretch;
-    flex-direction: column;
     gap: 15px;
   }
 
