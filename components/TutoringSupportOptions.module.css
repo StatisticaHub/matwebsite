@@ -59,14 +59,14 @@
 }
 
 .number {
-  font-size: 0.76rem;
+  font-size: var(--mat-font-compact);
   font-weight: 700;
   letter-spacing: 0.12em;
   opacity: 0.45;
 }
 
 .label {
-  font-size: 0.8rem;
+  font-size: var(--mat-font-compact);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;

@@ -99,7 +99,7 @@
 
   color: #7088a3;
 
-  font-size: 9px;
+  font-size: var(--mat-font-small);
   font-weight: 700;
 
   letter-spacing: .075em;
@@ -140,7 +140,7 @@
 
   color: #617b98;
 
-  font-size: 8px;
+  font-size: var(--mat-font-micro);
   font-weight: 850;
 
   letter-spacing: .12em;
@@ -172,7 +172,7 @@
 
   text-decoration: none;
 
-  font-size: 11px;
+  font-size: var(--mat-font-small);
   font-weight: 680;
 
   transition:
@@ -238,7 +238,7 @@
 
   color: #e6edf6;
 
-  font-size: 11px;
+  font-size: var(--mat-font-small);
   font-weight: 780;
 
   white-space: nowrap;
@@ -253,7 +253,7 @@
 
   color: #8196ad;
 
-  font-size: 9px;
+  font-size: var(--mat-font-small);
 
   white-space: nowrap;
   overflow: hidden;
@@ -282,7 +282,7 @@
 
   border-radius: 8px;
 
-  font-size: 10px;
+  font-size: var(--mat-font-small);
   font-weight: 720;
 
   cursor: pointer;
@@ -352,7 +352,7 @@
   color:
     var(--tutor-muted);
 
-  font-size: 12.5px;
+  font-size: var(--mat-font-compact);
   line-height: 1.6;
 }
 
@@ -361,7 +361,7 @@
   color:
     var(--tutor-blue);
 
-  font-size: 8.5px;
+  font-size: var(--mat-font-micro);
   font-weight: 850;
 
   letter-spacing: .11em;
@@ -410,7 +410,7 @@
 }
 
 .shell :global(.tutor-metrics span) {
-  font-size: 8.5px;
+  font-size: var(--mat-font-micro);
 }
 
 .shell :global(.tutor-metrics strong) {
@@ -509,7 +509,7 @@
   color:
     #7189a6;
 
-  font-size: 8px;
+  font-size: var(--mat-font-micro);
   font-weight: 850;
 
   letter-spacing: .09em;
@@ -532,7 +532,7 @@
   color:
     #738095;
 
-  font-size: 10.5px;
+  font-size: var(--mat-font-small);
   line-height: 1.55;
 }
 
@@ -542,7 +542,7 @@
   color:
     var(--tutor-blue);
 
-  font-size: 9.5px;
+  font-size: var(--mat-font-small);
   font-weight: 800;
 }
 
@@ -584,7 +584,7 @@
   color:
     #8492a4;
 
-  font-size: 7.5px;
+  font-size: var(--mat-font-micro);
   font-weight: 850;
 
   letter-spacing: .09em;
@@ -599,7 +599,7 @@
   color:
     #304861;
 
-  font-size: 12px;
+  font-size: var(--mat-font-compact);
 }
 
 .shell :global(.tutor-student-focus p) {
@@ -609,7 +609,7 @@
   color:
     #718095;
 
-  font-size: 10px;
+  font-size: var(--mat-font-small);
   line-height: 1.5;
 }
 
@@ -647,7 +647,7 @@
 
   text-decoration: none;
 
-  font-size: 10px;
+  font-size: var(--mat-font-small);
   font-weight: 780;
 }
 
@@ -665,7 +665,7 @@
   border-radius:
     999px;
 
-  font-size: 10px;
+  font-size: var(--mat-font-small);
   font-weight: 800;
 }
 
@@ -701,7 +701,7 @@
   color:
     #7a8798;
 
-  font-size: 10px;
+  font-size: var(--mat-font-small);
   line-height: 1.5;
 }
 
@@ -740,14 +740,14 @@
 }
 
 .shell :global(.tutor-material-student-tabs a strong) {
-  font-size: 10.5px;
+  font-size: var(--mat-font-small);
 }
 
 .shell :global(.tutor-material-student-tabs a span) {
   color:
     #8390a1;
 
-  font-size: 8.5px;
+  font-size: var(--mat-font-micro);
 }
 
 .shell :global(.tutor-material-student-tabs a.is-active) {
@@ -788,7 +788,7 @@
   color:
     #758398;
 
-  font-size: 11px;
+  font-size: var(--mat-font-small);
 }
 
 .shell :global(.tutor-material-summary) {
@@ -821,7 +821,7 @@
   color:
     #8390a1;
 
-  font-size: 7.5px;
+  font-size: var(--mat-font-micro);
   font-weight: 800;
 
   text-transform: uppercase;
@@ -947,7 +947,7 @@
     border-radius:
       8px;
 
-    font-size: 10px;
+    font-size: var(--mat-font-small);
   }
 
   .shell :global(.tutor-sidebar-content) {
@@ -1087,13 +1087,13 @@
 .shell :global(.tutor-week-create > summary strong) {
   color: #245a9a;
 
-  font-size: 12px;
+  font-size: var(--mat-font-compact);
 }
 
 .shell :global(.tutor-week-create > summary span) {
   color: #8190a1;
 
-  font-size: 9.5px;
+  font-size: var(--mat-font-small);
 }
 
 .shell :global(.tutor-week-create[open] > summary) {
@@ -1163,7 +1163,7 @@
 
   color: #6d7e91;
 
-  font-size: 10.5px;
+  font-size: var(--mat-font-small);
   line-height: 1.55;
 }
 
@@ -1183,7 +1183,7 @@
 
   border-radius: 999px;
 
-  font-size: 8px;
+  font-size: var(--mat-font-micro);
   font-weight: 850;
 
   letter-spacing: .05em;
@@ -1257,7 +1257,7 @@
 
   border-radius: 9px;
 
-  font-size: 10px;
+  font-size: var(--mat-font-small);
   line-height: 1.45;
 
   counter-increment:
@@ -1286,7 +1286,7 @@
 
   border-radius: 50%;
 
-  font-size: 7.5px;
+  font-size: var(--mat-font-micro);
   font-weight: 850;
 }
 
@@ -1315,7 +1315,7 @@
 
   color: #63768b;
 
-  font-size: 10.5px;
+  font-size: var(--mat-font-small);
   line-height: 1.6;
 }
 
@@ -1346,7 +1346,7 @@
 
   color: #275f9d;
 
-  font-size: 9px;
+  font-size: var(--mat-font-small);
   font-weight: 800;
 
   cursor: pointer;
@@ -1438,7 +1438,7 @@
 .shell :global(.tutor-week-session-title > div > span) {
   color: #8592a1;
 
-  font-size: 8.5px;
+  font-size: var(--mat-font-micro);
 }
 
 .shell :global(.tutor-week-session-title h4) {
@@ -1461,7 +1461,7 @@
 
   border-radius: 999px;
 
-  font-size: 7px;
+  font-size: var(--mat-font-micro);
   font-weight: 800;
 
   text-transform: uppercase;
@@ -1488,7 +1488,7 @@
 
   color: #748397;
 
-  font-size: 7px;
+  font-size: var(--mat-font-micro);
   font-weight: 850;
 
   letter-spacing: .04em;
@@ -1501,7 +1501,7 @@
 
   color: #586b81;
 
-  font-size: 9.5px;
+  font-size: var(--mat-font-small);
   line-height: 1.5;
 }
 
@@ -1527,7 +1527,7 @@
 
   color: #566b83;
 
-  font-size: 9px;
+  font-size: var(--mat-font-small);
 }
 
 
@@ -1548,7 +1548,7 @@
 .shell :global(.tutor-week-session-actions a) {
   color: #245c9a;
 
-  font-size: 9px;
+  font-size: var(--mat-font-small);
   font-weight: 800;
 }
 
@@ -1564,7 +1564,7 @@
 
   border: 0;
 
-  font-size: 8.5px;
+  font-size: var(--mat-font-micro);
   font-weight: 700;
 
   cursor: pointer;
@@ -1605,7 +1605,7 @@
 .shell :global(.tutor-week-assign label > span) {
   color: #687b90;
 
-  font-size: 8px;
+  font-size: var(--mat-font-micro);
   font-weight: 800;
 }
 
@@ -1626,7 +1626,7 @@
 
   border-radius: 8px;
 
-  font-size: 10px;
+  font-size: var(--mat-font-small);
 }
 
 
@@ -1660,7 +1660,7 @@
 
   color: #566e87;
 
-  font-size: 9px;
+  font-size: var(--mat-font-small);
   font-weight: 800;
 
   cursor: pointer;
@@ -1695,7 +1695,7 @@
 
   border-radius: 7px;
 
-  font-size: 8.5px;
+  font-size: var(--mat-font-micro);
   font-weight: 800;
 
   cursor: pointer;
@@ -1724,7 +1724,7 @@
 .shell :global(.tutor-week-create .tutor-form label > span) {
   color: #60748a;
 
-  font-size: 9px;
+  font-size: var(--mat-font-small);
   font-weight: 800;
 }
 
@@ -1732,7 +1732,7 @@
 .shell :global(.tutor-week-create .tutor-form small) {
   color: #8a96a4;
 
-  font-size: 8px;
+  font-size: var(--mat-font-micro);
 }
 
 .shell :global(.tutor-week-card .tutor-form input),
@@ -1756,7 +1756,7 @@
   border-radius: 8px;
 
   font: inherit;
-  font-size: 10px;
+  font-size: var(--mat-font-small);
 }
 
 .shell :global(.tutor-week-card .tutor-form textarea),
@@ -1821,7 +1821,7 @@
   }
 
   .shell :global(.tutor-week-session-number strong) {
-    font-size: 13px;
+    font-size: var(--mat-font-compact);
   }
 
   .shell :global(.tutor-week-assign) {
@@ -1858,7 +1858,7 @@
 .shell :global(.tutor-week-create-session > summary) {
   color: #255d9c;
 
-  font-size: 9px;
+  font-size: var(--mat-font-small);
   font-weight: 850;
 
   cursor: pointer;
@@ -1903,7 +1903,7 @@
 .shell :global(.tutor-week-notify-toggle span) {
   color: #65798f !important;
 
-  font-size: 9px !important;
+  font-size: var(--mat-font-small) !important;
 }
 
 
@@ -1994,7 +1994,7 @@
 
   color: #778698;
 
-  font-size: 9px;
+  font-size: var(--mat-font-small);
 }
 
 
@@ -2008,7 +2008,7 @@
 
   color: #5a6f86;
 
-  font-size: 9px;
+  font-size: var(--mat-font-small);
 }
 
 
@@ -2019,7 +2019,7 @@
 
   color: #2d649d;
 
-  font-size: 8.5px;
+  font-size: var(--mat-font-micro);
 }
 
 
@@ -2081,7 +2081,7 @@
 
   color: #7c8998;
 
-  font-size: 8.5px;
+  font-size: var(--mat-font-micro);
 }
 
 
@@ -2130,7 +2130,7 @@
 
   color: #53687e;
 
-  font-size: 9px;
+  font-size: var(--mat-font-small);
   line-height: 1.4;
 }
 
@@ -2162,7 +2162,7 @@
 
   color: #586d83;
 
-  font-size: 8.5px;
+  font-size: var(--mat-font-micro);
   line-height: 1.45;
 }
 
@@ -2184,7 +2184,7 @@
 
 .shell :global(.tutor-course-actions .tutor-primary-button),
 .shell :global(.tutor-course-actions .tutor-secondary-button) {
-  font-size: 8px;
+  font-size: var(--mat-font-micro);
 }
 
 
@@ -2194,7 +2194,7 @@
 
   color: #607a94;
 
-  font-size: 8px;
+  font-size: var(--mat-font-micro);
   font-weight: 750;
 }
 
@@ -2276,7 +2276,7 @@
 
   color: #758699;
 
-  font-size: 8.5px;
+  font-size: var(--mat-font-micro);
   line-height: 1.45;
 }
 
@@ -2284,7 +2284,7 @@
 .shell :global(.tutor-week-homework-head > strong) {
   color: #63778c;
 
-  font-size: 8px;
+  font-size: var(--mat-font-micro);
 }
 
 
@@ -2306,7 +2306,7 @@
 .shell :global(.tutor-week-homework-create > summary) {
   color: #2a659e;
 
-  font-size: 8.5px;
+  font-size: var(--mat-font-micro);
   font-weight: 850;
 
   cursor: pointer;
@@ -2353,14 +2353,14 @@
 
   color: #29445f;
 
-  font-size: 11px;
+  font-size: var(--mat-font-small);
 }
 
 
 .shell :global(.tutor-week-homework-card > small) {
   color: #8693a2;
 
-  font-size: 7.5px;
+  font-size: var(--mat-font-micro);
 }
 
 
@@ -2370,7 +2370,7 @@
 
   color: #607287;
 
-  font-size: 8.5px;
+  font-size: var(--mat-font-micro);
   line-height: 1.5;
 }
 
@@ -2423,7 +2423,7 @@
 
   color: #3c694e;
 
-  font-size: 7.5px;
+  font-size: var(--mat-font-micro);
 }
 
 
@@ -2434,7 +2434,7 @@
 
   color: #849187;
 
-  font-size: 7px;
+  font-size: var(--mat-font-micro);
 }
 
 
@@ -2444,7 +2444,7 @@
 
   color: #586c61;
 
-  font-size: 8.5px;
+  font-size: var(--mat-font-micro);
   line-height: 1.5;
 }
 
@@ -2452,7 +2452,7 @@
 .shell :global(.tutor-week-submission a) {
   color: #2b659b;
 
-  font-size: 8px;
+  font-size: var(--mat-font-micro);
   font-weight: 750;
 }
 
@@ -2471,7 +2471,7 @@
 .shell :global(.tutor-week-feedback-preview strong) {
   color: #738395;
 
-  font-size: 7px;
+  font-size: var(--mat-font-micro);
 }
 
 
@@ -2481,7 +2481,7 @@
 
   color: #596d83;
 
-  font-size: 8.5px;
+  font-size: var(--mat-font-micro);
 }
 
 
@@ -2499,7 +2499,7 @@
 .shell :global(.tutor-week-homework-review > summary) {
   color: #607b96;
 
-  font-size: 7.5px;
+  font-size: var(--mat-font-micro);
   font-weight: 800;
 
   cursor: pointer;
@@ -2548,7 +2548,7 @@
 
   color: #295e94;
 
-  font-size: 9px;
+  font-size: var(--mat-font-small);
 }
 
 
@@ -2559,7 +2559,7 @@
 
   color: #678099;
 
-  font-size: 7.5px;
+  font-size: var(--mat-font-micro);
   line-height: 1.4;
 }
 
@@ -2580,7 +2580,7 @@
 .shell :global(.tutor-week-manual-meeting > summary) {
   color: #718195;
 
-  font-size: 7.5px;
+  font-size: var(--mat-font-micro);
   font-weight: 750;
 
   cursor: pointer;
@@ -2599,7 +2599,7 @@
 
   color: #8a96a3;
 
-  font-size: 7px;
+  font-size: var(--mat-font-micro);
 }
 
 
