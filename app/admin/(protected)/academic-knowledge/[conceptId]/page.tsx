@@ -46,6 +46,17 @@ type Relation = {
   note: string | null;
 };
 
+type ReviewEvent = {
+  id: string;
+  event_type: string;
+  from_status: string | null;
+  to_status: string | null;
+  reviewer_email: string | null;
+  note: string | null;
+  created_at: string;
+  title_snapshot: string | null;
+};
+
 type RelatedConcept = {
   id: string;
   name: string;
@@ -54,6 +65,14 @@ type RelatedConcept = {
 
 function label(value: string) {
   return value.replaceAll("_", " ");
+}
+
+function eventDate(value: string) {
+  return `${new Intl.DateTimeFormat("en-GB", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "UTC",
+  }).format(new Date(value))} UTC`;
 }
 
 export default async function AcademicConceptPage({
@@ -107,8 +126,12 @@ export default async function AcademicConceptPage({
 
   if (subjectError) throw new Error(subjectError.message);
 
-  const [objectiveResult, contentResult, relationResult] =
-    await Promise.all([
+  const [
+    objectiveResult,
+    contentResult,
+    relationResult,
+    reviewHistoryResult,
+  ] = await Promise.all([
       supabase
         .from("academic_learning_objectives")
         .select("id,objective,objective_type,sort_order")
@@ -129,6 +152,15 @@ export default async function AcademicConceptPage({
         .or(
           `source_concept_id.eq.${concept.id},target_concept_id.eq.${concept.id}`,
         ),
+
+      supabase
+        .from("academic_content_review_events")
+        .select(
+          "id,event_type,from_status,to_status,reviewer_email,note,created_at,title_snapshot",
+        )
+        .eq("concept_id", concept.id)
+        .order("created_at", { ascending: false })
+        .limit(100),
     ]);
 
   if (objectiveResult.error) {
@@ -143,9 +175,15 @@ export default async function AcademicConceptPage({
     throw new Error(relationResult.error.message);
   }
 
+  if (reviewHistoryResult.error) {
+    throw new Error(reviewHistoryResult.error.message);
+  }
+
   const objectives = (objectiveResult.data || []) as Objective[];
   const blocks = (contentResult.data || []) as ContentBlock[];
   const relations = (relationResult.data || []) as Relation[];
+  const reviewEvents =
+    (reviewHistoryResult.data || []) as ReviewEvent[];
 
   const relatedIds = Array.from(
     new Set(
@@ -623,6 +661,79 @@ export default async function AcademicConceptPage({
         ) : (
           <div className="admin-empty">
             This concept does not yet have teaching content.
+          </div>
+        )}
+      </section>
+
+      <section className="admin-panel admin-detail-card">
+        <div className="admin-card-head">
+          <div>
+            <span className="admin-eyebrow">Audit trail</span>
+            <h2>Review history</h2>
+          </div>
+
+          <span>
+            {reviewEvents.length} event
+            {reviewEvents.length === 1 ? "" : "s"}
+          </span>
+        </div>
+
+        {reviewEvents.length ? (
+          <div className={styles.historyList}>
+            {reviewEvents.map((event) => (
+              <article
+                key={event.id}
+                className={styles.historyEvent}
+              >
+                <div className={styles.historyMarker} />
+
+                <div className={styles.historyContent}>
+                  <div className={styles.historyHead}>
+                    <div>
+                      <strong>{label(event.event_type)}</strong>
+
+                      {event.from_status || event.to_status ? (
+                        <span>
+                          {event.from_status || "—"}
+                          {" → "}
+                          {event.to_status || "—"}
+                        </span>
+                      ) : null}
+                    </div>
+
+                    <time dateTime={event.created_at}>
+                      {eventDate(event.created_at)}
+                    </time>
+                  </div>
+
+                  <div className={styles.historyMeta}>
+                    <span>
+                      Reviewer:{" "}
+                      <strong>
+                        {event.reviewer_email ||
+                          "Legacy / unattributed"}
+                      </strong>
+                    </span>
+
+                    {event.title_snapshot ? (
+                      <span>
+                        Block: {event.title_snapshot}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  {event.note ? (
+                    <p className={styles.historyNote}>
+                      {event.note}
+                    </p>
+                  ) : null}
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="admin-empty">
+            No structured review events have been recorded yet.
           </div>
         )}
       </section>

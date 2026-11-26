@@ -15,17 +15,6 @@ const lifecycleStatuses = [
 
 type LifecycleStatus = (typeof lifecycleStatuses)[number];
 
-const allowedTransitions: Record<
-  LifecycleStatus,
-  LifecycleStatus[]
-> = {
-  draft: ["review", "archived"],
-  review: ["draft", "approved", "archived"],
-  approved: ["review", "published", "archived"],
-  published: ["approved", "archived"],
-  archived: ["draft"],
-};
-
 function clean(value: FormDataEntryValue | null) {
   return typeof value === "string" ? value.trim() : "";
 }
@@ -40,50 +29,63 @@ async function requireAdmin() {
   return session;
 }
 
+function conceptUrl(conceptId: string) {
+  return `/admin/academic-knowledge/${conceptId}`;
+}
+
 export async function updateAcademicContentBlock(formData: FormData) {
-  await requireAdmin();
+  const session = await requireAdmin();
 
   const blockId = clean(formData.get("blockId"));
   const conceptId = clean(formData.get("conceptId"));
   const title = clean(formData.get("title"));
   const body = clean(formData.get("body"));
   const reviewNotes = clean(formData.get("reviewNotes"));
+  const reviewerEmail = session.user.email?.trim() || "";
 
   if (!blockId || !conceptId || !body) {
     redirect(
-      `/admin/academic-knowledge/${conceptId}?error=${encodeURIComponent(
+      `${conceptUrl(conceptId)}?error=${encodeURIComponent(
         "Content block, concept and body are required.",
+      )}`,
+    );
+  }
+
+  if (!reviewerEmail) {
+    redirect(
+      `${conceptUrl(conceptId)}?error=${encodeURIComponent(
+        "Admin reviewer identity is unavailable.",
       )}`,
     );
   }
 
   const supabase = createAdminClient();
 
-  const { error } = await supabase
-    .from("academic_content_blocks")
-    .update({
-      title: title || null,
-      body,
-      review_notes: reviewNotes || null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", blockId)
-    .eq("concept_id", conceptId);
+  const { error } = await supabase.rpc(
+    "mat_update_academic_content_block",
+    {
+      p_block_id: blockId,
+      p_concept_id: conceptId,
+      p_title: title,
+      p_body: body,
+      p_review_notes: reviewNotes,
+      p_reviewer_user_id: session.user.id || null,
+      p_reviewer_email: reviewerEmail,
+    },
+  );
 
   if (error) {
     redirect(
-      `/admin/academic-knowledge/${conceptId}?error=${encodeURIComponent(
+      `${conceptUrl(conceptId)}?error=${encodeURIComponent(
         error.message,
       )}`,
     );
   }
 
   revalidatePath("/admin/academic-knowledge");
-  revalidatePath(`/admin/academic-knowledge/${conceptId}`);
+  revalidatePath(conceptUrl(conceptId));
 
-  redirect(
-    `/admin/academic-knowledge/${conceptId}?saved=1`,
-  );
+  redirect(`${conceptUrl(conceptId)}?saved=1`);
 }
 
 export async function transitionAcademicContentBlock(
@@ -96,6 +98,7 @@ export async function transitionAcademicContentBlock(
   const nextStatus = clean(
     formData.get("nextStatus"),
   ) as LifecycleStatus;
+  const reviewerEmail = session.user.email?.trim() || "";
 
   if (
     !blockId ||
@@ -103,98 +106,48 @@ export async function transitionAcademicContentBlock(
     !lifecycleStatuses.includes(nextStatus)
   ) {
     redirect(
-      `/admin/academic-knowledge/${conceptId}?error=${encodeURIComponent(
+      `${conceptUrl(conceptId)}?error=${encodeURIComponent(
         "Invalid academic review transition.",
+      )}`,
+    );
+  }
+
+  if (!reviewerEmail) {
+    redirect(
+      `${conceptUrl(conceptId)}?error=${encodeURIComponent(
+        "Admin reviewer identity is unavailable.",
       )}`,
     );
   }
 
   const supabase = createAdminClient();
 
-  const { data: block, error: loadError } = await supabase
-    .from("academic_content_blocks")
-    .select("id,lifecycle_status,review_notes")
-    .eq("id", blockId)
-    .eq("concept_id", conceptId)
-    .maybeSingle();
+  const { error } = await supabase.rpc(
+    "mat_transition_academic_content_block",
+    {
+      p_block_id: blockId,
+      p_concept_id: conceptId,
+      p_next_status: nextStatus,
+      p_reviewer_user_id: session.user.id || null,
+      p_reviewer_email: reviewerEmail,
+      p_note: null,
+    },
+  );
 
-  if (loadError || !block) {
+  if (error) {
     redirect(
-      `/admin/academic-knowledge/${conceptId}?error=${encodeURIComponent(
-        loadError?.message || "Academic content block was not found.",
-      )}`,
-    );
-  }
-
-  const currentStatus =
-    block.lifecycle_status as LifecycleStatus;
-
-  if (!lifecycleStatuses.includes(currentStatus)) {
-    redirect(
-      `/admin/academic-knowledge/${conceptId}?error=${encodeURIComponent(
-        "Current lifecycle status is invalid.",
-      )}`,
-    );
-  }
-
-  if (
-    !allowedTransitions[currentStatus].includes(nextStatus)
-  ) {
-    redirect(
-      `/admin/academic-knowledge/${conceptId}?error=${encodeURIComponent(
-        `Illegal transition: ${currentStatus} → ${nextStatus}.`,
-      )}`,
-    );
-  }
-
-  const reviewer =
-    session.user.email || "MAT admin";
-
-  const timestamp = new Date().toISOString();
-
-  const auditLine =
-    nextStatus === "approved" || nextStatus === "published"
-      ? `[${timestamp}] ${reviewer}: ${currentStatus} → ${nextStatus}`
-      : null;
-
-  const existingNotes =
-    typeof block.review_notes === "string"
-      ? block.review_notes.trim()
-      : "";
-
-  const reviewNotes = auditLine
-    ? [existingNotes, auditLine]
-        .filter(Boolean)
-        .join("\n\n")
-    : existingNotes || null;
-
-  const { error: updateError } = await supabase
-    .from("academic_content_blocks")
-    .update({
-      lifecycle_status: nextStatus,
-      review_notes: reviewNotes,
-      reviewed_at:
-        nextStatus === "approved" ||
-        nextStatus === "published"
-          ? timestamp
-          : null,
-      updated_at: timestamp,
-    })
-    .eq("id", blockId)
-    .eq("concept_id", conceptId);
-
-  if (updateError) {
-    redirect(
-      `/admin/academic-knowledge/${conceptId}?error=${encodeURIComponent(
-        updateError.message,
+      `${conceptUrl(conceptId)}?error=${encodeURIComponent(
+        error.message,
       )}`,
     );
   }
 
   revalidatePath("/admin/academic-knowledge");
-  revalidatePath(`/admin/academic-knowledge/${conceptId}`);
+  revalidatePath(conceptUrl(conceptId));
 
   redirect(
-    `/admin/academic-knowledge/${conceptId}?status=${nextStatus}`,
+    `${conceptUrl(conceptId)}?status=${encodeURIComponent(
+      nextStatus,
+    )}`,
   );
 }
