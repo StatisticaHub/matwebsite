@@ -67,6 +67,10 @@ export default function AdminSidebarNav({
           href: "/admin/academic-knowledge",
           label: "Academic knowledge",
         },
+        {
+          href: "/admin/question-bank",
+          label: "Question bank",
+        },
       ],
     },
     {
