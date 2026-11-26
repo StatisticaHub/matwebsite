@@ -13,6 +13,12 @@ import {
   resolvePortalLink,
 } from "@/lib/student-portal";
 
+import {
+  DEFAULT_TIME_ZONE,
+  formatDateTimeInTimeZone,
+  normalizeTimeZone,
+} from "@/lib/time-zone";
+
 
 type SessionOption = {
   id: string;
@@ -93,32 +99,12 @@ function formatDate(
 }
 
 
-function formatDateTime(
-  value: string,
-) {
-  return new Intl.DateTimeFormat(
-    "en-GB",
-    {
-      dateStyle:
-        "medium",
-
-      timeStyle:
-        "short",
-
-      timeZone:
-        "Europe/London",
-    },
-  ).format(
-    new Date(value),
-  );
-}
-
-
 export default async function StudentWeeklyHomework({
   token,
   engagementId,
   weekId,
   sessions,
+  timeZone,
 }: {
   token: string;
   engagementId: string;
@@ -126,7 +112,27 @@ export default async function StudentWeeklyHomework({
 
   sessions:
     SessionOption[];
+
+  timeZone?:
+    | string
+    | null;
 }) {
+  const viewerTimeZone =
+    normalizeTimeZone(
+      timeZone,
+      DEFAULT_TIME_ZONE,
+    );
+
+
+  const formatDateTime = (
+    value: string,
+  ) =>
+    formatDateTimeInTimeZone(
+      value,
+      viewerTimeZone,
+    );
+
+
   const link =
     await resolvePortalLink(
       token,

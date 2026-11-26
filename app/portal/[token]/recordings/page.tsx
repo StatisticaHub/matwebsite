@@ -3,6 +3,12 @@ import { notFound } from "next/navigation";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthenticatedPortalStudent } from "@/lib/student-portal-auth";
+import { getPortalCourseContext } from "@/lib/student-portal";
+import {
+  DEFAULT_TIME_ZONE,
+  formatDateTimeInTimeZone,
+  normalizeTimeZone,
+} from "@/lib/time-zone";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -58,16 +64,6 @@ type RecordingRow = {
 
 function one<T>(value: T | T[] | null | undefined) {
   return Array.isArray(value) ? value[0] || null : value || null;
-}
-
-function formatDateTime(value: string | null) {
-  if (!value) return "Date not recorded";
-
-  return new Intl.DateTimeFormat("en-GB", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "Europe/London",
-  }).format(new Date(value));
 }
 
 function formatBytes(value: number | null) {
@@ -144,6 +140,33 @@ export default async function StudentRecordingsPage({
   const requestedCourse = Array.isArray(query.course)
     ? query.course[0]
     : query.course;
+
+
+  /*
+   * Keep the standalone recordings archive aligned
+   * with the student's saved learning-space timezone.
+   */
+  const portalContext =
+    await getPortalCourseContext(
+      token,
+      requestedCourse || null,
+    );
+
+
+  const studentTimeZone =
+    normalizeTimeZone(
+      portalContext?.onboarding?.timezone,
+      DEFAULT_TIME_ZONE,
+    );
+
+
+  const formatRecordingDateTime = (
+    value: string | null,
+  ) =>
+    formatDateTimeInTimeZone(
+      value,
+      studentTimeZone,
+    );
 
   const selectedEngagement =
     engagements.find((item) => item.id === requestedCourse) ||
@@ -438,7 +461,7 @@ export default async function StudentRecordingsPage({
                   <div className="portal-recordings-session-head">
                     <div>
                       <span>
-                        {formatDateTime(
+                        {formatRecordingDateTime(
                           session.completed_at ||
                             session.scheduled_for
                         )}

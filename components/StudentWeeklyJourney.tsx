@@ -747,6 +747,7 @@ export default async function StudentWeeklyJourney({
                 session.scheduled_for,
             }),
           )}
+            timeZone={viewerTimeZone}
         />
 
 

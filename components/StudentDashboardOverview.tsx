@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { DEFAULT_TIME_ZONE } from "@/lib/time-zone";
 
 type SessionItem = {
   id: string;
@@ -40,7 +41,7 @@ type Props = {
 
 function formatDate(
   value: string | null,
-  timeZone = "Europe/London",
+  timeZone = DEFAULT_TIME_ZONE,
 ) {
   if (!value) return "No due date";
 
@@ -62,7 +63,7 @@ function formatDate(
 
 function formatDateTime(
   value: string | null,
-  timeZone = "Europe/London",
+  timeZone = DEFAULT_TIME_ZONE,
 ) {
   if (!value) return "Not scheduled";
 
@@ -108,7 +109,7 @@ export default function StudentDashboardOverview({
   averageProgress,
   mastered,
   planCount,
-  timeZone = "Europe/London",
+  timeZone = DEFAULT_TIME_ZONE,
 }: Props) {
   const searchParams = useSearchParams();
 
