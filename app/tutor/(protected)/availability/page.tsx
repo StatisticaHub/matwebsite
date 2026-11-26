@@ -6,7 +6,7 @@ export const metadata = { title: "Tutor availability" };
 type SearchParams = Promise<{ saved?: string }>;
 export default async function TutorAvailabilityPage({ searchParams }: { searchParams: SearchParams }) {
   const auth = await getTutorSession(); if (!auth) return null; const query = await searchParams; const tutor = auth.tutor;
-  return <div className="tutor-page"><header className="tutor-page-head"><div><span className="tutor-eyebrow">Profile</span><h1>Availability</h1><p>Keep your teaching availability current so the MAT team can match new students accurately.</p></div></header>{query.saved === "1" && <div className="tutor-alert success">Availability updated.</div>}
+  return <div className="tutor-page"><header className="tutor-page-head"><div><span className="tutor-eyebrow">Profile</span><h1>Availability</h1><p>Keep your teaching availability current so the MAT team can match new students accurately.</p></div></header>{query.saved === "1" && <div className="tutor-alert success" role="status" aria-live="polite">Availability updated.</div>}
     <section className="tutor-panel"><form action={updateTutorAvailabilityFromPortal} className="tutor-form">
       <label>
         <span>Timezone</span>

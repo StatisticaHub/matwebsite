@@ -44,7 +44,7 @@ export default async function TutorLoginPage({
         </p>
 
         {query.unauthorized === "1" && (
-          <div className="tutor-alert warning">
+          <div className="tutor-alert warning" role="alert">
             This account does not currently have tutor portal access.
             Contact the MAT team if you need help.
           </div>

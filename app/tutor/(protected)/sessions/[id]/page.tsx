@@ -44,7 +44,7 @@ export default async function TutorSessionDetailPage({ params, searchParams }: {
   return <div className="tutor-page">
     <div className="tutor-breadcrumb"><Link href="/tutor/sessions">← Sessions</Link><span>{row.topic}</span></div>
     <header className="tutor-page-head"><div><span className="tutor-eyebrow">{row.tutoring_engagements?.subject || "Tutoring"}</span><h1>{row.topic}</h1><p>{row.tutoring_engagements?.students?.name || "Student"} · {fmt(row.scheduled_for)}</p></div><span className={`tutor-status ${row.status}`}>{sessionStatusLabels[row.status as SessionStatus]}</span></header>
-    {query.saved === "1" && <div className="tutor-alert success">Session record saved.</div>}
+    {query.saved === "1" && <div className="tutor-alert success" role="status" aria-live="polite">Session record saved.</div>}
     <TutorLessonContinuityRecord
       sessionId={row.id}
       engagementId={row.tutoring_engagements?.id || null}

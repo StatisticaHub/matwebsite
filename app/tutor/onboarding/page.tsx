@@ -64,19 +64,19 @@ export default async function TutorOnboardingPage({
       </header>
 
       {query.saved === "1" && (
-        <div className="tutor-alert success">
+        <div className="tutor-alert success" role="status" aria-live="polite">
           Draft saved. You can continue editing before submitting.
         </div>
       )}
 
       {query.submitted === "1" && (
-        <div className="tutor-alert success">
+        <div className="tutor-alert success" role="status" aria-live="polite">
           Your tutor profile has been submitted for MAT review.
         </div>
       )}
 
       {query.error === "incomplete" && (
-        <div className="tutor-alert warning">
+        <div className="tutor-alert warning" role="alert">
           Before submitting, complete your subjects, academic levels,
           qualifications, teaching experience, languages, timezone and
           teaching availability.
@@ -84,14 +84,14 @@ export default async function TutorOnboardingPage({
       )}
 
       {tutor.onboarding_status === "submitted" && (
-        <div className="tutor-alert warning">
+        <div className="tutor-alert warning" role="alert">
           Your profile is currently under review. You may still correct
           information and submit it again if needed.
         </div>
       )}
 
       {tutor.onboarding_status === "changes_requested" && (
-        <div className="tutor-alert warning">
+        <div className="tutor-alert warning" role="alert">
           The MAT team has requested changes to your tutor profile.
           Update the information below and submit it again.
         </div>

@@ -3,6 +3,12 @@ import {
 } from "@/lib/supabase/admin";
 
 import {
+  DEFAULT_TIME_ZONE,
+  formatDateTimeInTimeZone,
+  normalizeTimeZone,
+} from "@/lib/time-zone";
+
+import {
   homeworkStatusLabels,
   homeworkStatuses,
   type HomeworkStatus,
@@ -105,44 +111,44 @@ function formatDate(
 }
 
 
-function formatDateTime(
-  value:
-    | string
-    | null,
-) {
-  if (!value) {
-    return "Not submitted";
-  }
-
-
-  return new Intl.DateTimeFormat(
-    "en-GB",
-    {
-      dateStyle:
-        "medium",
-
-      timeStyle:
-        "short",
-
-      timeZone:
-        "Europe/London",
-    },
-  ).format(
-    new Date(value),
-  );
-}
-
-
 export default async function TutorWeeklyHomework({
   engagementId,
   weekId,
   sessions,
+  timeZone,
 }: {
   engagementId: string;
   weekId: string;
+
   sessions:
     SessionOption[];
+
+  timeZone?:
+    | string
+    | null;
 }) {
+
+  const viewerTimeZone =
+    normalizeTimeZone(
+      timeZone,
+      DEFAULT_TIME_ZONE,
+    );
+
+
+  const formatDateTime = (
+    value:
+      | string
+      | null,
+  ) => {
+    if (!value) {
+      return "Not submitted";
+    }
+
+    return formatDateTimeInTimeZone(
+      value,
+      viewerTimeZone,
+    );
+  };
   const supabase =
     createAdminClient();
 

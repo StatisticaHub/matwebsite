@@ -140,29 +140,6 @@ function formatDate(
 }
 
 
-function formatDateTime(
-  value:
-    | string
-    | null,
-) {
-  if (!value) {
-    return "Not scheduled";
-  }
-
-  return new Intl.DateTimeFormat(
-    "en-GB",
-    {
-      dateStyle: "medium",
-      timeStyle: "short",
-      timeZone:
-        "Europe/London",
-    },
-  ).format(
-    new Date(value),
-  );
-}
-
-
 function weekStatusLabel(
   status: string,
 ) {
@@ -991,6 +968,9 @@ export default async function TutorStudentWeeklyWorkspace({
                     }
                     weekId={
                       week.id
+                    }
+                    timeZone={
+                      tutorTimeZone
                     }
                     sessions={sessions
                       .filter(

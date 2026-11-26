@@ -20,48 +20,6 @@ export const metadata = {
 
 export const dynamic = "force-dynamic";
 
-function fmt(value: string | null) {
-  if (!value) return "Not scheduled";
-
-  return new Intl.DateTimeFormat("en-GB", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "Europe/London",
-  }).format(new Date(value));
-}
-
-function timeOnly(value: string | null) {
-  if (!value) return "—";
-
-  return new Intl.DateTimeFormat("en-GB", {
-    timeStyle: "short",
-    timeZone: "Europe/London",
-  }).format(new Date(value));
-}
-
-function londonDateKey(value: string | Date) {
-  const date =
-    value instanceof Date
-      ? value
-      : new Date(value);
-
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Europe/London",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(date);
-
-  const map = Object.fromEntries(
-    parts
-      .filter((part) => part.type !== "literal")
-      .map((part) => [part.type, part.value])
-  );
-
-  return `${map.year}-${map.month}-${map.day}`;
-}
-
-
 function requestLine(
   message: string,
   label: string,
