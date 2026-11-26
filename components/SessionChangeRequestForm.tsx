@@ -647,7 +647,7 @@ export default function SessionChangeRequestForm({
 
         {status ===
           "sent" && (
-          <p className="portal-form-success">
+          <p className="portal-form-success" role="status" aria-live="polite">
             Request sent. Your
             current booking stays
             unchanged until MAT
@@ -658,7 +658,7 @@ export default function SessionChangeRequestForm({
 
         {status ===
           "error" && (
-          <p className="portal-form-error">
+          <p className="portal-form-error" role="alert">
             {
               errorMessage
             }

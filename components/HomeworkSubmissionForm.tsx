@@ -63,7 +63,7 @@ export default function HomeworkSubmissionForm({
         </form>
       )}
       {status === "saved" && !open && <small className="portal-saved-note">Submission saved.</small>}
-      {status === "error" && <small className="portal-form-error">Could not save. Please check the link and try again.</small>}
+      {status === "error" && <small className="portal-form-error" role="alert">Could not save. Please check the link and try again.</small>}
     </div>
   );
 }

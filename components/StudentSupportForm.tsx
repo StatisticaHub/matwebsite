@@ -223,7 +223,7 @@ export default function StudentSupportForm({
 
       {status ===
         "sent" && (
-        <p className="portal-form-success">
+        <p className="portal-form-success" role="status" aria-live="polite">
           Request sent. Your
           tutoring team can now
           see it.
@@ -233,7 +233,7 @@ export default function StudentSupportForm({
 
       {status ===
         "error" && (
-        <p className="portal-form-error">
+        <p className="portal-form-error" role="alert">
           We could not send that
           request. Please try
           again.

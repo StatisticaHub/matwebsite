@@ -678,7 +678,7 @@ export default function SessionRequestForm({
 
         {status ===
           "sent" && (
-          <p className="portal-form-success">
+          <p className="portal-form-success" role="status" aria-live="polite">
             Request sent. Your
             tutoring team will
             confirm the final
@@ -689,7 +689,7 @@ export default function SessionRequestForm({
 
         {status ===
           "error" && (
-          <p className="portal-form-error">
+          <p className="portal-form-error" role="alert">
             {
               errorMessage
             }
