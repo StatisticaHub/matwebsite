@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import TutoringLeadForm from "@/components/TutoringLeadForm";
 import { subjects } from "@/lib/tutoring-data";
-import { getResourcesForSubject, resources } from "@/lib/resources";
+import { getResourcesForSubject } from "@/lib/resources";
 
 import ConversionFaq from "@/components/ConversionFaq";
 import StickyTutoringCta from "@/components/StickyTutoringCta";
@@ -75,28 +75,6 @@ export async function generateMetadata({
   };
 }
 
-function relatedResources(
-  subjectName: string
-) {
-  const direct = resources.filter(
-    (resource) =>
-      resource.category.toLowerCase() ===
-      subjectName.toLowerCase()
-  );
-
-  if (direct.length >= 3) {
-    return direct.slice(0, 3);
-  }
-
-  return [
-    ...direct,
-    ...resources.filter(
-      (resource) =>
-        !direct.includes(resource)
-    ),
-  ].slice(0, 3);
-}
-
 export default async function Page({
   params,
 }: {
@@ -113,7 +91,7 @@ export default async function Page({
   }
 
   const related =
-    relatedResources(subject.name);
+    getResourcesForSubject(subject.slug, 3);
 
   const pageUrl =
     `${siteUrl}/subjects/${subject.slug}`;
@@ -327,6 +305,7 @@ export default async function Page({
         </div>
       </section>
 
+      {related.length ? (
       <section className="section section-tint">
         <div className="shell">
           <div className="section-head">
@@ -382,6 +361,7 @@ export default async function Page({
           </div>
         </div>
       </section>
+      ) : null}
 
             <ConversionFaq
         title={`Common questions about ${subject.name.toLowerCase()} tutoring`}
