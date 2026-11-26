@@ -196,8 +196,16 @@ export default async function TutorStudentSupportRequests({
   );
 
 
-  const newCount =
+  const supportRequests =
     requests.filter(
+      (item) =>
+        item.category !==
+        "session_request",
+    );
+
+
+  const newCount =
+    supportRequests.filter(
       (item) =>
         item.status ===
         "new",
@@ -205,7 +213,7 @@ export default async function TutorStudentSupportRequests({
 
 
   const inProgressCount =
-    requests.filter(
+    supportRequests.filter(
       (item) =>
         item.status ===
         "in_progress",
@@ -213,7 +221,7 @@ export default async function TutorStudentSupportRequests({
 
 
   const resolvedCount =
-    requests.filter(
+    supportRequests.filter(
       (item) =>
         item.status ===
         "resolved",
@@ -240,12 +248,13 @@ export default async function TutorStudentSupportRequests({
           </span>
 
           <h2>
-            Requests & follow-up
+            Course questions & support
           </h2>
 
           <p>
-            Review student requests, keep internal follow-up
-            notes and close issues when they are handled.
+            Manage lesson, homework, resource, technical and
+            general support here. Session requests are handled
+            through the Sessions workspace.
           </p>
 
         </div>
@@ -302,11 +311,11 @@ export default async function TutorStudentSupportRequests({
         <div>
 
           <span>
-            Total
+            Support total
           </span>
 
           <strong>
-            {requests.length}
+            {supportRequests.length}
           </strong>
 
         </div>
@@ -408,8 +417,9 @@ export default async function TutorStudentSupportRequests({
                         </strong>
 
                         <p>
-                          Use the Sessions workflow to schedule
-                          or respond to the requested lesson.
+                          {request.status === "resolved"
+                            ? "This request was handled through the Sessions workflow."
+                            : "Use the Sessions workflow to schedule or respond to the requested lesson."}
                         </p>
 
                       </div>
@@ -440,12 +450,13 @@ export default async function TutorStudentSupportRequests({
                   )}
 
 
-                  <form
-                    action={
-                      updateTutorSupportRequest
-                    }
-                    className="tutor-support-form"
-                  >
+                  {!sessionRequest && (
+                    <form
+                      action={
+                        updateTutorSupportRequest
+                      }
+                      className="tutor-support-form"
+                    >
 
                     <input
                       type="hidden"
@@ -512,16 +523,6 @@ export default async function TutorStudentSupportRequests({
                       )}
 
 
-                      {sessionRequest &&
-                        request.status !==
-                          "resolved" && (
-                          <small>
-                            Scheduling through Sessions will
-                            resolve the linked request automatically.
-                          </small>
-                        )}
-
-
                       <button
                         className="tutor-primary-button"
                         type="submit"
@@ -531,7 +532,8 @@ export default async function TutorStudentSupportRequests({
 
                     </div>
 
-                  </form>
+                    </form>
+                  )}
 
                 </div>
 
