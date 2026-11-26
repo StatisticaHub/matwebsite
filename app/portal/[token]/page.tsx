@@ -912,6 +912,37 @@ const openHomework =
                 : "Your tutoring team is preparing your learning record."}
             </p>
 
+
+            {portalView === "dashboard" && engagement && (
+              <div className="portal-learning-orientation">
+
+                <div className="portal-learning-orientation-item">
+                  <span>
+                    Tutor
+                  </span>
+
+                  <strong>
+                    {tutor?.name ||
+                      "Being arranged"}
+                  </strong>
+                </div>
+
+
+                <div className="portal-learning-orientation-item is-focus">
+                  <span>
+                    Current focus
+                  </span>
+
+                  <strong>
+                    {engagement.current_focus ||
+                      completedSessions[0]?.next_topic ||
+                      "Your next learning focus will appear here"}
+                  </strong>
+                </div>
+
+              </div>
+            )}
+
           </div>
 
 
