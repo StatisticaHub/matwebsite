@@ -16759,3 +16759,45 @@ details > summary {
 }
 
 /* ===== END STUDENT HELP WORKSPACE V1 ===== */
+
+/* ===== TUTOR SINGLE LESSON WORKSPACE V1 ===== */
+
+.tutor-session-workspace-panel {
+  display: grid;
+  gap: 0;
+}
+
+.tutor-session-workspace-panel
+.tutor-panel-head {
+  margin-bottom: 0;
+}
+
+.tutor-session-workspace-intro {
+  margin: 10px 0 18px;
+  max-width: 680px;
+}
+
+.tutor-session-assignment-link {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.tutor-session-assignment-link h2 {
+  margin-top: 5px;
+}
+
+.tutor-session-assignment-link
+.tutor-secondary-button {
+  margin-top: auto;
+}
+
+@media (max-width: 720px) {
+  .tutor-session-assignment-link
+  .tutor-secondary-button {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* ===== END TUTOR SINGLE LESSON WORKSPACE V1 ===== */

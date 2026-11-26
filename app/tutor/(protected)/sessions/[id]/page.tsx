@@ -3,19 +3,17 @@ import { notFound } from "next/navigation";
 import { getTutorSession } from "@/lib/tutor-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sessionStatuses, sessionStatusLabels, type SessionStatus } from "@/lib/delivery-data";
-import { assignTutorHomework, updateTutorSessionRecord } from "@/app/tutor/actions";
+import { updateTutorSessionRecord } from "@/app/tutor/actions";
 
 import TutorLessonContinuityRecord from "@/components/TutorLessonContinuityRecord";
 import {
   DEFAULT_TIME_ZONE,
-  dateKeyInTimeZone,
   formatDateTimeInTimeZone,
   normalizeTimeZone,
 } from "@/lib/time-zone";
 export const dynamic = "force-dynamic";
 type Params = Promise<{ id: string }>;
 type SearchParams = Promise<{ saved?: string }>;
-function fmt(v: string | null) { return v ? new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/London" }).format(new Date(v)) : "Not scheduled"; }
 function safeUrl(value: string | null) { if (!value) return null; try { const u = new URL(value); return ["https:", "http:"].includes(u.protocol) ? u.toString() : null; } catch { return null; } }
 
 export default async function TutorSessionDetailPage({ params, searchParams }: { params: Params; searchParams: SearchParams }) {
@@ -58,7 +56,23 @@ export default async function TutorSessionDetailPage({ params, searchParams }: {
       nextTopic={row.next_topic}
     />
     <div className="tutor-grid-2 align-start">
-      <section className="tutor-panel"><div className="tutor-panel-head"><h2>Update session record</h2><span>{row.duration_minutes} min</span></div>
+      <section className="tutor-panel tutor-session-workspace-panel">
+        <div className="tutor-panel-head">
+          <div>
+            <span className="tutor-eyebrow">Lesson workspace</span>
+            <h2>
+              {row.status === "completed"
+                ? "Review lesson record"
+                : "Complete lesson record"}
+            </h2>
+          </div>
+          <span>{row.duration_minutes} min</span>
+        </div>
+
+        <p className="tutor-help tutor-session-workspace-intro">
+          Keep the lesson outcome, student understanding, next topic and
+          follow-up together in one record.
+        </p>
         <form action={updateTutorSessionRecord} className="tutor-form"><input type="hidden" name="sessionId" value={row.id} />
           <label><span>Status</span><select name="status" defaultValue={row.status}>{sessionStatuses.map(s => <option value={s} key={s}>{sessionStatusLabels[s]}</option>)}</select></label>
           <label><span>Meeting link</span><input name="meetingUrl" type="url" defaultValue={row.meeting_url || ""} placeholder="https://meet.google.com/…" /></label>
@@ -67,14 +81,14 @@ export default async function TutorSessionDetailPage({ params, searchParams }: {
           <label><span>Homework / practice summary</span><textarea name="homeworkSummary" defaultValue={row.homework_summary || ""} /></label>
 
           <fieldset>
-            <legend>Post-session follow-up</legend>
+            <legend>Student follow-up</legend>
 
             <label className="tutor-check-single">
               <input
                 name="createHomework"
                 type="checkbox"
               />
-              Create or update a linked homework assignment when this session is completed
+              Create or update the linked homework assignment
             </label>
 
             <label>
@@ -113,7 +127,7 @@ export default async function TutorSessionDetailPage({ params, searchParams }: {
             </label>
 
             <small>
-              Homework creation and the student follow-up run only when the session is saved as Completed.
+              Homework creation and the follow-up email run when this lesson is saved as Completed.
             </small>
           </fieldset>
 
@@ -123,48 +137,30 @@ export default async function TutorSessionDetailPage({ params, searchParams }: {
         </form>
       </section>
 
-      {/* MAT_TUTOR_ASSIGNMENT_WORKSPACE */}
-      <section className="tutor-panel">
-        <span className="tutor-eyebrow">Assignment</span>
-        <h2>Assign homework</h2>
+      <section className="tutor-panel tutor-session-assignment-link">
+        <span className="tutor-eyebrow">
+          Assignments
+        </span>
+
+        <h2>
+          Manage student homework
+        </h2>
+
         <p className="tutor-help">
-          The student will see this in Assignments and upload completed
-          work directly underneath it.
+          Homework linked to this completed lesson can be created above.
+          Use the Assignments workspace for reviewing submissions or managing
+          other student assignments.
         </p>
 
-        <form action={assignTutorHomework} className="tutor-form">
-          <input type="hidden" name="sessionId" value={row.id} />
-
-          <label>
-            <span>Assignment title</span>
-            <input
-              name="title"
-              required
-              defaultValue={`${row.topic} — practice`}
-            />
-          </label>
-
-          <label>
-            <span>Instructions</span>
-            <textarea
-              name="description"
-              defaultValue={row.homework_summary || ""}
-              placeholder="Questions, reading, coding, revision or work the student should submit."
-            />
-          </label>
-
-          <label>
-            <span>Due date</span>
-            <input name="dueDate" type="date" />
-          </label>
-
-          <button className="tutor-primary-button" type="submit">
-            Assign homework
-          </button>
-        </form>
+        <Link
+          className="tutor-secondary-button"
+          href="/tutor/assignments"
+        >
+          Open assignments
+        </Link>
       </section>
 
-<aside className="tutor-stack">
+      <aside className="tutor-stack">
         <section className="tutor-panel"><h2>Session details</h2><dl className="tutor-details"><div><dt>Student</dt><dd>{row.tutoring_engagements?.students?.name || "—"}</dd></div><div><dt>Level</dt><dd>{row.tutoring_engagements?.students?.academic_level || "—"}</dd></div><div><dt>Scheduled</dt><dd>{fmt(row.scheduled_for)}</dd></div><div><dt>Duration</dt><dd>{row.duration_minutes} minutes</dd></div><div><dt>Completed</dt><dd>{row.completed_at ? fmt(row.completed_at) : "—"}</dd></div></dl>{meeting && <a className="tutor-primary-link" href={meeting} target="_blank" rel="noreferrer">Join session ↗</a>}</section>
       </aside>
     </div>
