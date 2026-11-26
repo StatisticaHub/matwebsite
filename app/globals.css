@@ -16375,3 +16375,387 @@ details > summary {
 }
 
 /* ===== END STUDENT PROGRESS TREND AND MILESTONES V1 ===== */
+
+
+/* ===== STUDENT HELP WORKSPACE V1 ===== */
+
+.student-portal-shell
+.portal-help-workspace {
+  display: grid;
+  gap: 24px;
+}
+
+.student-portal-shell
+.portal-help-workspace-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e8edf2;
+}
+
+.student-portal-shell
+.portal-help-workspace-head h2 {
+  margin: 5px 0 8px;
+  color: #203b59;
+}
+
+.student-portal-shell
+.portal-help-workspace-head p {
+  max-width: 680px;
+  margin: 0;
+  color: #6f7f91;
+  font-size: 11.5px;
+  line-height: 1.65;
+}
+
+.student-portal-shell
+.portal-help-open-count {
+  flex: 0 0 auto;
+  min-width: 92px;
+  padding: 13px 15px;
+  border: 1px solid #dfe6ed;
+  border-radius: 12px;
+  background: #f8fafc;
+  text-align: center;
+}
+
+.student-portal-shell
+.portal-help-open-count strong {
+  display: block;
+  color: #284967;
+  font-size: 23px;
+  line-height: 1;
+}
+
+.student-portal-shell
+.portal-help-open-count span {
+  display: block;
+  margin-top: 5px;
+  color: #7c8998;
+  font-size: 8px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+
+/* Help routes */
+
+.student-portal-shell
+.portal-help-route-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.student-portal-shell
+.portal-help-route-card {
+  display: flex;
+  min-width: 0;
+  min-height: 154px;
+  flex-direction: column;
+  padding: 15px;
+  border: 1px solid #e0e6ed;
+  border-radius: 12px;
+  background: #fbfcfd;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color .15s ease,
+    box-shadow .15s ease,
+    transform .15s ease;
+}
+
+.student-portal-shell
+.portal-help-route-card:hover {
+  transform: translateY(-1px);
+  border-color: #bdcad8;
+  box-shadow: 0 8px 22px rgba(28, 54, 83, .06);
+}
+
+.student-portal-shell
+.portal-help-route-card > span {
+  color: #6d8196;
+  font-size: 7.5px;
+  font-weight: 850;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.student-portal-shell
+.portal-help-route-card > strong {
+  margin-top: 7px;
+  color: #29435f;
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+
+.student-portal-shell
+.portal-help-route-card > p {
+  margin: 6px 0 12px;
+  color: #738194;
+  font-size: 9.5px;
+  line-height: 1.55;
+}
+
+.student-portal-shell
+.portal-help-route-card > b {
+  margin-top: auto;
+  color: #315f91;
+  font-size: 8.5px;
+}
+
+.student-portal-shell
+.portal-help-route-card.is-session {
+  border-color: #cad9e8;
+  background: #f6f9fc;
+}
+
+
+/* Main Help body */
+
+.student-portal-shell
+.portal-help-workspace-grid {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.05fr)
+    minmax(320px, .95fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.student-portal-shell
+.portal-help-contact-card,
+.student-portal-shell
+.portal-help-history-card {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid #dfe6ed;
+  border-radius: 13px;
+  background: #fff;
+}
+
+.student-portal-shell
+.portal-help-card-head {
+  margin-bottom: 16px;
+}
+
+.student-portal-shell
+.portal-help-card-head h3 {
+  margin: 4px 0 6px;
+  color: #29435f;
+  font-size: 16px;
+}
+
+.student-portal-shell
+.portal-help-card-head p {
+  margin: 0;
+  color: #768496;
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+
+/* Request history */
+
+.student-portal-shell
+.portal-help-request-list {
+  display: grid;
+}
+
+.student-portal-shell
+.portal-help-request {
+  padding: 13px 0;
+  border-top: 1px solid #edf1f4;
+}
+
+.student-portal-shell
+.portal-help-request:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.student-portal-shell
+.portal-help-request-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.student-portal-shell
+.portal-help-request-top > div {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.student-portal-shell
+.portal-help-request-top > div > span {
+  color: #344e69;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.student-portal-shell
+.portal-help-request-top small {
+  color: #929dab;
+  font-size: 8px;
+}
+
+.student-portal-shell
+.portal-help-request > p {
+  margin: 8px 0 0;
+  color: #647488;
+  font-size: 9.5px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.student-portal-shell
+.portal-help-request-status {
+  flex: 0 0 auto;
+  padding: 5px 7px;
+  border-radius: 999px;
+  background: #edf2f6;
+  color: #657386;
+  font-size: 7px;
+  font-weight: 850;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.student-portal-shell
+.portal-help-request-status.status-new {
+  background: #edf4fb;
+  color: #3c668d;
+}
+
+.student-portal-shell
+.portal-help-request-status.status-in_progress {
+  background: #fff4de;
+  color: #8c641f;
+}
+
+.student-portal-shell
+.portal-help-request-status.status-resolved {
+  background: #eaf6ef;
+  color: #39734f;
+}
+
+.student-portal-shell
+.portal-help-team-update {
+  margin-top: 10px;
+  padding: 9px 10px;
+  border-left: 3px solid #6f95bc;
+  background: #f5f8fb;
+}
+
+.student-portal-shell
+.portal-help-team-update > span {
+  display: block;
+  color: #577494;
+  font-size: 7px;
+  font-weight: 850;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.student-portal-shell
+.portal-help-team-update p {
+  margin: 4px 0 0;
+  color: #526b85;
+  font-size: 9px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.student-portal-shell
+.portal-help-history-empty {
+  padding: 24px 14px;
+  border: 1px dashed #dbe3eb;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.student-portal-shell
+.portal-help-history-empty strong {
+  display: block;
+  color: #51667d;
+  font-size: 10.5px;
+}
+
+.student-portal-shell
+.portal-help-history-empty p {
+  max-width: 360px;
+  margin: 6px auto 0;
+  color: #8995a3;
+  font-size: 9px;
+  line-height: 1.55;
+}
+
+
+/*
+ * The old generic support card is useful as a secondary card in other
+ * portal views, but the dedicated Help page now owns the support UX.
+ */
+
+.student-portal-shell
+.portal-view-help
+.portal-side-column {
+  display: none !important;
+}
+
+
+@media (max-width: 980px) {
+
+  .student-portal-shell
+  .portal-help-route-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .student-portal-shell
+  .portal-help-workspace-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+@media (max-width: 620px) {
+
+  .student-portal-shell
+  .portal-help-workspace-head {
+    flex-direction: column;
+  }
+
+  .student-portal-shell
+  .portal-help-open-count {
+    min-width: 0;
+    width: 100%;
+    text-align: left;
+  }
+
+  .student-portal-shell
+  .portal-help-route-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .student-portal-shell
+  .portal-help-route-card {
+    min-height: 0;
+  }
+
+  .student-portal-shell
+  .portal-help-request-top {
+    flex-direction: column;
+  }
+
+}
+
+/* ===== END STUDENT HELP WORKSPACE V1 ===== */

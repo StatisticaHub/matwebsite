@@ -781,6 +781,24 @@ const openHomework =
     null;
 
 
+  const courseSupportRequests =
+    (supportRequests || [])
+      .filter(
+        (item: any) =>
+          !engagement ||
+          !item.engagement_id ||
+          item.engagement_id ===
+            engagement.id
+      );
+
+
+  const activeSupportRequests =
+    courseSupportRequests.filter(
+      (item: any) =>
+        item.status !== "resolved"
+    ).length;
+
+
   const nextMeetingUrl =
     safeExternalUrl(
       nextSession?.meeting_url
@@ -2599,6 +2617,350 @@ const openHomework =
                     timeZone={studentTimeZone}
                   />
                 </div>
+
+
+                {/* ==========================================================
+                    HELP WORKSPACE
+                   ========================================================== */}
+
+                <section
+                  className="portal-panel portal-help-workspace lms-section lms-help"
+                  id="help-workspace"
+                >
+
+                  <div className="portal-help-workspace-head">
+
+                    <div>
+                      <span className="portal-kicker">
+                        Student support
+                      </span>
+
+                      <h2>
+                        How can we help?
+                      </h2>
+
+                      <p>
+                        Choose the area that best matches what you need.
+                        Your tutoring team can help between lessons as well
+                        as during your scheduled sessions.
+                      </p>
+                    </div>
+
+
+                    <div className="portal-help-open-count">
+
+                      <strong>
+                        {activeSupportRequests}
+                      </strong>
+
+                      <span>
+                        open{" "}
+                        {activeSupportRequests === 1
+                          ? "request"
+                          : "requests"}
+                      </span>
+
+                    </div>
+
+                  </div>
+
+
+                  <div className="portal-help-route-grid">
+
+                    <a
+                      href={portalHref("calendar")}
+                      className="portal-help-route-card is-session"
+                    >
+                      <span>
+                        Sessions
+                      </span>
+
+                      <strong>
+                        Book, reschedule or cancel
+                      </strong>
+
+                      <p>
+                        Request a new lesson or make a change to an
+                        existing booking.
+                      </p>
+
+                      <b>
+                        Open Sessions →
+                      </b>
+                    </a>
+
+
+                    <a
+                      href="#ask-support"
+                      className="portal-help-route-card"
+                    >
+                      <span>
+                        Lesson / topic
+                      </span>
+
+                      <strong>
+                        Ask a learning question
+                      </strong>
+
+                      <p>
+                        Tell your tutor what topic, method or explanation
+                        you need help with.
+                      </p>
+
+                      <b>
+                        Ask below ↓
+                      </b>
+                    </a>
+
+
+                    <a
+                      href={portalHref("assignments")}
+                      className="portal-help-route-card"
+                    >
+                      <span>
+                        Homework
+                      </span>
+
+                      <strong>
+                        Assignment support
+                      </strong>
+
+                      <p>
+                        Review your assignment first, upload your work,
+                        or ask your tutor a question.
+                      </p>
+
+                      <b>
+                        Open Assignments →
+                      </b>
+                    </a>
+
+
+                    <a
+                      href={portalHref("resources")}
+                      className="portal-help-route-card"
+                    >
+                      <span>
+                        Resources
+                      </span>
+
+                      <strong>
+                        Find learning material
+                      </strong>
+
+                      <p>
+                        Check worksheets, lesson files and other resources
+                        already shared with you.
+                      </p>
+
+                      <b>
+                        Open Resources →
+                      </b>
+                    </a>
+
+
+                    <a
+                      href="#ask-support"
+                      className="portal-help-route-card"
+                    >
+                      <span>
+                        Technical
+                      </span>
+
+                      <strong>
+                        Report a portal problem
+                      </strong>
+
+                      <p>
+                        Tell us if something is not loading, opening or
+                        working correctly.
+                      </p>
+
+                      <b>
+                        Report below ↓
+                      </b>
+                    </a>
+
+
+                    <a
+                      href="#ask-support"
+                      className="portal-help-route-card"
+                    >
+                      <span>
+                        General
+                      </span>
+
+                      <strong>
+                        Something else?
+                      </strong>
+
+                      <p>
+                        Send your tutoring team a message if your question
+                        does not fit another category.
+                      </p>
+
+                      <b>
+                        Send a message ↓
+                      </b>
+                    </a>
+
+                  </div>
+
+
+                  <div className="portal-help-workspace-grid">
+
+                    <section
+                      className="portal-help-contact-card"
+                      id="ask-support"
+                    >
+
+                      <div className="portal-help-card-head">
+
+                        <div>
+                          <span className="portal-kicker">
+                            Contact your team
+                          </span>
+
+                          <h3>
+                            Send a support request
+                          </h3>
+
+                          <p>
+                            Choose the most relevant category and explain
+                            what you need. Your request stays attached to
+                            your student record.
+                          </p>
+                        </div>
+
+                      </div>
+
+
+                      <StudentSupportForm
+                        token={token}
+                      />
+
+                    </section>
+
+
+                    <section className="portal-help-history-card">
+
+                      <div className="portal-help-card-head">
+
+                        <div>
+                          <span className="portal-kicker">
+                            Request history
+                          </span>
+
+                          <h3>
+                            Recent requests
+                          </h3>
+
+                          <p>
+                            Track whether your request has been received,
+                            is being worked on, or has been resolved.
+                          </p>
+                        </div>
+
+                      </div>
+
+
+                      <div className="portal-help-request-list">
+
+                        {courseSupportRequests
+                          .slice(0, 8)
+                          .map(
+                            (item: any) => (
+
+                              <article
+                                key={item.id}
+                                className="portal-help-request"
+                              >
+
+                                <div className="portal-help-request-top">
+
+                                  <div>
+
+                                    <span>
+                                      {supportCategoryLabel(
+                                        item.category
+                                      )}
+                                    </span>
+
+                                    <small>
+                                      {portalDateTime(
+                                        item.created_at
+                                      )}
+                                    </small>
+
+                                  </div>
+
+
+                                  <strong
+                                    className={`portal-help-request-status status-${item.status}`}
+                                  >
+                                    {supportStatusLabel(
+                                      item.status
+                                    )}
+                                  </strong>
+
+                                </div>
+
+
+                                <p>
+                                  {item.category ===
+                                  "session_request"
+                                    ? "Scheduling request submitted through your Sessions workspace."
+                                    : item.message}
+                                </p>
+
+
+                                {item.admin_note && (
+
+                                  <div className="portal-help-team-update">
+
+                                    <span>
+                                      Tutoring team update
+                                    </span>
+
+                                    <p>
+                                      {item.admin_note}
+                                    </p>
+
+                                  </div>
+
+                                )}
+
+                              </article>
+
+                            )
+                          )}
+
+
+                        {!courseSupportRequests.length && (
+
+                          <div className="portal-help-history-empty">
+
+                            <strong>
+                              No support requests yet
+                            </strong>
+
+                            <p>
+                              When you contact your tutoring team,
+                              your recent requests and their status
+                              will appear here.
+                            </p>
+
+                          </div>
+
+                        )}
+
+                      </div>
+
+                    </section>
+
+                  </div>
+
+                </section>
 
 
                 {/* ==========================================================
