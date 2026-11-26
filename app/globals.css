@@ -16893,3 +16893,39 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
+
+
+/* MAT READABILITY: active informational text should not be dimmed by opacity */
+.portal-upgrade-nav a,
+.portal-signout,
+.portal-session-recordings-label,
+.portal-session-recording small,
+.tutor-command-metrics span,
+.tutor-session-metrics span,
+.tutor-command-metrics small,
+.tutor-session-metrics small,
+.tutor-command-time span,
+.tutor-command-copy small,
+.tutor-learner-list span,
+.tutor-learner-list small,
+.tutor-recent-list small,
+.tutor-session-card-time span,
+.tutor-session-card-copy p,
+.tutor-recording-copy small,
+.portal-lesson-record-title small,
+.portal-continuity-label,
+.tutor-continuity-label,
+.portal-continuity-progress span,
+.portal-continuity-homework-list article small,
+.portal-continuity-next small,
+.tutor-continuity-score span,
+.portal-recordings-summary span,
+.portal-recordings-summary small,
+.portal-recordings-course-list span,
+.portal-recordings-session-head > div > span,
+.portal-recordings-session-head small,
+.portal-recordings-note > span,
+.portal-recordings-followup > div > span,
+.portal-recordings-file small {
+  opacity: 1;
+}

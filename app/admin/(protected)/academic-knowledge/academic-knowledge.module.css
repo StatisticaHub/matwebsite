@@ -421,3 +421,18 @@
     gap: 4px;
   }
 }
+
+
+/* MAT READABILITY: preserve hierarchy with colour, not reduced opacity */
+.topicHead small,
+.conceptMain span,
+.breadcrumbs,
+.objective > span,
+.relation > span,
+.relation small,
+.blockType,
+.lifecycleActions small,
+.historyHead span,
+.historyHead time {
+  opacity: 1;
+}

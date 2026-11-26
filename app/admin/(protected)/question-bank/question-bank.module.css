@@ -620,3 +620,23 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* MAT READABILITY: preserve hierarchy with colour, not reduced opacity */
+.breadcrumbs,
+.slug,
+.mapping > span,
+.mapping small,
+.correctness,
+.hint span,
+.provenance span,
+.solution section > span,
+.lifecycleActions small,
+.historyHead span,
+.historyHead time,
+.qualitySummary span,
+.qualityCheck span,
+.qualityCheck p,
+.qualityFootnote {
+  opacity: 1;
+}
