@@ -15617,3 +15617,98 @@ details > summary {
 }
 
 /* ===== END STUDENT PROGRESS LEARNING JOURNEY V1 ===== */
+
+
+/* ===== STUDENT PORTAL TABLET HEADER STABILITY V1 ===== */
+
+/*
+ * iPad landscape can still be ~1024px wide while the permanent
+ * student sidebar removes a large part of the usable content width.
+ * Stack the learning-header tools earlier rather than allowing the
+ * greeting column to collapse.
+ */
+
+@media (max-width: 1180px) {
+
+  .student-portal-shell
+  .portal-learning-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .student-portal-shell
+  .portal-learning-header-main {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .student-portal-shell
+  .portal-learning-header-title-row {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .student-portal-shell
+  .portal-learning-header-title-row
+  .portal-welcome-greeting {
+    flex: 1 1 360px;
+    min-width: 280px;
+    max-width: 100%;
+  }
+
+  .student-portal-shell
+  .portal-learning-header-tools {
+    width: 100%;
+    justify-content: space-between;
+    padding-top: 14px;
+    padding-left: 0;
+    border-top: 1px solid #e6ebf0;
+    border-left: 0;
+  }
+
+}
+
+
+/*
+ * Do not allow normal names or greeting text to wrap one
+ * character at a time when horizontal room becomes constrained.
+ */
+
+.student-portal-shell
+.portal-welcome-greeting-text {
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+
+@media (max-width: 760px) {
+
+  .student-portal-shell
+  .portal-learning-header-title-row
+  .portal-welcome-greeting {
+    flex-basis: 100%;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .student-portal-shell
+  .portal-learning-course-pill {
+    max-width: 100%;
+  }
+
+}
+
+
+@media (max-width: 520px) {
+
+  .student-portal-shell
+  .portal-learning-header-tools {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+}
+
+/* ===== END STUDENT PORTAL TABLET HEADER STABILITY V1 ===== */
