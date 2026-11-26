@@ -61,6 +61,15 @@ export default function AdminSidebarNav({
       ],
     },
     {
+      label: "Academic",
+      items: [
+        {
+          href: "/admin/academic-knowledge",
+          label: "Academic knowledge",
+        },
+      ],
+    },
+    {
       label: "Operations",
       items: [
         {

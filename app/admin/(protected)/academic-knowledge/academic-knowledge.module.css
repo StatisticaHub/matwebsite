@@ -1,0 +1,291 @@
+.filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 2fr) repeat(3, minmax(150px, 1fr));
+  gap: 14px;
+  align-items: end;
+}
+
+.filters label {
+  display: grid;
+  gap: 7px;
+}
+
+.filters label > span {
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.filters input,
+.filters select {
+  width: 100%;
+}
+
+.search {
+  min-width: 0;
+}
+
+.filterActions {
+  display: flex;
+  gap: 10px;
+  grid-column: 1 / -1;
+}
+
+.domainGrid {
+  display: grid;
+  gap: 18px;
+}
+
+.domainCard {
+  border: 1px solid var(--admin-border, #e5e7eb);
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.domainHead,
+.topicHead,
+.blockHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.domainHead h3 {
+  margin: 4px 0 0;
+}
+
+.domainHead > span,
+.topicHead > span {
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.topic {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--admin-border, #e5e7eb);
+}
+
+.topicHead strong {
+  display: block;
+}
+
+.topicHead small {
+  display: block;
+  margin-top: 4px;
+  opacity: 0.72;
+  line-height: 1.45;
+}
+
+.conceptList {
+  display: grid;
+  gap: 9px;
+  margin-top: 12px;
+}
+
+.concept {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 13px 14px;
+  border: 1px solid var(--admin-border, #e5e7eb);
+  border-radius: 10px;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 120ms ease, transform 120ms ease;
+}
+
+.concept:hover {
+  transform: translateY(-1px);
+  border-color: currentColor;
+}
+
+.conceptMain {
+  min-width: 0;
+}
+
+.conceptMain strong,
+.conceptMain span {
+  display: block;
+}
+
+.conceptMain span {
+  margin-top: 4px;
+  font-size: 0.84rem;
+  opacity: 0.72;
+  line-height: 1.4;
+}
+
+.conceptMeta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-content: flex-start;
+  gap: 6px;
+  min-width: 220px;
+}
+
+.conceptMeta span,
+.conceptMeta b {
+  border: 1px solid var(--admin-border, #e5e7eb);
+  border-radius: 999px;
+  padding: 4px 7px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.conceptMeta b {
+  font-weight: 800;
+}
+
+.breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 0.82rem;
+  opacity: 0.75;
+}
+
+.breadcrumbs a {
+  color: inherit;
+}
+
+.detailGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.objectiveList,
+.relationList,
+.blockList {
+  display: grid;
+  gap: 12px;
+}
+
+.objective,
+.relation {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 14px;
+  padding: 12px 0;
+  border-top: 1px solid var(--admin-border, #e5e7eb);
+}
+
+.objective:first-child,
+.relation:first-child {
+  border-top: 0;
+}
+
+.objective > span,
+.relation > span {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  opacity: 0.66;
+}
+
+.objective p,
+.relation p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.relation strong {
+  display: block;
+  margin-bottom: 4px;
+  text-transform: capitalize;
+}
+
+.relation small {
+  display: block;
+  margin-top: 5px;
+  opacity: 0.7;
+}
+
+.block {
+  border: 1px solid var(--admin-border, #e5e7eb);
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.blockHead h3 {
+  margin: 5px 0 0;
+}
+
+.blockType {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+
+.lifecycle {
+  border: 1px solid var(--admin-border, #e5e7eb);
+  border-radius: 999px;
+  padding: 5px 9px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.draft {
+  border-style: dashed;
+}
+
+.blockBody {
+  margin-top: 16px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.sourceNote,
+.reviewNote {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--admin-border, #e5e7eb);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 980px) {
+  .filters {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .detailGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .concept {
+    flex-direction: column;
+  }
+
+  .conceptMeta {
+    justify-content: flex-start;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .filters {
+    grid-template-columns: 1fr;
+  }
+
+  .domainCard {
+    padding: 14px;
+  }
+
+  .objective,
+  .relation,
+  .sourceNote,
+  .reviewNote {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+}
