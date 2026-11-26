@@ -43,7 +43,7 @@ export async function generateMetadata({
     subject.audiences.slice(0, 4).join(", ");
 
   const description =
-    `Online ${subject.name} tutoring for ${audienceText}. Get one-to-one help with ${subject.topics
+    `Online ${subject.name} tutoring for learners aged 18+ studying ${audienceText}. Get one-to-one help with ${subject.topics
       .slice(0, 4)
       .join(", ")} and more.`;
 
@@ -145,7 +145,7 @@ export default async function Page({
     audience: subject.audiences.map(
       (audience) => ({
         "@type": "Audience",
-        audienceType: audience,
+        audienceType: `${audience} learners · live tutoring 18+`,
       })
     ),
   };
@@ -177,8 +177,9 @@ export default async function Page({
             </p>
 
             <p>
-              We can arrange one-to-one tutoring for{" "}
-              {subject.audiences.join(", ")} learners.
+              For learners aged 18+, we can arrange one-to-one tutoring
+              across{" "}
+              {subject.audiences.join(", ")} study levels.
               Bring a single difficult topic, ongoing course work,
               exam preparation or an advanced technical question.
             </p>
@@ -286,6 +287,11 @@ export default async function Page({
             <h2>
               Tutoring that changes with your level.
             </h2>
+
+            <p>
+              These labels describe curriculum or study level. Live one-to-one
+              tutoring enquiries are currently available to learners aged 18+.
+            </p>
 
             <div className="audience-list">
               {subject.audiences.map(
@@ -408,7 +414,7 @@ export default async function Page({
               </li>
 
               <li>
-                Tutoring matched to your course level
+                Tutoring matched to your course level · 18+ enquiries only
               </li>
 
               <li>

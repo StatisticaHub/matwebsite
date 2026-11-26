@@ -4,7 +4,7 @@ import { subjects } from "@/lib/tutoring-data";
 
 export const metadata: Metadata = {
   title: "Subjects",
-  description: "Explore personalised tutoring across mathematics, statistics, science, computing, data and research methods.",
+  description: "Explore online tutoring for learners aged 18+ across mathematics, statistics, science, computing, data science and research methods.",
 };
 
 export default function Page() {
@@ -14,7 +14,7 @@ export default function Page() {
         <div className="shell">
           <div className="eyebrow">SUBJECTS</div>
           <h1>Learn the subject at the level you are actually studying it.</h1>
-          <p className="page-lead">From school foundations to advanced university methods, tutoring should reflect the concepts, notation, software and assessment style used in your course.</p>
+          <p className="page-lead">Explore learning from school-level foundations through advanced university and research methods. Live one-to-one tutoring enquiries are currently available to learners aged 18+.</p>
         </div>
       </section>
 
