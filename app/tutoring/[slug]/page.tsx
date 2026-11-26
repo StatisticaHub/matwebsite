@@ -63,9 +63,19 @@ export async function generateMetadata({
 
   const canonical = `${siteUrl}/tutoring/${service.slug}`;
 
+  const metadataTitle =
+    service.slug === "statistics-data-analysis"
+      ? "Statistics & Data Analysis Support | Methods, Software & Interpretation"
+      : service.title;
+
+  const metadataDescription =
+    service.slug === "statistics-data-analysis"
+      ? "Broader one-to-one support with statistical method choice, data analysis, R, SPSS, Stata, Python and interpretation across university and research work."
+      : service.short;
+
   return {
-    title: service.title,
-    description: service.short,
+    title: metadataTitle,
+    description: metadataDescription,
     alternates: { canonical },
   };
 }

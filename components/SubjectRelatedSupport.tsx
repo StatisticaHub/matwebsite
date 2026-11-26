@@ -2,7 +2,8 @@ import Link from "next/link";
 
 const routes: Record<string, Array<{ href: string; title: string; copy: string }>> = {
   statistics: [
-    { href: "/tutoring/statistics-tutor-online", title: "Online Statistics Tutor", copy: "General statistics, inference, regression, modelling and interpretation." },
+    { href: "/tutoring/statistics-tutor-online", title: "Online Statistics Tutor", copy: "Direct one-to-one tutoring for a statistics topic, method or university module." },
+    { href: "/tutoring/statistics-data-analysis", title: "Statistics & Data Analysis Support", copy: "Broader support with method choice, software workflows, analysis and interpretation." },
     { href: "/tutoring/r-statistics-tutor", title: "R Statistics Tutor", copy: "R workflows, debugging, modelling and reproducible analysis." },
     { href: "/tutoring/spss-tutor", title: "SPSS Tutor", copy: "SPSS procedures, assumptions, output and reporting." },
     { href: "/tutoring/dissertation-statistics-support", title: "Dissertation Statistics Support", copy: "Ethical support for methods, analysis planning and interpretation." },

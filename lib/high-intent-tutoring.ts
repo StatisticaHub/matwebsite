@@ -59,7 +59,7 @@ export const highIntentTutoringPages: HighIntentTutoringPage[] = [
     ],
     relatedLinks: [
       { label: "Statistics subject", href: "/subjects/statistics" },
-      { label: "Statistics & data analysis tutoring", href: "/tutoring/statistics-data-analysis" },
+      { label: "Broader statistics & data analysis support", href: "/tutoring/statistics-data-analysis" },
       { label: "Master's tutoring", href: "/levels/masters" },
     ],
   },
