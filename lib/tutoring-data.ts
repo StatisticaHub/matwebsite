@@ -23,10 +23,10 @@ export const subjects: Subject[] = [
 
 export type AcademicLevel = { slug: string; name: string; short: string; focus: string[] };
 export const academicLevels: AcademicLevel[] = [
-  { slug:"school-secondary", name:"School / Secondary", short:"Build foundations, confidence and study habits with patient 1:1 support.", focus:["Core concepts", "Homework understanding", "Confidence building", "Study routine"] },
-  { slug:"gcse-igcse", name:"GCSE / IGCSE", short:"Curriculum-aware support for understanding, practice and exam preparation.", focus:["Topic gaps", "Exam technique", "Past-paper practice", "Revision planning"] },
-  { slug:"a-level-ib", name:"A-Level / IB", short:"Deeper subject understanding and structured preparation for demanding assessments.", focus:["Advanced concepts", "Problem solving", "Exam preparation", "Coursework guidance"] },
-  { slug:"ap-us-high-school", name:"AP / US High School", short:"Targeted support aligned to high-school and AP-level quantitative and science courses.", focus:["Concept mastery", "AP-style problems", "Test preparation", "Academic confidence"] },
+  { slug:"school-secondary", name:"School / Secondary", short:"Explore secondary-level foundations and structured learning support. Live 1:1 tutoring enquiries are currently available to learners aged 18+.", focus:["Core concepts", "Foundation rebuilding", "Confidence building", "Study routine"] },
+  { slug:"gcse-igcse", name:"GCSE / IGCSE", short:"GCSE and IGCSE learning guidance for topic understanding, practice and adult resit preparation. Live 1:1 tutoring is currently 18+.", focus:["Topic gaps", "Exam technique", "Past-paper practice", "Revision planning"] },
+  { slug:"a-level-ib", name:"A-Level / IB", short:"Explore advanced secondary concepts, problem solving and assessment preparation. Live 1:1 tutoring enquiries are currently 18+.", focus:["Advanced concepts", "Problem solving", "Exam preparation", "Coursework understanding"] },
+  { slug:"ap-us-high-school", name:"AP / US High School", short:"Explore AP and US high-school quantitative and science curricula. Live 1:1 tutoring enquiries are currently available to learners aged 18+.", focus:["Concept mastery", "AP-style problems", "Test preparation", "Academic confidence"] },
   { slug:"undergraduate", name:"Undergraduate", short:"Module-specific support for lectures, problem sheets, coding and methods.", focus:["Difficult modules", "Problem sheets", "Software support", "Exam preparation"] },
   { slug:"masters", name:"Master's", short:"Advanced methods, coding and research support for taught postgraduate study.", focus:["Advanced statistics", "Research methods", "Programming", "Dissertation preparation"] },
   { slug:"phd-research", name:"PhD / Research", short:"Specialist methodological guidance for researchers who need expert discussion and training.", focus:["Methods training", "Analysis strategy", "Reproducibility", "Interpretation"] },

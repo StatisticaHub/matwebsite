@@ -52,7 +52,7 @@ export const tutoringServices: TutoringService[] = [
     short: "Target the topics and question types that are still costing you marks.",
     hero: "Bring the topics, past papers and question types you find hardest. We can combine subject teaching with exam-style practice so revision is focused on what still needs work.",
     bestFor: [
-      "GCSE, IGCSE, A-Level, IB and AP students",
+      "Adult learners preparing for GCSE, IGCSE, A-Level, IB or AP examinations, including resits",
       "University students preparing for quantitative or written exams",
       "Students who understand the course but struggle to apply it under exam conditions",
       "Learners who need a clearer revision plan",
