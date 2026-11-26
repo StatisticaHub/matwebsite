@@ -16131,3 +16131,247 @@ details > summary {
 }
 
 /* ===== END STUDENT ASSIGNMENT TABLET SUBMISSION LAYOUT V1 ===== */
+
+
+/* ===== STUDENT PROGRESS TREND AND MILESTONES V1 ===== */
+
+.student-portal-shell
+.portal-progress-development-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0 0 22px;
+}
+
+.student-portal-shell
+.portal-progress-development-card {
+  min-width: 0;
+  padding: 17px;
+  border: 1px solid #dfe6ed;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.student-portal-shell
+.portal-progress-development-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.student-portal-shell
+.portal-progress-development-head h3 {
+  margin: 3px 0 0;
+  color: #203d5c;
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+.student-portal-shell
+.portal-progress-trend-label,
+.student-portal-shell
+.portal-progress-milestone-total {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #eef4fa;
+  color: #42698f;
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+
+
+/* Understanding trend */
+
+.student-portal-shell
+.portal-understanding-trend {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fit, minmax(62px, 1fr));
+  gap: 9px;
+  align-items: end;
+}
+
+.student-portal-shell
+.portal-understanding-trend article {
+  min-width: 0;
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  text-align: center;
+}
+
+.student-portal-shell
+.portal-understanding-bar {
+  display: flex;
+  width: 22px;
+  height: 82px;
+  align-items: flex-end;
+  overflow: hidden;
+  border-radius: 7px;
+  background: #edf1f5;
+}
+
+.student-portal-shell
+.portal-understanding-bar i {
+  display: block;
+  width: 100%;
+  min-height: 4px;
+  border-radius: 7px;
+  background: #5a83ae;
+}
+
+.student-portal-shell
+.portal-understanding-trend strong {
+  color: #294663;
+  font-size: 11px;
+}
+
+.student-portal-shell
+.portal-understanding-trend span {
+  max-width: 100%;
+  overflow: hidden;
+  color: #5f7084;
+  font-size: 8.5px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+}
+
+.student-portal-shell
+.portal-understanding-trend small {
+  color: #929daa;
+  font-size: 7.5px;
+  line-height: 1.35;
+}
+
+
+/* Milestones */
+
+.student-portal-shell
+.portal-progress-milestone-list {
+  display: grid;
+  gap: 9px;
+}
+
+.student-portal-shell
+.portal-progress-milestone-list article {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 10px 0;
+  border-top: 1px solid #edf1f4;
+}
+
+.student-portal-shell
+.portal-progress-milestone-list article:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.student-portal-shell
+.portal-progress-milestone-icon {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 999px;
+  background: #eaf5ef;
+  color: #3d7d5a;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.student-portal-shell
+.portal-progress-milestone-copy {
+  min-width: 0;
+}
+
+.student-portal-shell
+.portal-progress-milestone-copy > div {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.student-portal-shell
+.portal-progress-milestone-copy strong {
+  min-width: 0;
+  color: #2c455f;
+  font-size: 10.5px;
+  line-height: 1.4;
+  overflow-wrap: break-word;
+}
+
+.student-portal-shell
+.portal-progress-milestone-copy > div > span {
+  flex: 0 0 auto;
+  color: #4a8062;
+  font-size: 9px;
+  font-weight: 850;
+}
+
+.student-portal-shell
+.portal-progress-milestone-copy p {
+  margin: 4px 0;
+  color: #718094;
+  font-size: 9.5px;
+  line-height: 1.5;
+}
+
+.student-portal-shell
+.portal-progress-milestone-copy small {
+  color: #929daa;
+  font-size: 8px;
+}
+
+.student-portal-shell
+.portal-progress-development-empty {
+  padding: 20px 12px;
+  border: 1px dashed #dce4eb;
+  border-radius: 10px;
+  color: #8d99a7;
+  font-size: 10px;
+  line-height: 1.55;
+  text-align: center;
+}
+
+
+/*
+ * The permanent student sidebar reduces usable width on tablets,
+ * so stack these sections before they become cramped.
+ */
+
+@media (max-width: 1180px) {
+
+  .student-portal-shell
+  .portal-progress-development-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .student-portal-shell
+  .portal-progress-development-head {
+    flex-direction: column;
+  }
+
+  .student-portal-shell
+  .portal-understanding-trend {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+}
+
+/* ===== END STUDENT PROGRESS TREND AND MILESTONES V1 ===== */

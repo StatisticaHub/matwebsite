@@ -694,6 +694,77 @@ const openHomework =
   );
 
 
+  const understandingTrendSessions =
+    completedSessions
+      .filter(
+        (item) => {
+          const rating =
+            Number(
+              item.understanding_rating
+            );
+
+          return (
+            Number.isFinite(rating) &&
+            rating >= 1 &&
+            rating <= 5
+          );
+        }
+      )
+      .slice(0, 6)
+      .reverse();
+
+
+  const understandingTrendLabel =
+    understandingTrendSessions.length < 2
+      ? "Building history"
+      : (() => {
+          const first =
+            Number(
+              understandingTrendSessions[0]
+                ?.understanding_rating
+            );
+
+          const last =
+            Number(
+              understandingTrendSessions[
+                understandingTrendSessions.length - 1
+              ]?.understanding_rating
+            );
+
+          const change =
+            last - first;
+
+          if (change >= 0.5) {
+            return "Improving";
+          }
+
+          if (change <= -0.5) {
+            return "Needs attention";
+          }
+
+          return "Stable";
+        })();
+
+
+  const masteredMilestones =
+    plan
+      .filter(
+        (item) =>
+          item.progress_status ===
+          "mastered"
+      )
+      .sort(
+        (a, b) =>
+          new Date(
+            b.last_assessed_at || 0
+          ).getTime() -
+          new Date(
+            a.last_assessed_at || 0
+          ).getTime()
+      )
+      .slice(0, 6);
+
+
   const submissionByHomework =
     Object.fromEntries(
       submissions.map(
@@ -1282,6 +1353,182 @@ const openHomework =
                   </article>
 
                 </div>
+
+              </div>
+
+
+              <div className="portal-progress-development-grid">
+
+                <section className="portal-progress-development-card">
+
+                  <div className="portal-progress-development-head">
+
+                    <div>
+                      <span className="portal-kicker">
+                        Understanding
+                      </span>
+
+                      <h3>
+                        Recent understanding trend
+                      </h3>
+                    </div>
+
+                    <span className="portal-progress-trend-label">
+                      {understandingTrendLabel}
+                    </span>
+
+                  </div>
+
+
+                  {understandingTrendSessions.length ? (
+
+                    <div className="portal-understanding-trend">
+
+                      {understandingTrendSessions.map(
+                        (item) => {
+
+                          const rating =
+                            Number(
+                              item.understanding_rating
+                            );
+
+                          return (
+                            <article key={item.id}>
+
+                              <div className="portal-understanding-bar">
+
+                                <i
+                                  style={{
+                                    height:
+                                      `${(rating / 5) * 100}%`,
+                                  }}
+                                />
+
+                              </div>
+
+
+                              <strong>
+                                {rating}/5
+                              </strong>
+
+                              <span>
+                                {item.topic}
+                              </span>
+
+                              <small>
+                                {portalDateTime(
+                                  item.completed_at ||
+                                  item.scheduled_for
+                                )}
+                              </small>
+
+                            </article>
+                          );
+                        }
+                      )}
+
+                    </div>
+
+                  ) : (
+
+                    <div className="portal-progress-development-empty">
+                      Understanding ratings will appear here
+                      after completed lessons are assessed.
+                    </div>
+
+                  )}
+
+                </section>
+
+
+                <section className="portal-progress-development-card">
+
+                  <div className="portal-progress-development-head">
+
+                    <div>
+                      <span className="portal-kicker">
+                        Milestones
+                      </span>
+
+                      <h3>
+                        Learning milestones
+                      </h3>
+                    </div>
+
+                    <span className="portal-progress-milestone-total">
+                      {mastered} mastered
+                    </span>
+
+                  </div>
+
+
+                  {masteredMilestones.length ? (
+
+                    <div className="portal-progress-milestone-list">
+
+                      {masteredMilestones.map(
+                        (item) => {
+
+                          const mastery =
+                            topicMastery(
+                              item as any
+                            );
+
+                          return (
+                            <article key={item.id}>
+
+                              <div className="portal-progress-milestone-icon">
+                                ✓
+                              </div>
+
+
+                              <div className="portal-progress-milestone-copy">
+
+                                <div>
+                                  <strong>
+                                    {item.topic}
+                                  </strong>
+
+                                  <span>
+                                    {mastery}%
+                                  </span>
+                                </div>
+
+
+                                {item.strength_note && (
+                                  <p>
+                                    {item.strength_note}
+                                  </p>
+                                )}
+
+
+                                <small>
+                                  {item.last_assessed_at
+                                    ? `Assessed ${portalDateTime(
+                                        item.last_assessed_at
+                                      )}`
+                                    : "Mastered topic"}
+                                </small>
+
+                              </div>
+
+                            </article>
+                          );
+                        }
+                      )}
+
+                    </div>
+
+                  ) : (
+
+                    <div className="portal-progress-development-empty">
+                      Mastered topics will build into your
+                      milestone history here.
+                    </div>
+
+                  )}
+
+                </section>
 
               </div>
 
