@@ -43,6 +43,10 @@ export type LearningMaterialListItem = {
   session_id?:
     | string
     | null;
+
+  visible_to_student?:
+    | boolean
+    | null;
 };
 
 const categoryLabels:
@@ -328,6 +332,32 @@ export default function LearningMaterialsList({
                       )}
                     </span>
                   )}
+
+                  {viewerRole === "tutor" && (
+                    <span
+                      className={
+                        material.visible_to_student
+                          ? styles.studentVisible
+                          : styles.tutorOnly
+                      }
+                    >
+                      {material.visible_to_student
+                        ? "Shared with student"
+                        : "Tutor only"}
+                    </span>
+                  )}
+
+                  {viewerRole === "tutor" &&
+                    material.session_id && (
+                      <a
+                        className={styles.sessionLink}
+                        href={`/tutor/sessions/${encodeURIComponent(
+                          material.session_id,
+                        )}`}
+                      >
+                        Linked lesson →
+                      </a>
+                    )}
                 </div>
 
                 {material.description && (

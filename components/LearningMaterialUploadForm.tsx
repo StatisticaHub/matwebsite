@@ -437,7 +437,9 @@ export default function LearningMaterialUploadForm({
             styles.privateBadge
           }
         >
-          Private
+          {role === "student"
+            ? "Tutor visible"
+            : "Student visible"}
         </span>
       </div>
 

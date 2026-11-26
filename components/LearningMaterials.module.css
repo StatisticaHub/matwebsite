@@ -450,3 +450,34 @@
     width: max-content;
   }
 }
+
+
+/* MAT MATERIAL VISIBILITY CONTEXT V1 */
+
+.studentVisible,
+.tutorOnly,
+.sessionLink {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.studentVisible {
+  color: #26704a;
+  font-weight: 700;
+}
+
+.tutorOnly {
+  color: #7a6470;
+  font-weight: 700;
+}
+
+.sessionLink {
+  color: #315f93;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.sessionLink:hover {
+  text-decoration: underline;
+}

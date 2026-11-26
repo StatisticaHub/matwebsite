@@ -114,7 +114,7 @@ export default async function TutorMaterialsPage({
           "learning_materials",
         )
         .select(
-          "id,created_at,title,description,category,uploaded_by_role,original_filename,mime_type,size_bytes,session_id",
+          "id,created_at,title,description,category,uploaded_by_role,original_filename,mime_type,size_bytes,session_id,visible_to_student",
         )
         .eq(
           "engagement_id",
@@ -320,6 +320,7 @@ export default async function TutorMaterialsPage({
                         tutorMaterials
                       }
                       viewerRole="tutor"
+                      timeZone={auth.tutor.timezone}
                       downloadBaseUrl="/api/tutor/materials"
                       emptyText="Upload the first worksheet, notes, slides or dataset for this student."
                     />
@@ -350,6 +351,7 @@ export default async function TutorMaterialsPage({
                         studentUploads
                       }
                       viewerRole="tutor"
+                      timeZone={auth.tutor.timezone}
                       downloadBaseUrl="/api/tutor/materials"
                       emptyText="Files the student uploads from their Learning Portal will appear here."
                     />
