@@ -1,6 +1,6 @@
 import { highIntentTutoringPages } from "@/lib/high-intent-tutoring";
 import { resourceCategories, resources } from "@/lib/resources";
-import { subjects } from "@/lib/tutoring-data";
+import { academicLevels, subjects } from "@/lib/tutoring-data";
 import { tutoringServices } from "@/lib/tutoring-services";
 
 export { resourceCategories };
@@ -78,10 +78,17 @@ function titleFromPath(path: string) {
 export function currentSiteInventory() {
   const core = [
     { path: "/", title: "Homepage", content_type: "core", category: "core", search_intent: "commercial", priority: "high" },
-    { path: "/find-a-tutor", title: "Find a Tutor", content_type: "core", category: "conversion", search_intent: "transactional", priority: "high" },
+    { path: "/find-a-tutor", title: "Request Tutoring", content_type: "core", category: "conversion", search_intent: "transactional", priority: "high" },
     { path: "/learn", title: "Learning Hub", content_type: "core", category: "learning-hub", search_intent: "informational", priority: "high" },
     { path: "/subjects", title: "Subjects", content_type: "core", category: "subjects", search_intent: "commercial", priority: "medium" },
-    { path: "/tutoring", title: "Tutoring", content_type: "core", category: "tutoring", search_intent: "commercial", priority: "high" },
+    { path: "/levels", title: "Academic Levels", content_type: "core", category: "levels", search_intent: "commercial", priority: "medium" },
+    { path: "/tutoring", title: "Tutoring Services", content_type: "core", category: "tutoring", search_intent: "commercial", priority: "high" },
+    { path: "/pricing", title: "Tutoring Prices", content_type: "core", category: "conversion", search_intent: "commercial", priority: "medium" },
+    { path: "/how-it-works", title: "How Tutoring Works", content_type: "core", category: "conversion", search_intent: "commercial", priority: "medium" },
+    { path: "/tutors", title: "Tutor Matching & Standards", content_type: "core", category: "trust", search_intent: "commercial", priority: "medium" },
+    { path: "/testimonials", title: "Student Testimonials", content_type: "core", category: "trust", search_intent: "commercial", priority: "medium" },
+    { path: "/faq", title: "Tutoring FAQs", content_type: "core", category: "support", search_intent: "informational", priority: "medium" },
+    { path: "/about", title: "About My Academic Tutor", content_type: "core", category: "brand", search_intent: "navigational", priority: "low" },
   ];
 
   const hubs = resourceCategories.map((category) => ({
@@ -114,6 +121,17 @@ export function currentSiteInventory() {
     priority: ["statistics", "data-science", "research-methods", "bioinformatics", "mathematics"].includes(subject.slug) ? "high" : "medium",
   }));
 
+  const levelPages = academicLevels.map((level) => ({
+    path: `/levels/${level.slug}`,
+    title: `${level.name} Tutoring`,
+    category: "levels",
+    content_type: "core",
+    search_intent: "commercial",
+    priority: ["undergraduate", "masters", "phd-research"].includes(level.slug)
+      ? "high"
+      : "medium",
+  }));
+
   const servicePages = tutoringServices.map((service) => ({
     path: `/tutoring/${service.slug}`,
     title: service.title,
@@ -122,6 +140,81 @@ export function currentSiteInventory() {
     search_intent: "commercial",
     priority: "medium",
   }));
+
+  const marketPages = [
+    {
+      path: "/uk",
+      title: "Online Tutoring UK",
+      category: "market-uk",
+      content_type: "core",
+      search_intent: "commercial",
+      priority: "high",
+    },
+    {
+      path: "/uk/statistics",
+      title: "Statistics Tutoring UK",
+      category: "market-uk",
+      content_type: "core",
+      search_intent: "transactional",
+      priority: "high",
+    },
+    {
+      path: "/uk/r-spss-data-analysis",
+      title: "R, SPSS & Data Analysis Support UK",
+      category: "market-uk",
+      content_type: "core",
+      search_intent: "transactional",
+      priority: "high",
+    },
+    {
+      path: "/us",
+      title: "Online Tutoring US",
+      category: "market-us",
+      content_type: "core",
+      search_intent: "commercial",
+      priority: "high",
+    },
+    {
+      path: "/us/statistics",
+      title: "Statistics Tutoring US",
+      category: "market-us",
+      content_type: "core",
+      search_intent: "transactional",
+      priority: "high",
+    },
+    {
+      path: "/us/r-spss-data-analysis",
+      title: "R, SPSS & Data Analysis Support US",
+      category: "market-us",
+      content_type: "core",
+      search_intent: "transactional",
+      priority: "high",
+    },
+    {
+      path: "/ca",
+      title: "Online Tutoring Canada",
+      category: "market-ca",
+      content_type: "core",
+      search_intent: "commercial",
+      priority: "high",
+    },
+    {
+      path: "/ca/statistics",
+      title: "Statistics Tutoring Canada",
+      category: "market-ca",
+      content_type: "core",
+      search_intent: "transactional",
+      priority: "high",
+    },
+    {
+      path: "/ca/r-spss-data-analysis",
+      title: "R, SPSS & Data Analysis Support Canada",
+      category: "market-ca",
+      content_type: "core",
+      search_intent: "transactional",
+      priority: "high",
+    },
+  ];
 
   const specialistPages = highIntentTutoringPages.map((page) => ({
     path: `/tutoring/${page.slug}`,
@@ -133,7 +226,16 @@ export function currentSiteInventory() {
     target_query: page.title.toLowerCase(),
   }));
 
-  return [...core, ...hubs, ...guides, ...subjectPages, ...servicePages, ...specialistPages].map((item) => ({
+  return [
+    ...core,
+    ...hubs,
+    ...guides,
+    ...subjectPages,
+    ...levelPages,
+    ...servicePages,
+    ...specialistPages,
+    ...marketPages,
+  ].map((item) => ({
     ...item,
     stage: "published" as const,
     indexing_status: "unknown" as const,
