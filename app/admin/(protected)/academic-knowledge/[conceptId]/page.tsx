@@ -1,12 +1,23 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  transitionAcademicContentBlock,
+  updateAcademicContentBlock,
+} from "@/app/admin/academic-knowledge-actions";
 import styles from "../academic-knowledge.module.css";
 
 export const metadata = { title: "Academic Concept" };
 export const dynamic = "force-dynamic";
 
 type Params = Promise<{ conceptId: string }>;
+type Search = Promise<Record<string, string | string[] | undefined>>;
+
+function firstParam(
+  value: string | string[] | undefined,
+) {
+  return Array.isArray(value) ? value[0] || "" : value || "";
+}
 
 type Objective = {
   id: string;
@@ -47,10 +58,13 @@ function label(value: string) {
 
 export default async function AcademicConceptPage({
   params,
+  searchParams,
 }: {
   params: Params;
+  searchParams: Search;
 }) {
   const { conceptId } = await params;
+  const query = await searchParams;
   const supabase = createAdminClient();
 
   const { data: concept, error: conceptError } = await supabase
@@ -190,6 +204,25 @@ export default async function AcademicConceptPage({
           ← Knowledge map
         </Link>
       </header>
+
+      {firstParam(query.saved) ? (
+        <div className="admin-alert success">
+          Academic content block saved.
+        </div>
+      ) : null}
+
+      {firstParam(query.status) ? (
+        <div className="admin-alert success">
+          Academic lifecycle updated to{" "}
+          <strong>{firstParam(query.status)}</strong>.
+        </div>
+      ) : null}
+
+      {firstParam(query.error) ? (
+        <div className="admin-alert error">
+          {firstParam(query.error)}
+        </div>
+      ) : null}
 
       <section className="admin-metrics admin-metrics-4">
         <div>
@@ -349,6 +382,241 @@ export default async function AcademicConceptPage({
                     <span>{block.review_notes}</span>
                   </div>
                 ) : null}
+
+                <details className={styles.reviewEditor}>
+                  <summary>Edit & review</summary>
+
+                  <form
+                    action={updateAcademicContentBlock}
+                    className={styles.reviewForm}
+                  >
+                    <input
+                      type="hidden"
+                      name="blockId"
+                      value={block.id}
+                    />
+
+                    <input
+                      type="hidden"
+                      name="conceptId"
+                      value={concept.id}
+                    />
+
+                    <label>
+                      <span>Title</span>
+                      <input
+                        name="title"
+                        defaultValue={block.title || ""}
+                      />
+                    </label>
+
+                    <label>
+                      <span>Academic content</span>
+                      <textarea
+                        name="body"
+                        rows={10}
+                        defaultValue={block.body}
+                        required
+                      />
+                    </label>
+
+                    <label>
+                      <span>Reviewer notes</span>
+                      <textarea
+                        name="reviewNotes"
+                        rows={4}
+                        defaultValue={block.review_notes || ""}
+                        placeholder="Corrections, source checks, methodological notes…"
+                      />
+                    </label>
+
+                    <button
+                      type="submit"
+                      className="admin-primary-button"
+                    >
+                      Save content
+                    </button>
+                  </form>
+
+                  <div className={styles.lifecycleActions}>
+                    <strong>Lifecycle</strong>
+
+                    <div className={styles.lifecycleButtons}>
+                      {block.lifecycle_status === "draft" ? (
+                        <form
+                          action={transitionAcademicContentBlock}
+                        >
+                          <input
+                            type="hidden"
+                            name="blockId"
+                            value={block.id}
+                          />
+                          <input
+                            type="hidden"
+                            name="conceptId"
+                            value={concept.id}
+                          />
+                          <input
+                            type="hidden"
+                            name="nextStatus"
+                            value="review"
+                          />
+                          <button
+                            type="submit"
+                            className="admin-secondary-button"
+                          >
+                            Send to review
+                          </button>
+                        </form>
+                      ) : null}
+
+                      {block.lifecycle_status === "review" ? (
+                        <>
+                          <form
+                            action={transitionAcademicContentBlock}
+                          >
+                            <input
+                              type="hidden"
+                              name="blockId"
+                              value={block.id}
+                            />
+                            <input
+                              type="hidden"
+                              name="conceptId"
+                              value={concept.id}
+                            />
+                            <input
+                              type="hidden"
+                              name="nextStatus"
+                              value="draft"
+                            />
+                            <button
+                              type="submit"
+                              className="admin-secondary-button"
+                            >
+                              Return to draft
+                            </button>
+                          </form>
+
+                          <form
+                            action={transitionAcademicContentBlock}
+                          >
+                            <input
+                              type="hidden"
+                              name="blockId"
+                              value={block.id}
+                            />
+                            <input
+                              type="hidden"
+                              name="conceptId"
+                              value={concept.id}
+                            />
+                            <input
+                              type="hidden"
+                              name="nextStatus"
+                              value="approved"
+                            />
+                            <button
+                              type="submit"
+                              className="admin-primary-button"
+                            >
+                              Approve
+                            </button>
+                          </form>
+                        </>
+                      ) : null}
+
+                      {block.lifecycle_status === "approved" ? (
+                        <>
+                          <form
+                            action={transitionAcademicContentBlock}
+                          >
+                            <input
+                              type="hidden"
+                              name="blockId"
+                              value={block.id}
+                            />
+                            <input
+                              type="hidden"
+                              name="conceptId"
+                              value={concept.id}
+                            />
+                            <input
+                              type="hidden"
+                              name="nextStatus"
+                              value="review"
+                            />
+                            <button
+                              type="submit"
+                              className="admin-secondary-button"
+                            >
+                              Return to review
+                            </button>
+                          </form>
+
+                          <form
+                            action={transitionAcademicContentBlock}
+                          >
+                            <input
+                              type="hidden"
+                              name="blockId"
+                              value={block.id}
+                            />
+                            <input
+                              type="hidden"
+                              name="conceptId"
+                              value={concept.id}
+                            />
+                            <input
+                              type="hidden"
+                              name="nextStatus"
+                              value="published"
+                            />
+                            <button
+                              type="submit"
+                              className="admin-primary-button"
+                            >
+                              Publish
+                            </button>
+                          </form>
+                        </>
+                      ) : null}
+
+                      {block.lifecycle_status === "published" ? (
+                        <form
+                          action={transitionAcademicContentBlock}
+                        >
+                          <input
+                            type="hidden"
+                            name="blockId"
+                            value={block.id}
+                          />
+                          <input
+                            type="hidden"
+                            name="conceptId"
+                            value={concept.id}
+                          />
+                          <input
+                            type="hidden"
+                            name="nextStatus"
+                            value="approved"
+                          />
+                          <button
+                            type="submit"
+                            className="admin-secondary-button"
+                          >
+                            Unpublish
+                          </button>
+                        </form>
+                      ) : null}
+                    </div>
+
+                    <small>
+                      Required sequence: draft → review →
+                      approved → published.
+                    </small>
+                  </div>
+                </details>
               </article>
             ))}
           </div>
@@ -368,10 +636,10 @@ export default async function AcademicConceptPage({
         </div>
 
         <p className="admin-muted">
-          This first interface is intentionally read-only. Editing,
-          reviewer attribution and lifecycle approval actions will be
-          introduced as the next layer so academic publication cannot
-          happen accidentally.
+          Academic content follows a controlled review lifecycle:
+          draft → review → approved → published. Server-side guards
+          reject lifecycle jumps, including direct draft-to-published
+          changes.
         </p>
       </section>
     </div>
