@@ -15978,3 +15978,156 @@ details > summary {
 }
 
 /* ===== END STUDENT PROGRESS STAGED LEARNING PLAN V1 ===== */
+
+
+/* ===== STUDENT ASSIGNMENT TABLET SUBMISSION LAYOUT V1 ===== */
+
+/*
+ * Student assignment cards can become too narrow on tablets when the
+ * assignment content and submission workspace remain side-by-side.
+ * Stack them earlier while the permanent portal sidebar is still visible.
+ */
+
+@media (max-width: 1180px) {
+
+  .student-portal-shell
+  .portal-view-assignments
+  .portal-homework-list > article {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .student-portal-shell
+  .portal-view-assignments
+  .portal-assignment-submission-workspace {
+    width: 100%;
+    min-width: 0;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e4eaf0;
+  }
+
+}
+
+
+/* Submission workspace alignment */
+
+.student-portal-shell
+.portal-assignment-submission-workspace {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  gap: 14px;
+}
+
+.student-portal-shell
+.portal-assignment-submission-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  min-width: 0;
+}
+
+.student-portal-shell
+.portal-assignment-submission-head > div {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.student-portal-shell
+.portal-assignment-submission-head strong {
+  display: block;
+  color: #29425f;
+  font-size: 13px;
+  line-height: 1.4;
+  overflow-wrap: break-word;
+}
+
+.student-portal-shell
+.portal-assignment-file-count {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.student-portal-shell
+.portal-assignment-existing-files,
+.student-portal-shell
+.portal-assignment-upload-box,
+.student-portal-shell
+.portal-assignment-note-box {
+  width: 100%;
+  min-width: 0;
+}
+
+.student-portal-shell
+.portal-assignment-upload-box {
+  padding: 14px;
+  border: 1px solid #e1e7ed;
+  border-radius: 11px;
+  background: #fafbfd;
+}
+
+.student-portal-shell
+.portal-assignment-note-box {
+  display: grid;
+  gap: 8px;
+}
+
+.student-portal-shell
+.portal-assignment-note-box > small {
+  color: #8290a0;
+  font-size: 9.5px;
+  line-height: 1.5;
+}
+
+
+/*
+ * Keep form controls from retaining intrinsic widths that can force
+ * the submission panel wider than the available tablet column.
+ */
+
+.student-portal-shell
+.portal-assignment-submission-workspace form,
+.student-portal-shell
+.portal-assignment-submission-workspace label,
+.student-portal-shell
+.portal-assignment-submission-workspace input,
+.student-portal-shell
+.portal-assignment-submission-workspace textarea,
+.student-portal-shell
+.portal-assignment-submission-workspace select {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.student-portal-shell
+.portal-assignment-submission-workspace input,
+.student-portal-shell
+.portal-assignment-submission-workspace textarea,
+.student-portal-shell
+.portal-assignment-submission-workspace select {
+  width: 100%;
+}
+
+
+@media (max-width: 700px) {
+
+  .student-portal-shell
+  .portal-assignment-submission-head {
+    flex-direction: column;
+  }
+
+  .student-portal-shell
+  .portal-assignment-file-count {
+    white-space: normal;
+  }
+
+  .student-portal-shell
+  .portal-assignment-upload-box {
+    padding: 12px;
+  }
+
+}
+
+/* ===== END STUDENT ASSIGNMENT TABLET SUBMISSION LAYOUT V1 ===== */
