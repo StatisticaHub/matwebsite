@@ -544,6 +544,45 @@ export default async function Page({
         </div>
       </section>
 
+      {/* level_learning_hub_bridge_marker */}
+      <section className="section learning-on-tutoring-section">
+        <div className="shell two-col">
+          <div>
+            <div className="eyebrow">
+              FREE LEARNING HUB
+            </div>
+
+            <h2>
+              Start with a free explanation when you want to review a topic independently.
+            </h2>
+
+            <p>
+              Explore guides across statistics, mathematics, data science,
+              research methods and related subjects. Use them to revisit a
+              concept at your own pace, then bring the difficult part into
+              tutoring if you need a more personalised explanation.
+            </p>
+          </div>
+
+          <div className="quote-card">
+            <div className="eyebrow">
+              LEARN AT YOUR LEVEL
+            </div>
+
+            <strong>
+              Build understanding first, then use one-to-one tutoring when the
+              topic needs to be adapted to your course.
+            </strong>
+
+            <p>
+              <Link href="/learn" className="text-link">
+                Browse the Learning Hub →
+              </Link>
+            </p>
+          </div>
+        </div>
+      </section>
+
       <section className="section">
         <div className="shell two-col">
           <div>
