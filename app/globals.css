@@ -16801,3 +16801,70 @@ details > summary {
 }
 
 /* ===== END TUTOR SINGLE LESSON WORKSPACE V1 ===== */
+
+/* ===== TUTOR ASSIGNMENT REVIEW PRIORITY V1 ===== */
+
+.tutor-assignment-review-callout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 20px 22px;
+  border: 1px solid rgba(180, 83, 9, .22);
+  border-radius: 14px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 247, 237, .9),
+      #fff 68%
+    );
+}
+
+.tutor-assignment-review-callout > div {
+  min-width: 0;
+}
+
+.tutor-assignment-review-callout h2 {
+  margin: 5px 0 6px;
+  color: #173456;
+  font-size: 1.2rem;
+}
+
+.tutor-assignment-review-callout p {
+  max-width: 720px;
+  margin: 0;
+  color: #66758a;
+  line-height: 1.55;
+}
+
+.tutor-assignment-review-callout
+.tutor-primary-button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.tutor-assignment-card.is-closed {
+  border-color: rgba(15, 23, 42, .065);
+  background: rgba(248, 250, 252, .62);
+}
+
+.tutor-assignment-card.is-closed
+.tutor-assignment-card-main {
+  opacity: .82;
+}
+
+@media (max-width: 760px) {
+  .tutor-assignment-review-callout {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .tutor-assignment-review-callout
+  .tutor-primary-button {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* ===== END TUTOR ASSIGNMENT REVIEW PRIORITY V1 ===== */

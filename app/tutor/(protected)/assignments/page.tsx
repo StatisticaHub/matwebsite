@@ -497,15 +497,46 @@ export default async function TutorAssignmentsPage() {
         </article>
       </section>
 
+      {awaitingReview.length > 0 && (
+        <section
+          className="tutor-assignment-review-callout"
+          aria-labelledby="tutor-review-queue-title"
+        >
+          <div>
+            <span className="tutor-eyebrow">
+              Action required
+            </span>
+
+            <h2 id="tutor-review-queue-title">
+              {awaitingReview.length === 1
+                ? "1 student submission is ready for review"
+                : `${awaitingReview.length} student submissions are ready for review`}
+            </h2>
+
+            <p>
+              Submitted work is placed first below so you can review,
+              give feedback and update its status before moving on.
+            </p>
+          </div>
+
+          <a
+            className="tutor-primary-button"
+            href={`#assignment-${awaitingReview[0].id}`}
+          >
+            Review next submission
+          </a>
+        </section>
+      )}
+
       <section className="tutor-panel tutor-assignment-workspace">
         <div className="tutor-panel-head">
           <div>
             <span className="tutor-eyebrow">
-              Review queue
+              Assignment workflow
             </span>
 
             <h2>
-              Student work
+              All student work
             </h2>
           </div>
 
@@ -545,13 +576,20 @@ export default async function TutorAssignmentsPage() {
 
               return (
                 <article
-                  className={
-                    item.status ===
-                      "submitted" ||
-                    late
-                      ? "tutor-assignment-card attention"
-                      : "tutor-assignment-card"
-                  }
+                  id={`assignment-${item.id}`}
+                  className={[
+                    "tutor-assignment-card",
+                    item.status === "submitted" || late
+                      ? "attention"
+                      : "",
+                    ["completed", "skipped"].includes(
+                      item.status,
+                    )
+                      ? "is-closed"
+                      : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
                   key={item.id}
                 >
                   <div className="tutor-assignment-card-main">
@@ -738,7 +776,9 @@ export default async function TutorAssignmentsPage() {
                       className="tutor-primary-button"
                       type="submit"
                     >
-                      Save review
+                      {item.status === "submitted"
+                        ? "Save review"
+                        : "Save changes"}
                     </button>
 
                     <div className="tutor-assignment-card-links">
