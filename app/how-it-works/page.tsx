@@ -110,7 +110,7 @@ export default function Page() {
               className="button button-primary button-large"
               href="/find-a-tutor"
             >
-              Request personalised tutoring
+              Request tutoring
             </Link>
 
           </div>

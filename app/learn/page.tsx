@@ -76,7 +76,7 @@ export default function Page() {
                 trackingId="learning_hub_hero_tutoring"
                 contentType="learning_hub_cta"
               >
-                Get personalised tutoring
+                Request tutoring
               </TrackedLink>
             </div>
           </div>
@@ -162,7 +162,7 @@ export default function Page() {
             trackingId="learning_hub_bottom_tutoring"
             contentType="learning_hub_cta"
           >
-            Get personalised tutoring
+            Request tutoring
           </TrackedLink>
         </div>
       </section>
