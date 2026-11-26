@@ -15151,7 +15151,7 @@ details > summary {
   content: "";
   animation:
     portalWelcomeProgress
-    .70s
+    .80s
     ease-out
     infinite;
 }
@@ -15165,7 +15165,7 @@ details > summary {
 .portal-welcome-greeting-text {
   animation:
     portalWelcomeWord
-    .45s
+    .52s
     ease-out;
 }
 
@@ -15335,3 +15335,51 @@ details > summary {
 }
 
 /* ===== END STUDENT HOME COMPACT REFERRAL ===== */
+
+
+/* ===== STUDENT MULTILINGUAL WELCOME STABILITY V2 ===== */
+
+.student-portal-shell
+.portal-learning-header-title-row
+.portal-welcome-greeting {
+  flex: 1 1 430px;
+  max-width: 760px;
+}
+
+.student-portal-shell
+.portal-learning-header-title-row
+.portal-learning-course-pill {
+  flex: 0 0 auto;
+}
+
+.student-portal-shell
+.portal-welcome-greeting-text {
+  min-height: 38px;
+  line-height: 1.18 !important;
+  overflow-wrap: anywhere;
+}
+
+.student-portal-shell
+.portal-welcome-greeting.is-transitioning
+.portal-welcome-greeting-text {
+  will-change:
+    opacity,
+    transform,
+    filter;
+}
+
+@media (max-width: 620px) {
+  .student-portal-shell
+  .portal-learning-header-title-row
+  .portal-welcome-greeting {
+    flex-basis: 100%;
+    width: 100%;
+  }
+
+  .student-portal-shell
+  .portal-welcome-greeting-text {
+    min-height: 58px;
+  }
+}
+
+/* ===== END STUDENT MULTILINGUAL WELCOME STABILITY V2 ===== */

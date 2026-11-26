@@ -57,7 +57,9 @@ export default function StudentWelcomeGreeting({
     setIndex,
   ] =
     useState(
-      finalIndex,
+      animate
+        ? 0
+        : finalIndex,
     );
 
 
@@ -85,18 +87,15 @@ export default function StudentWelcomeGreeting({
         ).matches;
 
 
-      const alreadyPlayed =
-        window.sessionStorage.getItem(
-          "mat-welcome-sequence-v1",
-        ) === "played";
-
-
       if (
-        reducedMotion ||
-        alreadyPlayed
+        reducedMotion
       ) {
         setIndex(
           finalIndex,
+        );
+
+        setTransitioning(
+          false,
         );
 
         return;
@@ -145,7 +144,7 @@ export default function StudentWelcomeGreeting({
               current,
             );
           },
-          700,
+          800,
         );
 
 
@@ -196,6 +195,7 @@ export default function StudentWelcomeGreeting({
           greeting.language
         }
         className="portal-welcome-greeting-text"
+        dir="auto"
       >
         {
           greeting.text
