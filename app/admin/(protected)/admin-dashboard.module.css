@@ -5,7 +5,7 @@
   --admin-sidebar: #0c1d36;
   --admin-sidebar-soft: #142943;
   --admin-text: #17243a;
-  --admin-muted: #6d788a;
+  --admin-muted: var(--mat-text-subtle);
   --admin-border: #e1e7ef;
   --admin-border-strong: #d2dae6;
   --admin-accent: #2458cf;
@@ -1319,7 +1319,7 @@
 }
 
 .shell :global(.admin-command-row > b) {
-  color: #8b99ad;
+  color: var(--mat-text-subtle);
 
   font-size: var(--mat-font-compact);
   font-weight: 500;
@@ -1828,7 +1828,7 @@
 
 .shell :global(.admin-application-check small) {
   overflow: hidden;
-  color: #8692a2;
+  color: var(--mat-text-subtle);
   font-size: var(--mat-font-micro);
   font-weight: 800;
   letter-spacing: .055em;

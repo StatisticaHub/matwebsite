@@ -94,7 +94,7 @@
 }
 
 .fileDrop small {
-  color: #8793a3;
+  color: var(--mat-text-subtle);
 
   font-size: var(--mat-font-small);
   line-height: 1.4;
@@ -122,7 +122,7 @@
 }
 
 .uploadForm label small {
-  color: #8c97a6;
+  color: var(--mat-text-subtle);
 
   font-size: var(--mat-font-small);
   font-weight: 500;
@@ -328,7 +328,7 @@
 .meta span {
   position: relative;
 
-  color: #8995a5;
+  color: var(--mat-text-subtle);
 
   font-size: var(--mat-font-micro);
   line-height: 1.35;
@@ -402,7 +402,7 @@
 
   border-radius: 9px;
 
-  color: #8793a3;
+  color: var(--mat-text-subtle);
 
   font-size: var(--mat-font-small);
   font-weight: 850;
@@ -419,7 +419,7 @@
 .empty p {
   margin: 3px 0 0;
 
-  color: #8490a0;
+  color: var(--mat-text-subtle);
 
   font-size: var(--mat-font-small);
   line-height: 1.45;

@@ -744,8 +744,7 @@
 }
 
 .shell :global(.tutor-material-student-tabs a span) {
-  color:
-    #8390a1;
+  color: var(--mat-text-subtle);
 
   font-size: var(--mat-font-micro);
 }
@@ -818,8 +817,7 @@
 .shell :global(.tutor-material-summary span) {
   display: block;
 
-  color:
-    #8390a1;
+  color: var(--mat-text-subtle);
 
   font-size: var(--mat-font-micro);
   font-weight: 800;
@@ -1405,7 +1403,7 @@
 }
 
 .shell :global(.tutor-week-session-number span) {
-  color: #8694a4;
+  color: var(--mat-text-subtle);
 
   font-size: var(--mat-font-micro);
   font-weight: 850;
@@ -1436,7 +1434,7 @@
 }
 
 .shell :global(.tutor-week-session-title > div > span) {
-  color: #8592a1;
+  color: var(--mat-text-subtle);
 
   font-size: var(--mat-font-micro);
 }
@@ -1559,7 +1557,7 @@
 .shell :global(.tutor-week-session-actions button) {
   padding: 0;
 
-  color: #8995a4;
+  color: var(--mat-text-subtle);
   background: transparent;
 
   border: 0;
@@ -1730,7 +1728,7 @@
 
 .shell :global(.tutor-week-card .tutor-form small),
 .shell :global(.tutor-week-create .tutor-form small) {
-  color: #8a96a4;
+  color: var(--mat-text-subtle);
 
   font-size: var(--mat-font-micro);
 }
@@ -2112,7 +2110,7 @@
 
 
 .shell :global(.tutor-course-facts dt) {
-  color: #8996a5;
+  color: var(--mat-text-subtle);
 
   font-size: var(--mat-font-micro);
   font-weight: 850;
@@ -2147,7 +2145,7 @@
 
 
 .shell :global(.tutor-course-goal span) {
-  color: #8391a1;
+  color: var(--mat-text-subtle);
 
   font-size: var(--mat-font-micro);
   font-weight: 850;
@@ -2358,7 +2356,7 @@
 
 
 .shell :global(.tutor-week-homework-card > small) {
-  color: #8693a2;
+  color: var(--mat-text-subtle);
 
   font-size: var(--mat-font-micro);
 }
@@ -2597,7 +2595,7 @@
 
   margin-top: 5px;
 
-  color: #8a96a3;
+  color: var(--mat-text-subtle);
 
   font-size: var(--mat-font-micro);
 }
