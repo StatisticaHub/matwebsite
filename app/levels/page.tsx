@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     "Online Tutoring by Academic Level",
 
   description:
-    "Explore personalised online tutoring for secondary school, GCSE, IGCSE, A-Level, IB, undergraduate, Master's, PhD and professional learners.",
+    "Explore online tutoring for learners aged 18+, including GCSE, IGCSE, A-Level and IB-level study, undergraduate courses, Master's study, PhD research and professional learning.",
 
   alternates: {
     canonical:
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     title:
       "Online Tutoring by Academic Level",
     description:
-      "One-to-one tutoring from secondary school through university, Master's and PhD-level study.",
+      "One-to-one online tutoring for learners aged 18+, from school-level foundations and adult resits through university, Master's and PhD-level study.",
   },
 };
 
@@ -48,10 +48,10 @@ export default function Page() {
           </h1>
 
           <p className="page-lead">
-            A GCSE student, university student and
-            researcher do not need the same kind of
-            explanation. Choose your level to see how
-            tutoring can fit the work you are doing.
+            Different courses and academic stages need different kinds of
+            explanation. Choose your level to see how tutoring can fit the work
+            you are doing. Live one-to-one tutoring enquiries are currently for
+            learners aged 18+.
           </p>
 
           <div className="button-row">

@@ -23,13 +23,13 @@ type LevelContent = {
 const levelContent: Record<string, LevelContent> = {
   "school-secondary": {
     title:
-      "Online Secondary School Tutoring | One-to-One Subject Help",
+      "Secondary-Level Tutoring for Adults | Online One-to-One Support",
     description:
-      "One-to-one online tutoring for secondary-school students who need clearer explanations, more practice and stronger subject foundations.",
+      "Online secondary-level tutoring for learners aged 18+ who want to rebuild subject foundations, confidence and core academic skills.",
     hero:
-      "One-to-one tutoring for secondary-school students who need a clearer explanation.",
+      "Secondary-level tutoring for adult learners rebuilding important foundations.",
     intro:
-      "If a topic has stopped making sense, we slow it down, rebuild the missing foundations and practise until the student feels more confident using the method.",
+      "For learners aged 18+, sessions can revisit school-level material, rebuild missing foundations and provide structured practice at a comfortable pace.",
     benefits: [
       "Patient explanations without rushing",
       "Help with difficult school topics and homework concepts",
@@ -40,13 +40,13 @@ const levelContent: Record<string, LevelContent> = {
 
   "gcse-igcse": {
     title:
-      "Online GCSE & IGCSE Tutoring | One-to-One Exam & Subject Help",
+      "GCSE & IGCSE Tutoring for Adults | Resit & Exam Support",
     description:
-      "One-to-one online GCSE and IGCSE tutoring for difficult topics, revision, exam technique and past-paper practice.",
+      "Online GCSE and IGCSE tutoring for learners aged 18+, including adult resits, difficult topics, revision, exam technique and past-paper practice.",
     hero:
-      "GCSE and IGCSE tutoring for difficult topics, revision and exam practice.",
+      "GCSE and IGCSE support for adult learners preparing for exams or resits.",
     intro:
-      "Bring the topics you find hardest, then use the session to understand the method, practise exam-style questions and improve how you show your working.",
+      "For learners aged 18+, bring the topics you find hardest and use the session to understand the method, practise exam-style questions and improve how you show your working.",
     benefits: [
       "Find the topics that are costing you marks",
       "Work through exam-style and past-paper questions",
@@ -57,13 +57,13 @@ const levelContent: Record<string, LevelContent> = {
 
   "a-level-ib": {
     title:
-      "Online A-Level & IB Tutoring | One-to-One Subject Tutoring",
+      "A-Level & IB Tutoring for Adults | Online One-to-One Support",
     description:
-      "One-to-one online A-Level and IB tutoring for advanced concepts, problem-solving, coursework understanding and exam preparation.",
+      "Online A-Level and IB tutoring for learners aged 18+ covering advanced concepts, problem-solving, assessment preparation and course understanding.",
     hero:
-      "A-Level and IB tutoring for subjects that need more than a quick explanation.",
+      "A-Level and IB support for adult learners who need more than a quick explanation.",
     intro:
-      "At this level, topics connect quickly and small gaps can make later work much harder. Sessions focus on understanding the reasoning, applying the method and handling unfamiliar questions.",
+      "For learners aged 18+, sessions can strengthen advanced concepts, rebuild earlier gaps and develop the reasoning needed for unfamiliar questions and assessments.",
     benefits: [
       "Clear explanations of advanced topics",
       "Multi-step and unfamiliar problem-solving",
@@ -74,13 +74,13 @@ const levelContent: Record<string, LevelContent> = {
 
   "ap-us-high-school": {
     title:
-      "Online AP & US High School Tutoring | One-to-One Help",
+      "AP & US High School-Level Tutoring for Adults | Online Support",
     description:
-      "One-to-one online tutoring for AP and US high-school students across mathematics, science, statistics, computing and technical subjects.",
+      "Online tutoring for learners aged 18+ studying AP or US high-school-level mathematics, science, statistics, computing and technical subjects.",
     hero:
-      "AP and US high-school tutoring that follows the course you are actually taking.",
+      "AP and US high-school-level support for learners aged 18+.",
     intro:
-      "Bring the unit, assignment topic or test material you are working on. Sessions can revisit the concept, work through course-style questions and build the foundations needed for the next topic.",
+      "For learners aged 18+, sessions can revisit the concept, work through course-style questions and strengthen the foundations needed for the next topic or assessment.",
     benefits: [
       "Help with the concepts in your current course",
       "AP-style and course-style practice",
