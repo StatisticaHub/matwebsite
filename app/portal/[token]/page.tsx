@@ -649,6 +649,14 @@ const openHomework =
     ).length;
 
 
+  const nextPlanItem =
+    plan.find(
+      (item) =>
+        item.progress_status !==
+        "mastered"
+    ) || null;
+
+
   const submissionByHomework =
     Object.fromEntries(
       submissions.map(
@@ -1101,6 +1109,142 @@ const openHomework =
                     }
                   </span>
                 )}
+
+              </div>
+
+
+              <div className="portal-progress-journey">
+
+                <div className="portal-progress-journey-intro">
+
+                  <div>
+                    <span className="portal-kicker">
+                      Learning journey
+                    </span>
+
+                    <h3>
+                      Where you are now
+                    </h3>
+
+                    <p>
+                      Your live learning plan updates as your tutor
+                      assesses topics, confidence and next steps.
+                    </p>
+                  </div>
+
+
+                  <div className="portal-progress-journey-score">
+                    <strong>
+                      {plan.length
+                        ? `${averageProgress}%`
+                        : "—"}
+                    </strong>
+
+                    <span>
+                      Plan progress
+                    </span>
+                  </div>
+
+                </div>
+
+
+                <div className="portal-progress-journey-metrics">
+
+                  <article>
+                    <span>
+                      Topics mastered
+                    </span>
+
+                    <strong>
+                      {mastered}
+                      {plan.length
+                        ? ` / ${plan.length}`
+                        : ""}
+                    </strong>
+
+                    <small>
+                      Learning-plan topics
+                    </small>
+                  </article>
+
+
+                  <article>
+                    <span>
+                      Current confidence
+                    </span>
+
+                    <strong>
+                      {engagement.confidence != null
+                        ? `${engagement.confidence}/5`
+                        : "—"}
+                    </strong>
+
+                    <small>
+                      Current learning record
+                    </small>
+                  </article>
+
+
+                  <article>
+                    <span>
+                      Recent understanding
+                    </span>
+
+                    <strong>
+                      {latestProgressReport?.average_understanding != null
+                        ? `${Number(
+                            latestProgressReport.average_understanding
+                          ).toFixed(1)}/5`
+                        : "—"}
+                    </strong>
+
+                    <small>
+                      Latest report average
+                    </small>
+                  </article>
+
+                </div>
+
+
+                <div className="portal-progress-focus-grid">
+
+                  <article>
+                    <span>
+                      Current focus
+                    </span>
+
+                    <strong>
+                      {engagement.current_focus ||
+                        nextPlanItem?.topic ||
+                        engagement.subject}
+                    </strong>
+
+                    <p>
+                      The main teaching priority in your current
+                      learning record.
+                    </p>
+                  </article>
+
+
+                  <article>
+                    <span>
+                      Next step
+                    </span>
+
+                    <strong>
+                      {nextPlanItem?.next_step ||
+                        nextPlanItem?.objective ||
+                        "Your tutor will add the next step as your plan develops."}
+                    </strong>
+
+                    {nextPlanItem?.topic && (
+                      <small>
+                        {nextPlanItem.topic}
+                      </small>
+                    )}
+                  </article>
+
+                </div>
 
               </div>
 

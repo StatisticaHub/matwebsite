@@ -15452,3 +15452,168 @@ details > summary {
 }
 
 /* ===== END STUDENT HOME LEARNING ORIENTATION V3 ===== */
+
+
+/* ===== STUDENT PROGRESS LEARNING JOURNEY V1 ===== */
+
+.student-portal-shell
+.portal-progress-journey {
+  display: grid;
+  gap: 14px;
+  margin: 4px 0 22px;
+  padding: 18px;
+  border: 1px solid #dfe6ed;
+  border-radius: 14px;
+  background: #fbfcfe;
+}
+
+.student-portal-shell
+.portal-progress-journey-intro {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.student-portal-shell
+.portal-progress-journey-intro h3 {
+  margin: 3px 0 5px;
+  color: #183b60;
+  font-size: 19px;
+  line-height: 1.25;
+}
+
+.student-portal-shell
+.portal-progress-journey-intro p {
+  max-width: 580px;
+  margin: 0;
+  color: #69798b;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.student-portal-shell
+.portal-progress-journey-score {
+  flex: 0 0 auto;
+  display: grid;
+  min-width: 96px;
+  gap: 2px;
+  text-align: right;
+}
+
+.student-portal-shell
+.portal-progress-journey-score strong {
+  color: #174b7a;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.student-portal-shell
+.portal-progress-journey-score span {
+  color: #8290a0;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.student-portal-shell
+.portal-progress-journey-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.student-portal-shell
+.portal-progress-journey-metrics article {
+  display: grid;
+  gap: 3px;
+  padding: 12px;
+  border: 1px solid #e4e9ef;
+  border-radius: 11px;
+  background: #fff;
+}
+
+.student-portal-shell
+.portal-progress-journey-metrics span,
+.student-portal-shell
+.portal-progress-focus-grid article > span {
+  color: #8693a2;
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.student-portal-shell
+.portal-progress-journey-metrics strong {
+  color: #263f59;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.student-portal-shell
+.portal-progress-journey-metrics small {
+  color: #8793a1;
+  font-size: 9.5px;
+}
+
+.student-portal-shell
+.portal-progress-focus-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.student-portal-shell
+.portal-progress-focus-grid article {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  padding: 13px;
+  border: 1px solid #dce5ed;
+  border-radius: 11px;
+  background: #f5f8fb;
+}
+
+.student-portal-shell
+.portal-progress-focus-grid strong {
+  color: #244e79;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.student-portal-shell
+.portal-progress-focus-grid p {
+  margin: 0;
+  color: #7b8998;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.student-portal-shell
+.portal-progress-focus-grid small {
+  color: #8592a0;
+  font-size: 9.5px;
+}
+
+@media (max-width: 700px) {
+  .student-portal-shell
+  .portal-progress-journey-intro {
+    display: grid;
+  }
+
+  .student-portal-shell
+  .portal-progress-journey-score {
+    text-align: left;
+  }
+
+  .student-portal-shell
+  .portal-progress-journey-metrics,
+  .student-portal-shell
+  .portal-progress-focus-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== END STUDENT PROGRESS LEARNING JOURNEY V1 ===== */
