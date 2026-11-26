@@ -332,6 +332,44 @@ export default async function Page({
         </div>
       </section>
 
+      {/* generic_service_learning_bridge_marker */}
+      <section className="section learning-on-tutoring-section">
+        <div className="shell two-col">
+          <div>
+            <div className="eyebrow">
+              FREE LEARNING HUB
+            </div>
+
+            <h2>
+              Review the idea before deciding whether you need a lesson.
+            </h2>
+
+            <p>
+              Use MAT’s free guides to revisit concepts, methods and technical
+              skills at your own pace. If the difficult part is still unclear,
+              you can then bring that exact problem into one-to-one tutoring.
+            </p>
+          </div>
+
+          <div className="quote-card">
+            <div className="eyebrow">
+              LEARN FIRST
+            </div>
+
+            <strong>
+              Start with an explanation. Ask for tutoring when you need the
+              explanation adapted to your course.
+            </strong>
+
+            <p>
+              <Link href="/learn" className="text-link">
+                Browse the Learning Hub →
+              </Link>
+            </p>
+          </div>
+        </div>
+      </section>
+
             {/* service_conversion_faq_marker */}
       <ConversionFaq
         title={`Questions about ${service.title.toLowerCase()}`}
