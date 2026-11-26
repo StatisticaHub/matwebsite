@@ -4,6 +4,13 @@ import {
   transitionAcademicQuestion,
   updateAcademicQuestion,
 } from "@/app/admin/academic-question-actions";
+import {
+  buildQuestionQualityChecklist,
+  questionQualityLabel,
+  questionQualityState,
+  requiredQualityProgress,
+  type QuestionQualityReport,
+} from "@/lib/academic-question-quality";
 import { createAdminClient } from "@/lib/supabase/admin";
 import styles from "../question-bank.module.css";
 
@@ -116,11 +123,13 @@ function LifecycleForm({
   nextStatus,
   children,
   primary = false,
+  disabled = false,
 }: {
   questionId: string;
   nextStatus: string;
   children: React.ReactNode;
   primary?: boolean;
+  disabled?: boolean;
 }) {
   return (
     <form action={transitionAcademicQuestion}>
@@ -136,6 +145,12 @@ function LifecycleForm({
       />
       <button
         type="submit"
+        disabled={disabled}
+        title={
+          disabled
+            ? "Resolve all blocking academic-quality issues before this transition."
+            : undefined
+        }
         className={
           primary
             ? "admin-primary-button"
@@ -187,6 +202,7 @@ export default async function QuestionDetailPage({
     hintResult,
     solutionResult,
     historyResult,
+    qualityResult,
   ] = await Promise.all([
     supabase
       .from("academic_question_concepts")
@@ -235,6 +251,13 @@ export default async function QuestionDetailPage({
         ascending: false,
       })
       .limit(100),
+
+    supabase.rpc(
+      "mat_academic_question_quality_report",
+      {
+        p_question_id: question.id,
+      },
+    ),
   ]);
 
   for (const result of [
@@ -244,6 +267,7 @@ export default async function QuestionDetailPage({
     hintResult,
     solutionResult,
     historyResult,
+    qualityResult,
   ]) {
     if (result.error) {
       throw new Error(result.error.message);
@@ -269,6 +293,22 @@ export default async function QuestionDetailPage({
 
   const reviewEvents =
     (historyResult.data || []) as ReviewEvent[];
+
+  const qualityReport =
+    qualityResult.data as QuestionQualityReport;
+
+  const qualityState =
+    questionQualityState(qualityReport);
+
+  const qualityChecklist =
+    buildQuestionQualityChecklist(
+      qualityReport,
+    );
+
+  const qualityProgress =
+    requiredQualityProgress(
+      qualityReport,
+    );
 
   const conceptIds = conceptMappings.map(
     (mapping) => mapping.concept_id,
@@ -426,6 +466,154 @@ export default async function QuestionDetailPage({
               : "No time estimate"}
           </small>
         </div>
+      </section>
+
+      <section className="admin-panel admin-detail-card">
+        <div className="admin-card-head">
+          <div>
+            <span className="admin-eyebrow">
+              Academic quality control
+            </span>
+            <h2>Academic Quality Gate</h2>
+          </div>
+
+          <span
+            className={`${styles.qualityBadge} ${
+              styles[`quality_${qualityState}`]
+            }`}
+          >
+            {questionQualityLabel(
+              qualityState,
+            )}
+          </span>
+        </div>
+
+        <div className={styles.qualitySummary}>
+          <div>
+            <strong>
+              {qualityProgress.passed}/
+              {qualityProgress.total}
+            </strong>
+            <span>
+              required checks passed
+            </span>
+          </div>
+
+          <div>
+            <strong>
+              {qualityReport.error_count}
+            </strong>
+            <span>
+              blocking issue
+              {qualityReport.error_count === 1
+                ? ""
+                : "s"}
+            </span>
+          </div>
+
+          <div>
+            <strong>
+              {qualityReport.warning_count}
+            </strong>
+            <span>
+              academic warning
+              {qualityReport.warning_count === 1
+                ? ""
+                : "s"}
+            </span>
+          </div>
+        </div>
+
+        {qualityReport.errors.length ? (
+          <div
+            className={`${styles.qualityIssues} ${styles.qualityErrors}`}
+          >
+            <strong>
+              Approval blockers
+            </strong>
+
+            <ul>
+              {qualityReport.errors.map(
+                (issue) => (
+                  <li key={issue}>
+                    {issue}
+                  </li>
+                ),
+              )}
+            </ul>
+          </div>
+        ) : null}
+
+        {qualityReport.warnings.length ? (
+          <div
+            className={`${styles.qualityIssues} ${styles.qualityWarnings}`}
+          >
+            <strong>
+              Academic warnings
+            </strong>
+
+            <ul>
+              {qualityReport.warnings.map(
+                (warning) => (
+                  <li key={warning}>
+                    {warning}
+                  </li>
+                ),
+              )}
+            </ul>
+          </div>
+        ) : null}
+
+        <div className={styles.qualityChecklist}>
+          {qualityChecklist.map(
+            (check) => (
+              <article
+                key={check.key}
+                className={`${styles.qualityCheck} ${
+                  check.passed
+                    ? styles.qualityCheckPassed
+                    : styles.qualityCheckFailed
+                } ${
+                  !check.required
+                    ? styles.qualityCheckOptional
+                    : ""
+                }`}
+              >
+                <div
+                  className={
+                    styles.qualityCheckMark
+                  }
+                >
+                  {check.passed
+                    ? "✓"
+                    : "!"}
+                </div>
+
+                <div>
+                  <strong>
+                    {check.label}
+                  </strong>
+
+                  <span>
+                    {check.required
+                      ? "Required"
+                      : "Contextual"}
+                  </span>
+
+                  <p>
+                    {check.detail}
+                  </p>
+                </div>
+              </article>
+            ),
+          )}
+        </div>
+
+        <p className={styles.qualityFootnote}>
+          The database quality gate is authoritative.
+          Approval and publication are rejected server-side
+          if any blocking requirement fails.
+        </p>
       </section>
 
       <section className="admin-panel admin-detail-card">
@@ -679,6 +867,7 @@ export default async function QuestionDetailPage({
                     questionId={question.id}
                     nextStatus="approved"
                     primary
+                    disabled={!qualityReport.ready}
                   >
                     Approve
                   </LifecycleForm>
@@ -706,6 +895,7 @@ export default async function QuestionDetailPage({
                     questionId={question.id}
                     nextStatus="published"
                     primary
+                    disabled={!qualityReport.ready}
                   >
                     Publish
                   </LifecycleForm>

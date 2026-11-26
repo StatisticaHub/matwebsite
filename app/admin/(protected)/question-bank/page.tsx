@@ -1,4 +1,9 @@
 import Link from "next/link";
+import {
+  questionQualityLabel,
+  questionQualityState,
+  type QuestionQualityRow,
+} from "@/lib/academic-question-quality";
 import { createAdminClient } from "@/lib/supabase/admin";
 import styles from "./question-bank.module.css";
 
@@ -28,16 +33,25 @@ type Concept = {
   slug: string;
 };
 
-type SearchParams = Record<string, string | string[] | undefined>;
+type SearchParams = Record<
+  string,
+  string | string[] | undefined
+>;
 
-function firstParam(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] || "" : value || "";
+function firstParam(
+  value: string | string[] | undefined,
+) {
+  return Array.isArray(value)
+    ? value[0] || ""
+    : value || "";
 }
 
 function label(value: string) {
   return value
     .replaceAll("_", " ")
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+    .replace(/\b\w/g, (letter) =>
+      letter.toUpperCase(),
+    );
 }
 
 export default async function QuestionBankPage({
@@ -47,45 +61,106 @@ export default async function QuestionBankPage({
 }) {
   const query = await searchParams;
 
-  const search = firstParam(query.q).trim().toLowerCase();
-  const lifecycle = firstParam(query.lifecycle);
-  const questionType = firstParam(query.type);
-  const cognitive = firstParam(query.cognitive);
-  const difficulty = firstParam(query.difficulty);
+  const search = firstParam(query.q)
+    .trim()
+    .toLowerCase();
+
+  const lifecycle =
+    firstParam(query.lifecycle);
+
+  const questionType =
+    firstParam(query.type);
+
+  const cognitive =
+    firstParam(query.cognitive);
+
+  const difficulty =
+    firstParam(query.difficulty);
+
+  const quality =
+    firstParam(query.quality);
 
   const supabase = createAdminClient();
 
-  const { data, error } = await supabase
-    .from("academic_questions")
-    .select(
-      "id,slug,title,prompt,question_type,difficulty,cognitive_level,estimated_minutes,marks,lifecycle_status,updated_at",
-    )
-    .order("updated_at", { ascending: false });
+  const [
+    questionResult,
+    qualityResult,
+  ] = await Promise.all([
+    supabase
+      .from("academic_questions")
+      .select(
+        "id,slug,title,prompt,question_type,difficulty,cognitive_level,estimated_minutes,marks,lifecycle_status,updated_at",
+      )
+      .order("updated_at", {
+        ascending: false,
+      }),
 
-  if (error) {
-    throw new Error(error.message);
+    supabase.rpc(
+      "mat_academic_question_quality_reports",
+    ),
+  ]);
+
+  if (questionResult.error) {
+    throw new Error(
+      questionResult.error.message,
+    );
   }
 
-  const questions = (data || []) as Question[];
-  const questionIds = questions.map((question) => question.id);
+  if (qualityResult.error) {
+    throw new Error(
+      qualityResult.error.message,
+    );
+  }
+
+  const questions =
+    (questionResult.data || []) as Question[];
+
+  const qualityRows =
+    (qualityResult.data ||
+      []) as QuestionQualityRow[];
+
+  const qualityByQuestion =
+    new Map(
+      qualityRows.map((row) => [
+        row.question_id,
+        row,
+      ]),
+    );
+
+  const questionIds = questions.map(
+    (question) => question.id,
+  );
 
   let mappings: QuestionConcept[] = [];
 
   if (questionIds.length) {
     const result = await supabase
-      .from("academic_question_concepts")
-      .select("question_id,concept_id,is_primary")
+      .from(
+        "academic_question_concepts",
+      )
+      .select(
+        "question_id,concept_id,is_primary",
+      )
       .in("question_id", questionIds);
 
     if (result.error) {
-      throw new Error(result.error.message);
+      throw new Error(
+        result.error.message,
+      );
     }
 
-    mappings = (result.data || []) as QuestionConcept[];
+    mappings =
+      (result.data ||
+        []) as QuestionConcept[];
   }
 
   const conceptIds = Array.from(
-    new Set(mappings.map((mapping) => mapping.concept_id)),
+    new Set(
+      mappings.map(
+        (mapping) =>
+          mapping.concept_id,
+      ),
+    ),
   );
 
   let concepts: Concept[] = [];
@@ -97,96 +172,164 @@ export default async function QuestionBankPage({
       .in("id", conceptIds);
 
     if (result.error) {
-      throw new Error(result.error.message);
+      throw new Error(
+        result.error.message,
+      );
     }
 
-    concepts = (result.data || []) as Concept[];
+    concepts =
+      (result.data || []) as Concept[];
   }
 
   const conceptById = new Map(
-    concepts.map((concept) => [concept.id, concept]),
+    concepts.map((concept) => [
+      concept.id,
+      concept,
+    ]),
   );
 
-  const conceptsByQuestion = new Map<string, Concept[]>();
+  const conceptsByQuestion =
+    new Map<string, Concept[]>();
 
   for (const mapping of mappings) {
-    const concept = conceptById.get(mapping.concept_id);
+    const concept =
+      conceptById.get(
+        mapping.concept_id,
+      );
+
     if (!concept) continue;
 
-    const current = conceptsByQuestion.get(mapping.question_id) || [];
+    const current =
+      conceptsByQuestion.get(
+        mapping.question_id,
+      ) || [];
+
     current.push(concept);
-    conceptsByQuestion.set(mapping.question_id, current);
+
+    conceptsByQuestion.set(
+      mapping.question_id,
+      current,
+    );
   }
 
-  const filtered = questions.filter((question) => {
-    const questionConcepts =
-      conceptsByQuestion.get(question.id) || [];
+  const qualityCounts = {
+    ready: 0,
+    warning: 0,
+    blocked: 0,
+  };
 
-    const haystack = [
-      question.slug,
-      question.title || "",
-      question.prompt,
-      ...questionConcepts.map((concept) => concept.name),
-    ]
-      .join(" ")
-      .toLowerCase();
+  for (const question of questions) {
+    const row =
+      qualityByQuestion.get(
+        question.id,
+      );
 
-    if (search && !haystack.includes(search)) return false;
-
-    if (
-      lifecycle &&
-      question.lifecycle_status !== lifecycle
-    ) {
-      return false;
+    if (!row?.report) {
+      qualityCounts.blocked += 1;
+      continue;
     }
 
-    if (
-      questionType &&
-      question.question_type !== questionType
-    ) {
-      return false;
-    }
+    qualityCounts[
+      questionQualityState(
+        row.report,
+      )
+    ] += 1;
+  }
 
-    if (
-      cognitive &&
-      question.cognitive_level !== cognitive
-    ) {
-      return false;
-    }
+  const filtered =
+    questions.filter((question) => {
+      const questionConcepts =
+        conceptsByQuestion.get(
+          question.id,
+        ) || [];
 
-    if (
-      difficulty &&
-      String(question.difficulty) !== difficulty
-    ) {
-      return false;
-    }
+      const haystack = [
+        question.slug,
+        question.title || "",
+        question.prompt,
+        ...questionConcepts.map(
+          (concept) => concept.name,
+        ),
+      ]
+        .join(" ")
+        .toLowerCase();
 
-    return true;
-  });
+      if (
+        search &&
+        !haystack.includes(search)
+      ) {
+        return false;
+      }
 
-  const draftCount = questions.filter(
-    (question) => question.lifecycle_status === "draft",
-  ).length;
+      if (
+        lifecycle &&
+        question.lifecycle_status !==
+          lifecycle
+      ) {
+        return false;
+      }
 
-  const reviewCount = questions.filter(
-    (question) => question.lifecycle_status === "review",
-  ).length;
+      if (
+        questionType &&
+        question.question_type !==
+          questionType
+      ) {
+        return false;
+      }
 
-  const approvedCount = questions.filter(
-    (question) =>
-      question.lifecycle_status === "approved" ||
-      question.lifecycle_status === "published",
-  ).length;
+      if (
+        cognitive &&
+        question.cognitive_level !==
+          cognitive
+      ) {
+        return false;
+      }
+
+      if (
+        difficulty &&
+        String(
+          question.difficulty,
+        ) !== difficulty
+      ) {
+        return false;
+      }
+
+      if (quality) {
+        const row =
+          qualityByQuestion.get(
+            question.id,
+          );
+
+        const state = row?.report
+          ? questionQualityState(
+              row.report,
+            )
+          : "blocked";
+
+        if (state !== quality) {
+          return false;
+        }
+      }
+
+      return true;
+    });
 
   return (
     <div className="admin-page">
       <header className="admin-page-head">
         <div>
-          <span className="admin-eyebrow">Academic assessment</span>
+          <span className="admin-eyebrow">
+            Academic assessment
+          </span>
+
           <h1>Question bank</h1>
+
           <p>
-            Review canonical questions, concept mappings, difficulty,
-            cognitive level, hints and worked solutions.
+            Review canonical assessment
+            content, academic mappings and
+            machine-enforced quality
+            readiness before approval and
+            publication.
           </p>
         </div>
 
@@ -201,38 +344,82 @@ export default async function QuestionBankPage({
       <section className="admin-metrics admin-metrics-4">
         <div>
           <span>Total questions</span>
-          <strong>{questions.length}</strong>
-          <small>canonical records</small>
+          <strong>
+            {questions.length}
+          </strong>
+          <small>
+            canonical assessment records
+          </small>
         </div>
 
         <div>
-          <span>Draft</span>
-          <strong>{draftCount}</strong>
-          <small>awaiting review</small>
+          <span>Quality ready</span>
+          <strong>
+            {qualityCounts.ready}
+          </strong>
+          <small>
+            no blocking issues or warnings
+          </small>
         </div>
 
         <div>
-          <span>In review</span>
-          <strong>{reviewCount}</strong>
-          <small>review workflow</small>
+          <span>Ready with warning</span>
+          <strong>
+            {qualityCounts.warning}
+          </strong>
+          <small>
+            approvable but needs attention
+          </small>
         </div>
 
         <div>
-          <span>Approved</span>
-          <strong>{approvedCount}</strong>
-          <small>approved or published</small>
+          <span>Blocked</span>
+          <strong>
+            {qualityCounts.blocked}
+          </strong>
+          <small>
+            cannot pass approval gate
+          </small>
         </div>
       </section>
 
       <section className="admin-panel admin-detail-card">
-        <form method="get" className={styles.filters}>
-          <label className={styles.search}>
+        <form
+          method="get"
+          className={styles.filters}
+        >
+          <label
+            className={styles.search}
+          >
             <span>Search</span>
             <input
               name="q"
-              defaultValue={firstParam(query.q)}
+              defaultValue={firstParam(
+                query.q,
+              )}
               placeholder="Question, concept or slug"
             />
+          </label>
+
+          <label>
+            <span>Quality</span>
+            <select
+              name="quality"
+              defaultValue={quality}
+            >
+              <option value="">
+                All
+              </option>
+              <option value="ready">
+                Ready
+              </option>
+              <option value="warning">
+                Ready · warning
+              </option>
+              <option value="blocked">
+                Blocked
+              </option>
+            </select>
           </label>
 
           <label>
@@ -241,12 +428,24 @@ export default async function QuestionBankPage({
               name="lifecycle"
               defaultValue={lifecycle}
             >
-              <option value="">All</option>
-              <option value="draft">Draft</option>
-              <option value="review">Review</option>
-              <option value="approved">Approved</option>
-              <option value="published">Published</option>
-              <option value="archived">Archived</option>
+              <option value="">
+                All
+              </option>
+              <option value="draft">
+                Draft
+              </option>
+              <option value="review">
+                Review
+              </option>
+              <option value="approved">
+                Approved
+              </option>
+              <option value="published">
+                Published
+              </option>
+              <option value="archived">
+                Archived
+              </option>
             </select>
           </label>
 
@@ -254,21 +453,37 @@ export default async function QuestionBankPage({
             <span>Question type</span>
             <select
               name="type"
-              defaultValue={questionType}
+              defaultValue={
+                questionType
+              }
             >
-              <option value="">All</option>
+              <option value="">
+                All
+              </option>
               <option value="multiple_choice">
                 Multiple choice
               </option>
-              <option value="true_false">True / false</option>
-              <option value="short_answer">Short answer</option>
-              <option value="numeric">Numeric</option>
-              <option value="calculation">Calculation</option>
+              <option value="true_false">
+                True / false
+              </option>
+              <option value="short_answer">
+                Short answer
+              </option>
+              <option value="numeric">
+                Numeric
+              </option>
+              <option value="calculation">
+                Calculation
+              </option>
               <option value="interpretation">
                 Interpretation
               </option>
-              <option value="proof">Proof</option>
-              <option value="code">Code</option>
+              <option value="proof">
+                Proof
+              </option>
+              <option value="code">
+                Code
+              </option>
               <option value="extended_response">
                 Extended response
               </option>
@@ -279,14 +494,24 @@ export default async function QuestionBankPage({
             <span>Difficulty</span>
             <select
               name="difficulty"
-              defaultValue={difficulty}
+              defaultValue={
+                difficulty
+              }
             >
-              <option value="">All</option>
-              {[1, 2, 3, 4, 5].map((value) => (
-                <option key={value} value={value}>
-                  {value}/5
-                </option>
-              ))}
+              <option value="">
+                All
+              </option>
+
+              {[1, 2, 3, 4, 5].map(
+                (value) => (
+                  <option
+                    key={value}
+                    value={value}
+                  >
+                    {value}/5
+                  </option>
+                ),
+              )}
             </select>
           </label>
 
@@ -296,17 +521,35 @@ export default async function QuestionBankPage({
               name="cognitive"
               defaultValue={cognitive}
             >
-              <option value="">All</option>
-              <option value="remember">Remember</option>
-              <option value="understand">Understand</option>
-              <option value="apply">Apply</option>
-              <option value="analyse">Analyse</option>
-              <option value="evaluate">Evaluate</option>
-              <option value="create">Create</option>
+              <option value="">
+                All
+              </option>
+              <option value="remember">
+                Remember
+              </option>
+              <option value="understand">
+                Understand
+              </option>
+              <option value="apply">
+                Apply
+              </option>
+              <option value="analyse">
+                Analyse
+              </option>
+              <option value="evaluate">
+                Evaluate
+              </option>
+              <option value="create">
+                Create
+              </option>
             </select>
           </label>
 
-          <div className={styles.filterActions}>
+          <div
+            className={
+              styles.filterActions
+            }
+          >
             <button
               type="submit"
               className="admin-primary-button"
@@ -327,7 +570,9 @@ export default async function QuestionBankPage({
       <section className="admin-panel admin-detail-card">
         <div className="admin-card-head">
           <div>
-            <span className="admin-eyebrow">Canonical assessment</span>
+            <span className="admin-eyebrow">
+              Canonical assessment
+            </span>
             <h2>Questions</h2>
           </div>
 
@@ -337,73 +582,179 @@ export default async function QuestionBankPage({
         </div>
 
         {filtered.length ? (
-          <div className={styles.questionList}>
-            {filtered.map((question) => {
-              const questionConcepts =
-                conceptsByQuestion.get(question.id) || [];
+          <div
+            className={
+              styles.questionList
+            }
+          >
+            {filtered.map(
+              (question) => {
+                const questionConcepts =
+                  conceptsByQuestion.get(
+                    question.id,
+                  ) || [];
 
-              return (
-                <Link
-                  key={question.id}
-                  href={`/admin/question-bank/${question.id}`}
-                  className={styles.questionCard}
-                >
-                  <div className={styles.questionMain}>
-                    <div className={styles.questionTop}>
-                      <span>{label(question.question_type)}</span>
+                const qualityRow =
+                  qualityByQuestion.get(
+                    question.id,
+                  );
 
-                      <span
-                        className={`${styles.lifecycle} ${
-                          question.lifecycle_status === "draft"
-                            ? styles.draft
-                            : ""
-                        }`}
+                const qualityState =
+                  qualityRow?.report
+                    ? questionQualityState(
+                        qualityRow.report,
+                      )
+                    : "blocked";
+
+                return (
+                  <Link
+                    key={question.id}
+                    href={`/admin/question-bank/${question.id}`}
+                    className={
+                      styles.questionCard
+                    }
+                  >
+                    <div
+                      className={
+                        styles.questionMain
+                      }
+                    >
+                      <div
+                        className={
+                          styles.questionTop
+                        }
                       >
-                        {question.lifecycle_status}
-                      </span>
-                    </div>
-
-                    <h3>
-                      {question.title || question.slug}
-                    </h3>
-
-                    <p>{question.prompt}</p>
-
-                    <div className={styles.concepts}>
-                      {questionConcepts.map((concept) => (
-                        <span key={concept.id}>
-                          {concept.name}
+                        <span>
+                          {label(
+                            question.question_type,
+                          )}
                         </span>
-                      ))}
+
+                        <span
+                          className={`${styles.lifecycle} ${
+                            question.lifecycle_status ===
+                            "draft"
+                              ? styles.draft
+                              : ""
+                          }`}
+                        >
+                          {
+                            question.lifecycle_status
+                          }
+                        </span>
+
+                        <span
+                          className={`${styles.qualityBadge} ${
+                            styles[
+                              `quality_${qualityState}`
+                            ]
+                          }`}
+                        >
+                          {qualityRow?.report
+                            ? questionQualityLabel(
+                                qualityState,
+                              )
+                            : "Quality unavailable"}
+                        </span>
+                      </div>
+
+                      <h3>
+                        {question.title ||
+                          question.slug}
+                      </h3>
+
+                      <p>
+                        {question.prompt}
+                      </p>
+
+                      <div
+                        className={
+                          styles.concepts
+                        }
+                      >
+                        {questionConcepts.map(
+                          (concept) => (
+                            <span
+                              key={
+                                concept.id
+                              }
+                            >
+                              {
+                                concept.name
+                              }
+                            </span>
+                          ),
+                        )}
+                      </div>
                     </div>
-                  </div>
 
-                  <div className={styles.questionMeta}>
-                    <span>
-                      Difficulty {question.difficulty}/5
-                    </span>
-
-                    <span>
-                      {label(question.cognitive_level)}
-                    </span>
-
-                    {question.marks !== null ? (
-                      <span>{question.marks} marks</span>
-                    ) : null}
-
-                    {question.estimated_minutes ? (
+                    <div
+                      className={
+                        styles.questionMeta
+                      }
+                    >
                       <span>
-                        {question.estimated_minutes} min
+                        Difficulty{" "}
+                        {
+                          question.difficulty
+                        }
+                        /5
                       </span>
-                    ) : null}
-                  </div>
-                </Link>
-              );
-            })}
+
+                      <span>
+                        {label(
+                          question.cognitive_level,
+                        )}
+                      </span>
+
+                      {question.marks !==
+                      null ? (
+                        <span>
+                          {question.marks}{" "}
+                          marks
+                        </span>
+                      ) : null}
+
+                      {question.estimated_minutes ? (
+                        <span>
+                          {
+                            question.estimated_minutes
+                          }{" "}
+                          min
+                        </span>
+                      ) : null}
+
+                      {qualityRow ? (
+                        <>
+                          <span>
+                            {
+                              qualityRow.error_count
+                            }{" "}
+                            blocking
+                          </span>
+
+                          <span>
+                            {
+                              qualityRow.warning_count
+                            }{" "}
+                            warning
+                            {qualityRow.warning_count ===
+                            1
+                              ? ""
+                              : "s"}
+                          </span>
+                        </>
+                      ) : null}
+                    </div>
+                  </Link>
+                );
+              },
+            )}
           </div>
         ) : (
           <div className="admin-empty">
-            No questions match these filters.
+            No questions match these
+            filters.
           </div>
         )}
       </section>

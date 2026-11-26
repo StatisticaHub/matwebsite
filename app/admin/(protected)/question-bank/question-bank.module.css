@@ -450,3 +450,173 @@
     gap: 4px;
   }
 }
+
+/* ============================================================
+   Academic Question Quality Dashboard
+   ============================================================ */
+
+.qualityBadge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.quality_ready {
+  opacity: 0.88;
+}
+
+.quality_warning {
+  border-style: dashed;
+}
+
+.quality_blocked {
+  border-width: 2px;
+}
+
+.qualitySummary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.qualitySummary > div {
+  padding: 14px;
+  border: 1px solid var(--admin-border, #e5e7eb);
+  border-radius: 10px;
+}
+
+.qualitySummary strong,
+.qualitySummary span {
+  display: block;
+}
+
+.qualitySummary strong {
+  font-size: 1.25rem;
+}
+
+.qualitySummary span {
+  margin-top: 4px;
+  font-size: 0.76rem;
+  opacity: 0.68;
+}
+
+.qualityIssues {
+  margin-top: 18px;
+  padding: 15px 17px;
+  border: 1px solid var(--admin-border, #e5e7eb);
+  border-radius: 10px;
+}
+
+.qualityIssues > strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.qualityIssues ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.qualityIssues li {
+  margin-top: 5px;
+  line-height: 1.5;
+}
+
+.qualityErrors {
+  border-width: 2px;
+}
+
+.qualityWarnings {
+  border-style: dashed;
+}
+
+.qualityChecklist {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.qualityCheck {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 10px;
+  padding: 13px;
+  border: 1px solid var(--admin-border, #e5e7eb);
+  border-radius: 10px;
+}
+
+.qualityCheckMark {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.qualityCheck strong,
+.qualityCheck span {
+  display: block;
+}
+
+.qualityCheck span {
+  margin-top: 2px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  opacity: 0.56;
+}
+
+.qualityCheck p {
+  margin: 7px 0 0;
+  font-size: 0.79rem;
+  line-height: 1.5;
+  opacity: 0.78;
+}
+
+.qualityCheckPassed {
+  opacity: 1;
+}
+
+.qualityCheckFailed {
+  border-width: 2px;
+}
+
+.qualityCheckOptional {
+  border-style: dashed;
+}
+
+.qualityFootnote {
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--admin-border, #e5e7eb);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  opacity: 0.7;
+}
+
+.lifecycleButtons button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+@media (max-width: 820px) {
+  .qualityChecklist {
+    grid-template-columns: 1fr;
+  }
+
+  .qualitySummary {
+    grid-template-columns: 1fr;
+  }
+}
