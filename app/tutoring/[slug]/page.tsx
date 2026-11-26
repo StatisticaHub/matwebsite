@@ -306,7 +306,7 @@ export default async function Page({
             </div>
           </div>
           <div className="hero-panel">
-            <div className="hero-panel-label">THIS CAN BE A THIS MAY SUIT YOU IF</div>
+            <div className="hero-panel-label">THIS MAY SUIT YOU IF</div>
             <ul className="check-list">{service.bestFor.map((item) => <li key={item}>{item}</li>)}</ul>
           </div>
         </div>
