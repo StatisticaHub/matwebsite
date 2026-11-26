@@ -15712,3 +15712,269 @@ details > summary {
 }
 
 /* ===== END STUDENT PORTAL TABLET HEADER STABILITY V1 ===== */
+
+
+/* ===== STUDENT PROGRESS STAGED LEARNING PLAN V1 ===== */
+
+.student-portal-shell
+.portal-learning-roadmap-intro {
+  max-width: 620px;
+  margin: 6px 0 0;
+  color: #788697;
+  font-size: 10.5px;
+  line-height: 1.55;
+}
+
+.student-portal-shell
+.portal-learning-roadmap-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.student-portal-shell
+.portal-learning-stage {
+  min-width: 0;
+  padding: 15px;
+  border: 1px solid #dfe6ed;
+  border-radius: 13px;
+  background: #fbfcfe;
+}
+
+.student-portal-shell
+.portal-learning-stage-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.student-portal-shell
+.portal-learning-stage-head > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.student-portal-shell
+.portal-learning-stage-head strong {
+  color: #263f59;
+  font-size: 13px;
+}
+
+.student-portal-shell
+.portal-learning-stage-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 999px;
+  background: #8996a5;
+}
+
+.student-portal-shell
+.portal-learning-stage-count {
+  display: grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: #edf1f5;
+  color: #627286;
+  font-size: 9px;
+  font-weight: 850;
+}
+
+.student-portal-shell
+.portal-learning-stage-description {
+  margin: 7px 0 12px;
+  color: #8290a0;
+  font-size: 9.5px;
+  line-height: 1.5;
+}
+
+.student-portal-shell
+.portal-learning-stage-topics {
+  display: grid;
+  gap: 9px;
+}
+
+.student-portal-shell
+.portal-learning-roadmap-topic {
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #e3e8ee;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.student-portal-shell
+.portal-learning-roadmap-topic-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.student-portal-shell
+.portal-learning-roadmap-topic-head strong {
+  min-width: 0;
+  overflow-wrap: break-word;
+  color: #263f59;
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+
+.student-portal-shell
+.portal-learning-roadmap-topic-head > span {
+  flex: 0 0 auto;
+  color: #365f8c;
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.student-portal-shell
+.portal-learning-roadmap-objective {
+  margin: 0;
+  color: #69798b;
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+.student-portal-shell
+.portal-learning-roadmap-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.student-portal-shell
+.portal-learning-roadmap-meta span {
+  padding: 4px 6px;
+  border-radius: 999px;
+  background: #f1f4f7;
+  color: #718094;
+  font-size: 7.5px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.student-portal-shell
+.portal-learning-roadmap-note {
+  padding-top: 8px;
+  border-top: 1px solid #edf1f4;
+}
+
+.student-portal-shell
+.portal-learning-roadmap-note > span {
+  display: block;
+  margin-bottom: 3px;
+  color: #8190a1;
+  font-size: 7.5px;
+  font-weight: 850;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.student-portal-shell
+.portal-learning-roadmap-note p {
+  margin: 0;
+  color: #607084;
+  font-size: 9.5px;
+  line-height: 1.5;
+}
+
+.student-portal-shell
+.portal-learning-roadmap-note.is-next p {
+  color: #315d8b;
+  font-weight: 700;
+}
+
+.student-portal-shell
+.portal-learning-stage-empty {
+  padding: 14px 10px;
+  border: 1px dashed #dde4eb;
+  border-radius: 9px;
+  color: #94a0ad;
+  font-size: 9.5px;
+  text-align: center;
+}
+
+
+/* Stage identity */
+
+.student-portal-shell
+.stage-needs_work
+.portal-learning-stage-dot {
+  background: #c86f68;
+}
+
+.student-portal-shell
+.stage-developing
+.portal-learning-stage-dot {
+  background: #c99c3d;
+}
+
+.student-portal-shell
+.stage-comfortable
+.portal-learning-stage-dot {
+  background: #5c83b2;
+}
+
+.student-portal-shell
+.stage-mastered
+.portal-learning-stage-dot {
+  background: #4d9470;
+}
+
+.student-portal-shell
+.stage-needs_work {
+  border-top-color: #dfb8b4;
+}
+
+.student-portal-shell
+.stage-developing {
+  border-top-color: #e2ce9e;
+}
+
+.student-portal-shell
+.stage-comfortable {
+  border-top-color: #b6c9de;
+}
+
+.student-portal-shell
+.stage-mastered {
+  border-top-color: #afd0bd;
+}
+
+
+@media (max-width: 900px) {
+
+  .student-portal-shell
+  .portal-learning-roadmap-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+@media (max-width: 520px) {
+
+  .student-portal-shell
+  .portal-learning-stage {
+    padding: 12px;
+  }
+
+  .student-portal-shell
+  .portal-learning-roadmap-topic {
+    padding: 11px;
+  }
+
+}
+
+/* ===== END STUDENT PROGRESS STAGED LEARNING PLAN V1 ===== */

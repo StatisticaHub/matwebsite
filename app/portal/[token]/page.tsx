@@ -657,6 +657,43 @@ const openHomework =
     ) || null;
 
 
+  const learningPlanStages = [
+    {
+      status: "needs_work" as const,
+      title: "Needs work",
+      description:
+        "Topics that need focused practice and tutor support.",
+    },
+    {
+      status: "developing" as const,
+      title: "Developing",
+      description:
+        "Skills you are actively building and consolidating.",
+    },
+    {
+      status: "comfortable" as const,
+      title: "Comfortable",
+      description:
+        "Topics you can handle with growing independence.",
+    },
+    {
+      status: "mastered" as const,
+      title: "Mastered",
+      description:
+        "Topics where your learning record shows strong progress.",
+    },
+  ].map(
+    (stage) => ({
+      ...stage,
+      items: plan.filter(
+        (item) =>
+          item.progress_status ===
+          stage.status
+      ),
+    })
+  );
+
+
   const submissionByHomework =
     Object.fromEntries(
       submissions.map(
@@ -1939,92 +1976,195 @@ const openHomework =
                       </span>
 
                       <h2>
-                        Your learning
-                        plan
+                        Your learning plan
                       </h2>
+
+                      <p className="portal-learning-roadmap-intro">
+                        Topics move through four stages as your tutor
+                        reviews your understanding, evidence and next
+                        learning steps.
+                      </p>
                     </div>
 
+
                     <span>
-                      {
-                        plan.length
-                      }{" "}
-                      topics
+                      {mastered} of {plan.length} mastered
                     </span>
 
                   </div>
 
 
-                  <div className="portal-plan-list">
+                  {plan.length ? (
 
-                    {plan.map(
-                      (item) => (
+                    <div className="portal-learning-roadmap-grid">
 
-                        <article
-                          key={
-                            item.id
-                          }
-                        >
+                      {learningPlanStages.map(
+                        (stage) => (
 
-                          <div
-                            className={`portal-plan-marker progress-${item.progress_status}`}
-                          />
-
-
-                          <div>
-
-                            <strong>
-                              {
-                                item.topic
-                              }
-                            </strong>
-
-
-                            {item.objective && (
-                              <p>
-                                {
-                                  item.objective
-                                }
-                              </p>
-                            )}
-
-
-                            <small>
-                              {
-                                item.priority
-                              }{" "}
-                              priority
-                            </small>
-
-                          </div>
-
-
-                          <span
-                            className={`portal-status progress-${item.progress_status}`}
+                          <section
+                            key={stage.status}
+                            className={`portal-learning-stage stage-${stage.status}`}
                           >
-                            {
-                              progressStatusLabels[
-                                item
-                                  .progress_status
-                              ]
-                            }
-                          </span>
 
-                        </article>
+                            <div className="portal-learning-stage-head">
 
-                      )
-                    )}
+                              <div>
+
+                                <span
+                                  className="portal-learning-stage-dot"
+                                  aria-hidden="true"
+                                />
+
+                                <strong>
+                                  {stage.title}
+                                </strong>
+
+                              </div>
 
 
-                    {!plan.length && (
-                      <div className="portal-empty">
-                        Your tutoring
-                        team has not
-                        added plan
-                        topics yet.
-                      </div>
-                    )}
+                              <span className="portal-learning-stage-count">
+                                {stage.items.length}
+                              </span>
 
-                  </div>
+                            </div>
+
+
+                            <p className="portal-learning-stage-description">
+                              {stage.description}
+                            </p>
+
+
+                            <div className="portal-learning-stage-topics">
+
+                              {stage.items.map(
+                                (item) => {
+
+                                  const mastery =
+                                    topicMastery(
+                                      item as any
+                                    );
+
+                                  return (
+
+                                    <article
+                                      key={item.id}
+                                      className="portal-learning-roadmap-topic"
+                                    >
+
+                                      <div className="portal-learning-roadmap-topic-head">
+
+                                        <strong>
+                                          {item.topic}
+                                        </strong>
+
+                                        <span>
+                                          {mastery}%
+                                        </span>
+
+                                      </div>
+
+
+                                      <div
+                                        className="progress-mini-bar"
+                                        aria-label={`${item.topic} mastery ${mastery}%`}
+                                      >
+                                        <i
+                                          style={{
+                                            width: `${mastery}%`,
+                                          }}
+                                        />
+                                      </div>
+
+
+                                      {item.objective && (
+                                        <p className="portal-learning-roadmap-objective">
+                                          {item.objective}
+                                        </p>
+                                      )}
+
+
+                                      <div className="portal-learning-roadmap-meta">
+
+                                        <span>
+                                          {item.priority} priority
+                                        </span>
+
+                                        <span>
+                                          {
+                                            progressStatusLabels[
+                                              item.progress_status
+                                            ]
+                                          }
+                                        </span>
+
+                                      </div>
+
+
+                                      {item.strength_note && (
+
+                                        <div className="portal-learning-roadmap-note">
+
+                                          <span>
+                                            Evidence
+                                          </span>
+
+                                          <p>
+                                            {item.strength_note}
+                                          </p>
+
+                                        </div>
+
+                                      )}
+
+
+                                      {item.next_step && (
+
+                                        <div className="portal-learning-roadmap-note is-next">
+
+                                          <span>
+                                            Next step
+                                          </span>
+
+                                          <p>
+                                            {item.next_step}
+                                          </p>
+
+                                        </div>
+
+                                      )}
+
+                                    </article>
+
+                                  );
+                                }
+                              )}
+
+
+                              {!stage.items.length && (
+
+                                <div className="portal-learning-stage-empty">
+                                  No topics in this stage yet.
+                                </div>
+
+                              )}
+
+                            </div>
+
+                          </section>
+
+                        )
+                      )}
+
+                    </div>
+
+                  ) : (
+
+                    <div className="portal-empty">
+                      Your tutoring team has not added
+                      learning-plan topics yet.
+                    </div>
+
+                  )}
 
                 </section>
 
