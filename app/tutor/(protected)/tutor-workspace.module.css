@@ -1407,7 +1407,7 @@
 .shell :global(.tutor-week-session-number span) {
   color: #8694a4;
 
-  font-size: 6.5px;
+  font-size: var(--mat-font-micro);
   font-weight: 850;
 
   letter-spacing: .04em;
@@ -2114,7 +2114,7 @@
 .shell :global(.tutor-course-facts dt) {
   color: #8996a5;
 
-  font-size: 6.5px;
+  font-size: var(--mat-font-micro);
   font-weight: 850;
 
   letter-spacing: .045em;
@@ -2149,7 +2149,7 @@
 .shell :global(.tutor-course-goal span) {
   color: #8391a1;
 
-  font-size: 6.5px;
+  font-size: var(--mat-font-micro);
   font-weight: 850;
 
   text-transform: uppercase;
@@ -2386,7 +2386,7 @@
 
   border-radius: 999px;
 
-  font-size: 6.5px;
+  font-size: var(--mat-font-micro);
   font-weight: 850;
 
   text-transform: uppercase;
